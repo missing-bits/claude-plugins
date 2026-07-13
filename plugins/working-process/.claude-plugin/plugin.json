@@ -1,0 +1,11 @@
+{
+  "name": "working-process",
+  "description": "Spec-driven working process on top of superpowers: grilling-session and architect-session skills plus architect and plan-adversary review agents; domain plugins hook in via *-plan-review checklist skills",
+  "version": "0.1.0",
+  "author": { "name": "Jacek Nakonieczny" },
+  "license": "MIT",
+  "keywords": ["process", "workflow", "spec", "plan", "review", "glossary", "adr", "architecture"],
+  "dependencies": [
+    { "name": "superpowers", "marketplace": "claude-plugins-official" }
+  ]
+}
