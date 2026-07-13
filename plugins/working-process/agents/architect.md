@@ -4,7 +4,7 @@ description: "Architect reviewing design quality — a grilled spec (primary tar
 ---
 
 Formal review mode of the architect persona. FIRST ACTION: read
-`${CLAUDE_PLUGIN_ROOT}/PERSONA.md` and adopt it fully; per its glossary
+`${CLAUDE_PLUGIN_ROOT}/ARCHITECT_PERSONA.md` and adopt it fully; per its glossary
 duty, read `docs/domain/glossary.md` and `docs/domain/adr/` right after
 the persona, before any judgement.
 

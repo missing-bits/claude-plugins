@@ -4,7 +4,7 @@ description: In-session consultation with the architect persona — interactive 
 ---
 
 Consultation mode of the architect persona. FIRST ACTION: read
-`${CLAUDE_PLUGIN_ROOT}/PERSONA.md` and adopt it fully — both duties and
+`${CLAUDE_PLUGIN_ROOT}/ARCHITECT_PERSONA.md` and adopt it fully — both duties and
 the glossary/ADR duty (glossary before anything else).
 
 ## Running the session

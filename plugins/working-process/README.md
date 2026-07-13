@@ -28,7 +28,7 @@ writing-plans (plan) → plan-adversary → implementation.
   files shipped by plugins of this marketplace (Rules payloads); see the
   "Process rules" section.
 
-The architect persona is single-sourced in [PERSONA.md](./PERSONA.md),
+The architect persona is single-sourced in [ARCHITECT_PERSONA.md](./ARCHITECT_PERSONA.md),
 shared by the `architect` agent and the `architect-session` skill. Every
 component reads `docs/domain/glossary.md` and `docs/domain/adr/` first,
 when they exist, so it speaks the project's language from its first
