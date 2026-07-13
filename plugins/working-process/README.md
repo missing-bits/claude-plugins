@@ -24,6 +24,9 @@ writing-plans (plan) → plan-adversary → implementation.
   plans (plans only; handed a spec it declines toward the `architect`
   agent). Generic failure-mode dimensions live here; domain specifics
   come from `*-plan-review` checklist skills.
+- **`sync-rules` skill** — installs, updates, and uninstalls the rule
+  files shipped by plugins of this marketplace (Rules payloads); see the
+  "Process rules" section.
 
 The architect persona is single-sourced in [PERSONA.md](./PERSONA.md),
 shared by the `architect` agent and the `architect-session` skill. Every
