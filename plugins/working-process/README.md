@@ -33,7 +33,8 @@ message.
 
 ## Requirements
 
-- Claude Code ≥ 2.1.143.
+- Claude Code ≥ 2.1.207 (verified — rules distribution needs subdirectory
+  rules loading; the skills and agents alone work on ≥ 2.1.143).
 - The `superpowers` plugin — declared as a dependency and installed
   automatically alongside this plugin.
 
@@ -63,6 +64,30 @@ Find unfinished work:
     rg -l '^grilled: grilling' docs/
     rg -l '^architect: (blocking|concerns)' docs/
     rg -l '^adversary: (blocking|concerns)' docs/
+
+## Process rules
+
+The plugin ships four rule files in `rules/` — the preferred workflow
+(always loaded once installed), spec/plan frontmatter and lifecycle,
+Process directory conventions, and ticket frontmatter. Claude Code does
+not load plugin rules by itself: install them with the
+`working-process:sync-rules` skill.
+
+- **Two targets**: user level (`~/.claude/rules/`, recommended — one
+  install per machine) or project level (`.claude/rules/`, per-repo
+  adoption; committed rules also work for teammates without the plugin).
+- **Updates**: a SessionStart hook compares content hashes and leaves a
+  one-line note when the installed rules differ from the plugin's
+  current ones; run sync-rules to review. Locally modified files are
+  never overwritten silently.
+- **Uninstalling the plugin**: run sync-rules uninstall FIRST — the
+  plugin gets no signal on its own removal, and rule sets left behind
+  lose their update detection.
+- **Other plugins**: any plugin of this marketplace can ship a `rules/`
+  directory; this plugin's engine discovers, installs, and updates those
+  payloads the same way.
+- **Requirements**: Claude Code with rules support incl. subdirectories
+  (verified on 2.1.207); `jq` only for payloads of other plugins.
 
 ## Process directories
 

@@ -16,7 +16,7 @@ Marketplace of [Claude Code](https://code.claude.com) plugins by Missing Bits.
 
 | Plugin | Description |
 |--------|-------------|
-| `working-process` | Spec-driven working process: grilling-session and architect-session skills, architect and plan-adversary review agents |
+| `working-process` | Spec-driven working process: grilling-session, architect-session and sync-rules skills, architect and plan-adversary review agents, distributed process rules |
 
 ## License
 
