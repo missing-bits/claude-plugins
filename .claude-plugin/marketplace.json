@@ -1,6 +1,6 @@
 {
   "name": "missing-bits",
-  "owner": { "name": "Jacek Nakonieczny" },
+  "owner": { "name": "Missing Bits" },
   "description": "Missing Bits marketplace of Claude Code plugins",
   "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
   "plugins": [
