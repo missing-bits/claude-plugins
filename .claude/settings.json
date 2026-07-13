@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(jq *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(find *)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git ls-files*)",
+      "Bash(claude plugin validate *)",
+      "Skill(superpowers:*)",
+      "Skill(working-process:*)"
+    ]
+  }
+}
