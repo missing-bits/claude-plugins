@@ -86,7 +86,7 @@ only if a side is unreadable):
    hash plus `keptAgainst` = shipped hash in the manifest).
 5. Write the manifest via write-manifest.sh: per-file lines from
    `ruleset-hash.sh --list` (adjusted for any kept files), aggregate
-   from `ruleset-hash.sh`.
+   from `ruleset-hash.sh <installPath>/rules` — always the SOURCE rules directory, never the target namespace.
 
 ## Update — three-phase classification
 
@@ -130,7 +130,8 @@ write those silently.
 
 Finish: summarize (auto-updated / asked / silenced counts), then — unless
 the direction gate stopped the run — rewrite the manifest in full via
-write-manifest.sh with a fresh aggregate `rulesetHash` and, as the
+write-manifest.sh with a fresh aggregate `rulesetHash` computed over
+`<installPath>/rules` (the SOURCE rules directory, never the target namespace) and, as the
 `pluginVersion` argument, the SOURCE plugin's version read from
 `<installPath>/.claude-plugin/plugin.json` at this sync. Never echo the
 old manifest's value back for a resolvable source; a developer-named
