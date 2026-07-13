@@ -92,6 +92,28 @@ not load plugin rules by itself: install them with the
 - **Requirements**: Claude Code with rules support incl. subdirectories
   (verified on 2.1.207); `jq` only for payloads of other plugins.
 
+### Reducing permission prompts
+
+sync-rules shells out to the plugin's scripts, the `claude` CLI, and
+`cp`/`mkdir` into the rules target — each prompts for permission unless
+allowed. Permission rules prefix-match the LITERAL command text (no
+variables, no leading wildcards), so the plugin-cache path must be
+spelled out per machine. Recommended entries for `~/.claude/settings.json`
+(replace the home directory with yours):
+
+```json
+"permissions": {
+  "allow": [
+    "Bash(claude plugin list *)",
+    "Bash(/home/<you>/.claude/plugins/cache/*)"
+  ]
+}
+```
+
+The second entry covers every script any plugin of this marketplace
+ships. The drift hook itself runs as a plugin hook and needs no allow
+entry.
+
 ## Process directories
 
 The one directory this plugin creates in a project repo is

@@ -19,6 +19,11 @@ Three scripts do the deterministic work; never bypass them:
   lines on stdin — the ONLY way a manifest is ever written.
 - The drift hook uses the same hashing; the two sides never disagree.
 
+Invoke each script with its absolute path as the FIRST token of the
+command — no leading variable assignments, `cd`, or `env` — so the
+developer's prefix-matching permission rules can apply instead of
+prompting on every call.
+
 Modes by state and intent: **install** (no manifest at the chosen
 target), **update** (manifest present), **uninstall** (explicit request).
 With several payloads involved, iterate per payload.
