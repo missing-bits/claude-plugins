@@ -1,7 +1,7 @@
 {
   "name": "working-process",
   "description": "Spec-driven working process on top of superpowers: grilling-session and architect-session skills plus architect and plan-adversary review agents; domain plugins hook in via *-plan-review checklist skills",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": { "name": "Missing Bits (Jacek Nakonieczny)" },
   "license": "MIT",
   "keywords": ["process", "workflow", "spec", "plan", "review", "glossary", "adr", "architecture"],
