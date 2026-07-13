@@ -91,6 +91,13 @@ to a design document and would misfire as findings.
 `blocking` = ≥1 Critical or ≥2 Important — revise before building.
 `concerns` = worth surfacing, not blocking. `LGTM` = no findings.
 
+## Stamping
+
+The dispatcher (not this agent) writes the verdict into the `adversary:`
+frontmatter field of any reviewed plan that follows the frontmatter
+convention (a YAML block with a `status` field). A plan without the
+convention gets no stamp.
+
 ## Out of bounds
 
 - Rewriting the plan.
