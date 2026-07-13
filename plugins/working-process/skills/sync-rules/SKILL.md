@@ -49,13 +49,16 @@ With several payloads involved, iterate per payload.
 3. Report findings before acting, in this order:
    - **Both levels installed** for one payload → offer to consolidate
      (remove one); both copies load, the project copy wins on conflict.
-   - **Orphan** — a manifest whose source plugin is not installed or is
-     disabled. Locality of the test mirrors the manifest's level:
-     project-level manifests use the step-1 predicate; user-level
-     manifests accept a source at ANY scope on the machine (a
-     project-scoped plugin elsewhere legitimately backs a user-level
-     rule set — that is NOT an orphan). Offer: remove the rule set, or
-     keep it as the developer's own (delete just the manifest).
+   - **Orphan** — a manifest whose source plugin is not installed (or,
+     for a user-scope source, is disabled). Locality of the test mirrors
+     the manifest's level: project-level manifests use the step-1
+     predicate; user-level manifests accept a source at ANY scope on the
+     machine, and for project-scope entries the `enabled` flag is
+     IGNORED — the CLI computes it contextually, so a project-scoped
+     plugin reports `enabled: false` outside its own project while still
+     legitimately backing a user-level rule set (NOT an orphan). Offer:
+     remove the rule set, or keep it as the developer's own (delete just
+     the manifest).
    - **Drift** — recorded `rulesetHash` differs from
      `ruleset-hash.sh <source>/rules` → offer an update.
 

@@ -67,12 +67,18 @@ check_manifest() { # $1 manifest path, $2 level (project|user)
     marketplace=$(manifest_field "$m" marketplace)
     [ -n "$marketplace" ] || return 0
     get_listing || return 0
-    # Level-aware predicate: user-level manifests accept any scope;
-    # project-level manifests require user scope or this project's path.
+    # Level-aware predicate. The CLI computes `enabled` contextually — a
+    # project-scoped plugin reports enabled=false outside its own project
+    # — so for user-level manifests a project-scope entry counts
+    # regardless of that flag; user-scope entries still require it.
+    # Project-level manifests require user scope or this project's path.
     srcroot=$(printf '%s' "$LISTING" | jq -r \
       --arg id "$plugin@$marketplace" --arg pwd "$PROJ" --arg level "$level" '
-      [ .[] | select(.id == $id and .enabled)
-        | select($level == "user" or .scope == "user" or .projectPath == $pwd) ]
+      [ .[] | select(.id == $id)
+        | select(if $level == "user"
+            then (.scope == "project" or .enabled)
+            else (.enabled and (.scope == "user" or .projectPath == $pwd))
+            end) ]
       | sort_by(.scope) | .[0].installPath // empty' 2>/dev/null)
     [ -n "$srcroot" ] || return 0
   fi
