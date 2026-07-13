@@ -96,23 +96,30 @@ not load plugin rules by itself: install them with the
 
 sync-rules shells out to the plugin's scripts, the `claude` CLI, and
 `cp`/`mkdir` into the rules target — each prompts for permission unless
-allowed. Permission rules prefix-match the LITERAL command text (no
-variables, no leading wildcards), so the plugin-cache path must be
-spelled out per machine. Recommended entries for `~/.claude/settings.json`
-(replace the home directory with yours):
+allowed. Bash permission rules match the literal command text with `*`
+wildcards allowed at any position (no `~` or variable expansion), which
+permits a machine-independent form. Recommended entries — in
+`~/.claude/settings.json` for yourself, or committed to a project's
+`.claude/settings.json` for the whole team (they work unchanged on every
+machine, and project-scoped plugin installs live under the same
+per-user cache path):
 
 ```json
 "permissions": {
   "allow": [
     "Bash(claude plugin list *)",
-    "Bash(/home/<you>/.claude/plugins/cache/*)"
+    "Bash(*/.claude/plugins/cache/missing-bits/*)",
+    "Bash(*/.claude/plugins/cache/claude-plugins-official/superpowers/*)"
   ]
 }
 ```
 
 The second entry covers every script any plugin of this marketplace
-ships. The drift hook itself runs as a plugin hook and needs no allow
-entry.
+ships; drop the `missing-bits/` segment to cover all marketplaces. The
+third covers the scripts bundled with superpowers — the required
+dependency, whose process skills (plan execution, review packaging)
+shell out the same way. The drift hook itself runs as a plugin hook and
+needs no allow entry.
 
 ## Process directories
 
