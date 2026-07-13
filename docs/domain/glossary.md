@@ -6,8 +6,12 @@ process the plugins support and the marketplace machinery that ships them.
 ## Language
 
 **Process directory**:
-A directory the working process creates in a project repo (e.g.
-`docs/domain/`, `docs/specs/`, `docs/plans/`).
+A directory the working process creates in a project repo to hold work
+artifacts (e.g. `docs/domain/`, `docs/specs/`, `docs/plans/`). Deliberately
+narrow: configuration directories the process may also create (such as
+`.claude/rules/` during a project-level rules install) are not Process
+directories — their install questions are their own, defined where the
+install is specified.
 _Avoid_: artifact folder
 
 **First-create question**:
@@ -24,3 +28,30 @@ out of the repo's git status.
 **Tracked mode**:
 A process directory whose files are committed; detected by any git-tracked
 file under it.
+
+**Rules engine**:
+The rules-distribution mechanism living in the working-process plugin: the
+`sync-rules` skill, the drift hook, and their shared scripts. One engine
+serves every Rules payload of the marketplace — payload plugins never copy
+the mechanism.
+
+**Rules payload**:
+The `rules/` directory a plugin of this marketplace ships for distribution
+by the Rules engine; installed into its own namespace,
+`rules/<plugin-name>/`, next to a manifest. A plugin shipping one is a
+payload plugin.
+_Avoid_: rules plugin
+
+**Drift**:
+A mismatch between a Rules payload's current upstream content and the
+state recorded at the last completed sync (the manifest's `rulesetHash`).
+Detected by the drift hook, resolved by the `sync-rules` skill. Always a
+content-hash comparison, never a plugin-version comparison.
+_Avoid_: outdated rules
+
+**Orphan**:
+An installed rule set whose source plugin is no longer installed (or,
+for a user-scope source, is disabled — a project-scoped source elsewhere
+reports a contextual `enabled: false` and still counts as present);
+detected during `sync-rules` state discovery, offered for removal or
+adoption as the developer's own.
