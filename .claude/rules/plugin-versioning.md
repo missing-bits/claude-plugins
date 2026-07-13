@@ -16,7 +16,11 @@ paths:
     additions;
   - **major** — rename or removal of a component, or a breaking change to
     a convention others rely on (the frontmatter process fields, the
-    `*-plan-review` discovery convention, the plugin-root persona path).
+    `*-plan-review` discovery convention, the plugin-root persona path —
+    `ARCHITECT_PERSONA.md`).
+  - Before 1.0.0, breaking changes ride a **minor** bump (semver's 0.x
+    rule); major is reserved for the promotion to 1.0.0 and for breaking
+    changes after it.
 - Release tags use the `{plugin}--v{version}` format
   (`claude plugin tag --push`). Start tagging on the first external
   breakage report or when plugins in this marketplace pin each other —
