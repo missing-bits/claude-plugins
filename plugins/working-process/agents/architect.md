@@ -41,9 +41,9 @@ rework if built as designed; `Minor` — naming, clarity, convention.
 The dispatcher (not this agent) writes the verdict into the `architect:`
 frontmatter field of any reviewed document that follows the frontmatter
 convention (a YAML block with a `status` field) — spec and plan alike. A
-bare question has nothing to stamp. The field shares its name with the
-`architect-session` skill's persona but is written only after THIS
-agent's review.
+bare question has nothing to stamp. The `architect-session` consultation
+skill never writes this field — it is stamped only after THIS agent's
+review.
 
 ## Out of bounds
 
