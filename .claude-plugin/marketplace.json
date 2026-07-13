@@ -2,5 +2,12 @@
   "name": "missing-bits",
   "owner": { "name": "Jacek Nakonieczny" },
   "description": "Missing Bits marketplace of Claude Code plugins",
-  "plugins": []
+  "allowCrossMarketplaceDependenciesOn": ["claude-plugins-official"],
+  "plugins": [
+    {
+      "name": "working-process",
+      "source": "./plugins/working-process",
+      "description": "Spec-driven working process on top of superpowers: grilling-session and architect-session skills plus architect and plan-adversary review agents"
+    }
+  ]
 }
