@@ -14,6 +14,12 @@ paths:
   conversation are named `*-session`; formal reviews that end in a verdict
   are agents. Operational skills may prompt for decisions without being
   sessions — they are named for what they do (e.g. `sync-rules`).
+- Author skills with the `skill-creator` skill when it is available —
+  scaffolding, `description:` tuning, and evals; it complements
+  `superpowers:writing-skills` (the content-authoring discipline) rather
+  than replacing it. This is an authoring-time convention of this repo,
+  not a plugin `dependencies` edge: nothing here hands off to
+  skill-creator by name, so no plugin declares it as a dependency.
 - A shared asset moves to the plugin root only when it has at least two
   consumers; with one consumer it stays in that consumer's directory.
 - Reference files inside a plugin via `${CLAUDE_PLUGIN_ROOT}/…` (works in
