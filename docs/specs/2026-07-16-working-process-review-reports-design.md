@@ -139,8 +139,10 @@ itself.
   review-reports rule; the process-directories section adds
   `docs/code-review/`.
 - `plugin.json` description unchanged (already says "process rules
-  distributed as a Rules payload"); catalog and README row therefore
-  unchanged except the components table.
+  distributed as a Rules payload"); the marketplace catalog entry and
+  the repo-root README row are therefore unchanged. The only
+  identity-adjacent change is the plugin README's own components
+  documentation (previous bullet).
 
 ## Non-goals
 
