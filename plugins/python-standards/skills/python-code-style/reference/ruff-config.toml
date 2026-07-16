@@ -1,0 +1,37 @@
+# Canonical ruff configuration — copy into pyproject.toml.
+# ruff is both linter (`ruff check`) and formatter (`ruff format`);
+# no black/isort/flake8 alongside.
+
+[tool.ruff]
+# Community default (88, matching the formatter). If the project has a
+# recorded different preference, change it HERE and nowhere else.
+line-length = 88
+# Match the project's requires-python; ruff then flags syntax the
+# interpreter floor cannot run.
+target-version = "py313"
+
+[tool.ruff.lint]
+# A deliberate, bounded selection — not ALL. Each group earns its place:
+select = [
+    "E", "W",   # pycodestyle — the PEP 8 floor
+    "F",        # pyflakes — undefined names, unused imports
+    "I",        # isort — import ordering (replaces the isort tool)
+    "UP",       # pyupgrade — modern syntax for the target version
+    "B",        # flake8-bugbear — likely bugs, not taste
+    "SIM",      # flake8-simplify — collapsible conditions, redundant code
+    "G",        # flake8-logging-format — lazy logging args (G004: no f-strings in log calls)
+    "PTH",      # flake8-use-pathlib — enforces the pathlib idiom
+    "RUF",      # ruff-specific correctness rules
+]
+# Ignore nothing by default: every added ignore carries an inline
+# comment saying why, or it will not survive review.
+ignore = []
+
+[tool.ruff.lint.isort]
+# First-party package name(s) — set per project.
+known-first-party = []
+
+[tool.ruff.format]
+# Formatter defaults: double quotes, spaces, trailing commas preserved
+# where magic. Deviations are a recorded project decision, not a whim.
+quote-style = "double"
