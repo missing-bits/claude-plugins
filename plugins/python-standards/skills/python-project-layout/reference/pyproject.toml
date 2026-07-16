@@ -1,0 +1,30 @@
+# Annotated example manifest — the single source of project truth.
+# Tool sections referenced by name from the other skills:
+#   [tool.ruff]    → python-code-style reference/ruff-config.toml
+#   [tool.pyright] → python-typing reference/pyright-config.md
+#   [tool.pytest.ini_options] → python-testing reference/pytest-config.md
+
+[project]
+name = "example-tool"
+version = "0.1.0"                # static by default; dynamic needs a recorded reason
+description = "One sentence that says what the tool does"
+requires-python = ">=3.13"       # the interpreter floor — uv enforces it
+dependencies = [
+    # edited ONLY via `uv add` / `uv remove`
+    "typer>=0.12",
+]
+
+[project.scripts]
+# console entry point: `example` runs example_tool.cli:main
+example = "example_tool.cli:main"
+
+[dependency-groups]
+# dev-only tools stay out of the runtime dependency set
+dev = ["pytest>=8", "pyright>=1.1", "ruff>=0.5"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/example_tool"]
