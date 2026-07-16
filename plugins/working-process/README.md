@@ -75,10 +75,14 @@ Find unfinished work (the anchored match skips resolved concerns):
 
 ## Process rules
 
-The plugin ships four rule files in `rules/` — the preferred workflow
+The plugin ships five rule files in `rules/` — the preferred workflow
 (always loaded once installed), spec/plan frontmatter and lifecycle,
-Process directory conventions, and ticket frontmatter. Claude Code does
-not load plugin rules by itself: install them with the
+Process directory conventions, ticket frontmatter, and the
+review-report contract (`review-reports.md`: where a code-review run
+writes its Review report and what shape it takes; domain review skills
+locate the installed contract via its contract probe — the
+project-level then user-level install path, in that order). Claude
+Code does not load plugin rules by itself: install them with the
 `working-process:sync-rules` skill.
 
 - **Two targets**: user level (`~/.claude/rules/`, recommended — one
@@ -128,7 +132,11 @@ needs no allow entry.
 
 ## Process directories
 
-The one directory this plugin creates in a project repo is
-`docs/domain/` (glossary + ADRs). On first creation the developer is
-asked whether it should be git-ignored (a `.gitignore` containing `*`)
-or committed; an existing directory's state is respected without asking.
+This plugin creates two directories in a project repo: `docs/domain/`
+(glossary + ADRs) and `docs/code-review/` (Review reports — one per
+code-review run, shape defined by the review-reports rule). On first
+creation the developer is asked whether the directory should be
+git-ignored (a `.gitignore` containing exactly `*`) or committed; an
+existing directory's state is respected without asking. A tracked-mode
+`docs/code-review/` additionally carries a `.gitignore` with `local-*`
+— the local pocket for reports the developer keeps out of git.
