@@ -1,0 +1,8 @@
+{
+  "name": "python-standards",
+  "description": "Python coding standards for the uv + ruff + pytest + pyright toolchain: six area skills, a code-review stack (python-code-review skill, py-code-reviewer agent, /py-review command) writing review reports to docs/code-review/, a python-plan-review checklist for plan reviews, and a python-toolchain rule shipped as a Rules payload",
+  "version": "0.1.0",
+  "author": { "name": "Missing Bits (Jacek Nakonieczny)" },
+  "license": "MIT",
+  "keywords": ["python", "standards", "uv", "ruff", "pytest", "pyright", "typer", "fastapi", "review"]
+}

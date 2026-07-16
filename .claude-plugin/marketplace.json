@@ -8,6 +8,11 @@
       "name": "working-process",
       "source": "./plugins/working-process",
       "description": "Spec-driven working process on top of superpowers: grilling-session, architect-session and sync-rules skills, architect and plan-adversary review agents, plus distributed process rules"
+    },
+    {
+      "name": "python-standards",
+      "source": "./plugins/python-standards",
+      "description": "Python coding standards for the uv + ruff + pytest + pyright toolchain: area skills, a code-review stack, a plan-review checklist, and a python-toolchain rule"
     }
   ]
 }

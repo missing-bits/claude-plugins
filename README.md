@@ -17,6 +17,7 @@ Marketplace of [Claude Code](https://code.claude.com) plugins by Missing Bits.
 | Plugin | Description |
 |--------|-------------|
 | `working-process` | Spec-driven working process: grilling-session, architect-session and sync-rules skills, architect and plan-adversary review agents, distributed process rules |
+| `python-standards` | Python coding standards for uv + ruff + pytest + pyright: area skills, code-review stack, plan-review checklist, distributed toolchain rule |
 
 ## License
 
