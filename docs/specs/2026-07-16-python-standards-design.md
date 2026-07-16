@@ -29,8 +29,10 @@ not a migration of existing content.
 ## Audience and toolchain
 
 Primary use: CLI tools / automation and web services (APIs) — the
-plugin author's own projects; author repositories will be supplied as
-content input during implementation.
+plugin author's own projects. Author repositories are supplied during
+implementation as illustrative context only — they do NOT define the
+author's preferences; contested points are settled by asking the
+author directly.
 
 Standardized toolchain: **uv** (environments, dependencies, packaging
 via pyproject.toml), **ruff** (lint + format), **pytest**, **pyright**
