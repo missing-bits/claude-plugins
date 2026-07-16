@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-07-16
-status: approved
+status: implemented
 adversary: LGTM
 spec: ../specs/2026-07-16-working-process-review-reports-design.md
 branch: feature/review-reports
