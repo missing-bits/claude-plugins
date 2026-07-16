@@ -25,11 +25,19 @@ base: master        # optional: branch the topic branch was cut from
 - `status` is linear and moves forward only. Review rounds are iterative
   and live in their own fields; `grilled`, `architect`, and `adversary`
   appear only once the corresponding step has run.
+- A round that ends in `concerns` or `blocking` records its findings (or
+  their disposition) in the document body — a verdict whose findings were
+  never written down cannot be honestly resolved later.
+- Concerns resolved without a fresh review round keep the verdict and
+  gain a resolution date — `adversary: concerns (resolved 2026-07-16)` —
+  plus a body note saying what resolved them. A fresh round replaces the
+  whole value as usual.
 - `branch` and `base` appear once the topic branch exists — never guessed
   up front, omitted entirely when there is no topic branch.
 - Unfinished process work is greppable:
   `rg -l '^grilled: grilling' docs/` and
-  `rg -l '^(architect|adversary): (blocking|concerns)' docs/`.
+  `rg -l '^(architect|adversary): (blocking|concerns)$' docs/` — the
+  anchored match deliberately skips resolved-concern annotations.
 
 Lifecycle offers — each an offer the developer may decline, and each made
 only when the tool is available: grill a fresh spec (grilling-session);

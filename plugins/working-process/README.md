@@ -62,11 +62,16 @@ containing a `status` field:
 | `architect` | `LGTM` \| `concerns` \| `blocking` | latest architect verdict |
 | `adversary` | `LGTM` \| `concerns` \| `blocking` | latest plan-adversary verdict |
 
-Find unfinished work:
+A round ending in `concerns` or `blocking` records its findings in the
+document body. Concerns later resolved without a fresh round keep the
+verdict and gain a resolution date — `concerns (resolved 2026-07-16)` —
+plus a body note saying what resolved them.
+
+Find unfinished work (the anchored match skips resolved concerns):
 
     rg -l '^grilled: grilling' docs/
-    rg -l '^architect: (blocking|concerns)' docs/
-    rg -l '^adversary: (blocking|concerns)' docs/
+    rg -l '^architect: (blocking|concerns)$' docs/
+    rg -l '^adversary: (blocking|concerns)$' docs/
 
 ## Process rules
 
