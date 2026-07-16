@@ -3,6 +3,7 @@ paths:
   - "docs/specs/**"
   - "docs/plans/**"
   - "docs/domain/**"
+  - "docs/code-review/**"
   - ".superpowers/**"
 ---
 
@@ -10,23 +11,28 @@ paths:
 
 A Process directory is a directory the working process creates in a
 project repo to hold work artifacts: `docs/specs/`, `docs/plans/`,
-`docs/domain/`, and the `.superpowers/` family at the repo root.
+`docs/domain/`, `docs/code-review/`, and the `.superpowers/` family at
+the repo root.
 
 ## First-create question
 
 When creating a Process directory — or touching one that already exists
-with no observable prior decision (neither a `.gitignore` containing `*`
-nor any git-tracked file under it) — ASK the developer which mode the
-directory gets. Assume no default:
+with no observable prior decision (neither a `.gitignore` containing
+exactly `*` nor any git-tracked file under it) — ASK the developer which
+mode the directory gets. Assume no default:
 
 - **Ignored mode**: write a `.gitignore` containing exactly `*` into the
   directory; its contents stay out of the repo.
-- **Tracked mode**: no `.gitignore`; artifacts are committed like any
-  other file.
+- **Tracked mode**: artifacts are committed like any other file; no
+  `.gitignore` is written at first-create (a narrower one added later —
+  e.g. the local pocket of `docs/code-review/` — does not change the
+  mode).
 
-Never ask when either signal is already present: a `.gitignore` with `*`
-means ignored mode was chosen; a git-tracked file under the directory
-(`git ls-files <dir>` non-empty) means tracked mode was chosen.
+Never ask when either signal is already present: only a `.gitignore`
+containing exactly `*` means ignored mode was chosen — one with any
+other content (e.g. a local pocket's `local-*`) signals nothing by
+itself; a git-tracked file under the directory (`git ls-files <dir>`
+non-empty) means tracked mode was chosen.
 
 ## Handling artifacts
 

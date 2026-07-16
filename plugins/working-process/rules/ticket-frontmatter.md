@@ -14,6 +14,10 @@ GitLab, or anything else; the field is always `ticket`.
 - Specs and plans (`docs/specs/`, `docs/plans/`): `ticket` + `date` +
   `status` + the process and branch fields — details in the
   spec-plan-lifecycle rule.
+- Review reports (`docs/code-review/`): the review-reports rule's
+  frontmatter set — `date`, `mode`, `ticket`, `scope`, `runid`,
+  `standards`, optional `rerun-of`, `findings` — not the bare
+  `ticket`-only set of `.superpowers/**` artifacts.
 - Every other document under `docs/`: `ticket` + `date`.
 - Per-work process artifacts (`.superpowers/**`, ADRs): `ticket` only —
   see the process-artifacts rule.
