@@ -4,6 +4,8 @@ date: 2026-07-16
 status: approved
 adversary: LGTM
 spec: ../specs/2026-07-16-working-process-review-reports-design.md
+branch: feature/review-reports
+base: feature/python-standards
 ---
 
 # Working-process 0.5.0 — Review-reports Implementation Plan
@@ -41,7 +43,7 @@ spec: ../specs/2026-07-16-working-process-review-reports-design.md
 - Consumes: nothing from other tasks.
 - Produces: the fifth payload file. Its contract-probe path pair (`<project>/.claude/rules/working-process/review-reports.md`, then `$HOME/.claude/rules/working-process/review-reports.md`) and its canonical filename command are verified byte-for-byte by Task 4. Task 2's `ticket-frontmatter.md` edit references this rule's frontmatter field names (`date`, `mode`, `ticket`, `scope`, `runid`, `standards`, `rerun-of`, `findings`) — they must match exactly.
 
-- [ ] **Step 1: Cut the topic branch and stamp it into the process frontmatter**
+- [x] **Step 1: Cut the topic branch and stamp it into the process frontmatter**
 
 ```bash
 git checkout -b feature/review-reports
