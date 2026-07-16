@@ -1,7 +1,8 @@
 ---
 ticket: none
 date: 2026-07-16
-status: draft
+status: approved
+grilled: 2026-07-16
 architect: LGTM
 branch: feature/python-standards
 base: master
@@ -58,18 +59,20 @@ skill-creator + superpowers:writing-skills per repo convention.
 
 - `python-code-review` skill: audits code against the standards skills.
   Report contract: when the working-process review-reports rule is
-  installed it is authoritative — "installed" means the probe defined by
-  the companion spec succeeds (project-level then user-level rules
-  target contains `working-process/review-reports.md`; the rule does not
-  auto-load in review sessions). The skill carries a **minimal inline
+  installed it is authoritative — "installed" means the contract probe
+  defined by the companion spec succeeds (project-level then user-level
+  rules target contains `working-process/review-reports.md`; the rule
+  does not auto-load in review sessions). The skill carries a **minimal inline
   fallback** — severity scale Critical/Important/Minor, Summary, the
   shared `findings: { critical: N, important: N, minor: N }` frontmatter
-  key, `ticket` frontmatter (required even solo) — a strict subset of
+  key, `ticket` and `standards: python-standards` frontmatter (required
+  even standalone) — a strict subset of
   the shared contract, so report shape never depends on the install
   profile; marked "the installed working-process review-reports rule
-  supersedes this". Reports go to `docs/code-review/`; a solo install
-  simply creates the directory (the first-create mode question belongs
-  to working-process's process-artifacts rule and is absent solo).
+  supersedes this". Reports go to `docs/code-review/`; a standalone
+  install simply creates the directory (the first-create mode question
+  belongs to working-process's process-artifacts rule and is absent in a
+  standalone install).
 - `py-code-reviewer` agent: reviews a diff or named files, writes the
   report, returns findings by severity. Its description names
   `docs/code-review/` as the report destination.
@@ -77,7 +80,11 @@ skill-creator + superpowers:writing-skills per repo convention.
 - Naming rule (deliberate split, not drift): skills carry the full
   `python-` prefix (triggering surfaces, matched against prose);
   the reviewer agent and the command use the short `py-` prefix
-  (frequently typed surfaces).
+  (frequently typed surfaces). `python-code-review` deliberately follows
+  the `*-code-review` pattern a future working-process review
+  orchestrator will discover (companion spec non-goal).
+- Run scope per the shared contract: `/py-review` reviews Python files
+  only and notes out-of-domain files in Summary as out of scope.
 
 ## working-process integration
 
@@ -92,7 +99,8 @@ skill-creator + superpowers:writing-skills per repo convention.
   hand (validate skips `rules/`).
 - Assumed convention range: **working-process ≥ 0.5.0** (Process
   directory `docs/code-review/` + review-reports rule); working-process
-  0.5.0 ships first. No `dependencies` edge — the plugin works solo;
+  0.5.0 ships first. No `dependencies` edge — a standalone install is
+  fully functional;
   every working-process mention in content is conditional.
 
 ## Non-goals
@@ -113,7 +121,7 @@ skill-creator + superpowers:writing-skills per repo convention.
   under the plugin namespace.
 - `/py-review` on a sample diff writes a report to `docs/code-review/`
   honoring the shared format (working-process installed) and the inline
-  fallback (solo profile).
+  fallback (standalone install).
 - A plan-adversary dispatch on a Python-touching plan discovers and
   loads `python-plan-review`.
 - sync-rules installs `python-toolchain.md` as a foreign payload; the
@@ -131,13 +139,13 @@ Dual review (context-carrying + fresh reviewer); stricter grade kept.
   either side.
 - **Important (fresh)**: "when the rule is installed it is
   authoritative" named a condition without a mechanism. → Fixed: the
-  probe (project- then user-level rules target) is now cited from the
-  companion spec's Discovery contract.
+  contract probe (project- then user-level rules target) is now cited
+  from the companion spec.
 - **Minor (fresh)**: mixed `python-*` / `py-*` prefixes looked like
   drift. → Fixed: the split is now a stated rule (skills full prefix,
   typed surfaces short).
 
 Round 2 (verification pass): all dispositions confirmed; two new minors
 fixed inline — the fallback names the shared `findings:` counts key
-(subset claim now exact), and solo directory creation is stated (no
+(subset claim now exact), and standalone directory creation is stated (no
 first-create question without working-process). Verdict: LGTM.
