@@ -1,0 +1,14 @@
+# Canonical [tool.pyright] block for pyproject.toml.
+# Run via `uv run pyright` (the PyPI package wraps the checker).
+
+[tool.pyright]
+# New projects: strict. Adopted codebases: "standard" here plus
+# per-directory strict overrides via executionEnvironments — ratchet up,
+# never down.
+typeCheckingMode = "strict"
+pythonVersion = "3.13"          # match requires-python
+venvPath = "."
+venv = ".venv"                   # uv's environment
+# Keep the checker honest: unused ignores are errors, so stale
+# suppressions cannot accumulate.
+reportUnnecessaryTypeIgnoreComment = "error"
