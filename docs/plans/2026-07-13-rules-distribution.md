@@ -2,14 +2,17 @@
 ticket: none
 date: 2026-07-13
 status: implemented
-adversary: concerns
+adversary: concerns (resolved 2026-07-16)
 branch: feature/process-rules
 base: master
+spec: ../specs/2026-07-13-rules-distribution-design.md
 ---
 
 # Rules Distribution Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+> **Adversary resolution (2026-07-16):** the 2026-07-13 round's findings predate the convention of recording them in the document, so they are not listed here. They were resolved during implementation — see `fix(working-process)` commits pinning `rulesetHash` to the source rules directory and ignoring the contextual enabled flag for user-level foreign sources.
 
 **Goal:** Ship the working-process plugin's rule files and the engine that installs, updates, and uninstalls them (spec: `docs/specs/2026-07-13-rules-distribution-design.md`).
 
