@@ -54,6 +54,32 @@ Before/after pairs for every rule below live in
 - **pathlib over os.path** — `Path` objects end-to-end; convert to `str`
   only at library boundaries that demand it. (id: `style-pathlib`)
 
+## Docstrings
+
+- Every public function carries a docstring — a one-liner saying what
+  it does is the minimum. Sections, when needed, use **Google style**
+  (`Args:` / `Returns:` / `Raises:`) — compact and readable:
+
+  ```python
+  def load_profile(name: str) -> Profile:
+      """Load a camera profile by name.
+
+      Args:
+          name: Registry key of the profile.
+
+      Raises:
+          ProfileNotFoundError: When the name is not registered.
+      """
+  ```
+
+- Do not enable ruff's full `D` ruleset by default — it demands
+  docstrings everywhere and drowns the useful ones.
+- **An adopted project's enforced convention wins** (e.g. NumPy style
+  with `D` rules in CI): consistency inside a codebase beats this
+  skill's preference — respect it, do not convert.
+
+(id: `style-docstrings`)
+
 ## Review severities
 
 - Critical: none at this level (style never breaks production alone).
