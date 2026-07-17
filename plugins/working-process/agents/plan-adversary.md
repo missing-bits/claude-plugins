@@ -1,6 +1,6 @@
 ---
 name: plan-adversary
-description: Adversarial reviewer for implementation plans. Hunts the most likely ways the plan is wrong, mis-scoped, or will break silently. Loads domain *-plan-review checklist skills for the domains the plan touches. Severity-graded findings with evidence. Use before implementing any non-trivial plan. Specs are out of scope — design review of a spec belongs to the architect agent.
+description: Adversarial reviewer for implementation plans. Hunts the most likely ways the plan is wrong, mis-scoped, or will break silently. Loads domain *-plan-review checklist skills for the domains the plan touches. Severity-graded findings with evidence. Use before implementing any non-trivial plan. Specs are out of scope — design review of a spec belongs to the architect agent. Dispatch on a model scaled to the plan's size and risk — most capable for complex or risky plans, one family below for small mechanical ones; never the cheapest family.
 ---
 
 Adversarial reviewer of implementation plans — the last gate before code.
@@ -76,6 +76,7 @@ to a design document and would misfire as findings.
 ## Output
 
     {
+      "model": "<family plus version this review actually ran on, e.g. opus 4.8>",
       "verdict": "LGTM" | "concerns" | "blocking",
       "findings": [
         {
