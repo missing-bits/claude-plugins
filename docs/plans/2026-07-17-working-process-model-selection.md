@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-07-17
-status: draft
+status: implemented
 adversary: LGTM
 branch: feature/model-selection-guidance
 base: master
@@ -55,14 +55,14 @@ the update. No scripts, hooks, or engine changes.
 - Produces: the `description:` directive text and the self-report
   convention ("family plus version") that Tasks 3–5 reference.
 
-- [ ] **Step 1: Append the dispatch directive to `description:`**
+- [x] **Step 1: Append the dispatch directive to `description:`**
 
 In the frontmatter, the quoted `description:` currently ends with:
 `Not for failure-mode hunting on plans — that is plan-adversary."`
 Replace that ending with:
 `Not for failure-mode hunting on plans — that is plan-adversary. Dispatch on the most capable available model."`
 
-- [ ] **Step 2: Add the model self-report to the Report section**
+- [x] **Step 2: Add the model self-report to the Report section**
 
 The `## Report` section currently begins:
 
@@ -85,12 +85,12 @@ and prescribed tiers before stamping.
 1. **Assumed domains** — see above.
 ```
 
-- [ ] **Step 3: Validate**
+- [x] **Step 3: Validate**
 
 Run: `claude plugin validate plugins/working-process`
 Expected: PASS (frontmatter parses; description quoted).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add plugins/working-process/agents/architect.md
@@ -106,14 +106,14 @@ git commit -m "feat(working-process): dispatch tier directive and model self-rep
 - Produces: the scaled-dispatch directive text reused in Task 3 and the
   `"model"` output key consumed by dispatchers.
 
-- [ ] **Step 1: Append the dispatch directive to `description:`**
+- [x] **Step 1: Append the dispatch directive to `description:`**
 
 The `description:` currently ends with:
 `Specs are out of scope — design review of a spec belongs to the architect agent.`
 Replace that ending with:
 `Specs are out of scope — design review of a spec belongs to the architect agent. Dispatch on a model scaled to the plan's size and risk — most capable for complex or risky plans, one family below for small mechanical ones; never the cheapest family.`
 
-- [ ] **Step 2: Add the `"model"` key to the Output JSON**
+- [x] **Step 2: Add the `"model"` key to the Output JSON**
 
 The `## Output` block is a 4-space-indented code block that currently
 opens:
@@ -132,12 +132,12 @@ change it to:
       "verdict": "LGTM" | "concerns" | "blocking",
 ```
 
-- [ ] **Step 3: Validate**
+- [x] **Step 3: Validate**
 
 Run: `claude plugin validate plugins/working-process`
 Expected: PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add plugins/working-process/agents/plan-adversary.md
@@ -154,21 +154,21 @@ git commit -m "feat(working-process): dispatch tier directive and model self-rep
 - Produces: the "model selection" paragraph that Task 5's README section
   summarizes.
 
-- [ ] **Step 1: Extend step 3 (architect dispatch)**
+- [x] **Step 1: Extend step 3 (architect dispatch)**
 
 Current step 3 ends:
 `stamp its verdict into the spec's ``architect:`` frontmatter field.`
 Append one sentence:
 `Dispatch it on the most capable available model, named explicitly.`
 
-- [ ] **Step 2: Extend step 5 (adversary dispatch)**
+- [x] **Step 2: Extend step 5 (adversary dispatch)**
 
 Current step 5 ends:
 `stamp its verdict into the plan's ``adversary:`` field.`
 Append one sentence:
 `Dispatch it on a model scaled to the plan's size, complexity, and risk — the most capable available for complex or risky plans, one family below for small mechanical ones — named explicitly.`
 
-- [ ] **Step 3: Add the model-selection paragraph**
+- [x] **Step 3: Add the model-selection paragraph**
 
 After the existing paragraph that begins `After every architect or
 plan-adversary round, record the verdict`, insert:
@@ -185,13 +185,13 @@ the prescribed tier is recorded and offered a re-review per the
 spec-plan-lifecycle rule, when installed.
 ```
 
-- [ ] **Step 4: Hand-check the rule's YAML and validate**
+- [x] **Step 4: Hand-check the rule's YAML and validate**
 
 `rules/workflow.md` has no frontmatter block today — confirm none was
 added. Run: `claude plugin validate plugins/working-process`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add plugins/working-process/rules/workflow.md
@@ -208,7 +208,7 @@ git commit -m "feat(working-process): model-selection heuristic and cap protocol
   spec's "Fallback record" and "Re-review offer" sections.
 - Produces: the grep line Task 5's README block repeats.
 
-- [ ] **Step 1: Extend the frontmatter example**
+- [x] **Step 1: Extend the frontmatter example**
 
 After the `adversary: LGTM` line in the YAML example, add:
 
@@ -216,7 +216,7 @@ After the `adversary: LGTM` line in the YAML example, add:
 architect-fallback: <model> (degraded <date>)   # optional: verdict above produced below the prescribed tier (adversary-fallback: for plans)
 ```
 
-- [ ] **Step 2: Add the fallback bullets**
+- [x] **Step 2: Add the fallback bullets**
 
 After the existing resolved-concerns bullet (`Concerns resolved without
 a fresh review round…`), insert three bullets:
@@ -246,7 +246,7 @@ a fresh review round…`), insert three bullets:
   placeholders (as above) so they never match the grep below.
 ```
 
-- [ ] **Step 3: Extend the grep list**
+- [x] **Step 3: Extend the grep list**
 
 After the existing
 `rg -l '^(architect|adversary): (blocking|concerns)$' docs/` line, add:
@@ -258,26 +258,26 @@ rg -l '^(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)
 with the note: `— pending re-reviews; the waived annotation deliberately
 defeats the anchor.`
 
-- [ ] **Step 4: Extend the lifecycle-offers paragraph**
+- [x] **Step 4: Extend the lifecycle-offers paragraph**
 
 The paragraph `Lifecycle offers — each an offer the developer may
 decline…` lists three offers. Append a fourth:
 `offer the pending re-review of a fallback-recorded verdict at its
 consumption gate (fresh round at the prescribed tier).`
 
-- [ ] **Step 5: Hand-check YAML frontmatter**
+- [x] **Step 5: Hand-check YAML frontmatter**
 
 The rule's `paths:` block must be unchanged and parseable; the new
 example line lives inside a fenced code block, so it cannot break the
 frontmatter. Visually confirm.
 
-- [ ] **Step 6: Grep-contract check**
+- [x] **Step 6: Grep-contract check**
 
 Run: `rg -l '^(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)$' plugins/ docs/`
 Expected: no hits (the example uses `<model>`/`<date>` placeholders and
 is indented inside a YAML block).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add plugins/working-process/rules/spec-plan-lifecycle.md
@@ -292,7 +292,7 @@ git commit -m "feat(working-process): fallback field and re-review offer in spec
 **Interfaces:**
 - Consumes: field grammar from Task 4, heuristic wording from Task 3.
 
-- [ ] **Step 1: Extend the frontmatter fields table**
+- [x] **Step 1: Extend the frontmatter fields table**
 
 In "## Frontmatter process fields", after the `adversary` row, add:
 
@@ -300,7 +300,7 @@ In "## Frontmatter process fields", after the `adversary` row, add:
 | `architect-fallback` / `adversary-fallback` | `<model> (degraded <date>)` \| `<model> (chosen <date>)` \| `…, waived <date>` | verdict produced below the prescribed tier (`degraded` = unchosen, `chosen` = deliberate); re-review pending until re-reviewed or waived |
 ```
 
-- [ ] **Step 2: Extend the unfinished-work grep block**
+- [x] **Step 2: Extend the unfinished-work grep block**
 
 Add to the existing block:
 
@@ -308,7 +308,7 @@ Add to the existing block:
 rg -l '^(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)$' docs/
 ```
 
-- [ ] **Step 3: Add the "Model selection" subsection**
+- [x] **Step 3: Add the "Model selection" subsection**
 
 Directly after the frontmatter-fields section (before "## Process
 rules"), insert:
@@ -328,7 +328,7 @@ the spec-plan-lifecycle rule. Agents self-report the model they ran on
 (family plus version) so the dispatcher can verify before stamping.
 ```
 
-- [ ] **Step 4: Extend the two agent bullets in Components**
+- [x] **Step 4: Extend the two agent bullets in Components**
 
 - Architect bullet: after `stamped into the reviewed document's
   ``architect:`` frontmatter field by the dispatcher.` append
@@ -337,7 +337,7 @@ the spec-plan-lifecycle rule. Agents self-report the model they ran on
   ``*-plan-review`` checklist skills.` append `Dispatched scaled to the
   plan's size and risk.`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add plugins/working-process/README.md
@@ -352,7 +352,7 @@ git commit -m "docs(working-process): document model selection and fallback conv
 **Interfaces:**
 - Consumes: everything above; nothing after depends on this task.
 
-- [ ] **Step 1: Bump the version**
+- [x] **Step 1: Bump the version**
 
 In `plugins/working-process/.claude-plugin/plugin.json`, change
 `"version": "0.5.0"` to `"version": "0.6.0"`.
@@ -362,12 +362,12 @@ working-process version. Re-verify at merge time if master moves again.
 The plugin `description` is unchanged, so no marketplace.json /
 repo-README sync is needed.)
 
-- [ ] **Step 2: Full validation**
+- [x] **Step 2: Full validation**
 
 Run: `claude plugin validate . && claude plugin validate plugins/working-process`
 Expected: both PASS.
 
-- [ ] **Step 3: Grep sweep**
+- [x] **Step 3: Grep sweep**
 
 ```bash
 rg -l '^(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)$' docs/ plugins/
@@ -379,7 +379,7 @@ Expected: first — no hits (no false positives for the pending grep);
 second — no hits (no glossary-banned phrases); third — no hits (no raw
 model IDs in committed plugin text).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add plugins/working-process/.claude-plugin/plugin.json
@@ -448,6 +448,15 @@ fallback event) — no findings. Round-2 disposition verified as applied;
 the plan needs no sync from the spec's round-10/11 summary-site fixes
 (Task 4 already encodes their substance); all edit anchors verified
 against the current files; grep contract triple-protected.
+
+## Close-out (2026-07-17)
+
+Implemented via subagent-driven execution, one reviewed task at a time.
+Task 6 landed as 0.6.0 → **0.7.0**, not the scripted 0.5.0 → 0.6.0:
+master released 0.6.0 mid-flight (prompt-free report filenames), the
+branch was rebased, and the merge-time rule in Task 6 governed exactly
+as written. Final whole-branch review: READY TO MERGE, no blocking
+findings.
 
 ## Verification (end-to-end)
 

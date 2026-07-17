@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-07-16
-status: approved
+status: implemented
 grilled: 2026-07-17
 architect: LGTM
 branch: feature/model-selection-guidance
