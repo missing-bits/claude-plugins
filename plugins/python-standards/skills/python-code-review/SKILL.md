@@ -54,14 +54,12 @@ different shape:
   directory if absent (the first-create mode question belongs to
   working-process's process-artifacts rule and is absent in a
   Standalone install).
-- **Filename**: `<YYYY-MM-DD-HHMMSS>-<scope-slug>-<runid>.md`,
-  generated with this exact command (byte-identical to the shared
-  contract's; the first 17 output characters are the timestamp, the
-  final 8 hex characters the runid):
-
-  ```sh
-  printf '%s-%s\n' "$(date +%Y-%m-%d-%H%M%S)" "$(head -c 4 /dev/urandom | od -An -tx1 | tr -d ' \n')"
-  ```
+- **Filename**: `<YYYY-MM-DD>-<scope-slug>-<runid>.md` — the date is
+  today's date as the session knows it, and `runid` is 8 lowercase hex
+  characters the run's owner generates itself. Generating a filename
+  never runs a shell command and never prompts the developer. Never
+  overwrite an existing report: on a collision, generate a new runid
+  and retry.
 
 - **Frontmatter**: `ticket` (from context or branch, else `none`; never
   block on a question), `standards: python-standards`,
