@@ -1033,6 +1033,14 @@ actor. All names in this plan were updated in place; the round-1
 "prefix drift" finding's historical wording stands as recorded.
 Architect consultation on the final names: LGTM (keep all three).
 
+Amendment (2026-07-17, prompt-free filenames): the shared contract
+dropped the canonical shell command (working-process 0.6.0 — smoke-test
+finding: a permission prompt on every fresh profile). The fallback's
+Filename bullet now specifies date-only + model-generated runid; Task 13
+Step 6a (byte-identity check) is obsolete — there is no command to
+compare. The subset invariant is preserved: both sides changed in the
+same release.
+
 Closure record (2026-07-17): Task 13 steps 1, 2, 3, 6a, 8 passed
 (structural validation; one-commit registration; local-marketplace
 install without dependency resolution; canonical command byte-identity

@@ -74,10 +74,12 @@ for standalone installs.
   process-artifacts.
 - **One run, one report**, written by the run's owner (solo session or
   dispatched reviewer agent).
-- **Filename**: `<YYYY-MM-DD-HHMMSS>-<scope-slug>-<runid>.md`,
-  optionally `local-`-prefixed (see Local pocket); the rule carries one
-  canonical shell command generating timestamp+runid, quoted verbatim so
-  narrow permission allowlists can match it byte-for-byte.
+- **Filename** (amended 2026-07-17, see the amendment record below):
+  `<YYYY-MM-DD>-<scope-slug>-<runid>.md`, optionally `local-`-prefixed
+  (see Local pocket). The date is the session's known today; `runid` is
+  8 lowercase hex characters the run's owner generates itself.
+  Generating a filename runs no shell command and prompts for nothing;
+  never overwrite — on a collision, a new runid and retry.
 - **Binding**: the contract binds any writer to `docs/code-review/` —
   domain review stacks are its primary consumers, not its only ones.
 - **Frontmatter**: `date`, `mode: solo | agent` (the value set extends
@@ -229,3 +231,14 @@ no banned terms residual. One minor fixed inline — the One-run bullet's
 (now "dispatched reviewer agent"; the bullet's stale team-thread mention
 dropped alongside, consistent with the round-1 mode fix). Verdict: LGTM
 for both specs.
+
+Amendment — prompt-free filenames (2026-07-17, shipped as 0.6.0): the
+first real review run surfaced a permission prompt for the canonical
+timestamp+runid shell command; the developer rejected allowlisting as
+needless friction. The contract dropped the shell command entirely:
+date-only filenames with a model-generated 8-hex runid, uniqueness
+carried by date + scope + the never-overwrite/retry rule. The
+byte-identity machinery (verbatim quoting, allowlist rationale, the
+python plan's Step 6a check) is obsolete with it. Same-day reports no
+longer sort chronologically by name — accepted. Consumers' inline
+fallbacks change in the same release (subset invariant preserved).
