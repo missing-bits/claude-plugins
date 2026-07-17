@@ -17,6 +17,7 @@ status: draft       # moves forward only: draft -> approved -> implemented
 grilled: grilling   # optional: `grilling` while outcomes are pending; the ISO date once applied
 architect: LGTM     # optional: latest architect verdict (LGTM | concerns | blocking)
 adversary: LGTM     # optional: latest plan-adversary verdict (LGTM | concerns | blocking)
+architect-fallback: <model> (degraded <date>)   # optional: verdict above produced below the prescribed tier (adversary-fallback: for plans)
 branch: feature/ABC-123-short-name   # optional: topic branch of the work
 base: master        # optional: branch the topic branch was cut from
 ---
@@ -32,19 +33,45 @@ base: master        # optional: branch the topic branch was cut from
   gain a resolution date — `adversary: concerns (resolved 2026-07-16)` —
   plus a body note saying what resolved them. A fresh round replaces the
   whole value as usual.
+- A verdict produced below the prescribed tier (the model-selection
+  heuristic in the workflow rule) gains a companion `architect-fallback:`
+  / `adversary-fallback:` field: the family alias of the model that
+  produced it, then `(degraded <ISO date>)` for anything other than the
+  developer's deliberate choice (a cap refusal — including a consented
+  one-tier drop — a silent platform substitution, or an under-dispatch
+  the dispatcher did not knowingly decide) or `(chosen <ISO date>)`
+  when the developer deliberately dispatched below the prescribed tier
+  before any refusal. A dispatch at the prescribed tier gets no field.
+- Both tokens carry a re-review offer at the document's next consumption
+  gate — before plan-writing for a spec, before implementation for a
+  plan. Accepted: a fresh round at the prescribed tier replaces the
+  verdict and removes the field (a fresh round that is itself below the
+  prescribed tier refreshes the field's date instead, and the offer
+  re-arms at the same gate). Declined: the field gains `, waived <date>`.
+  Moving `status` to `implemented` with a bare fallback field stamps the
+  waiver as part of the move.
+- Review agents self-report the model they ran on (family plus version);
+  the dispatcher compares it against the dispatched and prescribed
+  tiers before stamping, and each round's verdict, model, and date are
+  recorded in the document body. Committed examples of the bare fallback form use
+  placeholders (as above) so they never match the grep below.
 - `branch` and `base` appear once the topic branch exists — never guessed
   up front, omitted entirely when there is no topic branch.
 - Unfinished process work is greppable:
   `rg -l '^grilled: grilling' docs/` and
   `rg -l '^(architect|adversary): (blocking|concerns)$' docs/` — the
   anchored match deliberately skips resolved-concern annotations.
+  `rg -l '^(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)$' docs/`
+  — pending re-reviews; the waived annotation deliberately defeats the
+  anchor.
 
 Lifecycle offers — each an offer the developer may decline, and each made
 only when the tool is available: grill a fresh spec (grilling-session);
 architect-review a grilled spec (architect agent dispatch);
 adversary-review a plan before implementation (plan-adversary agent
-dispatch). After any review round, stamp the verdict into the document's
-field.
+dispatch); offer the pending re-review of a fallback-recorded verdict at
+its consumption gate (fresh round at the prescribed tier). After any
+review round, stamp the verdict into the document's field.
 
 When implementation is about to start, suggest committing the work's
 documents under `docs/` — only paths git tracks or would track;
