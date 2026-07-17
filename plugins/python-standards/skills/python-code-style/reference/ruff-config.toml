@@ -3,9 +3,10 @@
 # no black/isort/flake8 alongside.
 
 [tool.ruff]
-# Community default (88, matching the formatter). If the project has a
-# recorded different preference, change it HERE and nowhere else.
-line-length = 88
+# 120 — a deliberate departure from the historical 88: today's displays
+# fit it comfortably, and fewer forced wraps read better. Change it HERE
+# and nowhere else.
+line-length = 120
 # Match the project's requires-python; ruff then flags syntax the
 # interpreter floor cannot run.
 target-version = "py313"
