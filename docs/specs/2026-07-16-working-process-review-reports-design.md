@@ -242,3 +242,8 @@ byte-identity machinery (verbatim quoting, allowlist rationale, the
 python plan's Step 6a check) is obsolete with it. Same-day reports no
 longer sort chronologically by name — accepted. Consumers' inline
 fallbacks change in the same release (subset invariant preserved).
+Architect delta round on this amendment: concerns → three fixes applied
+(`rerun-of` resolution scoped to same-scope reports since model runids
+are not globally unique; collision detection named as a file-tool
+existence check, never shell; frontmatter `date` tied to the filename
+date) → confirmation round LGTM pending stamping below.

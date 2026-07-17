@@ -47,9 +47,11 @@ shell command or prompt the developer for anything:
   carried by date + scope + the collision rule below, not by the
   runid's entropy alone.
 
-Never overwrite an existing report: on a filename collision, generate
-a new runid and retry. Same-day reports do not sort chronologically by
-name — an accepted trade for a zero-prompt contract.
+Never overwrite an existing report: check for an existing file with
+the session's file tools (a read/list of the target path — never a
+shell command), and on a collision generate a new runid and retry.
+Same-day reports do not sort chronologically by name — an accepted
+trade for a zero-prompt contract.
 
 ## Frontmatter
 
@@ -66,7 +68,7 @@ findings: { critical: 0, important: 2, minor: 5 }
 ---
 ```
 
-- `date`: ISO date of the run.
+- `date`: ISO date of the run, matching the filename date.
 - `mode`: `solo | agent` — the run-owner kind. The value set extends
   only when a new run-owner kind actually ships.
 - `ticket`: derive from context or branch, else `none` — a review run
@@ -79,8 +81,11 @@ findings: { critical: 0, important: 2, minor: 5 }
   when a mixed run loaded several, or `none` for an ad-hoc run. Always
   present; value format mirrors `ticket`.
 - `rerun-of` (optional): the `runid` of the prior report this run
-  re-reviews. When set, the run's owner reads that report and notes the
-  prior findings' disposition in Summary — fixed / remaining / new.
+  re-reviews, resolved among reports of the SAME scope — runids are
+  model-generated and not globally unique, so the scope, not the runid
+  alone, carries the identification. When set, the run's owner reads
+  that report and notes the prior findings' disposition in Summary —
+  fixed / remaining / new.
 - `findings`: severity counts; they MUST equal the body.
 
 ## Run scope
