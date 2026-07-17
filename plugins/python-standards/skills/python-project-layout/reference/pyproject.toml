@@ -4,7 +4,7 @@
 #   [tool.pyright] → python-typing reference/pyright-config.md
 #   [tool.pytest.ini_options] → python-testing reference/pytest-config.md
 
-[project]
+[project]                        # PEP 621 metadata table
 name = "example-tool"
 version = "0.1.0"                # static by default; dynamic needs a recorded reason
 description = "One sentence that says what the tool does"

@@ -34,14 +34,16 @@ pin, never in a mise config; mise's job ends at delivering uv.
 ## pyproject.toml — the single manifest
 
 All project metadata lives in `pyproject.toml`: name, version,
-`requires-python`, dependencies, entry points (`[project.scripts]`),
-build system, and every tool's configuration section. No `setup.py`,
-`setup.cfg`, or `requirements.txt` in new projects. Annotated example:
+`requires-python`, dependencies, entry points (`[project.scripts]`) —
+the `[project]` table per PEP 621 — plus the build system (PEP 517/518)
+and every tool's configuration section. No `setup.py`, `setup.cfg`, or
+`requirements.txt` in new projects. Annotated example:
 [reference/pyproject.toml](reference/pyproject.toml).
 (id: `layout-single-manifest`)
 
-Static `version = "x.y.z"` in `[project]` is the default; dynamic
-versioning only with a recorded reason. (id: `layout-static-version`)
+Static `version = "x.y.z"` in `[project]` is the default (PEP 440
+version format); dynamic versioning only with a recorded reason.
+(id: `layout-static-version`)
 
 ## src layout
 

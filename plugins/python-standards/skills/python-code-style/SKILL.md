@@ -47,17 +47,19 @@ Before/after pairs for every rule below live in
   (`try/except KeyError` over `if key in d` + lookup) — except at
   validation boundaries, where explicit checks read better.
   (id: `style-eafp`)
-- **f-strings** for interpolation — never `%` or `.format()` in new
-  code. Logging calls use lazy `%s` formatting (`logger.info("x=%s", x)`)
-  so the string is built only when emitted (ruff `G004`).
-  (id: `style-fstrings`)
-- **pathlib over os.path** — `Path` objects end-to-end; convert to `str`
-  only at library boundaries that demand it. (id: `style-pathlib`)
+- **f-strings** (PEP 498) for interpolation — never `%` or `.format()`
+  in new code. Logging calls use lazy `%s` formatting
+  (`logger.info("x=%s", x)`) so the string is built only when emitted
+  (ruff `G004`). (id: `style-fstrings`)
+- **pathlib over os.path** (PEP 428) — `Path` objects end-to-end;
+  convert to `str` only at library boundaries that demand it.
+  (id: `style-pathlib`)
 
 ## Docstrings
 
 - Every public function carries a docstring — a one-liner saying what
-  it does is the minimum. Sections, when needed, use **Google style**
+  it does is the minimum (PEP 257 governs the basics: triple quotes,
+  imperative one-liners). Sections, when needed, use **Google style**
   (`Args:` / `Returns:` / `Raises:`) — compact and readable:
 
   ```python

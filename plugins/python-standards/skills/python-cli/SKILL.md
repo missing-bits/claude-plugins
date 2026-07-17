@@ -29,9 +29,10 @@ Complete skeleton: [reference/cli-skeleton.py](reference/cli-skeleton.py).
 Precedence, strictest wins: **flags > environment variables > config
 file > defaults**. A value settable in the file is settable by flag;
 the flag names the file key (`--retry-count` ↔ `retry_count`).
-Config file format is TOML; location follows the platform convention
-(`platformdirs.user_config_dir(app_name)`) — never a dotfile invented
-ad hoc in `$HOME`. (id: `cli-config-precedence`)
+Config file format is TOML — readable with the stdlib `tomllib`
+(PEP 680), no parsing dependency; location follows the platform
+convention (`platformdirs.user_config_dir(app_name)`) — never a dotfile
+invented ad hoc in `$HOME`. (id: `cli-config-precedence`)
 
 ## Logging and errors
 

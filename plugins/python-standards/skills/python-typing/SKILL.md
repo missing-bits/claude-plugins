@@ -22,14 +22,14 @@ under `[tool.pyright]` — canonical block in
 
 ## Annotation policy
 
-- **Every public function and method is fully annotated** — parameters
-  and return type, including `-> None`. Private helpers may rely on
-  inference when the types are obvious from one screen of context.
-  (id: `typing-public-api`)
-- **Modern syntax only**: `X | None` over `Optional[X]`, `list[str]`
-  over `List[str]`, `collections.abc` (`Iterable`, `Callable`) over
-  their deprecated `typing` twins. ruff `UP` enforces this.
-  (id: `typing-modern-syntax`)
+- **Every public function and method is fully annotated** (PEP 484 is
+  the foundation) — parameters and return type, including `-> None`.
+  Private helpers may rely on inference when the types are obvious from
+  one screen of context. (id: `typing-public-api`)
+- **Modern syntax only**: `X | None` over `Optional[X]` (PEP 604),
+  `list[str]` over `List[str]` (PEP 585), `collections.abc`
+  (`Iterable`, `Callable`) over their deprecated `typing` twins. ruff
+  `UP` enforces this. (id: `typing-modern-syntax`)
 - **No `Any` laundering**: an `Any` that enters at a boundary is
   narrowed or validated before it spreads; `cast()` carries a comment
   saying why it is safe. (id: `typing-no-any-laundering`)
@@ -44,8 +44,9 @@ error code (`# type: ignore[arg-type]`) and survives only with a reason.
 
 ## Protocols vs ABCs
 
-- **Protocol** (structural) when you own the call site but not the
-  implementations — plugins, adapters, anything third parties provide.
+- **Protocol** (structural, PEP 544) when you own the call site but not
+  the implementations — plugins, adapters, anything third parties
+  provide.
 - **ABC** (nominal) when you own the hierarchy and want shared behavior
   or invariants enforced in a base class.
 - Never both for one seam. Worked example:

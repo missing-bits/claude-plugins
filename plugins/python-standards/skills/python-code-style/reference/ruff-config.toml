@@ -3,9 +3,10 @@
 # no black/isort/flake8 alongside.
 
 [tool.ruff]
-# 120 — a deliberate departure from the historical 88: today's displays
-# fit it comfortably, and fewer forced wraps read better. Change it HERE
-# and nowhere else.
+# 120 — a deliberate departure from PEP 8's 79/99 and the formatter's
+# historical 88: today's displays fit it comfortably, and fewer forced
+# wraps read better. PEP 8 itself defers line length to team agreement —
+# this is that agreement, recorded. Change it HERE and nowhere else.
 line-length = 120
 # Match the project's requires-python; ruff then flags syntax the
 # interpreter floor cannot run.

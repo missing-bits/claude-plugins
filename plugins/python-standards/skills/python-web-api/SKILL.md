@@ -37,10 +37,10 @@ Tightly scoped to FastAPI services. Cite rules in review findings as
 
 ## Async boundaries
 
-- Route handlers are `async def`; **no blocking IO inside an async
-  path**. The named offenders: sync HTTP clients (`requests`),
-  `time.sleep`, unpooled/sync DB drivers, blocking file IO on large
-  files.
+- Route handlers are `async def` (PEP 492 coroutines); **no blocking IO
+  inside an async path**. The named offenders: sync HTTP clients
+  (`requests`), `time.sleep`, unpooled/sync DB drivers, blocking file
+  IO on large files.
 - Genuinely sync work (CPU-bound, legacy driver) is offloaded:
   `run_in_threadpool` / `asyncio.to_thread`, or the handler is honest
   and declared plain `def` (FastAPI threads it).

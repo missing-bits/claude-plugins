@@ -34,7 +34,7 @@ class Stage(ABC):
 # inherit the validation.
 ```
 
-## A generic function
+## A generic function (PEP 695 syntax)
 
 ```python
 def first_matching[T](items: Iterable[T], pred: Callable[[T], bool]) -> T | None:
@@ -44,7 +44,7 @@ def first_matching[T](items: Iterable[T], pred: Callable[[T], bool]) -> T | None
     return None
 ```
 
-## TypedDict vs model
+## TypedDict (PEP 589) vs model
 
 ```python
 # TypedDict — shaping data you do NOT own (a parsed JSON payload
