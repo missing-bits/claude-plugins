@@ -35,18 +35,21 @@ Each review run writes exactly one report, written by the run's owner
 
 ## Filename
 
-`<YYYY-MM-DD-HHMMSS>-<scope-slug>-<runid>.md`, optionally prefixed
-`local-` (see Local pocket). `<scope-slug>` is a short kebab-case slug
-of the reviewed scope, matching the frontmatter `scope`. Generate
-timestamp and runid with this exact command — quoted verbatim so a
-narrow permission allowlist can match it byte-for-byte:
+`<YYYY-MM-DD>-<scope-slug>-<runid>.md`, optionally prefixed `local-`
+(see Local pocket). `<scope-slug>` is a short kebab-case slug of the
+reviewed scope, matching the frontmatter `scope`. Both variable parts
+come from the session itself — generating a filename MUST NOT run a
+shell command or prompt the developer for anything:
 
-```sh
-printf '%s-%s\n' "$(date +%Y-%m-%d-%H%M%S)" "$(head -c 4 /dev/urandom | od -An -tx1 | tr -d ' \n')"
-```
+- the date is today's date as the session already knows it;
+- `runid` is 8 lowercase hex characters the run's owner generates
+  itself — model-generated randomness suffices, because uniqueness is
+  carried by date + scope + the collision rule below, not by the
+  runid's entropy alone.
 
-The first 17 characters of the output are the timestamp; the final 8
-hex characters are the `runid`.
+Never overwrite an existing report: on a filename collision, generate
+a new runid and retry. Same-day reports do not sort chronologically by
+name — an accepted trade for a zero-prompt contract.
 
 ## Frontmatter
 
