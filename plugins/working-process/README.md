@@ -15,7 +15,7 @@ writing-plans (plan) → plan-adversary → implementation.
 - **`architect` agent** — formal design-quality review of a grilled spec
   or any design document dispatched standalone; verdict
   `LGTM | concerns | blocking`, stamped into the reviewed document's
-  `architect:` frontmatter field by the dispatcher.
+  `architect:` frontmatter field by the dispatcher. Dispatched on the most capable available model.
 - **`architect-session` skill** — the same persona as an interactive
   in-session consultation: no verdict, no stamping; hands off to a
   grilling-session or an `architect` dispatch. Triggers: "ask the
@@ -23,7 +23,8 @@ writing-plans (plan) → plan-adversary → implementation.
 - **`plan-adversary` agent** — adversarial review of implementation
   plans (plans only; handed a spec it declines toward the `architect`
   agent). Generic failure-mode dimensions live here; domain specifics
-  come from `*-plan-review` checklist skills.
+  come from `*-plan-review` checklist skills. Dispatched scaled to the
+  plan's size and risk.
 - **`sync-rules` skill** — installs, updates, and uninstalls the rule
   files shipped by plugins of this marketplace (Rules payloads); see the
   "Process rules" section.
@@ -61,6 +62,7 @@ containing a `status` field:
 | `grilled` | `grilling` \| ISO date | session open / all outcomes applied |
 | `architect` | `LGTM` \| `concerns` \| `blocking` | latest architect verdict |
 | `adversary` | `LGTM` \| `concerns` \| `blocking` | latest plan-adversary verdict |
+| `architect-fallback` / `adversary-fallback` | `<model> (degraded <date>)` \| `<model> (chosen <date>)` \| `…, waived <date>` | verdict produced below the prescribed tier (`degraded` = unchosen, `chosen` = deliberate); re-review pending until re-reviewed or waived |
 
 A round ending in `concerns` or `blocking` records its findings in the
 document body. Concerns later resolved without a fresh round keep the
@@ -72,6 +74,20 @@ Find unfinished work (the anchored match skips resolved concerns):
     rg -l '^grilled: grilling' docs/
     rg -l '^architect: (blocking|concerns)$' docs/
     rg -l '^adversary: (blocking|concerns)$' docs/
+    rg -l '^(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)$' docs/
+
+## Model selection
+
+The architect is dispatched on the most capable available model; the
+plan-adversary on a model scaled to the plan's size and risk — most
+capable for complex or risky plans, one family below for small
+mechanical ones. The model is always named explicitly at dispatch, and
+reviews never dispatch on the cheapest available family. A dispatch
+refused on the dispatched model's cap offers a one-family drop (once)
+or waiting for the reset; a verdict produced below the prescribed tier
+gets a fallback record and a re-review offer — grammar and lifecycle in
+the spec-plan-lifecycle rule. Agents self-report the model they ran on
+(family plus version) so the dispatcher can verify before stamping.
 
 ## Process rules
 
