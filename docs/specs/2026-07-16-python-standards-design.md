@@ -75,18 +75,20 @@ skill-creator + superpowers:writing-skills per repo convention.
   install simply creates the directory (the first-create mode question
   belongs to working-process's process-artifacts rule and is absent in a
   standalone install).
-- `py-code-reviewer` agent: reviews a diff or named files, writes the
-  report, returns findings by severity. Its description names
+- `python-code-reviewer` agent: reviews a diff or named files, writes
+  the report, returns findings by severity. Its description names
   `docs/code-review/` as the report destination.
-- `/py-review` command: review the current diff or named files.
-- Naming rule (deliberate split, not drift): skills carry the full
-  `python-` prefix (triggering surfaces, matched against prose);
-  the reviewer agent and the command use the short `py-` prefix
-  (frequently typed surfaces). `python-code-review` deliberately follows
-  the `*-code-review` pattern a future working-process review
-  orchestrator will discover (companion spec non-goal).
-- Run scope per the shared contract: `/py-review` reviews Python files
-  only and notes out-of-domain files in Summary as out of scope.
+- `/python-review` command: review the current diff or named files.
+- Naming rule (amended 2026-07-17, developer decision superseding the
+  earlier `py-` split): ONE `python-` family for every surface; skills
+  are named for the activity (`python-code-review`), the agent for the
+  actor (`python-code-reviewer`) — the same activity/actor distinction
+  working-process draws between `*-session` skills and review agents.
+  `python-code-review` deliberately follows the `*-code-review` pattern
+  a future working-process review orchestrator will discover (companion
+  spec non-goal).
+- Run scope per the shared contract: `/python-review` reviews Python
+  files only and notes out-of-domain files in Summary as out of scope.
 
 ## working-process integration
 
@@ -121,7 +123,7 @@ skill-creator + superpowers:writing-skills per repo convention.
 - Install from the local marketplace; the six standards skills and
   `python-plan-review` appear in the skills list; the agent appears
   under the plugin namespace.
-- `/py-review` on a sample diff writes a report to `docs/code-review/`
+- `/python-review` on a sample diff writes a report to `docs/code-review/`
   honoring the shared format (working-process installed) and the inline
   fallback (standalone install).
 - A plan-adversary dispatch on a Python-touching plan discovers and

@@ -25,10 +25,12 @@ Each skill ships `reference/` examples alongside its SKILL.md.
 - **`python-code-review` skill** — audits Python code against the
   standards skills; writes one review report per run to
   `docs/code-review/`.
-- **`py-code-reviewer` agent** — reviews a diff or named files, writes
-  the report to `docs/code-review/`, returns findings by severity.
-- **`/py-review` command** — review the current diff or named files.
-  Python files only; out-of-domain files are noted as out of scope.
+- **`python-code-reviewer` agent** — reviews a diff or named files,
+  writes the report to `docs/code-review/`, returns findings by
+  severity.
+- **`/python-review` command** — review the current diff or named
+  files. Python files only; out-of-domain files are noted as out of
+  scope.
 
 When the working-process plugin's review-reports rule is installed
 (detected by its contract probe), that rule's report contract is
@@ -36,9 +38,11 @@ authoritative; without it, the skill's minimal inline fallback applies —
 a strict subset of the same contract, so the report shape never depends
 on the install profile.
 
-Naming is a deliberate split: skills carry the full `python-` prefix
-(triggering surfaces), the agent and the command use the short `py-`
-prefix (typed surfaces).
+Naming is one `python-` family throughout; skills are named for the
+activity (`python-code-review`), the agent for the actor
+(`python-code-reviewer`) — the same activity/actor distinction
+working-process draws between its `*-session` skills and its review
+agents.
 
 ## working-process integration
 

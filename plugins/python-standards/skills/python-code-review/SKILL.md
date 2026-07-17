@@ -1,6 +1,6 @@
 ---
 name: python-code-review
-description: Use when auditing existing Python code against the python-standards skills — invoked by the /py-review command or the py-code-reviewer agent.
+description: Use when auditing existing Python code against the python-standards skills — invoked by the /python-review command or the python-code-reviewer agent.
 ---
 
 # Python code review

@@ -14,7 +14,7 @@ spec: ../specs/2026-07-16-python-standards-design.md
 
 **Goal:** Build the `python-standards` plugin (v0.1.0) — six Python standards skills, a review stack writing Review reports, a `python-plan-review` checklist, and a `python-toolchain` Rules payload — and register it in the `missing-bits` marketplace.
 
-**Architecture:** A single Standards plugin under `plugins/python-standards/`: area skills with `reference/` examples, a `python-code-review` skill that defers to the working-process review-reports contract via the Contract probe and carries a strict-subset inline fallback for a Standalone install, a `py-code-reviewer` agent and `/py-review` command on top of that skill, plus the Rules payload picked up by working-process's Rules engine. No `dependencies` edge — a Standalone install is fully functional.
+**Architecture:** A single Standards plugin under `plugins/python-standards/`: area skills with `reference/` examples, a `python-code-review` skill that defers to the working-process review-reports contract via the Contract probe and carries a strict-subset inline fallback for a Standalone install, a `python-code-reviewer` agent and `/python-review` command on top of that skill, plus the Rules payload picked up by working-process's Rules engine. No `dependencies` edge — a Standalone install is fully functional.
 
 **Tech Stack:** Claude Code plugin system (plugin.json, marketplace.json, skills/SKILL.md, agents/*.md, commands/*.md, rules/*.md), git, jq.
 
@@ -24,7 +24,7 @@ spec: ../specs/2026-07-16-python-standards-design.md
 - Assumed convention range: **working-process ≥ 0.5.0** (Process directory `docs/code-review/` + review-reports rule). NO `dependencies` entry in `plugin.json`; every mention of working-process inside plugin content is conditional ("when … is installed/available").
 - **Content input:** community consensus is the baseline — PEPs, the PyPA packaging guide, official tool docs (uv, ruff, pytest, pyright, typer, FastAPI, pydantic). The developer's repositories are ILLUSTRATIVE CONTEXT only: they show the kinds of projects the skills serve, and do NOT define the developer's Python preferences — never derive a preference from them silently. Contested points are decided by the developer's explicitly stated preferences; when unstated, collect them as open questions for the developer. NEVER invent personal preferences.
 - **Toolchain facts (verbatim in content):** uv (environments, dependencies, packaging via pyproject.toml), ruff (lint + format), pytest, pyright (typing-spec conformance, speed, plugin-free pydantic v2 support, Pylance parity — with Astral's `ty` noted as the watched successor).
-- **Naming rule (deliberate split, not drift):** skills carry the full `python-` prefix (triggering surfaces, matched against prose); the reviewer agent and the command use the short `py-` prefix (frequently typed surfaces). Names are kebab-case.
+- **Naming rule (amended 2026-07-17, developer decision):** ONE `python-` family for every surface; skills are named for the activity (`python-code-review`), the agent for the actor (`python-code-reviewer`). The original `py-` short-prefix split was dissolved after implementation — occurrences in this plan were renamed accordingly. Names are kebab-case.
 - **Skill authoring:** every skill is authored with the `skill-creator` skill (scaffolding, `description:` tuning, evals) plus the `superpowers:writing-skills` discipline. Skill descriptions are written disjointly — no two skills compete for the same trigger.
 - **Glossary binds wording** (docs/domain/glossary.md): Standards plugin, Standalone install, Contract probe, Review report, Rules payload, Rules engine. Respect every `_Avoid_` ban — never "standards stack", never "solo install", never "review output", never "rules plugin", never unqualified "probe".
 - **Frontmatter safety:** quote any `description:` (or other scalar) containing `: ` (colon+space). `claude plugin validate` skips `rules/` — review the Rules payload frontmatter by hand.
@@ -52,7 +52,7 @@ Per the marketplace-sync rule, a new plugin lands with all three identity places
 ```json
 {
   "name": "python-standards",
-  "description": "Python coding standards for the uv + ruff + pytest + pyright toolchain: six area skills, a code-review stack (python-code-review skill, py-code-reviewer agent, /py-review command) writing review reports to docs/code-review/, a python-plan-review checklist for plan reviews, and a python-toolchain rule shipped as a Rules payload",
+  "description": "Python coding standards for the uv + ruff + pytest + pyright toolchain: six area skills, a code-review stack (python-code-review skill, python-code-reviewer agent, /python-review command) writing review reports to docs/code-review/, a python-plan-review checklist for plan reviews, and a python-toolchain rule shipped as a Rules payload",
   "version": "0.1.0",
   "author": { "name": "Missing Bits (Jacek Nakonieczny)" },
   "license": "MIT",
@@ -665,7 +665,7 @@ Invoke `skill-creator` for scaffolding and description tuning; the content basel
 ```markdown
 ---
 name: python-code-review
-description: Use when auditing existing Python code against the python-standards skills — invoked by the /py-review command or the py-code-reviewer agent.
+description: Use when auditing existing Python code against the python-standards skills — invoked by the /python-review command or the python-code-reviewer agent.
 ---
 
 # Python code review
@@ -762,23 +762,23 @@ git commit -m "feat(python-standards): add python-code-review skill"
 
 ---
 
-### Task 11: py-code-reviewer agent and /py-review command (0.5.0-DEPENDENT)
+### Task 11: python-code-reviewer agent and /python-review command (0.5.0-DEPENDENT)
 
 Same sequencing gate as Task 10 (they can run back-to-back once the gate opens).
 
 **Files:**
-- Create: `plugins/python-standards/agents/py-code-reviewer.md`
-- Create: `plugins/python-standards/commands/py-review.md`
+- Create: `plugins/python-standards/agents/python-code-reviewer.md`
+- Create: `plugins/python-standards/commands/python-review.md`
 
 **Interfaces:**
 - Consumes: skill name `python-code-review` and its procedure (Task 10) — both surfaces delegate to it, never restate the contract.
-- Produces: agent name `py-code-reviewer` and command `/py-review` (Task 12's README; Task 13's verification). Short `py-` prefix by the naming rule (typed surfaces).
+- Produces: agent name `python-code-reviewer` and command `/python-review` (Task 12's README; Task 13's verification). One `python-` family per the amended naming rule; agent = actor to the skill's activity.
 
-- [ ] **Step 1: Write `plugins/python-standards/agents/py-code-reviewer.md`**
+- [ ] **Step 1: Write `plugins/python-standards/agents/python-code-reviewer.md`**
 
 ```markdown
 ---
-name: py-code-reviewer
+name: python-code-reviewer
 description: "Reviews Python code — a diff or named files — against the python-standards skills, writes the review report to docs/code-review/, and returns findings by severity. Python files only; out-of-domain files are noted in the report Summary as out of scope."
 ---
 
@@ -796,7 +796,7 @@ skills, severity grading, the Contract probe, and report writing.
   stated result.
 ```
 
-- [ ] **Step 2: Write `plugins/python-standards/commands/py-review.md`**
+- [ ] **Step 2: Write `plugins/python-standards/commands/python-review.md`**
 
 ```markdown
 ---
@@ -817,13 +817,13 @@ Review Python code against the python-standards skills.
 
 - [ ] **Step 3: Validate**
 
-Run: `grep -c '^name: py-code-reviewer$' plugins/python-standards/agents/py-code-reviewer.md`
+Run: `grep -c '^name: python-code-reviewer$' plugins/python-standards/agents/python-code-reviewer.md`
 Expected: `1`
 
-Run: `grep -c 'docs/code-review/' plugins/python-standards/agents/py-code-reviewer.md`
+Run: `grep -c 'docs/code-review/' plugins/python-standards/agents/python-code-reviewer.md`
 Expected: `1` (report destination named in the agent description).
 
-Run: `grep -c 'python-code-review' plugins/python-standards/agents/py-code-reviewer.md plugins/python-standards/commands/py-review.md | grep -c ':0$'`
+Run: `grep -c 'python-code-review' plugins/python-standards/agents/python-code-reviewer.md plugins/python-standards/commands/python-review.md | grep -c ':0$'`
 Expected: `0` (both surfaces delegate to the skill).
 
 Run: `claude plugin validate plugins/python-standards`
@@ -832,8 +832,8 @@ Expected: passes.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add plugins/python-standards/agents/py-code-reviewer.md plugins/python-standards/commands/py-review.md
-git commit -m "feat(python-standards): add py-code-reviewer agent and /py-review command"
+git add plugins/python-standards/agents/python-code-reviewer.md plugins/python-standards/commands/python-review.md
+git commit -m "feat(python-standards): add python-code-reviewer agent and /python-review command"
 ```
 
 ---
@@ -878,9 +878,9 @@ Each skill ships `reference/` examples alongside its SKILL.md.
 - **`python-code-review` skill** — audits Python code against the
   standards skills; writes one review report per run to
   `docs/code-review/`.
-- **`py-code-reviewer` agent** — reviews a diff or named files, writes
+- **`python-code-reviewer` agent** — reviews a diff or named files, writes
   the report to `docs/code-review/`, returns findings by severity.
-- **`/py-review` command** — review the current diff or named files.
+- **`/python-review` command** — review the current diff or named files.
   Python files only; out-of-domain files are noted as out of scope.
 
 When the working-process plugin's review-reports rule is installed
@@ -910,7 +910,7 @@ functional, and every working-process mention in content is conditional.
 
 - [ ] **Step 2: Validate**
 
-Run: `grep -c 'python-code-style\|python-project-layout\|python-typing\|python-testing\|python-cli\|python-web-api\|python-code-review\|python-plan-review\|py-code-reviewer\|py-review' plugins/python-standards/README.md | awk '{print ($1>=10) ? "ok" : "missing components"}'`
+Run: `grep -c 'python-code-style\|python-project-layout\|python-typing\|python-testing\|python-cli\|python-web-api\|python-code-review\|python-plan-review\|python-code-reviewer\|python-review' plugins/python-standards/README.md | awk '{print ($1>=10) ? "ok" : "missing components"}'`
 Expected: `ok`
 
 Run: `claude plugin validate plugins/python-standards`
@@ -952,14 +952,14 @@ Expected: install succeeds with no dependency resolution (no `dependencies` edge
 
 - [ ] **Step 4: Component visibility**
 
-In the same session, confirm the skills list shows all eight skills under the plugin namespace (`python-standards:python-code-style`, `-project-layout`, `-typing`, `-testing`, `-cli`, `-web-api`, `-code-review`, `-plan-review`), the agent `python-standards:py-code-reviewer` appears among agent types, and `/py-review` resolves as a command.
+In the same session, confirm the skills list shows all eight skills under the plugin namespace (`python-standards:python-code-style`, `-project-layout`, `-typing`, `-testing`, `-cli`, `-web-api`, `-code-review`, `-plan-review`), the agent `python-standards:python-code-reviewer` appears among agent types, and `/python-review` resolves as a command.
 
-- [ ] **Step 5: /py-review — shared contract profile (working-process installed)**
+- [ ] **Step 5: /python-review — shared contract profile (working-process installed)**
 
-In a scratch git repo containing a small Python diff with a deliberate standards violation (e.g. an unannotated public function plus a blocking call in an async route), with working-process ≥ 0.5.0 installed and its rules installed via sync-rules: run `/py-review`.
+In a scratch git repo containing a small Python diff with a deliberate standards violation (e.g. an unannotated public function plus a blocking call in an async route), with working-process ≥ 0.5.0 installed and its rules installed via sync-rules: run `/python-review`.
 Expected: the Contract probe finds `review-reports.md`; the report lands in `docs/code-review/` with the SHARED format (full frontmatter set per the rule, filename from the canonical command); nothing staged.
 
-- [ ] **Step 6: /py-review — Standalone install profile**
+- [ ] **Step 6: /python-review — Standalone install profile**
 
 Repeat Step 5 under a clean profile (fresh `CLAUDE_CONFIG_DIR`) with ONLY python-standards installed and no working-process rules present.
 Expected: the Contract probe finds nothing; the skill creates `docs/code-review/` without asking any mode question; the report carries exactly the fallback frontmatter (`ticket`, `standards: python-standards`, `findings:` counts matching the body) with the Summary and per-file severity layout.
@@ -1024,3 +1024,10 @@ Round 2 (confirmation pass): all five dispositions verified resolved —
 gate/Step 6a consistent, Step 0 is confirmation not invention,
 descriptions frontmatter-safe, grep exercises the changed path. No new
 findings. Verdict: LGTM.
+
+Amendment (2026-07-17, post-implementation, developer decision): the
+`py-` short-prefix split was dissolved — the agent is
+`python-code-reviewer`, the command `/python-review`; one `python-`
+family throughout, skills named for the activity and the agent for the
+actor. All names in this plan were updated in place; the round-1
+"prefix drift" finding's historical wording stands as recorded.

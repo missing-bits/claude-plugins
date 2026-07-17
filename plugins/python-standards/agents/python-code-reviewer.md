@@ -1,5 +1,5 @@
 ---
-name: py-code-reviewer
+name: python-code-reviewer
 description: "Reviews Python code — a diff or named files — against the python-standards skills, writes the review report to docs/code-review/, and returns findings by severity. Python files only; out-of-domain files are noted in the report Summary as out of scope."
 ---
 
