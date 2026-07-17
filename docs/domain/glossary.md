@@ -88,3 +88,50 @@ for a user-scope source, is disabled — a project-scoped source elsewhere
 reports a contextual `enabled: false` and still counts as present);
 detected during `sync-rules` state discovery, offered for removal or
 adoption as the developer's own.
+
+**Tier**:
+A relative rung on the platform's current capability ladder of model
+families ("most capable available", "mid"), resolved at dispatch time —
+never a concrete model name. The prescribed tier is the tier the
+model-selection heuristic assigns to a given dispatch.
+_Avoid_: model level
+
+**Degraded verdict**:
+A review verdict produced below the prescribed tier by anything other
+than the developer's deliberate choice — a cap refusal (including a
+consented one-tier drop after it), a silent platform substitution, or
+an under-dispatch the dispatcher did not knowingly decide. Marked by
+the `(degraded <date>)` token in the `*-fallback` frontmatter field and
+entitled to a re-review offer.
+_Avoid_: capped verdict, lowered verdict
+
+**Chosen verdict**:
+A review verdict produced below the prescribed tier because the
+developer deliberately dispatched below it, before any platform
+refusal. Marked by the `(chosen <date>)` token in the `*-fallback`
+field; carries the same re-review offer as a degraded verdict.
+_Avoid_: voluntary degradation
+
+**Fallback**:
+The model that actually produced a degraded or chosen verdict, standing
+in for the prescribed tier; named (as a family alias) in the value of
+the `*-fallback` frontmatter field. A dispatch at the prescribed tier —
+e.g. mid tier for a small mechanical plan per the heuristic — is not a
+fallback.
+_Avoid_: backup model, replacement model
+
+**Fallback record**:
+The `*-fallback` frontmatter field (`architect-fallback:` /
+`adversary-fallback:`): the record that a verdict was produced below
+the prescribed tier — the fallback's family alias plus an agency token,
+`degraded` (unchosen: forced or unnoticed) or `chosen` (deliberate). A
+bare record means the re-review offer is live; a fresh prescribed-tier
+round removes it (a degraded one refreshes it), a waiver annotates it.
+_Avoid_: sub-tier record
+
+**Consumption gate**:
+The workflow step at which a document's review verdict is about to be
+relied on as the basis of further work — plan-writing for a spec,
+implementation for a plan. Where re-review offers on fallback-recorded
+verdicts fire.
+_Avoid_: usage point
