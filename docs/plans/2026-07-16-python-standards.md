@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-07-16
-status: approved
+status: implemented
 adversary: LGTM
 branch: feature/python-standards
 base: master
@@ -1031,3 +1031,15 @@ Amendment (2026-07-17, post-implementation, developer decision): the
 family throughout, skills named for the activity and the agent for the
 actor. All names in this plan were updated in place; the round-1
 "prefix drift" finding's historical wording stands as recorded.
+Architect consultation on the final names: LGTM (keep all three).
+
+Closure record (2026-07-17): Task 13 steps 1, 2, 3, 6a, 8 passed
+(structural validation; one-commit registration; local-marketplace
+install without dependency resolution; canonical command byte-identity
+against the released rule; real user-level Rules-payload install with a
+silent drift hook over both manifests). Steps 4–6 (component
+visibility, /python-review under the shared-contract and Standalone
+profiles) are the developer's smoke test on their Python projects;
+step 7 (plan-adversary discovery of python-plan-review) verifies
+organically on the next Python-touching plan review. Any smoke-test
+finding loops back per Task 13 step 9.
