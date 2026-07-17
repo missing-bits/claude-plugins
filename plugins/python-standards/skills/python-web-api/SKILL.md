@@ -51,9 +51,12 @@ Tightly scoped to FastAPI services. Cite rules in review findings as
 - Domain exceptions map to statuses in ONE place — exception handlers
   registered on the app; routes and services never build
   `HTTPException` from business logic.
-- One error envelope for every error response:
-  `{"error": {"code": <machine-readable>, "message": <human-readable>}}`
-  — model and wiring in
+- Every error response is an **RFC 9457 Problem Details** document
+  (`Content-Type: application/problem+json`): `type` (a stable URI
+  reference — relative `/errors/<slug>` is fine until external
+  consumers need dereferenceable docs), `title`, `status`, `detail`,
+  plus our extension member `code` — the short machine-readable slug
+  clients switch on. Model and wiring in
   [reference/error-handling.py](reference/error-handling.py).
 - Stack traces never reach a response body; they go to the log with the
   request id.
