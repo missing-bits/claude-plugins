@@ -6,7 +6,9 @@ description: Use when building or extending a FastAPI web service — router, se
 # Python web APIs (FastAPI)
 
 Tightly scoped to FastAPI services. Cite rules in review findings as
-`(standard: python-web-api, rule: <id>)`.
+`(standard: python-web-api, rule: <id>)`. Each rule names its source:
+a PEP, an RFC, an official doc, or `this standard` (a recorded house
+decision).
 
 ## Layering
 
@@ -23,7 +25,8 @@ Tightly scoped to FastAPI services. Cite rules in review findings as
 - A router importing a repository, or a service importing `fastapi`,
   fails review. Worked example:
   [reference/layering.py](reference/layering.py).
-(id: `web-layering`)
+(id: `web-layering`; source: this standard; DI mechanics per FastAPI
+documentation — "Dependencies")
 
 ## pydantic v2 models
 
@@ -33,7 +36,9 @@ Tightly scoped to FastAPI services. Cite rules in review findings as
   the service layer, data is already trusted and typed.
 - Response models are declared on the route (`response_model=`), so
   accidental field leaks are impossible.
-(id: `web-boundary-models`)
+(id: `web-boundary-models`; source: FastAPI documentation —
+"Response Model" — and pydantic documentation; the separate-models rule
+is this standard)
 
 ## Async boundaries
 
@@ -44,7 +49,8 @@ Tightly scoped to FastAPI services. Cite rules in review findings as
 - Genuinely sync work (CPU-bound, legacy driver) is offloaded:
   `run_in_threadpool` / `asyncio.to_thread`, or the handler is honest
   and declared plain `def` (FastAPI threads it).
-(id: `web-async-boundaries`)
+(id: `web-async-boundaries`; source: PEP 492; offloading mechanics per
+FastAPI documentation — "Async")
 
 ## HTTP error handling
 
@@ -60,7 +66,9 @@ Tightly scoped to FastAPI services. Cite rules in review findings as
   [reference/error-handling.py](reference/error-handling.py).
 - Stack traces never reach a response body; they go to the log with the
   request id.
-(id: `web-error-envelope`)
+(id: `web-error-envelope`; source: RFC 9457 "Problem Details for HTTP
+APIs"; the `code` extension member and the no-traceback rule are this
+standard)
 
 ## Review severities
 
