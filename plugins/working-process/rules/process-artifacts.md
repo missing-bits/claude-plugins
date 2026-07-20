@@ -11,8 +11,8 @@ paths:
 
 A Process directory is a directory the working process creates in a
 project repo to hold work artifacts: `docs/specs/`, `docs/plans/`,
-`docs/domain/`, `docs/code-review/`, and the `.superpowers/` family at
-the repo root.
+`docs/domain/`, `docs/code-review/`, `docs/memory/` (Team memory), and the
+`.superpowers/` family at the repo root.
 
 ## First-create question
 
@@ -47,6 +47,10 @@ non-empty) means tracked mode was chosen.
   every call.
 - Per-work artifacts (review reports, ADRs, task briefs, progress
   ledgers) carry a `ticket` frontmatter field; registry files that live
-  across tickets (the domain glossary, `.gitignore` files) are exempt.
+  across tickets (the domain glossary, `.gitignore` files, Project memory
+  notes and `INDEX.md`) are exempt. Project-memory idea entries DO carry
+  `ticket` and are not exempt. Team memory (`docs/memory/`) is a Process
+  directory; Private memory (`.claude/memory/`) is not — it is the
+  per-user store defined by the project-memory rule.
   Reuse the ticket already established for the current work; value format
   in the ticket-frontmatter rule.
