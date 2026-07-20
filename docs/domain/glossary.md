@@ -135,3 +135,36 @@ relied on as the basis of further work — plan-writing for a spec,
 implementation for a plan. Where re-review offers on fallback-recorded
 verdicts fire.
 _Avoid_: usage point
+
+**Project memory**:
+The in-repo, rule-loaded memory store working-process defines, in two parts —
+Team memory and Private memory — mirroring native Home-dir memory's
+thin-index-plus-on-demand-topic-files model, but living in the project.
+Distinct from Home-dir memory, which it redirects project-scoped facts away
+from. Each half is a *part* (Team memory, Private memory).
+_Avoid_: project MEMORY.md, memory tier, memory layer
+
+**Team memory**:
+The committed part of Project memory, `docs/memory/`; a Process directory (the
+first-create question applies). Holds team-relevant parked ideas, cross-ticket
+state, and operational gotchas.
+
+**Private memory**:
+The per-user part of Project memory, `.claude/memory/`; always ignored, never
+asked, and NOT a Process directory — a per-user store under the `.claude/`
+config namespace, governed by the Project-memory rule.
+_Avoid_: local memory
+
+**Home-dir memory**:
+The built-in Claude Code memory at `~/.claude/…/memory/`, auto-loaded by the
+harness. The store the Project-memory rule redirects project-scoped writes
+away from; it keeps cross-project and personal facts.
+_Avoid_: native memory
+
+**Idea entry**:
+A Project-memory entry with the idea shape: an `idea-` filename prefix and
+lifecycle frontmatter (`status` parked → spec'd | dropped, a `spec:` pointer,
+`ticket`), as opposed to a plain note (the default shape, `ticket`-exempt,
+recalled on demand). The prefix is the rule's selector for the lifecycle
+frontmatter set.
+_Avoid_: backlog item
