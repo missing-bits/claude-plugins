@@ -91,14 +91,16 @@ the spec-plan-lifecycle rule. Agents self-report the model they ran on
 
 ## Process rules
 
-The plugin ships five rule files in `rules/` — the preferred workflow
+The plugin ships seven rule files in `rules/` — the preferred workflow
 (always loaded once installed), spec/plan frontmatter and lifecycle,
-Process directory conventions, ticket frontmatter, and the
-review-report contract (`review-reports.md`: where a code-review run
-writes its Review report and what shape it takes; domain review skills
-locate the installed contract via its contract probe — the
-project-level then user-level install path, in that order). Claude
-Code does not load plugin rules by itself: install them with the
+Process directory conventions, ticket frontmatter, the review-report
+contract (`review-reports.md`: where a code-review run writes its
+Review report and what shape it takes; domain review skills locate the
+installed contract via its contract probe — the project-level then
+user-level install path, in that order), and the project memory pair
+(`project-memory.md`, always-on core; `project-memory-conventions.md`,
+paths-scoped conventions — see "Project memory" below). Claude Code
+does not load plugin rules by itself: install them with the
 `working-process:sync-rules` skill.
 
 - **Two targets**: user level (`~/.claude/rules/`, recommended — one
@@ -156,3 +158,15 @@ git-ignored (a `.gitignore` containing exactly `*`) or committed; an
 existing directory's state is respected without asking. A tracked-mode
 `docs/code-review/` additionally carries a `.gitignore` with `local-*`
 — the local pocket for reports the developer keeps out of git.
+
+## Project memory
+
+An in-repo memory store, in two parts: **Team memory** (`docs/memory/`,
+committed) and **Private memory** (`.claude/memory/`, per-user, git-ignored).
+Each holds a thin `INDEX.md` plus flat topic files. Two rules ship it: an
+always-on core (`project-memory.md`) that loads the index and routes
+project-scoped facts to the store (best-effort) instead of home-dir memory,
+and a paths-scoped conventions rule (`project-memory-conventions.md`) with the
+note/idea entry shapes, team-memory scope, gotcha↔ADR offer, and the
+no-empty-files lifecycle. Adoption is opt-in — the store exists only once you
+create it.
