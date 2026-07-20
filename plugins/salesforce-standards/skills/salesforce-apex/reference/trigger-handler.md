@@ -1,20 +1,25 @@
-// Worked example: trigger + handler + domain + selector + service for
-// one object (standard Order object). In a real org each class below
-// lives in its own .cls file (and the trigger in its own .trigger
-// file) — combined here, with file-name comments, for readability.
-//
-// Scenario: when an Order's Status field moves to "Activated", create
-// one fulfillment Task per order. Demonstrates: one delegating trigger,
-// a handler that routes but never queries or writes, a domain class
-// that owns the record-level status-transition rule, a selector that
-// owns all SOQL for Order, and a service that owns the DML transaction
-// — all bulk-safe, all with an explicit sharing declaration, errors
-// routed through a custom exception and a logger abstraction rather
-// than swallowed or left as bare System.debug calls.
+# Trigger + handler + domain + selector + service — worked example
 
-// ===================================================================
-// OrderTrigger.trigger
-// ===================================================================
+One object (standard `Order`), six compilation units, one fenced block
+each — each block is valid, copy-pasteable Apex for the file named
+above it. In a real org each block is its own `.trigger`/`.cls` file
+(a `.cls` file holds exactly one top-level type).
+
+Scenario: when an Order's `Status` field moves to "Activated", create
+one fulfillment `Task` per order. The example demonstrates: one
+delegating trigger, a handler that routes but never queries or writes,
+a domain class that owns the record-level status-transition rule, a
+selector that owns all SOQL for `Order`, and a service that owns the
+DML transaction — all bulk-safe, all with an explicit sharing
+declaration, errors routed through a custom exception and a logger
+abstraction rather than swallowed or left as bare `System.debug` calls.
+
+## `OrderTrigger.trigger`
+
+A single delegating call per trigger context — no conditional or field
+logic in the trigger body itself.
+
+```apex
 trigger OrderTrigger on Order (before insert, before update, after update) {
     if (Trigger.isBefore) {
         if (Trigger.isInsert) {
@@ -28,12 +33,15 @@ trigger OrderTrigger on Order (before insert, before update, after update) {
         OrderTriggerHandler.handleAfterUpdate(Trigger.new, Trigger.oldMap);
     }
 }
+```
 
-// ===================================================================
-// OrderTriggerHandler.cls — routes trigger events; no SOQL, no DML,
-// no business logic of its own. `with sharing` — the default for the
-// handler layer.
-// ===================================================================
+## `OrderTriggerHandler.cls`
+
+Routes trigger events to Domain and Service; no SOQL, no DML, no
+business logic of its own. `with sharing` — the default for the
+handler layer.
+
+```apex
 public with sharing class OrderTriggerHandler {
 
     public static void handleBeforeInsert(List<Order> newOrders) {
@@ -51,13 +59,16 @@ public with sharing class OrderTriggerHandler {
         }
     }
 }
+```
 
-// ===================================================================
-// OrderDomain.cls — per-record business rules on the in-memory set
-// only: validation, defaulting, state-transition checks. No SOQL, no
-// DML, no callouts — testable without a full trigger context.
-// `inherited sharing` — pure logic, runs in whatever context called it.
-// ===================================================================
+## `OrderDomain.cls`
+
+Per-record business rules on the in-memory set only: validation,
+defaulting, state-transition checks. No SOQL, no DML, no callouts —
+testable without a full trigger context. `inherited sharing` — pure
+logic, runs in whatever context called it.
+
+```apex
 public inherited sharing class OrderDomain {
 
     private static final Set<String> VALID_TRANSITIONS_TO_ACTIVATED = new Set<String>{ 'Draft' };
@@ -95,11 +106,14 @@ public inherited sharing class OrderDomain {
         return activated;
     }
 }
+```
 
-// ===================================================================
-// OrderSelector.cls — ALL SOQL for Order lives here. `select*By*`
-// method naming. `inherited sharing` — reusable from any caller.
-// ===================================================================
+## `OrderSelector.cls`
+
+ALL SOQL for `Order` lives here. `select*By*` method naming.
+`inherited sharing` — reusable from any caller.
+
+```apex
 public inherited sharing class OrderSelector {
 
     public List<Order> selectByIds(Set<Id> orderIds) {
@@ -110,14 +124,17 @@ public inherited sharing class OrderSelector {
         ];
     }
 }
+```
 
-// ===================================================================
-// OrderService.cls — the business transaction: orchestrates the
-// selector, builds the bulk-safe DML, wraps failures in a domain
-// exception, and reports through the logger abstraction instead of
-// swallowing or bare-debugging them. `with sharing` — the default for
-// the service layer, since this is where DML happens.
-// ===================================================================
+## `OrderService.cls`
+
+The business transaction: orchestrates the selector, builds the
+bulk-safe DML, wraps failures in a domain exception, and reports
+through the logger abstraction instead of swallowing or bare-debugging
+them. `with sharing` — the default for the service layer, since this
+is where DML happens.
+
+```apex
 public with sharing class OrderService {
 
     public static void activateFulfillment(List<Order> activatedOrders) {
@@ -150,8 +167,12 @@ public with sharing class OrderService {
         }
     }
 }
+```
 
-// ===================================================================
-// OrderProcessingException.cls — custom exception, <Domain>Exception.
-// ===================================================================
+## `OrderProcessingException.cls`
+
+Custom exception, `<Domain>Exception`.
+
+```apex
 public class OrderProcessingException extends Exception {}
+```

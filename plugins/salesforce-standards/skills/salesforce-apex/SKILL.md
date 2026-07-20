@@ -58,7 +58,7 @@ as inspiration for teams that later want a fuller framework.
   are testable without triggering full orchestration.
 - A complete worked example (trigger + handler + domain + selector +
   service for one object) is in
-  [reference/trigger-handler.cls](reference/trigger-handler.cls).
+  [reference/trigger-handler.md](reference/trigger-handler.md).
 
 (id: `apex-layering`; source: Salesforce Well-Architected; Apex
 Enterprise Patterns / fflib cited as inspiration only, never a
