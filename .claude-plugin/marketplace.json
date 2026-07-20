@@ -13,6 +13,11 @@
       "name": "python-standards",
       "source": "./plugins/python-standards",
       "description": "Python coding standards for the uv + ruff + pytest + pyright toolchain: area skills, a code-review stack, a plan-review checklist, and a python-toolchain rule"
+    },
+    {
+      "name": "salesforce-standards",
+      "source": "./plugins/salesforce-standards",
+      "description": "Salesforce coding standards for the sf CLI toolchain: area skills for Apex, LWC, Flow, data and security model plus maintenance-first legacy UI, a code-review stack, a plan-review checklist, and a salesforce-toolchain rule"
     }
   ]
 }
