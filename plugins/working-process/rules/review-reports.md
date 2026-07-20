@@ -102,6 +102,10 @@ every standards plugin in `standards:`. Per-finding attribution
    prior findings' disposition.
 2. **Per-file sections**, each with **Critical → Important → Minor**
    subsections; findings within a subsection in ascending line order.
+   Findings without a line anchor — files reviewed from metadata
+   rather than source lines — are ordered by a domain-stated stable
+   key: the reviewing domain names the key (e.g. cited element name,
+   alphabetically) and applies it consistently.
 
 Files with no findings and empty severity subsections are omitted. A
 zero-findings run still writes the document.
