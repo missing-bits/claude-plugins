@@ -34,6 +34,10 @@ other content (e.g. a local pocket's `local-*`) signals nothing by
 itself; a git-tracked file under the directory (`git ls-files <dir>`
 non-empty) means tracked mode was chosen.
 
+`docs/memory/`'s tracked/ignored first-create question is asked by the
+project-memory core rule, not this one — it is listed above only so
+`docs/memory/` counts as a Process directory for the conventions below.
+
 ## Handling artifacts
 
 - Tracked mode: artifact updates ride along with the commits of the work

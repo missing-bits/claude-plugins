@@ -8,7 +8,7 @@ branch: worktree-project-memory-spec
 base: master
 ---
 
-# Project memory — an in-repo, tiered memory store for working-process
+# Project memory — an in-repo, two-part memory store for working-process
 
 ## Problem
 
@@ -222,7 +222,7 @@ Terms added to `docs/domain/glossary.md`:
 - **Team memory** — the committed part, `docs/memory/`; a Process directory.
 - **Private memory** — the per-user part, `.claude/memory/`; not a Process
   directory, always ignored, governed by this rule.
-- **Home-dir memory** — the native harness memory (`~/.claude/…/memory/`),
+- **Home-dir memory** — the built-in harness memory (`~/.claude/…/memory/`),
   the store this rule redirects from. _Avoid_: "native memory".
 - **Idea entry** — a Project-memory entry with the idea shape (`idea-`
   prefix + lifecycle frontmatter), as opposed to a plain **note**. _Avoid_:

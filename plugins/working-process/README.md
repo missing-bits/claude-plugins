@@ -152,7 +152,8 @@ needs no allow entry.
 
 This plugin creates two directories in a project repo: `docs/domain/`
 (glossary + ADRs) and `docs/code-review/` (Review reports — one per
-code-review run, shape defined by the review-reports rule). On first
+code-review run, shape defined by the review-reports rule) — plus
+`docs/memory/` (Team memory) once you adopt Project memory. On first
 creation the developer is asked whether the directory should be
 git-ignored (a `.gitignore` containing exactly `*`) or committed; an
 existing directory's state is respected without asking. A tracked-mode
