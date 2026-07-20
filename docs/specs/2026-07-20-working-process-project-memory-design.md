@@ -1,7 +1,7 @@
 ---
 ticket: "#1"
 date: 2026-07-20
-status: draft
+status: implemented
 grilled: 2026-07-20
 architect: LGTM
 branch: worktree-project-memory-spec

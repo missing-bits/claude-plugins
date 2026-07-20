@@ -1,7 +1,7 @@
 ---
 ticket: "#1"
 date: 2026-07-20
-status: draft
+status: implemented
 adversary: concerns (resolved 2026-07-20)
 branch: worktree-project-memory-spec
 base: master
