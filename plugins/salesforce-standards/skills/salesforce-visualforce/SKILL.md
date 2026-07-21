@@ -171,15 +171,16 @@ standard; FLS mechanics: `salesforce-security-model`)
 
 ## Review severities
 
-- **Critical**: new Visualforce surface added with no named
-  platform-forcing reason (Maintenance-first); `escape="false"` used
+- **Critical**: `escape="false"` used
   with no stated justification on content that can carry user-supplied
   or external data (`vf-security`); a query or DML operation on
   business/sensitive data running in system context inside a controller
   or extension with no FLS/sharing enforcement (`salesforce-security-model`,
   cited there).
-- **Important**: a custom controller written where standard controller +
-  extension would express the page (`vf-controller-ladder`); a getter
+- **Important**: new Visualforce surface added with no named
+  platform-forcing reason (Maintenance-first); a custom controller
+  written where standard controller + extension would express the page
+  (`vf-controller-ladder`); a getter
   bound to `apex:repeat`/`apex:pageBlockTable` that re-queries on every
   call instead of returning a cached collection (`vf-data-binding`); a
   controller holding query results or derived collections in

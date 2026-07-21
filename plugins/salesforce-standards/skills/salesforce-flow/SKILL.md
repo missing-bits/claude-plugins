@@ -194,8 +194,7 @@ maintenance-only enforcement)
 - **Critical**: a Get/Update/Delete Records element inside a Loop
   (`flow-bulk-safe`); a Create/Update/Delete Records or callout element
   with no fault path, or a fault path that does nothing observable
-  (`flow-fault-paths`); a new Workflow Rule or Process Builder process
-  (`flow-retired-automation`); a second record-triggered flow created on
+  (`flow-fault-paths`); a second record-triggered flow created on
   an object and trigger moment an existing flow already owns
   (`flow-one-per-object-moment`).
 - **Important**: run context left unstated or undocumented, especially
@@ -203,7 +202,8 @@ maintenance-only enforcement)
   (`flow-run-context`); missing or overly broad entry conditions that let
   a flow's interview run on records it has no reason to touch
   (`flow-bulk-safe`); a subflow extracted with neither reuse nor a
-  clarity justification (`flow-one-per-object-moment`).
+  clarity justification (`flow-one-per-object-moment`); a new Workflow
+  Rule or Process Builder process (`flow-retired-automation`).
 - **Minor**: naming convention deviations on flows, elements, or
   variables, including default un-renamed element labels
   (`flow-naming`).

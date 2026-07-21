@@ -5,11 +5,13 @@ step — then a checklist for assessing an Aura-to-LWC conversion.
 
 ## Decision rule
 
-> Is the component that needs to react a parent (direct or indirect) of
-> the component that fires the event, inside the same containment tree?
+> Is the component that needs to react the direct container of the
+> component that fires the event, inside the same containment tree?
 >
-> - **Yes** → component event. It bubbles up the tree it was fired from
->   and nothing outside that tree can see it.
+> - **Yes** → component event. It reaches only that direct container —
+>   an indirect ancestor needs its own attribute wiring on the
+>   intermediate component, or a re-fire, since it doesn't bubble further
+>   on its own.
 > - **No** (siblings, unrelated parts of the page, no containment
 >   relationship to exploit) → application event, and only then. Every
 >   handler anywhere in the app receives it, so this is the wider,

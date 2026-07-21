@@ -187,14 +187,14 @@ consumer-surface item are this standard)
 
 ## Review severities
 
-- **Critical**: new Aura surface added with no named platform-forcing
-  reason (Maintenance-first); business logic — a calculation, an
+- **Critical**: business logic — a calculation, an
   eligibility or status rule — implemented in a component's controller
   or helper instead of delegated to Apex (`aura-controller-helper`); an
   application event fired where a component event would do, discovered
   by tracing an unnecessary cross-tree dependency (`aura-events`).
-- **Important**: an `<aura:attribute>` typed as `Object` with no
-  justification (`aura-markup`); logic (a loop, a multi-line
+- **Important**: new Aura surface added with no named platform-forcing
+  reason (Maintenance-first); an `<aura:attribute>` typed as `Object`
+  with no justification (`aura-markup`); logic (a loop, a multi-line
   conditional, a direct Apex call) living in a controller action instead
   of a helper function (`aura-controller-helper`); an event payload
   carrying the whole record or firing component's state instead of the
