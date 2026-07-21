@@ -20,9 +20,8 @@ see `salesforce-lwc`.
   `OrderServiceTest` for `OrderService`).
 - **`@TestSetup`**: a single `static void` method building the data
   shared by every test method in the class, via `TestDataFactory`. It
-  runs once per test method in its own transaction (each test method
-  starts from the same rolled-back snapshot), so setup cost is paid
-  once even though isolation is per-method.
+  runs once per test method in its own transaction — same rolled-back
+  snapshot each time, isolation per-method, setup cost paid once.
 - **One behavior per test method.** A method name states the scenario
   and the expectation (e.g.
   `validateStatusTransitions_throwsWhenActivatingFromCancelled`) —
@@ -43,17 +42,14 @@ Apex Code"; the naming/AAA conventions are this standard)
 **One `TestDataFactory` class, per-object static methods, each with
 sensible defaults and override parameters.** No test method builds an
 `SObject` inline with `new Account(...)` — every record a test needs
-comes from a `TestDataFactory` method, so a schema change (a new
-required field, a renamed picklist value) is fixed in one place instead
-of in every test file that happens to construct that object.
+comes from a `TestDataFactory` method, so a schema change is fixed in
+one place instead of in every test file.
 
 - Each builder takes a record count and returns the concrete SObject
   list type — `List<Account>`, `List<Order>` — not a generic
-  `List<SObject>`, so a calling test can use the returned records
-  without a cast: `createAccounts(Integer count)`.
+  `List<SObject>`: `createAccounts(Integer count)`.
 - An overload accepts a `Map<String, Object>` of field overrides applied
-  on top of the defaults, so a test that needs one specific field value
-  doesn't get its own bespoke builder:
+  on top of the defaults:
   `createAccounts(Integer count, Map<String, Object> fieldOverrides)`.
 - The factory inserts the records and returns them — a test method
   never calls `insert` on a factory-built list itself.
@@ -69,14 +65,13 @@ of in every test file that happens to construct that object.
 legacy-only: keep it where it already exists in code you are not
 otherwise touching, never write it in new tests.
 
-- **Always pass a failure message** as the last argument. A bare
-  `Assert.areEqual(expected, actual)` tells you a test failed; the
-  message is what tells you *why* without reopening the test method.
+- **Always pass a failure message** as the last argument — it tells you
+  *why* a test failed without reopening the method.
 - **Assert the actual behavior, not just "no exception was thrown."**
-  A test that calls the method under test and stops is not a test — it
-  passes even if the method silently did nothing. Assert the resulting
-  state: the field value that changed, the record count that was
-  created, the exception type and message for a failure path.
+  A test that calls the method under test and stops passes even if the
+  method silently did nothing. Assert the resulting state: the field
+  value that changed, the record count created, the exception type and
+  message for a failure path.
 
 (id: `apex-test-assertions`; source: this standard — `System.assert*`
 is documented by Salesforce as legacy, superseded by the `Assert`
@@ -85,9 +80,7 @@ class)
 ## Mocking
 
 - **`Test.setMock(HttpCalloutMock.class, ...)` for every callout, with
-  no exceptions.** A test never makes a real HTTP callout — no test
-  should depend on an external system being up, fast, or returning the
-  same thing twice.
+  no exceptions.** A test never makes a real HTTP callout.
 - **The Stub API (`System.StubProvider`, `Test.createStub`)** for unit
   isolation where the code under test already takes its dependency
   through dependency injection (a constructor or setter parameter, e.g.
@@ -113,14 +106,10 @@ Wrap **only the action under test** — never the `TestDataFactory` setup
 calls — in `Test.startTest()` / `Test.stopTest()`:
 
 - Everything inside the block runs with a **fresh set of governor
-  limits**, separate from setup — a test that built 200 records before
-  `startTest()` doesn't have those queries or DML statements counted
-  against the limits the action under test actually needs to stay
-  within.
+  limits**, separate from setup.
 - `Test.stopTest()` **runs queued asynchronous work (`@future`,
-  `Queueable`, `Batchable`) synchronously** before returning — an
-  action that enqueues async work needs its effects asserted only after
-  `stopTest()`, not before.
+  `Queueable`, `Batchable`) synchronously** before returning — assert
+  async effects only after `stopTest()`, not before.
 
 (id: `apex-test-start-stop`; source: Apex Developer Guide — "Using the
 Test.startTest and Test.stopTest Methods")
@@ -128,12 +117,9 @@ Test.startTest and Test.stopTest Methods")
 ## No `SeeAllData`
 
 **`@IsTest(SeeAllData=true)` is banned.** Every test creates the data it
-needs through `TestDataFactory` and runs correctly in an org that has
-none of your organization's actual records — no reliance on a specific
-existing Account, a particular picklist value already present in the
-org, or any other ambient data. A test that only passes because of data
-that happens to exist in one particular sandbox is not a repeatable
-test.
+needs through `TestDataFactory` and runs correctly in an org with none
+of your organization's actual records — no reliance on an existing
+Account, a picklist value already present, or any other ambient data.
 
 (id: `apex-test-no-see-all-data`; source: Apex Developer Guide —
 "Data Access and Test Visibility"; this standard bans the escape hatch

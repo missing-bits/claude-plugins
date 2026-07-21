@@ -6,15 +6,13 @@ description: Use when maintaining existing Visualforce pages — standard contro
 # Salesforce Visualforce
 
 **Maintenance-first.** Existing Visualforce pages are held to every
-standard in this skill — being legacy is not a pass on quality. But new
-UI is built in LWC, never Visualforce, unless the platform genuinely
-forces Visualforce (the canonical case: PDF rendering with
-`renderAs="pdf"`, a capability LWC has no equivalent for). New
-Visualforce surface added to a review without a named platform-forcing
-reason is itself a review finding — "the team already knows
-Visualforce" or "the existing page is Visualforce" are not forcing
-reasons; only a concrete platform gap is. See `salesforce-lwc` for where
-new UI work belongs and how it is built.
+standard here — being legacy is not a pass on quality. New UI is built
+in LWC, never Visualforce, unless the platform genuinely forces it
+(canonical case: PDF rendering via `renderAs="pdf"`, which LWC cannot
+do). New Visualforce surface with no named platform-forcing reason is
+itself a review finding — "the team already knows Visualforce" or "the
+existing page is Visualforce" don't count; only a concrete platform gap
+does. See `salesforce-lwc` for where new UI work belongs.
 
 Cite rules in review findings as `(standard: salesforce-visualforce,
 rule: <id>)`; each rule names its source — the Visualforce Developer
@@ -61,20 +59,17 @@ the step-justification framing is this standard)
 
 ## View state discipline
 
-**View state exists only on a page that contains `apex:form`** — it is
-the mechanism that carries postback state (the controller's field
-values) from one request to the next across that form's submits. A
-form-less page (a read-only detail page, a page that only ever renders
-and never posts back) has no view state to discipline; everything below
-applies to pages built around `apex:form`, not to every Visualforce page
-unconditionally.
+**View state exists only on a page that contains `apex:form`** — it
+carries postback state (the controller's field values) across that
+form's submits. A form-less page (read-only, never posts back) has no
+view state to discipline; everything below applies only to pages built
+around `apex:form`.
 
 On a page with a form, every non-transient property on the controller
 (standard, extension, or custom) is serialized into the view state on
-each request/response round trip and sent back to the browser — a
-page's view state has a fixed platform limit, and treating that limit as
-a hard design constraint, not an incident to react to after a page
-starts failing, is what keeps a controller maintainable.
+each request/response round trip. The view state has a fixed platform
+limit — treat it as a design constraint from the start, not an incident
+to react to once a page starts failing.
 
 - **Mark computed and reconstructable data `transient`.** A cache,
   a lazily-computed value, or any collection that can be refetched or
@@ -90,16 +85,12 @@ starts failing, is what keeps a controller maintainable.
   the next request.
 - **Treat the view state limit as a design input, not an
   afterthought.** Visualforce caps view state at **170 KB per page**
-  (Visualforce Developer Guide, "View State") — a fixed ceiling, not a
-  soft guideline. A controller that already holds a large result set,
-  a wide related-record map, or several independent query results in
-  ordinary (non-transient) properties is a page that will hit that
-  ceiling as data grows — the fix at that point is pagination, targeted
+  (Visualforce Developer Guide, "View State") — a fixed ceiling. A
+  controller already holding a large result set, a wide related-record
+  map, or several independent query results in non-transient properties
+  will hit that ceiling as data grows — the fix is pagination, targeted
   queries, and `transient` caching designed in from the start, not a
-  property-by-property cleanup once the page starts erroring. Knowing
-  the actual ceiling is what turns "keep view state small" from a vague
-  intuition into a number a reviewer can check a page's current state
-  size against.
+  cleanup once the page starts erroring.
 
 A before/after pair — a controller carrying unrelated query results in
 plain properties, reduced to the one scalar it actually needs to persist
@@ -114,30 +105,27 @@ standard)
 
 - **Bind through controller properties, not inline logic.** A page
   expression (`{!account.Name}`, `{!openPipelineTotal}`) reads a single
-  property exposed by the controller — it is not the place for a
-  multi-step conditional, arithmetic, or a method call chosen for its
-  side effect. When a page needs a derived or formatted value, compute
-  it once in a controller getter and bind to that property directly;
-  logic embedded in a page expression hides behavior where a reviewer
-  isn't looking for it and can't be unit-tested the way a controller
-  method can. This does not ban a single-comparison
-  `rendered`/`disabled` toggle (`rendered="{!currentStep == 1}"`,
-  `disabled="{!isReadOnly}"`) — a plain comparison or boolean read
-  driving whether a block shows or an input is enabled is idiomatic
-  Visualforce control flow. What the rule bans is expression logic that
-  *computes a displayed value* — arithmetic, string-building, or a
-  multi-step conditional standing in for a controller property that
-  should have carried that computed value in the first place.
+  controller property — not a multi-step conditional, arithmetic, or a
+  side-effecting method call. Compute a derived or formatted value once
+  in a controller getter and bind to that property directly; logic
+  embedded in a page expression hides behavior from review and can't be
+  unit-tested the way a controller method can. This does not ban a
+  single-comparison `rendered`/`disabled` toggle
+  (`rendered="{!currentStep == 1}"`, `disabled="{!isReadOnly}"`) — a
+  plain comparison or boolean read driving whether a block shows or an
+  input is enabled is idiomatic Visualforce control flow. What the rule
+  bans is expression logic that *computes a displayed value* —
+  arithmetic, string-building, or a multi-step conditional standing in
+  for a controller property that should have carried that computed
+  value in the first place.
 - **`apex:repeat` (and `apex:pageBlockTable`/`apex:dataTable`) iterate
   over an already-fetched collection, never a getter that re-queries per
   call.** Visualforce's rendering lifecycle can invoke a bound getter
-  more than once per request; a getter that issues SOQL and is bound
+  more than once per request, so a getter that issues SOQL and is bound
   directly as a repeat's `value` turns one page render into a
-  once-per-render (or worse, once-per-row) query. Fetch the collection
-  once — in the constructor, an action method, or a `transient`-cached
-  getter that populates on first call and returns the cached list on
-  subsequent calls — and bind the repeat to that already-populated
-  property.
+  once-per-render (or per-row) query. Fetch the collection once — in the
+  constructor, an action method, or a `transient`-cached getter — and
+  bind the repeat to that already-populated property.
 
 (id: `vf-data-binding`; source: Visualforce Developer Guide — "Expression
 Language", "Using apex:repeat"; the getter-caching discipline is this
@@ -151,17 +139,16 @@ standard)
   markup — if that value can ever contain user-supplied or externally
   sourced content, this is a stored or reflected XSS opening. Use
   `escape="false"` only for content that is genuinely trusted or already
-  sanitized (rendering a rich-text field the platform itself sanitizes,
-  static admin-authored markup), and record why the value is safe to
-  render unescaped as a comment next to the attribute. `escape="false"`
-  with no such justification recorded is a review finding regardless of
-  whether the current data happens to be safe.
-- **Field-level security (FLS) is respected via the security-model
+  sanitized (a rich-text field the platform itself sanitizes, static
+  admin-authored markup), and record why the value is safe to render
+  unescaped as a comment next to the attribute. No justification
+  recorded is a review finding regardless of whether the current data
+  happens to be safe.
+- **Field-level security (FLS) is deferred to the security-model
   standards, not restated here** — see `salesforce-security-model` for
   how FLS is enforced at the query/DML boundary inside a custom
-  controller or extension's Apex, and for what "respects FLS" actually
-  requires. A Visualforce controller that queries or saves
-  business/sensitive data in system context with none of that
+  controller or extension's Apex. A Visualforce controller that queries
+  or saves business/sensitive data in system context with none of that
   enforcement in place is a finding under that skill, not a separate
   Visualforce-specific rule.
 

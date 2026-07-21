@@ -19,29 +19,27 @@ and sharing rules actually grant.
 ## Org-wide defaults
 
 **OWD is the access floor, opened selectively — never the other
-way.** Every access-widening mechanism (role hierarchy, a sharing rule,
-manual sharing, an Apex-managed share) adds visibility on top of OWD;
-none of them can narrow what OWD already grants. Set OWD to the
-strictest level the data actually needs, then open it up deliberately
-for the roles and rules that need more.
+way.** Role hierarchy, sharing rules, manual sharing, and Apex-managed
+shares all add visibility on top of OWD; none can narrow it. Set OWD to
+the strictest level the data actually needs, then open it up
+deliberately for the roles and rules that need more.
 
 - **Private is the default stance for any object holding business or
   sensitive data** — accounts, opportunities, cases, contracts, and any
-  custom object carrying financial, contractual, or personal data. Access
-  is opened selectively afterward, through the role hierarchy and
-  sharing rules described below — never by defaulting the object wide
-  open "to keep things simple."
+  custom object carrying financial, contractual, or personal data. Open
+  access selectively afterward, through the role hierarchy and sharing
+  rules below — never by defaulting the object wide open "to keep
+  things simple."
 - **Public (Read Only or Read/Write) is reserved for reference or
-  dictionary data** — lookup-style objects with no business or
-  sensitivity consequence to broad visibility (a country/region
-  picklist-backing object, a product catalog reference table, a price
-  book referenced org-wide). A Public OWD carries a **stated
+  dictionary data** — lookup-style objects with no sensitivity
+  consequence to broad visibility (a picklist-backing object, a product
+  catalog, an org-wide price book). A Public OWD carries a **stated
   justification** — one line, on the object or in its design record,
-  saying why universal visibility is safe for this object (no sensitive
-  fields, no business harm from any user seeing every record).
+  saying why universal visibility is safe (no sensitive fields, no
+  business harm from any user seeing every record).
 - A **Public OWD on a business/sensitive-data object with no stated
-  justification is a review finding**, regardless of how convenient the
-  wide-open default felt during initial build.
+  justification is a review finding**, regardless of build-time
+  convenience.
 
 A full worked example — OWD choice, role-hierarchy tiers, the sharing
 rules that open the object further, and the permission sets that grant
@@ -56,29 +54,26 @@ carve-out with its justification requirement are this standard)
 ## Role hierarchy
 
 **The role hierarchy grants record visibility upward, on top of OWD —
-never a substitute for OWD, never a way around it.** For any object
-where OWD is stricter than Public, a role automatically sees every
-record owned by, or already shared with, any role below it in the
-hierarchy (this can be switched off per custom object via "Grant Access
-Using Hierarchies" when hierarchy-based visibility isn't the intended
-story for that object).
+never a substitute for OWD, never a way around it.** Where OWD is
+stricter than Public, a role automatically sees every record owned by,
+or already shared with, any role below it in the hierarchy (switch this
+off per custom object via "Grant Access Using Hierarchies" when
+hierarchy-based visibility isn't the intended story for that object).
 
 - **Keep it shallow.** A role hierarchy models tiers of access need, not
-  every layer of the management org chart. A handful of tiers (an
-  individual-contributor tier, a manager tier, an exec/ops tier) is
-  usually enough regardless of how many people-management layers HR
-  draws — every extra tier compounds implicit access grants nobody
-  explicitly asked for, and widens the blast radius of "who can now see
-  this" on every future reorg.
+  every layer of the management org chart — a handful of tiers (IC,
+  manager, exec/ops) is usually enough regardless of how many
+  people-management layers HR draws. Every extra tier compounds implicit
+  access grants nobody asked for and widens the blast radius on every
+  future reorg.
 - **Decouple it from the org chart.** A role node represents an access
-  tier, not a job title or a reporting line. A manager who needs no
-  broader record visibility than their reports does not need a role
-  above them; conversely, two peers in different reporting chains who
-  both need visibility into a shared book of business can share one
-  role. Name each role for the access tier it grants
-  (`Sales_Manager_Region`, not `Reports_To_VP_Smith`) so the hierarchy
-  keeps working after the next reorg renames the management chain
-  underneath it.
+  tier, not a job title or reporting line: a manager needing no broader
+  record visibility than their reports doesn't need a role above them;
+  two peers in different reporting chains who both need visibility into
+  a shared book of business can share one role. Name each role for the
+  access tier it grants (`Sales_Manager_Region`, not
+  `Reports_To_VP_Smith`) so it keeps working after the next reorg renames
+  the management chain underneath it.
 
 (id: `security-role-hierarchy`; source: sharing/security documentation —
 role hierarchy record-access grants; the shallow, org-chart-decoupled
@@ -101,11 +96,10 @@ the profile.
   capability-scoped building blocks, assigned individually only for a
   genuine one-off exception outside any persona's normal shape.
 - **A capability added to a profile instead of a permission set is a
-  review finding** — no exception for "it's just one small checkbox."
-  A profile-level grant applies silently to every user on that profile,
-  is invisible to permission-set-based access-review tooling, and
-  re-couples a capability to login-shell settings that have nothing to
-  do with it.
+  review finding** — no exception for "it's just one small checkbox." It
+  applies silently to every user on that profile, is invisible to
+  permission-set-based access-review tooling, and re-couples the
+  capability to unrelated login-shell settings.
 - Decomposition patterns (per-capability vs per-app permission sets),
   naming, and a worked profile-stuffed-vs-permission-set-first
   anti-pattern pair are in
@@ -129,13 +123,11 @@ Two kinds, chosen by what actually determines who should see the record:
   is*, independent of ownership.
 - **Naming**: `<Object>_<What>_To<Audience>` —
   `Case_Escalated_ToSupportManagers`, `Account_EMEA_ToRegionalTeam`. The
-  name states the condition and the audience without needing to open the
-  rule to find out what it does.
+  name states condition and audience without opening the rule to check.
 - **Document why each rule exists.** Every sharing rule's description
   states the business reason it was created and, where known, who
-  requested it. An undocumented sharing rule is unreviewable once the
-  person who built it has moved on — nobody can tell whether it is still
-  needed or safe to remove.
+  requested it — undocumented, it becomes unreviewable once its author
+  has moved on.
 
 (id: `security-sharing-rules`; source: sharing/security documentation —
 criteria-based and ownership-based sharing rules; the naming convention
@@ -143,25 +135,24 @@ and the documented-why requirement are this standard)
 
 ## Field-level security (FLS)
 
-FLS is enforced in two places, and both are required — a field hidden on
-a page layout with no FLS restriction underneath is still readable and
+FLS is enforced in two places, both required — a field hidden on a page
+layout with no FLS restriction underneath is still readable and
 editable through any other layout, the API, or an integration.
 
 - **In the UI**: field-level security is granted through permission sets
   (never through profiles, per permission-set-first above). Page-layout
-  field visibility is presentation only — it controls what a given
-  layout shows, not what the running user is actually permitted to
-  read or edit; FLS on the permission set is the real control.
+  field visibility is presentation only — FLS on the permission set is
+  the real control over what the running user can read or edit.
 - **In code**: enforce FLS (and sharing) at the query and DML boundary
   rather than trusting system-context access. Name the mechanism, not the
   keyword details — `WITH USER_MODE` on SOQL enforces the running user's
-  object and field-level (CRUD/FLS) permissions and sharing on the query
-  itself; `Security.stripInaccessible`
-  strips fields the running user can't access from a record or record
-  list before it's used or returned. **The keyword mechanics
-  (`with sharing` / `without sharing` / `inherited sharing` and how they
-  interact with these) belong to `salesforce-apex`** — this skill only
-  names which touchpoint to reach for.
+  object- and field-level (CRUD/FLS) permissions and sharing on the query
+  itself; `Security.stripInaccessible` strips fields the running user
+  can't access from a record or record list before it's used or
+  returned. **The keyword mechanics (`with sharing` / `without sharing` /
+  `inherited sharing` and how they interact with these) belong to
+  `salesforce-apex`** — this skill only names which touchpoint to reach
+  for.
 - A query or DML operation touching business/sensitive data that runs in
   system context with neither of these enforcement steps, and no
   documented reason it must bypass user access, is a review finding.
@@ -187,10 +178,10 @@ design record):
    revisit date; a grant with no expiry still gets a named periodic
    review point.
 
-An access grant made without answering these — especially anything
-labeled "temporary" with no revisit date attached — is how permanent,
-unreviewed access drift accumulates; answer them at grant time, not after
-an audit finds the leftover.
+Answer these at grant time, not after an audit finds the leftover — an
+unanswered grant, especially anything labeled "temporary" with no
+revisit date attached, is how permanent, unreviewed access drift
+accumulates.
 
 (id: `security-access-grant-questions`; source: this standard, informed
 by Salesforce Well-Architected least-privilege access-model guidance)
