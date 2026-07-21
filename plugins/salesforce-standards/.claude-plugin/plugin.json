@@ -1,7 +1,7 @@
 {
   "name": "salesforce-standards",
   "description": "Salesforce coding standards for the sf CLI + Code Analyzer + Prettier-Apex + sfdx-lwc-jest toolchain: eight area skills (Apex, Apex testing, LWC, Flow, data model, security model, maintenance-first Aura and Visualforce), a code-review stack (salesforce-code-review skill, salesforce-code-reviewer agent, /salesforce-review command) writing review reports to docs/code-review/, a salesforce-plan-review checklist for plan reviews, and a salesforce-toolchain rule shipped as a Rules payload",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "author": { "name": "Missing Bits (Jacek Nakonieczny)" },
   "license": "MIT",
   "keywords": ["salesforce", "standards", "apex", "lwc", "flow", "aura", "visualforce", "sf-cli", "review"]
