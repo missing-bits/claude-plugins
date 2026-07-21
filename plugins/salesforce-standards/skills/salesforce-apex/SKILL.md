@@ -38,8 +38,7 @@ patterns are this standard)
 ## Lightweight layers
 
 **No fflib / Apex Enterprise Patterns dependency.** The layering below is
-a naming-and-structure convention, not a library — fflib is cited only
-as inspiration for teams that later want a fuller framework.
+a naming-and-structure convention, not a library.
 
 | Layer | Owns | Never does |
 |---|---|---|
@@ -52,10 +51,10 @@ as inspiration for teams that later want a fuller framework.
 - **One handler per trigger; one trigger per object.** The trigger body
   is a single delegating call — no `if`/`for`/field logic in the
   `.trigger` file.
-- The Domain layer is where an object's own business rules live
-  (e.g. "an Order can only move from Draft to Activated, never
-  backward") — keep it independent of Handler/Service so those rules
-  are testable without triggering full orchestration.
+- The Domain layer holds an object's own business rules (e.g. "an Order
+  can only move from Draft to Activated, never backward"), kept
+  independent of Handler/Service so those rules stay testable without
+  full orchestration.
 - A complete worked example (trigger + handler + domain + selector +
   service for one object) is in
   [reference/trigger-handler.md](reference/trigger-handler.md).
@@ -97,9 +96,8 @@ Design to these per-transaction budgets (Apex Developer Guide —
   `Limits.getLimitQueries()`, `Limits.getDmlStatements()` /
   `Limits.getLimitDmlStatements()`, `Limits.getCpuTime()`,
   `Limits.getHeapSize()`, and their `getLimit*` counterparts) to check
-  remaining budget before a step that might approach it — e.g. before
-  deciding whether to process a chunk synchronously or hand it to a
-  `Queueable`.
+  remaining budget before a step that might approach it (e.g. choosing
+  sync processing vs. handing a chunk to a `Queueable`).
 - A budget-aware pattern is the third pair in
   [reference/bulkification.md](reference/bulkification.md).
 
@@ -138,15 +136,13 @@ belongs to `salesforce-security-model`.
   recovers, rethrows (optionally wrapped in a domain exception), or logs
   and rethrows — it never just returns or does nothing.
 - **Logging is a central abstraction, not `System.debug`.** `System.debug`
-  is a development-time tool only — it is not durable, not queryable in
-  production, and does not survive a transaction rollback. Route errors
-  (especially integration/callout failures) through one logging
-  abstraction that supports levels (error/warn/info) and persists
-  integration errors past a rollback (e.g. via a platform event, since
-  those commit independently of the triggering transaction's outcome).
-  No specific logging library is mandated — Nebula Logger is a
-  reasonable off-the-shelf implementation of this pattern, cited as an
-  example, not a requirement.
+  is dev-only — not durable, not queryable in production, and lost on
+  rollback. Route errors (especially integration/callout failures)
+  through one logging abstraction with levels (error/warn/info) that
+  persists integration errors past a rollback (e.g. via a platform
+  event, which commits independently of the triggering transaction). No
+  library is mandated — Nebula Logger is a reasonable example, not a
+  requirement.
 
 (id: `apex-error-handling`; source: PMD `EmptyCatchBlock`,
 `DebugsShouldUseLoggingLevel`; the central-logger-abstraction and

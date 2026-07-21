@@ -9,9 +9,9 @@ Standards for building and reviewing Lightning Web Components: bundle
 structure, JavaScript conventions, Apex integration, communication,
 styling, and jest testing with `sfdx-lwc-jest`. Cite rules in review
 findings as `(standard: salesforce-lwc, rule: <id>)`; each rule names its
-source — the LWC Developer Guide, the `sfdx-lwc-jest` docs, or `this
-standard` (a recorded house decision). All new UI work targets LWC; Aura
-components are maintenance-only — see `salesforce-aura` for that
+source (the LWC Developer Guide, the `sfdx-lwc-jest` docs, or `this
+standard` for a recorded house decision). All new UI work targets LWC;
+Aura components are maintenance-only — see `salesforce-aura` for that
 boundary. Apex-side layering (handler/service/selector) is
 `salesforce-apex`'s concern; this skill covers only the shape of the
 Apex methods an LWC calls (`@AuraEnabled`, `cacheable`).
@@ -24,18 +24,18 @@ Apex methods an LWC calls (`@AuraEnabled`, `cacheable`).
   when the component needs custom styling; a `__tests__/` folder for its
   jest tests.
 - **Folders**: platform default — a flat `lwc/` directory, one folder per
-  component, no feature-based sub-grouping layered on top. Consistency
-  with the platform's own generators (`sf lightning generate component`)
-  outweighs any bespoke grouping scheme.
+  component, no feature-based sub-grouping layered on top, for
+  consistency with the platform's own generators
+  (`sf lightning generate component`).
 - **Naming**: the folder and the exported class are both **camelCase**
   (`contactList`, `class ContactList`); markup usage is **kebab-case**
   with the namespace prefix (`<c-contact-list>`).
-- **One component, one responsibility.** A component that renders a list
-  *and* owns a separate modal's full edit form is two responsibilities —
-  split into a parent (list, selection) and a child (the edit form),
-  connected by `@api` properties down and a custom event up. Reach for a
-  second component when a template accumulates more than one reason to
-  change, not on a line-count threshold.
+- **One component, one responsibility.** E.g. a component rendering a
+  list *and* owning a separate modal's full edit form is two
+  responsibilities — split into a parent (list, selection) and a child
+  (the edit form), connected by `@api` properties down and a custom event
+  up. Split when a template accumulates more than one reason to change,
+  not on a line-count threshold.
 
 (id: `lwc-structure`; source: LWC Developer Guide — "Create a Lightning
 Web Component"; folder-flatness and one-responsibility are this standard)
@@ -45,10 +45,9 @@ Web Component"; folder-flatness and one-responsibility are this standard)
 - **Modern ES modules** — `import`/`export`, classes extending
   `LightningElement`; no `require`, no global namespace pollution.
 - **True private state as private class fields** (`#internalState`), not
-  a `_prefixed` convention — a `#field` is genuinely inaccessible from
-  outside the class, where an underscore is only a naming hint. Expose a
-  getter for whatever derived value the template actually needs; never
-  expose the private field itself.
+  a `_prefixed` convention — a `#field` is genuinely inaccessible, where
+  an underscore is only a naming hint. Expose a getter for whatever
+  derived value the template needs; never the private field itself.
 - **No DOM manipulation outside the component's own shadow boundary.**
   `this.template.querySelector(...)` reads the component's own rendered
   markup; a component never reaches into `document` for another
@@ -59,11 +58,10 @@ Web Component"; folder-flatness and one-responsibility are this standard)
   parent is allowed to set or call. Keep this surface minimal and named
   for what the caller supplies (`accountId`), not for an internal
   implementation detail.
-- **`@track`**: needed only when a property holds an object or array that
-  is mutated in place (a nested field changed, an item pushed) rather
-  than reassigned — reassigning a top-level property, or reassigning an
-  array/object wholesale, is already reactive without it. Reaching for
-  `@track` on every property is a sign the component is mutating state it
+- **`@track`**: needed only when a property holds an object or array
+  mutated in place (a nested field changed, an item pushed) rather than
+  reassigned — wholesale reassignment is already reactive without it.
+  `@track` on every property signals the component is mutating state it
   should instead be replacing.
 - **`@wire`**: see the next section.
 
@@ -82,14 +80,13 @@ stance is this standard)
   specific user action (a button click, a save) is imperative — it isn't
   naturally reactive to the component's own properties, and running it as
   a side effect of a wire would be surprising. Wrap every imperative call
-  in `try`/`catch`; a rejected promise with no `catch` fails silently in
-  the console instead of reaching the user.
-- **`cacheable=true`** on the Apex method only when the method **performs
-  no DML** and is safe to serve from cache across components requesting
-  the same parameters — this is what makes it eligible to be `@wire`d in
-  the first place. An Apex method that writes data is never
-  `cacheable=true`, and is therefore always called imperatively, never
-  wired.
+  in `try`/`catch`; an uncaught rejected promise fails silently in the
+  console instead of reaching the user.
+- **`cacheable=true`** on the Apex method only when it **performs no
+  DML** and is safe to serve from cache across components requesting the
+  same parameters — this is what makes it eligible to be `@wire`d. A
+  method that writes data is never `cacheable=true`, and is therefore
+  always called imperatively, never wired.
 - Both patterns, side by side, are in
   [reference/component-patterns.js](reference/component-patterns.js).
 
@@ -102,11 +99,10 @@ Methods", "Wire Service"; Apex Developer Guide — "Using
 **Every user-facing string is a custom label** (`import someLabel from
 '@salesforce/label/c.SomeLabel'`) — a template or JS file never contains
 a hardcoded UI string (button text, an error message, an empty-state
-sentence). A hardcoded string can't be translated and can't be changed
-without a code deployment; a label can be edited or translated without
-touching the component. The one exception is a string that is genuinely
-not user-facing — a CSS class name, a `data-*` attribute value, a
-console-only debug message.
+sentence): a label can be translated and edited without a code
+deployment, a hardcoded string can't. The one exception is a string
+that is genuinely not user-facing — a CSS class name, a `data-*`
+attribute value, a console-only debug message.
 
 (id: `lwc-custom-labels`; source: LWC Developer Guide — "Access Static
 Text with Custom Labels")
@@ -119,10 +115,9 @@ Text with Custom Labels")
   parent hands data down only through the child's `@api` properties.
 - **Event naming**: a short, lowercase noun or verb naming the action or
   outcome, not the implementation — `select`, `rowaction`, `valuechange`.
-  The platform already lowercases event names and the listening side adds
-  its own `on` prefix (`onselect`), so an event never carries an `on`
-  prefix itself, and camelCase (`onRowAction`) buys nothing but gets
-  silently lowercased anyway.
+  The platform lowercases event names and the listener adds its own `on`
+  prefix (`onselect`), so an event never carries an `on` prefix itself;
+  camelCase (`onRowAction`) gets silently lowercased anyway.
 - **Lightning Message Service (LMS)** for communication that crosses the
   DOM hierarchy — components with no parent/child relationship, sibling
   components dropped onto the same page independently, or an
@@ -144,8 +139,7 @@ every component's styling.** Reach for a class (`slds-grid`,
 `slds-p-around_medium`) or a styling hook
 (`--slds-c-button-color-background`) before writing any custom CSS —
 they track the platform's design system automatically, including theme
-changes (Salesforce Classic vs Lightning, custom themes) a hand-rolled
-color value would silently miss.
+changes a hand-rolled color value would silently miss.
 
 - **Custom CSS only where SLDS genuinely cannot express the need** — a
   layout SLDS has no utility for, a one-off visual detail no styling hook
@@ -168,25 +162,24 @@ needs a real org.
 
 - **Test file placement**: inside the component's own bundle, in a
   `__tests__/` folder next to the component's `.js` file —
-  `lwc/contactList/__tests__/contactList.test.js` for `contactList.js`.
-  Co-locating the test with the component it exercises means the test
-  moves, renames, or gets deleted with the component instead of drifting
-  out of sync in a separate tree.
+  `lwc/contactList/__tests__/contactList.test.js` for `contactList.js` —
+  so the test moves, renames, or gets deleted with the component instead
+  of drifting out of sync in a separate tree.
 - **DOM assertions**: `createElement` from `lwc` builds the component,
   `document.body.appendChild` mounts it, and assertions read
   `element.shadowRoot.querySelector`/`querySelectorAll` — never
   `element.querySelector` directly, since the component's markup lives
-  inside its shadow root. Any state change that triggers a re-render
-  (a wire emission, a property set after mount) needs an
-  `await Promise.resolve()` (or awaiting a small microtask-flushing
-  helper) before the next assertion, since LWC re-renders on the
-  microtask queue, not synchronously.
+  inside its shadow root. Any state change triggering a re-render (a wire
+  emission, a property set after mount) needs an
+  `await Promise.resolve()` (or a small microtask-flushing helper) before
+  the next assertion, since LWC re-renders on the microtask queue, not
+  synchronously.
 - **Mocking wire adapters**: `jest.mock` the `@salesforce/apex/...` wire
   import and replace it with `createApexTestWireAdapter` (or
   `registerApexTestWireAdapter`, from `@salesforce/sfdx-lwc-jest`), then
-  drive it in the test with `.emit(data)` for the success path or
-  `.error(message)` for the error path — a test never depends on a real
-  Apex method executing.
+  drive it with `.emit(data)` for the success path or `.error(message)`
+  for the error path — a test never depends on a real Apex method
+  executing.
 - A full example — render, a wire-adapter mock (success and error), and
   an event-dispatch assertion — is
   [reference/jest-patterns.test.js](reference/jest-patterns.test.js).
@@ -197,14 +190,13 @@ Lightning Web Components Tests")
 ## Placement: component bundles vs static resources
 
 **Application JavaScript lives in component bundles; static resources
-are for third-party libraries and assets** — a static resource is never
-where a component's own logic lives. Use a static resource to vendor a
-third-party JS/CSS library the component loads via `loadScript`/
-`loadStyle` (a charting library, a PDF renderer), or to hold non-code
-assets (images, PDFs, fonts). A component's own behavior — anything this
-skill's JavaScript conventions govern — belongs in its bundle's `.js`
-file, not smuggled into a static resource as a script the bundle merely
-loads.
+are for third-party libraries and assets** — never for a component's own
+logic. Use a static resource to vendor a third-party JS/CSS library
+loaded via `loadScript`/`loadStyle` (a charting library, a PDF renderer),
+or to hold non-code assets (images, PDFs, fonts). A component's own
+behavior — anything this skill's JavaScript conventions govern — belongs
+in its bundle's `.js` file, not smuggled into a static resource as a
+script the bundle merely loads.
 
 (id: `lwc-placement`; source: this standard)
 

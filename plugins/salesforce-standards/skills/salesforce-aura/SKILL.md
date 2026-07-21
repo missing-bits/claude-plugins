@@ -23,36 +23,28 @@ Guide, or `this standard` (a recorded house decision).
 - **Attribute typing**: every `<aura:attribute>` declares a specific
   `type` (`Id`, `String`, `Boolean`, `Integer`, `SObject`, a `List` or
   `Map` of one of these) — never the generic `Object` as an escape
-  hatch. A specific type gives the component a contract a caller can
-  read at a glance and lets the framework catch a wrong-shaped value
-  passed in from markup; `Object` accepts anything and defers the
-  mismatch to a runtime error deep in the controller. Give attributes
-  that have a sensible default a `default="..."` value instead of
-  leaving every caller to supply it.
+  hatch, which defers a wrong-shaped value to a runtime error instead of
+  a markup-time catch. Give attributes with a sensible default a
+  `default="..."` value instead of leaving every caller to supply it.
 - **Expression discipline**: an expression (`{!v.someAttribute}`,
   `{!c.handleClick}`) reads a single attribute or invokes a single
-  controller action — it is not the place for inline arithmetic,
-  string concatenation, or a multi-step conditional. When a template
-  needs a derived value (a formatted label, a computed flag), compute it
-  once in the controller/helper and expose it through a dedicated
-  attribute; the markup then reads that attribute directly. A template
-  cluttered with `{!v.a + v.b > v.c ? 'x' : 'y'}` hides logic where a
-  reviewer isn't looking for it and can't be unit tested the way a
-  helper function can.
+  controller action — never inline arithmetic, string concatenation, or
+  a multi-step conditional (e.g. `{!v.a + v.b > v.c ? 'x' : 'y'}`).
+  Compute a derived value once in the controller/helper and expose it
+  through a dedicated attribute for the markup to read — logic in
+  markup hides from review and can't be unit tested.
 - **`aura:if` vs CSS-class toggling**: `aura:if` destroys and rebuilds
-  the DOM subtree of its branch that isn't shown — its
-  `init`/`render` lifecycle re-runs every time the condition flips, and
-  server-side data (like a `force:recordData` load) can be re-fetched
-  after a toggle. Reach for `aura:if` when the two branches are
-  genuinely different content, or when the hidden branch should not
-  even exist in the DOM (an admin-only panel, an expensive nested
-  component that must not mount until needed). Reach for CSS-class
-  toggling (`aura:id` + `component.find(...).set("class", ...)`, or a
-  computed CSS-class attribute driving `class="{!v.panelClass}"`) when
-  the same markup just needs to show or hide — a dropdown, a validation
-  message, an expand/collapse panel — especially when the toggle
-  happens often or the branch's state (scroll position, a user's
-  in-progress edit) must survive the toggle.
+  the DOM subtree it hides — `init`/`render` re-run on every flip, and
+  server-side data (e.g. a `force:recordData` load) can be re-fetched.
+  Reach for `aura:if` when the branches are genuinely different content,
+  or the hidden branch shouldn't even exist in the DOM (an admin-only
+  panel, an expensive component that must not mount until needed).
+  Reach for CSS-class toggling (`aura:id` + `component.find(...).set
+  ("class", ...)`, or a computed class attribute) when the markup just
+  needs to show/hide — a dropdown, a validation message, an
+  expand/collapse — especially when toggling is frequent or the
+  branch's state (scroll position, an in-progress edit) must survive
+  it.
 
 (id: `aura-markup`; source: Aura Components Developer Guide — "Component
 Markup", "Conditional Markup with aura:if"; the toggling decision rule is
@@ -60,27 +52,24 @@ this standard)
 
 ## Controller vs helper
 
-- **Controllers are thin.** A `<name>Controller.js` function exists only
-  to wire a DOM/component event to behavior: read what the event
-  carries, hand it to a helper function, and (when needed) apply the
-  helper's result back onto the component. A controller action that
-  itself contains a multi-line conditional, a loop, or a direct Apex
-  call has grown business logic that belongs in the helper.
+- **Controllers are thin.** A `<name>Controller.js` function only wires
+  a DOM/component event to behavior: read what the event carries, hand
+  it to a helper, and (when needed) apply the helper's result back onto
+  the component. A controller action with a multi-line conditional, a
+  loop, or a direct Apex call has grown logic that belongs in the
+  helper.
 - **Helpers hold the logic.** `<name>Helper.js` is where the actual work
   lives — validation, data shaping, the Apex call and its callback,
-  anything more than one line of reasoning. Helper functions are also
-  what more than one controller action can call, so shared behavior
-  lives in exactly one place instead of being copy-pasted across
-  handlers.
-- **No business logic in the component at all.** A calculation that
-  encodes a business rule (a discount formula, an eligibility check, a
-  status transition) does not belong in either the controller or the
-  helper — it belongs in Apex, called through an `@AuraEnabled` method
-  and invoked from the helper. The component's JavaScript orchestrates
-  UI (show this, disable that, call this method) and shapes data for
-  display; it is never the system of record for a rule that Apex could
-  enforce once and share across every caller (including Flow,
-  integrations, and other UI).
+  anything beyond one line of reasoning — and what more than one
+  controller action can call, so shared behavior lives in one place
+  instead of being copy-pasted across handlers.
+- **No business logic in the component at all.** A calculation encoding
+  a business rule (a discount formula, an eligibility check, a status
+  transition) belongs in Apex — an `@AuraEnabled` method invoked from
+  the helper — never in the controller or helper. Component JavaScript
+  orchestrates UI and shapes data for display; it is never the system
+  of record for a rule Apex could enforce once and share across every
+  caller (Flow, integrations, other UI).
 
 (id: `aura-controller-helper`; source: Aura Components Developer Guide —
 "Client-Side Controllers", "Helper Methods"; the thin-controller and
@@ -107,20 +96,17 @@ no-business-logic stances are this standard)
   an application event (`<aura:event type="APPLICATION">`, fired with
   `$A.get("e.c:EventName")`) only when there is no containment
   relationship to exploit — siblings dropped independently onto the
-  same page, or components in entirely separate parts of the component
-  tree that still need to react to the same thing. Every component with
-  a matching `<aura:handler>` anywhere in the app receives an
-  application event, so reaching for one out of convenience where a
-  component event would do widens the blast radius of a change and
-  makes the actual dependency graph harder to trace from the markup
-  alone.
+  same page, or components in separate parts of the tree reacting to
+  the same thing. Every component with a matching `<aura:handler>`
+  anywhere in the app receives it, so reaching for one out of
+  convenience where a component event would do widens the blast radius
+  of a change and hides the real dependency graph.
 - **Naming and payload discipline**: name an event for what happened,
-  not for the component that fired it (`RecordSaved`, not
-  `AccountCardEvent`), and give every parameter on the event definition
-  an explicit type — the same attribute-typing discipline as component
-  markup. Keep the payload to what a handler actually needs (the
-  changed record's Id, the new value) rather than the whole record or
-  the firing component's entire state; a narrow payload is what makes an
+  not the component that fired it (`RecordSaved`, not
+  `AccountCardEvent`), and type every parameter explicitly — same
+  discipline as component markup. Keep the payload to what a handler
+  actually needs (the changed record's Id, the new value), not the
+  whole record or firing component's state — a narrow payload keeps an
   event's contract legible without reading the firing component's code.
 - Full worked examples — registering, firing, and handling both event
   kinds, with the decision rule annotated inline — are in
@@ -134,18 +120,16 @@ component-first decision rule are this standard)
 
 **`force:recordData` (Lightning Data Service) over ad-hoc Apex for
 single-record CRUD.** Loading, creating, updating, or deleting one
-record — the case a record detail panel, a quick-edit form, or a
-related-record card almost always is — goes through
-`<force:recordData>` bound to the component, not a hand-written
-`@AuraEnabled` Apex method that runs its own SOQL/DML for the same job.
-LDS gives that single-record traffic sharing and FLS enforcement for
-free, and caches and dedupes the record across every component on the
-page that loads it, so two components showing the same record don't
-each issue their own server round trip. Reserve Apex for what LDS
-cannot do: multi-record operations, cross-object queries, aggregate
-values, or business logic that must run server-side — never as the
-default path for a single record's CRUD just because it is the familiar
-pattern.
+record — a record detail panel, a quick-edit form, or a related-record
+card — goes through `<force:recordData>` bound to the component, not a
+hand-written `@AuraEnabled` method running its own SOQL/DML for the
+same job. LDS gives that traffic sharing and FLS enforcement for free,
+and caches/dedupes the record across every component on the page that
+loads it, so two components showing the same record don't each issue
+their own server round trip. Reserve Apex for what LDS cannot do:
+multi-record operations, cross-object queries, aggregates, or
+server-side business logic — never as the default path for
+single-record CRUD just because it's the familiar pattern.
 
 (id: `aura-lds`; source: Aura Components Developer Guide — "Lightning
 Data Service")

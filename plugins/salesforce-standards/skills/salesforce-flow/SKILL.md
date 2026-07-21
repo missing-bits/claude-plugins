@@ -34,13 +34,11 @@ At least four worked examples across flow, element, and variable names
 are in [reference/naming.md](reference/naming.md).
 
 **Element names are not cosmetic — they are review citations.** Flow
-metadata has no source-code line numbers, so a review finding against a
-flow cites the element by name instead of a line; the `salesforce-code-review`
-review stack orders these line-less findings alphabetically by cited
-element name. A default label left un-renamed (`Get_Records_0`,
-`Assignment_1`) makes every citation against it just as vague — rename
-every element for what it does before saving the flow, not only the
-ones that "matter."
+metadata has no line numbers, so review findings cite the element by
+name instead (the `salesforce-code-review` stack orders these
+alphabetically). Rename every element for what it does before saving —
+a default label (`Get_Records_0`, `Assignment_1`) makes every citation
+against it just as vague, not only the ones that "matter."
 
 (id: `flow-naming`; source: Flow documentation — "Naming Conventions for
 Flows"; the record-triggered pattern, the other-flow-types pattern, and
@@ -60,10 +58,8 @@ a quick diagram:
   happens when it fails — logged, retried, surfaced to a user, or some
   combination (see "Fault paths" below).
 
-A flow built straight into the canvas tends to grow its branching and
-its failure handling as afterthoughts; sketching first also surfaces
-subflow candidates before the canvas is already tangled (see the next
-section).
+Sketching first also surfaces subflow candidates before the canvas is
+already tangled (see the next section).
 
 (id: `flow-plan-before-build`; source: this standard)
 
@@ -73,11 +69,10 @@ section).
 (before-save, after-save, before-delete, …). When a second piece of
 automation is needed for the same object and moment, add a Decision
 element (or another branch off an existing one) to the existing flow —
-never a second flow competing for the same trigger context. Two flows on
-the same object and moment run in an order that is hard to reason about
-and easy to get wrong when either one changes independently; one flow
-with internal branching keeps the execution order visible on a single
-canvas.
+never a second flow competing for the same trigger context. Two
+same-moment flows run in an order that's hard to reason about and easy
+to break when either changes independently; one flow with internal
+branching keeps execution order visible on a single canvas.
 
 - **Orchestrate inside the flow**, not by flow proliferation: a Decision
   element per distinct scenario, each branch doing its own work.
@@ -127,9 +122,9 @@ Salesforce Well-Architected — bulkification guidance)
 Records, Delete Records, an Action/Apex/HTTP callout, a Submit for
 Approval) connects both its default path and its fault path.** A fault
 path is never left unconnected: Flow Builder's unhandled-fault default
-surfaces a generic error to whatever invoked the interview, which for a
-record-triggered (system-context, no user present) or scheduled flow
-means the failure disappears with nobody seeing it.
+surfaces only a generic error to the invoker — for a record-triggered
+(system-context, no user present) or scheduled flow, that means the
+failure disappears unseen.
 
 - The fault connector leads to **named handling behavior** — at minimum,
   create a record of the failure (an error-log custom object, a platform
