@@ -11,8 +11,9 @@ paths:
 
 A Process directory is a directory the working process creates in a
 project repo to hold work artifacts: `docs/specs/`, `docs/plans/`,
-`docs/domain/`, `docs/code-review/`, `docs/memory/` (Team memory), and the
-`.superpowers/` family at the repo root.
+`docs/domain/`, `docs/code-review/`, `docs/memory/` (Team memory — when the
+project-memory plugin's rules are installed), and the `.superpowers/` family
+at the repo root.
 
 ## First-create question
 
@@ -35,8 +36,9 @@ itself; a git-tracked file under the directory (`git ls-files <dir>`
 non-empty) means tracked mode was chosen.
 
 `docs/memory/`'s tracked/ignored first-create question is asked by the
-project-memory core rule, not this one — it is listed above only so
-`docs/memory/` counts as a Process directory for the conventions below.
+project-memory plugin's core rule (when installed), not this one — it is
+listed above only so `docs/memory/` counts as a Process directory for the
+conventions below.
 
 ## Handling artifacts
 
@@ -51,10 +53,11 @@ project-memory core rule, not this one — it is listed above only so
   every call.
 - Per-work artifacts (review reports, ADRs, task briefs, progress
   ledgers) carry a `ticket` frontmatter field; registry files that live
-  across tickets (the domain glossary, `.gitignore` files, Project memory
-  notes and `INDEX.md`) are exempt. Project-memory idea entries DO carry
-  `ticket` and are not exempt. Team memory (`docs/memory/`) is a Process
+  across tickets (the domain glossary, `.gitignore` files, and — when the
+  project-memory plugin's rules are installed — Project memory notes and
+  `INDEX.md`) are exempt. Project-memory idea entries DO carry `ticket`
+  and are not exempt. Team memory (`docs/memory/`) is a Process
   directory; Private memory (`.claude/memory/`) is not — it is the
-  per-user store defined by the project-memory rule.
+  per-user store defined by the project-memory plugin's rules.
   Reuse the ticket already established for the current work; value format
   in the ticket-frontmatter rule.
