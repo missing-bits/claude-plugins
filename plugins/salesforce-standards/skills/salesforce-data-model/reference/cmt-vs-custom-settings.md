@@ -6,7 +6,7 @@
 |---|---|---|
 | What it holds | Configuration that is the same for every user and every environment once deployed | A value that legitimately differs by org default / profile / user |
 | Moves through deployment | Yes — records are metadata; they ride change sets, unlocked/managed packages, and scratch-org deploys like any other component | No — the data is org-local; each environment needs it seeded or edited separately |
-| Runtime access in Apex | SOQL query (`[SELECT ... FROM My_Type__mdt]`), or Flow's "Get Records" against the type | `getInstance()` / `getOrgDefaults()` — no query written at all |
+| Runtime access in Apex | `My_Type__mdt.getAll()` / `getInstance()` — auto-generated, reads from platform cache, no SOQL query consumed (same zero-query property as Custom Settings); SOQL (`[SELECT ... FROM My_Type__mdt]`) or Flow's "Get Records" remain available when a query's filtering/ordering is actually needed | `getInstance()` / `getOrgDefaults()` — reads from platform cache, no SOQL query consumed |
 | Built-in org → profile → user cascade | No — CMT has no per-running-user resolution; a query only ever returns the same records regardless of who's running it | Yes — this cascade is the type's defining feature |
 | Editable by an admin directly in production | Yes, via Setup, but changes made this way aren't captured in the next deployment (the deploy overwrites them back to whatever's in source) | Yes, and that's often the point — the value can be flipped live without waiting on a deployment |
 | Default choice | **Yes — start here for any new configuration** | Only when the cascade resolution above is actually needed |
@@ -16,11 +16,11 @@
 **`Discount_Tier__mdt`** — discount tiers used by a pricing flow/Apex
 service, the same for every user and every org once deployed.
 
-| Field | Purpose |
+| Field | Description |
 |---|---|
-| `DeveloperName` (standard on every CMT) | The stable key referenced at runtime — `Bronze`, `Silver`, `Gold` |
-| `Minimum_Order_Amount__c` (Number) | The order-total threshold this tier applies from |
-| `Discount_Percent__c` (Percent) | The discount applied at this tier |
+| `DeveloperName` (standard on every CMT) | The stable key referenced at runtime, never the record Id — `Bronze`, `Silver`, `Gold`. Set once at record creation; not written by any running process. |
+| `Minimum_Order_Amount__c` (Number) | The order-total threshold from which this tier applies. Set by Sales Ops when tiers are defined or revised; read by the pricing service, never written at runtime. |
+| `Discount_Percent__c` (Percent) | The discount percentage applied once an order reaches this tier's threshold. Set by Sales Ops; read by the pricing service, never written at runtime. |
 
 Records: `Bronze` (`Minimum_Order_Amount__c` = 0, `Discount_Percent__c` =
 0), `Silver` (1000, 5), `Gold` (5000, 10).
