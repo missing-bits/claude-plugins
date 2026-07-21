@@ -2,8 +2,9 @@
  * Worked example of the patterns in SKILL.md, testing an illustrative
  * `OrderService` / `OrderDomain` pair (the same Order fulfillment scenario
  * as salesforce-apex's reference/trigger-handler.md): activating an Order
- * inserts one fulfillment Task per Order, and an Order can never move
- * backward out of "Activated".
+ * inserts one fulfillment Task per Order, and an Order can only move to
+ * "Activated" from "Draft" — moving to "Activated" from any other status
+ * (e.g. "Cancelled") throws.
  *
  * Naming: `<Class>Test` — this file is named test-patterns.cls because it
  * bundles three independent scenarios for the skill's reference material,
@@ -57,31 +58,31 @@ private class OrderServiceTest {
      * not merely that "an exception happened."
      */
     @IsTest
-    static void validateStatusTransitions_throwsWhenMovingBackwardFromActivated() {
+    static void validateStatusTransitions_throwsWhenActivatingFromCancelled() {
         // Arrange
         Account acc = [SELECT Id FROM Account LIMIT 1];
-        List<Order> activatedOrders = TestDataFactory.createOrders(
+        List<Order> cancelledOrders = TestDataFactory.createOrders(
             1,
             acc.Id,
-            new Map<String, Object>{ 'Status' => 'Activated' }
+            new Map<String, Object>{ 'Status' => 'Cancelled' }
         );
-        Order activatedOrder = activatedOrders[0];
+        Order cancelledOrder = cancelledOrders[0];
 
         // oldMap must reflect the pre-change state, so clone before mutating —
         // otherwise the "old" record and the "new" record are the same object.
-        Map<Id, Order> oldMap = new Map<Id, Order>{ activatedOrder.Id => activatedOrder.clone(true) };
-        Order movedBackward = activatedOrder.clone(true);
-        movedBackward.Status = 'Draft';
+        Map<Id, Order> oldMap = new Map<Id, Order>{ cancelledOrder.Id => cancelledOrder.clone(true) };
+        Order movedToActivated = cancelledOrder.clone(true);
+        movedToActivated.Status = 'Activated';
 
         // Act & Assert — Test.stopTest() must run whether or not the action
         // throws, so it brackets the try/catch rather than sitting inside it.
         Test.startTest();
         try {
-            OrderDomain.validateStatusTransitions(new List<Order>{ movedBackward }, oldMap);
-            Assert.fail('Expected an OrderProcessingException when an Order moves backward from Activated.');
+            OrderDomain.validateStatusTransitions(new List<Order>{ movedToActivated }, oldMap);
+            Assert.fail('Expected an OrderProcessingException when activating an Order from Cancelled.');
         } catch (OrderProcessingException e) {
             Assert.isTrue(
-                e.getMessage().contains('cannot move'),
+                e.getMessage().contains('cannot move from Cancelled to Activated'),
                 'Exception message should explain the invalid transition; got: ' + e.getMessage()
             );
         }

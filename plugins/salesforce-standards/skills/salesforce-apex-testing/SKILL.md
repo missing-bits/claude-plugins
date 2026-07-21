@@ -25,7 +25,7 @@ see `salesforce-lwc`.
   once even though isolation is per-method.
 - **One behavior per test method.** A method name states the scenario
   and the expectation (e.g.
-  `validateStatusTransitions_throwsWhenMovingBackwardFromActivated`) —
+  `validateStatusTransitions_throwsWhenActivatingFromCancelled`) —
   not `testOrder1`. If a method needs "and" to describe what it checks,
   split it.
 - **Arrange-Act-Assert**, in that order, inside every method — data
@@ -47,8 +47,10 @@ comes from a `TestDataFactory` method, so a schema change (a new
 required field, a renamed picklist value) is fixed in one place instead
 of in every test file that happens to construct that object.
 
-- Each builder takes a record count and returns a `List<SObject>`:
-  `createAccounts(Integer count)`.
+- Each builder takes a record count and returns the concrete SObject
+  list type — `List<Account>`, `List<Order>` — not a generic
+  `List<SObject>`, so a calling test can use the returned records
+  without a cast: `createAccounts(Integer count)`.
 - An overload accepts a `Map<String, Object>` of field overrides applied
   on top of the defaults, so a test that needs one specific field value
   doesn't get its own bespoke builder:
