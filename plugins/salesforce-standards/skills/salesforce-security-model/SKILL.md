@@ -155,7 +155,8 @@ editable through any other layout, the API, or an integration.
 - **In code**: enforce FLS (and sharing) at the query and DML boundary
   rather than trusting system-context access. Name the mechanism, not the
   keyword details — `WITH USER_MODE` on SOQL enforces the running user's
-  FLS and sharing on the query itself; `Security.stripInaccessible`
+  object and field-level (CRUD/FLS) permissions and sharing on the query
+  itself; `Security.stripInaccessible`
   strips fields the running user can't access from a record or record
   list before it's used or returned. **The keyword mechanics
   (`with sharing` / `without sharing` / `inherited sharing` and how they

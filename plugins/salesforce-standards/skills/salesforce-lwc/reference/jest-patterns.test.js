@@ -68,9 +68,11 @@ describe('c-contact-list', () => {
     });
 
     // Wire-adapter error path: emit an error instead of data and assert
-    // the component falls back to its empty-state label rather than
-    // throwing or rendering stale rows.
-    it('shows the empty-state label when the wire adapter errors', async () => {
+    // the component renders its dedicated error state rather than
+    // throwing, rendering stale rows, or silently reusing the "no
+    // contacts" empty-state label — a wire error is not the same thing
+    // as a genuinely empty list.
+    it('shows the wire-error state when the wire adapter errors', async () => {
         const element = createElement('c-contact-list', { is: ContactList });
         element.accountId = '001000000000001';
         document.body.appendChild(element);
@@ -78,8 +80,10 @@ describe('c-contact-list', () => {
         getContacts.error('List has no rows for this object');
         await Promise.resolve();
 
-        const emptyState = element.shadowRoot.querySelector('p');
-        expect(emptyState).not.toBeNull();
+        const errorState = element.shadowRoot.querySelector(
+            '.slds-text-color_error'
+        );
+        expect(errorState).not.toBeNull();
         expect(element.shadowRoot.querySelectorAll('[data-id]')).toHaveLength(0);
     });
 

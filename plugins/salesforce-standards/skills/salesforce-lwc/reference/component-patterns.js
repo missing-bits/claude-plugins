@@ -28,10 +28,17 @@
  *         </div>
  *       </template>
  *     </template>
- *     <template if:false={contacts.length}>
- *       <p class="slds-text-body_small slds-text-color_weak">
- *         {labels.noContactsFound}
+ *     <template if:true={wireError}>
+ *       <p class="slds-text-body_small slds-text-color_error">
+ *         {labels.wireErrorMessage}
  *       </p>
+ *     </template>
+ *     <template if:false={contacts.length}>
+ *       <template if:false={wireError}>
+ *         <p class="slds-text-body_small slds-text-color_weak">
+ *           {labels.noContactsFound}
+ *         </p>
+ *       </template>
  *     </template>
  *   </lightning-card>
  * </template>
@@ -42,6 +49,7 @@ import getContacts from '@salesforce/apex/ContactListController.getContacts';
 import archiveContact from '@salesforce/apex/ContactListController.archiveContact';
 import noContactsFound from '@salesforce/label/c.No_Contacts_Found';
 import contactListTitle from '@salesforce/label/c.Contact_List_Title';
+import wireErrorMessage from '@salesforce/label/c.Contact_List_Wire_Error';
 
 export default class ContactList extends LightningElement {
     // @api: the component's public contract. A parent supplies which
@@ -53,6 +61,7 @@ export default class ContactList extends LightningElement {
     // template or here.
     labels = {
         noContactsFound,
+        wireErrorMessage,
         cardTitle: contactListTitle
     };
 
@@ -66,7 +75,10 @@ export default class ContactList extends LightningElement {
     // DML), so the wire service can cache and dedupe it across every
     // component instance requesting the same accountId, and re-run it
     // automatically whenever accountId changes — no manual refresh call
-    // to write or forget.
+    // to write or forget. The full result (data AND error) is kept, not
+    // just result.data — a wire error must stay distinguishable from a
+    // genuine empty list rather than falling through to it, mirroring the
+    // try/catch below on the imperative path.
     @wire(getContacts, { accountId: '$accountId' })
     wiredContacts(result) {
         this.#wiredContactsResult = result;
@@ -74,6 +86,13 @@ export default class ContactList extends LightningElement {
 
     get contacts() {
         return this.#wiredContactsResult?.data ?? [];
+    }
+
+    // Exposes the wire error separately so the template can render a
+    // dedicated error state instead of silently reusing the "no contacts"
+    // empty state for both a genuinely empty list and a failed fetch.
+    get wireError() {
+        return this.#wiredContactsResult?.error;
     }
 
     get cardTitle() {
