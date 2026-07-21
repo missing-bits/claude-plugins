@@ -1,7 +1,7 @@
 ---
 ticket: "#3"
 date: 2026-07-20
-status: draft
+status: implemented
 adversary: LGTM
 branch: feature/3-salesforce-standards
 base: master
@@ -1310,3 +1310,39 @@ Task 2/17 commit ownership reconciled, STOP-guarded version bump,
 dangling interface removed, load-bearing delegation greps, the
 severity gap stated as deliberate on both surfaces. No new findings.
 Verdict: LGTM.
+
+## Implementation record — 2026-07-20/21 (SDD, subagent-driven)
+
+All 17 tasks executed via subagent-driven development on branch
+`feature/3-salesforce-standards`, per-task spec+quality review with fix
+loops, then a whole-branch review (Opus 4.8).
+
+Deviations from the plan as written, all deliberate:
+
+- **Task 3 reference format**: `salesforce-apex/reference/trigger-handler.cls`
+  became `trigger-handler.md` — a single `.cls` cannot hold a trigger plus
+  its classes (invalid Apex; IDE parse error), so the reference is a
+  per-compilation-unit markdown walkthrough, each fenced block individually
+  valid. Reviewer-approved.
+- **Version**: the plugin stays at `0.1.0` across the whole branch per the
+  plan's Global Constraints (no per-commit bump before first release); a
+  final-review fixer's incidental bump to 0.1.1 was reverted (`935b7c3`).
+
+Whole-branch review found one blocking severity-consistency defect —
+`salesforce-flow`, `salesforce-aura`, `salesforce-visualforce` graded new
+legacy-UI / retired-automation surface `Critical` where the code-review
+rubric, `salesforce-decisions.md`, and the plan-review checklist pin
+review-time to `Important` (the deliberate plan-time-vs-review-time gap).
+Fixed in `432ab2a` (lowered the three domain skills to Important), together
+with three recommended minors (WITH USER_MODE CRUD wording; aura events.md
+summary nuance; LWC wire-error handling in the reference component).
+
+Task 16 steps 1–3 (structural validation, marketplace-sync one-commit,
+companion-amendment + 0.9.0 bump one-commit) passed in-session; steps 4–9
+(local-marketplace install, `/salesforce-review` under both install
+profiles, plan-adversary discovery of `salesforce-plan-review`, sync-rules
+foreign-payload install) are the developer's interactive smoke test.
+
+The working-process companion amendment (review-reports line-less-ordering
+provision, 0.8.0 → 0.9.0) shipped in `ccad94d`; its review-reports spec
+amendment record is written and awaits this docs commit.
