@@ -18,6 +18,11 @@
       "name": "salesforce-standards",
       "source": "./plugins/salesforce-standards",
       "description": "Salesforce coding standards for the sf CLI toolchain: area skills for Apex, LWC, Flow, data and security model plus maintenance-first legacy UI, a code-review stack, a plan-review checklist, and a salesforce-toolchain rule"
+    },
+    {
+      "name": "project-memory",
+      "source": "./plugins/project-memory",
+      "description": "In-repo project memory: committed Team memory and git-ignored per-user Private memory, shipped as a Rules payload installed via working-process sync-rules"
     }
   ]
 }
