@@ -247,3 +247,14 @@ Architect delta round on this amendment: concerns → three fixes applied
 are not globally unique; collision detection named as a file-tool
 existence check, never shell; frontmatter `date` tied to the filename
 date) → confirmation round LGTM pending stamping below.
+
+## Amendment — 2026-07-20: line-less findings ordering
+
+The salesforce-standards review stack (ticket #3) surfaced a layout
+gap: subsection ordering was defined only for line-anchored findings,
+while flows and declarative metadata are reviewed from metadata and
+cite elements by name. The Layout rule now states that findings
+without a line anchor are ordered by a domain-stated stable key (the
+reviewing domain names the key and applies it consistently). Additive
+gap-filling — no existing report shape changes; shipped as
+working-process 0.9.0.
