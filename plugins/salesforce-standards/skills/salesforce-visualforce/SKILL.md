@@ -61,12 +61,20 @@ the step-justification framing is this standard)
 
 ## View state discipline
 
-Every non-transient property on a page's controller (standard, extension,
-or custom) is serialized into the view state on each request/response
-round trip and sent back to the browser — a page's view state has a
-fixed platform limit, and treating that limit as a hard design
-constraint, not an incident to react to after a page starts failing, is
-what keeps a controller maintainable.
+**View state exists only on a page that contains `apex:form`** — it is
+the mechanism that carries postback state (the controller's field
+values) from one request to the next across that form's submits. A
+form-less page (a read-only detail page, a page that only ever renders
+and never posts back) has no view state to discipline; everything below
+applies to pages built around `apex:form`, not to every Visualforce page
+unconditionally.
+
+On a page with a form, every non-transient property on the controller
+(standard, extension, or custom) is serialized into the view state on
+each request/response round trip and sent back to the browser — a
+page's view state has a fixed platform limit, and treating that limit as
+a hard design constraint, not an incident to react to after a page
+starts failing, is what keeps a controller maintainable.
 
 - **Mark computed and reconstructable data `transient`.** A cache,
   a lazily-computed value, or any collection that can be refetched or
@@ -81,12 +89,17 @@ what keeps a controller maintainable.
   already kept, keep the smaller thing and derive the value again on
   the next request.
 - **Treat the view state limit as a design input, not an
-  afterthought.** A controller that already holds a large result set,
+  afterthought.** Visualforce caps view state at **170 KB per page**
+  (Visualforce Developer Guide, "View State") — a fixed ceiling, not a
+  soft guideline. A controller that already holds a large result set,
   a wide related-record map, or several independent query results in
-  ordinary (non-transient) properties is a page that will hit the limit
-  as data grows — the fix at that point is pagination, targeted
+  ordinary (non-transient) properties is a page that will hit that
+  ceiling as data grows — the fix at that point is pagination, targeted
   queries, and `transient` caching designed in from the start, not a
-  property-by-property cleanup once the page starts erroring.
+  property-by-property cleanup once the page starts erroring. Knowing
+  the actual ceiling is what turns "keep view state small" from a vague
+  intuition into a number a reviewer can check a page's current state
+  size against.
 
 A before/after pair — a controller carrying unrelated query results in
 plain properties, reduced to the one scalar it actually needs to persist
@@ -107,7 +120,14 @@ standard)
   it once in a controller getter and bind to that property directly;
   logic embedded in a page expression hides behavior where a reviewer
   isn't looking for it and can't be unit-tested the way a controller
-  method can.
+  method can. This does not ban a single-comparison
+  `rendered`/`disabled` toggle (`rendered="{!currentStep == 1}"`,
+  `disabled="{!isReadOnly}"`) — a plain comparison or boolean read
+  driving whether a block shows or an input is enabled is idiomatic
+  Visualforce control flow. What the rule bans is expression logic that
+  *computes a displayed value* — arithmetic, string-building, or a
+  multi-step conditional standing in for a controller property that
+  should have carried that computed value in the first place.
 - **`apex:repeat` (and `apex:pageBlockTable`/`apex:dataTable`) iterate
   over an already-fetched collection, never a getter that re-queries per
   call.** Visualforce's rendering lifecycle can invoke a bound getter
