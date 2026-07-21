@@ -90,12 +90,19 @@ no-business-logic stances are this standard)
 
 - **Component events for parent-child.** When the interaction is
   contained inside a component's own containment tree — a child
-  notifying its direct or indirect parent — define a component event
+  notifying its direct container — define a component event
   (`<aura:event type="COMPONENT">`), register it with
-  `<aura:registerEvent>`, and have the parent attach `<aura:handler>`.
-  A component event only ever bubbles up the tree it was fired from; it
-  cannot reach a sibling or an unrelated component elsewhere on the
-  page, which is exactly the scope most parent-child interactions need.
+  `<aura:registerEvent>`, and have the containing component catch it the
+  way a component event is actually caught: an attribute on the child's
+  tag matching the registered event name (`<c:child
+  recordSaved="{!c.handleIt}"/>`), or the firing component handling its
+  own event directly. `<aura:handler>` is the application-event
+  mechanism (or a component self-handling its own registered event) —
+  it is not how a parent catches a child's component event. A component
+  event only reaches its direct container this way; an indirect ancestor
+  needs its own explicit attribute wiring on the intermediate component,
+  or that component re-firing its own event upward — it does not bubble
+  further on its own.
 - **Application events only for genuine cross-tree needs.** Reach for
   an application event (`<aura:event type="APPLICATION">`, fired with
   `$A.get("e.c:EventName")`) only when there is no containment
