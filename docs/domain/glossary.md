@@ -137,17 +137,18 @@ verdicts fire.
 _Avoid_: usage point
 
 **Project memory**:
-The in-repo, rule-loaded memory store working-process defines, in two parts —
-Team memory and Private memory — mirroring native Home-dir memory's
+The in-repo, rule-loaded memory store the project-memory plugin defines, in
+two parts — Team memory and Private memory — mirroring Home-dir memory's
 thin-index-plus-on-demand-topic-files model, but living in the project.
 Distinct from Home-dir memory, which it redirects project-scoped facts away
 from. Each half is a *part* (Team memory, Private memory).
 _Avoid_: project MEMORY.md, memory tier, memory layer
 
 **Team memory**:
-The committed part of Project memory, `docs/memory/`; a Process directory (the
-first-create question applies). Holds team-relevant parked ideas, cross-ticket
-state, and operational gotchas.
+The committed part of Project memory, `docs/memory/`; the first-create
+question applies — asked by the project-memory core rule — and it counts as a
+Process directory when the working-process rules are installed. Holds
+team-relevant parked ideas, cross-ticket state, and operational gotchas.
 
 **Private memory**:
 The per-user part of Project memory, `.claude/memory/`; always ignored, never
