@@ -40,8 +40,9 @@ working-process's sync-rules engine) additionally follows:
   `paths:` loads in every session on machines with a user-level install —
   in a domain plugin that is a red flag needing explicit justification.
   Behaviour-shaping process rules are the deliberate exception: they load
-  always-on (no `paths:`) so they fire every session — `workflow.md` and
-  the project-memory core rule are the standing instances. The `paths:`-
+  always-on (no `paths:`) so they fire every session — working-process's
+  `workflow.md` and the project-memory plugin's core rule are the standing
+  instances. The `paths:`-
   required expectation targets domain-standards payloads, not these.
 - Mentions of skills and agents inside rule text are conditional ("when
   the X skill is available…") — committed project-level rules load for
