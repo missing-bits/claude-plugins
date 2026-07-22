@@ -17,6 +17,13 @@ Repo conventions load automatically from `.claude/rules/` — plugin
 authoring, versioning, marketplace sync, and public-repo hygiene. They
 override defaults; follow them.
 
+## Worktrees and topic branches
+
+Feature work happens on a topic branch named `feature/<issue>-<short-name>`
+(e.g. `feature/6-salesforce-standards`), branched off `master`. When an
+isolated workspace is used, its git worktree lives at
+`.claude/worktrees/<short-name>/` — one per topic branch, git-ignored.
+
 ## Authoring skills
 
 When creating or editing a skill in any plugin, use the `skill-creator`
