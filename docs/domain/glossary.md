@@ -56,10 +56,12 @@ against.
 _Avoid_: standards stack, domain-standards plugin
 
 **Standalone install**:
-A standards plugin installed without working-process — every skill
-still works; review reports follow the plugin's inline fallback (a
-strict subset of the shared contract) and the contract probe finds
-nothing. `solo` is NOT this: it is the run-owner mode of a review run.
+A marketplace plugin used without working-process: its skills still load and
+run, while anything depending on the working-process rules or Rules engine is
+absent or degrades to the plugin's conditional-reference fallbacks (for a
+standards plugin, review reports fall back to the inline subset and the
+contract probe finds nothing). `solo` is NOT this — it is the run-owner mode
+of a review run.
 _Avoid_: solo install, solo profile
 
 **Rules engine**:
@@ -169,3 +171,23 @@ lifecycle frontmatter (`status` parked → spec'd | dropped, a `spec:` pointer,
 recalled on demand). The prefix is the rule's selector for the lifecycle
 frontmatter set.
 _Avoid_: backlog item
+
+**Archive**:
+The closed-entry record of a Project-memory part — `ARCHIVE.md`, holding one
+line per closed entry in a **Done** or **Dropped** section, read on demand and
+never at session start. Distinct from a live entry (listed in `INDEX.md`): a
+closed entry keeps no body, only its archive line.
+_Avoid_: archive folder, backlog
+
+**Live entry**:
+A Project-memory entry currently listed in `INDEX.md` — an active note or a
+`parked` idea. The only entries reachable at session start (via the index).
+Opposite of an archived (closed) entry.
+_Avoid_: active entry, open entry
+
+**Close (an entry)**:
+Move an entry out of `INDEX.md` when it reaches a terminal state — Done (its
+content now lives in a spec, ADR, glossary, or another artifact) or Dropped
+(abandoned) — leaving a one-line Archive record. Deleting an obsolete entry is
+NOT a close: it leaves no Archive line.
+_Avoid_: retire, archive (verb)
