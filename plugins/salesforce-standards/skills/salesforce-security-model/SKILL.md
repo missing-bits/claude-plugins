@@ -47,9 +47,10 @@ capability on top of that visibility, all reasoned through for one
 object — is in
 [reference/access-model.md](reference/access-model.md).
 
-(id: `security-owd`; source: sharing/security documentation — "Control
-Who Sees What"; the private-by-default stance and the reference-data
-carve-out with its justification requirement are this standard)
+(id: `security-owd`; severity: critical; kind: defect; source:
+sharing/security documentation — "Control Who Sees What"; the
+private-by-default stance and the reference-data carve-out with its
+justification requirement are this standard)
 
 ## Role hierarchy
 
@@ -75,10 +76,10 @@ hierarchy-based visibility isn't the intended story for that object).
   `Reports_To_VP_Smith`) so it keeps working after the next reorg renames
   the management chain underneath it.
 
-(id: `security-role-hierarchy`; source: sharing/security documentation —
-role hierarchy record-access grants; the shallow, org-chart-decoupled
-design guidance is this standard, informed by Salesforce Well-Architected
-access-model guidance)
+(id: `security-role-hierarchy`; severity: important; source:
+sharing/security documentation — role hierarchy record-access grants;
+the shallow, org-chart-decoupled design guidance is this standard,
+informed by Salesforce Well-Architected access-model guidance)
 
 ## Permission-set-first
 
@@ -105,10 +106,14 @@ the profile.
   anti-pattern pair are in
   [reference/permission-set-patterns.md](reference/permission-set-patterns.md).
 
-(id: `security-permission-set-first`; source: Salesforce Well-Architected
-— least-privilege, permission-set-first access-model guidance; the PSG
-persona-bundle composition and the profile-as-review-finding stance are
-this standard)
+(id: `security-permission-set-first`; severity: important; source:
+Salesforce Well-Architected — least-privilege, permission-set-first
+access-model guidance; the PSG persona-bundle composition and the
+profile-as-review-finding stance are this standard)
+
+Sub-rules:
+- permission set or permission set group naming deviations (id:
+  `security-permission-set-first.naming`; severity: minor)
 
 ## Sharing rules
 
@@ -129,9 +134,14 @@ Two kinds, chosen by what actually determines who should see the record:
   requested it — undocumented, it becomes unreviewable once its author
   has moved on.
 
-(id: `security-sharing-rules`; source: sharing/security documentation —
-criteria-based and ownership-based sharing rules; the naming convention
-and the documented-why requirement are this standard)
+(id: `security-sharing-rules`; severity: important; source:
+sharing/security documentation — criteria-based and ownership-based
+sharing rules; the naming convention and the documented-why requirement
+are this standard)
+
+Sub-rules:
+- sharing-rule naming deviations (id: `security-sharing-rules.naming`;
+  severity: minor)
 
 ## Field-level security (FLS)
 
@@ -157,9 +167,10 @@ editable through any other layout, the API, or an integration.
   system context with neither of these enforcement steps, and no
   documented reason it must bypass user access, is a review finding.
 
-(id: `security-fls`; source: sharing/security documentation — field-level
-security enforcement; Apex Developer Guide — `WITH USER_MODE` and
-`Security.stripInaccessible` (mechanics: `salesforce-apex`))
+(id: `security-fls`; severity: critical; kind: hardening; source:
+sharing/security documentation — field-level security enforcement; Apex
+Developer Guide — `WITH USER_MODE` and `Security.stripInaccessible`
+(mechanics: `salesforce-apex`))
 
 ## Before adding any access grant
 
@@ -183,22 +194,6 @@ unanswered grant, especially anything labeled "temporary" with no
 revisit date attached, is how permanent, unreviewed access drift
 accumulates.
 
-(id: `security-access-grant-questions`; source: this standard, informed
-by Salesforce Well-Architected least-privilege access-model guidance)
-
-## Review severities
-
-- **Critical**: a Public OWD on a business/sensitive-data object with no
-  stated justification (`security-owd`); a query or DML operation on
-  business/sensitive data running in system context with no
-  FLS/sharing enforcement step and no documented reason (`security-fls`).
-- **Important**: a capability granted on a profile instead of a
-  permission set (`security-permission-set-first`); a role hierarchy
-  grown to mirror the full management org chart instead of access tiers
-  (`security-role-hierarchy`); an undocumented sharing rule, or an
-  ownership/criteria choice that doesn't match the actual access story
-  (`security-sharing-rules`); an access grant added without a recorded
-  who/scope/expiry answer (`security-access-grant-questions`).
-- **Minor**: sharing-rule naming deviations (`security-sharing-rules`);
-  permission set or permission set group naming deviations
-  (`security-permission-set-first`).
+(id: `security-access-grant-questions`; severity: important; source: this
+standard, informed by Salesforce Well-Architected least-privilege
+access-model guidance)
