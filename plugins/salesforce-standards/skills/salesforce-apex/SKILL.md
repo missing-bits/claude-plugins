@@ -29,7 +29,7 @@ mechanics.
 | Selector | `<Object>Selector`, methods `select*By*` | `AccountSelector.selectByIds(Set<Id>)` |
 | Custom exception | `<Domain>Exception` | `OrderProcessingException` |
 
-(id: `apex-naming`; source: Apex Developer Guide; PMD
+(id: `apex-naming`; severity: minor; source: Apex Developer Guide; PMD
 `ClassNamingConventions`, `MethodNamingConventions`,
 `FieldNamingConventions`, `FormalParameterNamingConventions`,
 `LocalVariableNamingConventions`; the handler/selector/exception
@@ -59,9 +59,9 @@ a naming-and-structure convention, not a library.
   service for one object) is in
   [reference/trigger-handler.md](reference/trigger-handler.md).
 
-(id: `apex-layering`; source: Salesforce Well-Architected; Apex
-Enterprise Patterns / fflib cited as inspiration only, never a
-requirement — this standard)
+(id: `apex-layering`; severity: important; source: Salesforce
+Well-Architected; Apex Enterprise Patterns / fflib cited as
+inspiration only, never a requirement — this standard)
 
 ## Bulkification
 
@@ -73,10 +73,15 @@ requirement — this standard)
 - Before/after pairs and a governor-limit-aware chunking pattern are in
   [reference/bulkification.md](reference/bulkification.md).
 
-(id: `apex-bulkification`; source: Apex Developer Guide — "Bulk Apex
-Triggers"; PMD `OperationWithLimitsInLoop` — the current rule; older PMD
-versions expose the same finding as the now-deprecated
-`AvoidSoqlInLoops` / `AvoidDmlStatementsInLoops`)
+(id: `apex-bulkification`; severity: important; source: Apex Developer
+Guide — "Bulk Apex Triggers"; PMD `OperationWithLimitsInLoop` — the
+current rule; older PMD versions expose the same finding as the
+now-deprecated `AvoidSoqlInLoops` / `AvoidDmlStatementsInLoops`)
+
+Sub-rules:
+- SOQL/DML in a loop reachable from a trigger path (id:
+  `apex-bulkification.loop-on-trigger-path`; severity: critical; kind:
+  defect)
 
 ## Governor limits
 
@@ -101,8 +106,8 @@ Design to these per-transaction budgets (Apex Developer Guide —
 - A budget-aware pattern is the third pair in
   [reference/bulkification.md](reference/bulkification.md).
 
-(id: `apex-governor-limits`; source: Apex Developer Guide — "Execution
-Governors and Limits")
+(id: `apex-governor-limits`; severity: important; source: Apex
+Developer Guide — "Execution Governors and Limits")
 
 ## Sharing in code
 
@@ -122,16 +127,23 @@ This section covers keyword mechanics only. **Access-model design** —
 what the org-wide defaults, roles, and sharing rules actually grant —
 belongs to `salesforce-security-model`.
 
-(id: `apex-sharing`; source: Apex Developer Guide — "Using the
-`with sharing` or `without sharing` Keywords"; PMD
+(id: `apex-sharing`; severity: important; source: Apex Developer Guide
+— "Using the `with sharing` or `without sharing` Keywords"; PMD
 `ApexSharingViolations`)
+
+Sub-rules:
+- a class doing SOQL/DML without a sharing declaration (id:
+  `apex-sharing.undeclared-with-dml`; severity: critical; kind:
+  hardening)
 
 ## Error handling
 
 - **Custom exceptions per domain area** — `<Domain>Exception` (e.g.
   `OrderProcessingException`, `IntegrationException`), extending
   `Exception`. Catch specific exceptions before generic ones; never
-  catch bare `Exception` and discard it.
+  catch bare `Exception` and discard it. Catching or throwing a
+  generic `Exception` instead of the domain exception is a deviation
+  from this.
 - **No empty or silently-swallowed catch blocks.** A catch either
   recovers, rethrows (optionally wrapped in a domain exception), or logs
   and rethrows — it never just returns or does nothing.
@@ -144,18 +156,16 @@ belongs to `salesforce-security-model`.
   library is mandated — Nebula Logger is a reasonable example, not a
   requirement.
 
-(id: `apex-error-handling`; source: PMD `EmptyCatchBlock`,
-`DebugsShouldUseLoggingLevel`; the central-logger-abstraction and
-`System.debug`-is-dev-only stances are this standard)
+(id: `apex-error-handling`; severity: important; source: PMD
+`EmptyCatchBlock`, `DebugsShouldUseLoggingLevel`; the
+central-logger-abstraction and `System.debug`-is-dev-only stances are
+this standard)
 
-## Review severities
-
-- **Critical**: SOQL/DML in a loop reachable from a trigger path
-  (`apex-bulkification`); a class doing SOQL/DML without a sharing
-  declaration (`apex-sharing`, PMD `ApexSharingViolations`); an empty or
-  swallowed catch block (`apex-error-handling`).
-- **Important**: logic or SOQL placed outside its owning layer
-  (`apex-layering`); a generic `Exception` catch/throw instead of a
-  domain exception; an undocumented `without sharing`.
-- **Minor**: naming convention deviations (`apex-naming`); `System.debug`
-  used as the only error-reporting mechanism in a non-trivial catch.
+Sub-rules:
+- the caught exception is neither handled nor rethrown — a catch whose
+  only content is `System.debug` counts as swallowed (id:
+  `apex-error-handling.swallowed-catch`; severity: critical; kind:
+  hardening)
+- the catch does handle or rethrow, but reports only via
+  `System.debug` (id: `apex-error-handling.debug-only-reporting`;
+  severity: minor)

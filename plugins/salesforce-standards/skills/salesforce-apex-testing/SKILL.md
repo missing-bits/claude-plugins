@@ -34,8 +34,9 @@ see `salesforce-lwc`.
 - A full worked class demonstrating all of the above is
   [reference/test-patterns.cls](reference/test-patterns.cls).
 
-(id: `apex-test-structure`; source: Apex Developer Guide — "Testing
-Apex Code"; the naming/AAA conventions are this standard)
+(id: `apex-test-structure`; severity: minor; source: Apex Developer
+Guide — "Testing Apex Code"; the naming/AAA conventions are this
+standard)
 
 ## TestDataFactory — the single source of test records
 
@@ -56,7 +57,8 @@ one place instead of in every test file.
 - A complete factory with two object builders (`Account`, `Order`) is
   [reference/TestDataFactory.cls](reference/TestDataFactory.cls).
 
-(id: `apex-test-data-factory`; source: this standard)
+(id: `apex-test-data-factory`; severity: important; source: this
+standard)
 
 ## Assertions
 
@@ -73,9 +75,16 @@ otherwise touching, never write it in new tests.
   value that changed, the record count created, the exception type and
   message for a failure path.
 
-(id: `apex-test-assertions`; source: this standard — `System.assert*`
-is documented by Salesforce as legacy, superseded by the `Assert`
-class)
+(id: `apex-test-assertions`; severity: important; source: this
+standard — `System.assert*` is documented by Salesforce as legacy,
+superseded by the `Assert` class)
+
+Sub-rules:
+- a test asserting only "no exception", with no check on the
+  resulting state (id: `apex-test-assertions.no-state-check`;
+  severity: critical; kind: hardening)
+- legacy `System.assert*` instead of `Assert` in a new test (id:
+  `apex-test-assertions.legacy-assert`; severity: minor)
 
 ## Mocking
 
@@ -95,10 +104,15 @@ class)
 - A callout test using `Test.setMock` is in
   [reference/test-patterns.cls](reference/test-patterns.cls).
 
-(id: `apex-test-mocking`; source: Apex Developer Guide — "Test
-Classes for Behavior Verification with Mock Objects" and "HTTP Callout
-Testing"; the DI-only Stub API stance and no-mocking-framework stance
-are this standard)
+(id: `apex-test-mocking`; severity: important; source: Apex Developer
+Guide — "Test Classes for Behavior Verification with Mock Objects" and
+"HTTP Callout Testing"; the DI-only Stub API stance and
+no-mocking-framework stance are this standard)
+
+Sub-rules:
+- a real HTTP callout reachable from a test run instead of
+  `Test.setMock` (id: `apex-test-mocking.real-callout`; severity:
+  critical; kind: defect)
 
 ## Test.startTest / Test.stopTest
 
@@ -111,8 +125,9 @@ calls — in `Test.startTest()` / `Test.stopTest()`:
   `Queueable`, `Batchable`) synchronously** before returning — assert
   async effects only after `stopTest()`, not before.
 
-(id: `apex-test-start-stop`; source: Apex Developer Guide — "Using the
-Test.startTest and Test.stopTest Methods")
+(id: `apex-test-start-stop`; severity: important; source: Apex
+Developer Guide — "Using the Test.startTest and Test.stopTest
+Methods")
 
 ## No `SeeAllData`
 
@@ -121,9 +136,10 @@ needs through `TestDataFactory` and runs correctly in an org with none
 of your organization's actual records — no reliance on an existing
 Account, a picklist value already present, or any other ambient data.
 
-(id: `apex-test-no-see-all-data`; source: Apex Developer Guide —
-"Data Access and Test Visibility"; this standard bans the escape hatch
-entirely rather than scoping when it is acceptable)
+(id: `apex-test-no-see-all-data`; severity: critical; kind: hardening;
+source: Apex Developer Guide — "Data Access and Test Visibility"; this
+standard bans the escape hatch entirely rather than scoping when it is
+acceptable)
 
 ## Coverage is a floor, not a target
 
@@ -137,21 +153,6 @@ entirely rather than scoping when it is acceptable)
 - Coverage percentage never substitutes for a code-review reading of
   what a test actually asserts — see "Assertions" above.
 
-(id: `apex-test-coverage`; source: Salesforce platform deploy minimum
-(75%); the 85% floor and the meaningful-assertions-outrank-percentage
-stance are this standard)
-
-## Review severities
-
-- **Critical**: `@IsTest(SeeAllData=true)` anywhere
-  (`apex-test-no-see-all-data`); a real HTTP callout reachable from a
-  test run instead of `Test.setMock` (`apex-test-mocking`); a test
-  asserting only "no exception" with no check on the resulting state
-  (`apex-test-assertions`).
-- **Important**: inline `SObject` construction in a test method instead
-  of `TestDataFactory` (`apex-test-data-factory`); `Assert`/`System.assert*`
-  calls with no failure message (`apex-test-assertions`); setup code
-  placed inside `Test.startTest`/`stopTest` (`apex-test-start-stop`).
-- **Minor**: a test method naming deviation that obscures the scenario
-  under test (`apex-test-structure`); `System.assert*` used in a new
-  test instead of `Assert` (`apex-test-assertions`).
+(id: `apex-test-coverage`; severity: important; source: Salesforce
+platform deploy minimum (75%); the 85% floor and the
+meaningful-assertions-outrank-percentage stance are this standard)
