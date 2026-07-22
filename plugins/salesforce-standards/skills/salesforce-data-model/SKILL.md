@@ -49,9 +49,10 @@ Examples: label `Total Amount` → API name `Total_Amount__c`; label
 At least one worked example per field type, plus object and record-type
 examples, is in [reference/naming.md](reference/naming.md).
 
-(id: `data-model-naming`; source: object/field metadata documentation —
-"Name Field Values"; the underscore-PascalCase, no-abbreviation
-convention and the boolean assertion-naming guidance are this standard)
+(id: `data-model-naming`; severity: minor; source: object/field metadata
+documentation — "Name Field Values"; the underscore-PascalCase,
+no-abbreviation convention and the boolean assertion-naming guidance are
+this standard)
 
 ## Field descriptions
 
@@ -66,7 +67,7 @@ next person who opens Setup with no other context.
 only, standard objects exempt" carve-out and no severity floor below
 which it's skipped.
 
-(id: `data-model-descriptions`; source: this standard)
+(id: `data-model-descriptions`; severity: important; source: this standard)
 
 ## Record types
 
@@ -94,9 +95,9 @@ which it's skipped.
     less to maintain (one more layout, one more set of
     record-type-visibility assignments per profile, per future change).
 
-(id: `data-model-record-types`; source: Salesforce Well-Architected —
-record type vs picklist guidance; the record-type naming convention is
-this standard)
+(id: `data-model-record-types`; severity: important; source: Salesforce
+Well-Architected — record type vs picklist guidance; the record-type
+naming convention is this standard)
 
 ## Validation rules
 
@@ -125,9 +126,16 @@ this standard)
   emergency deactivate-and-reactivate cycle in production — design the
   bypass in at creation time.
 
-(id: `data-model-validation-rules`; source: object/field metadata
-documentation — validation rule formulas; the naming convention and the
-Custom-Permission bypass pattern are this standard)
+(id: `data-model-validation-rules`; severity: important; source: object/field
+metadata documentation — validation rule formulas; the naming convention
+and the Custom-Permission bypass pattern are this standard)
+
+Sub-rules:
+- a validation rule with no bypass strategy at all (id:
+  `data-model-validation-rules.no-bypass`; severity: critical; kind:
+  hardening)
+- naming-convention deviations on validation rules, numbered names
+  included (id: `data-model-validation-rules.naming`; severity: minor)
 
 ## Custom Metadata Types vs Custom Settings
 
@@ -151,10 +159,10 @@ a worked Hierarchy Custom Setting example, annotated with why each
 choice was made, are in
 [reference/cmt-vs-custom-settings.md](reference/cmt-vs-custom-settings.md).
 
-(id: `data-model-cmt-vs-settings`; source: Salesforce Well-Architected —
-Custom Metadata Types as the configuration-storage default; the
-Hierarchy-Custom-Settings-only-for-per-user-resolution boundary is this
-standard)
+(id: `data-model-cmt-vs-settings`; severity: important; source: Salesforce
+Well-Architected — Custom Metadata Types as the configuration-storage
+default; the Hierarchy-Custom-Settings-only-for-per-user-resolution
+boundary is this standard)
 
 ## Global value sets
 
@@ -175,8 +183,8 @@ every field at it.
   visibility, so extracting to a Global Value Set never forces every
   consuming field to expose every value.
 
-(id: `data-model-global-value-sets`; source: object/field metadata
-documentation — Global Value Sets)
+(id: `data-model-global-value-sets`; severity: important; source: object/field
+metadata documentation — Global Value Sets)
 
 ## No hardcoded IDs
 
@@ -207,23 +215,5 @@ The common thread: every alternative resolves the concrete Id **at
 runtime, by a stable developer-facing name**, instead of a value only
 ever correct in the org it was copied from.
 
-(id: `data-model-no-hardcoded-ids`; source: Salesforce Well-Architected —
-avoid hardcoded IDs guidance)
-
-## Review severities
-
-- **Critical**: a hardcoded Id/RecordTypeId in code, a formula, a flow,
-  or a validation rule (`data-model-no-hardcoded-ids`); a validation
-  rule with no bypass strategy at all (`data-model-validation-rules`).
-- **Important**: a missing description on a custom object or field
-  (`data-model-descriptions`); a duplicated inline picklist value list
-  that should be a Global Value Set (`data-model-global-value-sets`); a
-  validation rule error message that doesn't tell the user what to
-  change; a record type introduced with no layout, sharing, or process
-  difference from a plain picklist (`data-model-record-types`); Custom
-  Settings used for org-wide configuration that CMT should hold
-  (`data-model-cmt-vs-settings`).
-- **Minor**: naming convention deviations on objects, fields, record
-  types, or validation rules (`data-model-naming`,
-  `data-model-validation-rules`), including numbered validation-rule
-  names.
+(id: `data-model-no-hardcoded-ids`; severity: critical; kind: hardening;
+source: Salesforce Well-Architected — avoid hardcoded IDs guidance)
