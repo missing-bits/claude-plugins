@@ -93,8 +93,10 @@ findings: { critical: 0, important: 2, minor: 5 }
 A domain review command reviews only its own domain's files; files
 outside the domain are noted in Summary as out of scope. A mixed run —
 several standards plugins loaded at once — writes ONE report listing
-every standards plugin in `standards:`. Per-finding attribution
-(`standard: <skill>, rule: <id>` citations) stays domain-owned.
+every standards plugin in `standards:`. Per-finding attribution — which
+rule id (and thus severity) a finding cites — stays domain-owned; the
+citation form itself (`rule: none`, kind labels) is defined by this
+rule.
 
 ## Layout
 
@@ -109,6 +111,64 @@ every standards plugin in `standards:`. Per-finding attribution
 
 Files with no findings and empty severity subsections are omitted. A
 zero-findings run still writes the document.
+
+## Finding citations
+
+- A finding that violates a defined rule cites its most specific id:
+  `(standard: <skill>, rule: <id>)` — the sub-id when a sub-rule
+  matched, the group id otherwise. When a matching rule exists, the
+  specific id is mandatory; a bare `(standard: <skill>)` citation is
+  not a valid finding.
+- A finding no defined rule covers is still reported and counted:
+  cited `(standard: <the loaded domain skill that lacks the rule>,
+  rule: none)`, graded by the authoring rubric below, and — when graded
+  critical — always `kind: defect` (hardening denotes a
+  standards-mandated protection, and a `rule: none` finding has no
+  standard mandating it). A plausible-looking rule id is never
+  fabricated.
+- Critical findings carry the rule's kind inline:
+  `(standard: <skill>, rule: <id>, kind: defect|hardening)`; the
+  Summary headline adds a prose breakdown, e.g.
+  "critical: 33 — 12 defect, 21 hardening". Counts in `findings:` stay
+  the three severity keys — kind adds no frontmatter field.
+- When the loaded domain skill's rule tags carry no severity (a
+  pre-adoption plugin version), the reviewer grades by that skill's own
+  documented severities and omits the kind labels and breakdown rather
+  than judging them per finding.
+
+Authoring rubric (canonical in the owning repo's authoring rule;
+this excerpt is verbatim-identical):
+
+- **critical** — a defect that corrupts data, breaks security or
+  sharing, or blows a platform limit on a bulk path;
+- **important** — violates a standard in a way that forces rework or
+  hides bugs;
+- **minor** — naming, style, documentation.
+
+## Candidate-gap offers
+
+`rule: none` findings are candidate standards gaps. After writing the
+report, the run's owner lists them in its reply — one line each:
+violation class, proposed rule id, graded severity — and then offers,
+never performs unprompted:
+
+- **Project-memory park** — only when the reviewed project keeps a
+  Project-memory store (probe `docs/memory/INDEX.md` and
+  `.claude/memory/INDEX.md`). The write is done by whoever accepts,
+  never by the review run. Store selection: explicit guidance wins
+  (project CLAUDE.md, the developer's own instructions, the store's
+  conventions); otherwise with both stores present the offer asks the
+  developer which one; with one store it names that one. No store — no
+  offer, and never an offer to create a store.
+- **Upstream report** — always offered: a report to the standards
+  plugin's source repository, resolved at offer time from the installed
+  marketplace's source metadata (e.g. `claude plugin marketplace
+  list`); a non-public source (a directory-source marketplace, a
+  direct install) degrades the offer to a generalized draft with no
+  filing target. Two gates: acceptance produces the draft, shown in
+  full; only explicit approval files anything. The draft carries the
+  violation class and a proposed rule — never the reviewed project's
+  code, identifiers, or name.
 
 ## Error fallbacks
 
@@ -152,6 +212,8 @@ loads this rule as usual.
 
 ## Out of this rule's scope (domain-owned)
 
-Project-root detection (each ecosystem's project marker file), finding
-citation sources (rule ids from domain skills), team-mode extensions,
-and the review procedure itself.
+Project-root detection (each ecosystem's project marker file), rule ids
+and their severities (defined in the standards skills' rule tags),
+team-mode extensions, and the review procedure itself. The `rule: none`
+citation form, the kind label rendering, and the candidate-gap offers
+are contract-owned (defined above).
