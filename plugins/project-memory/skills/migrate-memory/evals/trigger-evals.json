@@ -1,0 +1,30 @@
+[
+  {
+    "query": "przenieś notatki do projektu — sporo faktów o tym repo siedzi w moim home-dir memory",
+    "should_trigger": true
+  },
+  {
+    "query": "migrate my memory notes into this project's store, half of my MEMORY.md is about this repo anyway",
+    "should_trigger": true
+  },
+  {
+    "query": "mam w domowym memory wpisy o tym repo (work state, jakieś gotche) — przenieśmy je do project memory",
+    "should_trigger": true
+  },
+  {
+    "query": "zapamiętaj, że w tym repo commity są jednolinijkowe bez trailerów",
+    "should_trigger": false
+  },
+  {
+    "query": "ta notka o preferencji brainstormingu jest chyba per-user, nie team — przenieś ją do private memory",
+    "should_trigger": false
+  },
+  {
+    "query": "przejrzyjmy memory i pozamykajmy zrealizowane wpisy",
+    "should_trigger": false
+  },
+  {
+    "query": "zapamiętaj na przyszłość, we wszystkich projektach: zawsze pytaj zanim coś commitujesz",
+    "should_trigger": false
+  }
+]

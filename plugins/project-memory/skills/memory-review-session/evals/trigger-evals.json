@@ -1,0 +1,34 @@
+[
+  {
+    "query": "przejrzyjmy memory tego projektu, trochę się nazbierało po ostatnich release'ach",
+    "should_trigger": true
+  },
+  {
+    "query": "let's groom the store — I think half of the notes in docs/memory are stale by now",
+    "should_trigger": true
+  },
+  {
+    "query": "zrób memory review, INDEX zaczyna puchnąć i nie wiem co tam jeszcze jest aktualne",
+    "should_trigger": true
+  },
+  {
+    "query": "can you run a review of our project memory? some parked ideas graduated to specs ages ago",
+    "should_trigger": true
+  },
+  {
+    "query": "zapisz w project memory notatkę, że mirror wymaga ręcznego synca po każdym release",
+    "should_trigger": false
+  },
+  {
+    "query": "co mamy w memory o pythonowych standardach? sprawdź czy była jakaś decyzja o pyright",
+    "should_trigger": false
+  },
+  {
+    "query": "przenieś moje notatki z home-dir memory do tego projektu, sporo tu faktów o repo",
+    "should_trigger": false
+  },
+  {
+    "query": "posprzątaj docs/code-review, stare raporty sprzed miesiąca można wywalić",
+    "should_trigger": false
+  }
+]
