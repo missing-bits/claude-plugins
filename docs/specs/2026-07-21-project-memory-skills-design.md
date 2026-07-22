@@ -1,7 +1,7 @@
 ---
 ticket: "#1"
 date: 2026-07-21
-status: approved
+status: implemented
 grilled: 2026-07-21
 architect: LGTM
 branch: feature/1-project-memory-plugin
