@@ -24,7 +24,11 @@
     "should_trigger": false
   },
   {
-    "query": "zapamiętaj na przyszłość, we wszystkich projektach: zawsze pytaj zanim coś commitujesz",
+    "query": "zanotuj gdzieś u siebie, nie w tym repo: we wszystkich projektach zawsze pytaj zanim coś commitujesz",
     "should_trigger": false
+  },
+  {
+    "query": "migrate my note about always asking before committing into this project — although honestly it applies to every repo I work on",
+    "should_trigger": true
   }
 ]
