@@ -22,7 +22,7 @@
     {
       "name": "project-memory",
       "source": "./plugins/project-memory",
-      "description": "In-repo project memory: committed Team memory and git-ignored per-user Private memory, shipped as a Rules payload installed via working-process sync-rules"
+      "description": "In-repo project memory: committed Team memory and git-ignored per-user Private memory, with grooming (memory-review-session) and migration (migrate-memory) skills, shipped as a Rules payload"
     }
   ]
 }
