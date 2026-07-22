@@ -18,12 +18,17 @@ paths:
 - **Private memory** `.claude/memory/` — always git-ignored (`.gitignore`
   containing exactly `*`), never asked: a per-user store under the
   `.claude/` config namespace.
+- **Archive** `ARCHIVE.md` (per part) — the closed-entry record: one line per
+  closed entry, in a **Done** or **Dropped** section. Read on demand only
+  (e.g. answering "did we already consider this?"), never at session start. A
+  `ticket`-exempt registry file like `INDEX.md`.
 
-`INDEX.md` is sectioned per part: a **Notes** section (recall-on-demand) and
-an **Ideas** section (a browsable backlog). The Ideas section lists each entry
-in its lifecycle state: parked (a link to its `idea-` file), spec'd (a redirect
-line to the spec, no file), or dropped (a struck-through tombstone with the
-reason).
+`INDEX.md` holds only **live** entries, sectioned per part: a **Notes**
+section (active notes, recall-on-demand) and an **Ideas** section (only
+`parked` ideas, each a link to its `idea-` file). Closed entries — promoted,
+finished, or dropped — do not live here; they move to `ARCHIVE.md` the moment
+they close (see Lifecycle). `INDEX.md` is the only file read at session start,
+so it never carries history.
 
 ## Entry shapes
 
@@ -35,10 +40,12 @@ INDEX section and frontmatter follow it).
   It may carry an optional `adr-candidate: yes` frontmatter flag — presence
   marks a decision-shaped note for later ADR review
   (`rg 'adr-candidate:'`); absent means not a candidate.
-- **idea** (`idea-<slug>.md`) — a parked idea. Frontmatter: `status`
-  (parked → spec'd | dropped), a `spec:` pointer once it graduates, and —
-  when the project links documents to its issue tracker (e.g. the
-  working-process ticket-frontmatter convention) — `ticket`.
+- **idea** (`idea-<slug>.md`) — a `parked` idea (a live entry). Frontmatter:
+  `status` (parked → spec'd | dropped), a `spec:` pointer once it graduates,
+  and — when the project links documents to its issue tracker (e.g. the
+  working-process ticket-frontmatter convention) — `ticket`. On graduation or
+  drop the body closes per the Lifecycle section; the `spec:` pointer then
+  lives on the `ARCHIVE.md` Done redirect line, not a live file.
 
 ## Team-memory scope
 
@@ -63,15 +70,29 @@ reverse AND surprising without context AND a real trade-off existed — and
 the project records ADRs, offer to promote it to an ADR; the developer
 decides. A promoted note links to its ADR.
 
-## Lifecycle — no empty files
+## Lifecycle — closing entries
 
-A body file exists only while it holds live content; never leave an empty or
-stub file.
+A live entry keeps a body only while it holds live content; a closed entry
+keeps no body, only a one-line `ARCHIVE.md` record. The governing test: a
+body survives closure only when no other artifact carries its content.
 
 - **Promotion** (content moves to a spec, ADR, or the glossary): delete the
-  body file, and turn its `INDEX.md` line into a redirect pointer to the new
-  home. Redirect lines are sweepable.
-- **Dropped** (abandoned, nothing else records it): no body file — a one-line
-  `INDEX.md` tombstone with the reason.
-- **Obsolete** (no longer true, no document to point at): delete the body file
-  and its index line.
+  body; move the `INDEX.md` line to `ARCHIVE.md` **Done** as a redirect
+  pointer to the new home.
+- **Closed note** (a work-state note after its release, an expired gotcha
+  whose resolution now lives in code or docs): delete the body; write an
+  `ARCHIVE.md` **Done** line naming where the detail now lives (spec/plan,
+  release version, optionally a commit) plus the closure date. If a fragment
+  has no home in any document, the entry is not yet closed — or that fragment
+  becomes the Done line.
+- **Dropped** (abandoned): write an `ARCHIVE.md` **Dropped** line — reason
+  plus date — and delete the body. There is no body-retention directory: if
+  the rejection analysis is worth keeping, that is the signal the entry is
+  decision-shaped (offer an ADR — "rejected X because Y" — when the project
+  records ADRs) or reference-shaped (keep it a live note); a kept body is
+  then not dropped.
+- **Obsolete** (no longer true, nothing worth pointing at): delete the body
+  and its index line — no `ARCHIVE.md` record.
+
+Never leave an empty or stub body file. `INDEX.md` and `ARCHIVE.md` are
+registry files, not bodies: an empty section header in either is fine.
