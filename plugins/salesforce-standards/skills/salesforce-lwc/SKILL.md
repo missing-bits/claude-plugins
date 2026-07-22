@@ -37,8 +37,9 @@ Apex methods an LWC calls (`@AuraEnabled`, `cacheable`).
   up. Split when a template accumulates more than one reason to change,
   not on a line-count threshold.
 
-(id: `lwc-structure`; source: LWC Developer Guide — "Create a Lightning
-Web Component"; folder-flatness and one-responsibility are this standard)
+(id: `lwc-structure`; severity: minor; source: LWC Developer Guide —
+"Create a Lightning Web Component"; folder-flatness and
+one-responsibility are this standard)
 
 ## JavaScript conventions
 
@@ -65,9 +66,15 @@ Web Component"; folder-flatness and one-responsibility are this standard)
   should instead be replacing.
 - **`@wire`**: see the next section.
 
-(id: `lwc-js-conventions`; source: LWC Developer Guide — "JavaScript
-Fundamentals", "Reactivity"; the private-fields-over-underscore-prefix
-stance is this standard)
+(id: `lwc-js-conventions`; severity: minor; source: LWC Developer Guide
+— "JavaScript Fundamentals", "Reactivity"; the
+private-fields-over-underscore-prefix stance is this standard)
+
+Sub-rules:
+- DOM access reaching outside the component's own shadow root,
+  including into another component's markup (id:
+  `lwc-js-conventions.cross-root-dom`; severity: critical; kind:
+  hardening)
 
 ## wire vs imperative Apex
 
@@ -90,9 +97,14 @@ stance is this standard)
 - Both patterns, side by side, are in
   [reference/component-patterns.js](reference/component-patterns.js).
 
-(id: `lwc-wire-vs-imperative`; source: LWC Developer Guide — "Call Apex
-Methods", "Wire Service"; Apex Developer Guide — "Using
-`@AuraEnabled(cacheable=true)`")
+(id: `lwc-wire-vs-imperative`; severity: important; source: LWC
+Developer Guide — "Call Apex Methods", "Wire Service"; Apex Developer
+Guide — "Using `@AuraEnabled(cacheable=true)`")
+
+Sub-rules:
+- an Apex method marked `cacheable=true` that performs DML (id:
+  `lwc-wire-vs-imperative.cacheable-dml`; severity: critical; kind:
+  defect)
 
 ## Custom labels
 
@@ -104,8 +116,8 @@ deployment, a hardcoded string can't. The one exception is a string
 that is genuinely not user-facing — a CSS class name, a `data-*`
 attribute value, a console-only debug message.
 
-(id: `lwc-custom-labels`; source: LWC Developer Guide — "Access Static
-Text with Custom Labels")
+(id: `lwc-custom-labels`; severity: critical; kind: hardening; source:
+LWC Developer Guide — "Access Static Text with Custom Labels")
 
 ## Component communication
 
@@ -128,9 +140,9 @@ Text with Custom Labels")
 - Event dispatch (`select`, `rowaction`) is demonstrated in
   [reference/component-patterns.js](reference/component-patterns.js).
 
-(id: `lwc-communication`; source: LWC Developer Guide — "Custom Events",
-"Lightning Message Service"; the event-naming convention is this
-standard)
+(id: `lwc-communication`; severity: important; source: LWC Developer
+Guide — "Custom Events", "Lightning Message Service"; the
+event-naming convention is this standard)
 
 ## Styling
 
@@ -150,8 +162,9 @@ changes a hand-rolled color value would silently miss.
 - A component's `.css` file, when present, styles only that component's
   own shadow DOM — never a global selector reaching outside it.
 
-(id: `lwc-styling`; source: LWC Developer Guide — "Style Components with
-SLDS"; the custom-CSS-needs-justification stance is this standard)
+(id: `lwc-styling`; severity: important; source: LWC Developer Guide —
+"Style Components with SLDS"; the custom-CSS-needs-justification
+stance is this standard)
 
 ## Jest tests with sfdx-lwc-jest
 
@@ -184,8 +197,8 @@ needs a real org.
   an event-dispatch assertion — is
   [reference/jest-patterns.test.js](reference/jest-patterns.test.js).
 
-(id: `lwc-jest`; source: `sfdx-lwc-jest` documentation — "Writing
-Lightning Web Components Tests")
+(id: `lwc-jest`; severity: minor; source: `sfdx-lwc-jest` documentation
+— "Writing Lightning Web Components Tests")
 
 ## Placement: component bundles vs static resources
 
@@ -198,24 +211,4 @@ behavior — anything this skill's JavaScript conventions govern — belongs
 in its bundle's `.js` file, not smuggled into a static resource as a
 script the bundle merely loads.
 
-(id: `lwc-placement`; source: this standard)
-
-## Review severities
-
-- **Critical**: an Apex method marked `cacheable=true` that performs DML
-  (`lwc-wire-vs-imperative`); a hardcoded user-facing string in a
-  template or JS file (`lwc-custom-labels`); DOM access reaching outside
-  the component's own shadow root, including into another component's
-  markup (`lwc-js-conventions`).
-- **Important**: an imperative Apex call with no `try`/`catch`
-  (`lwc-wire-vs-imperative`); a custom event named with an `on` prefix or
-  camelCase instead of a short lowercase noun/verb
-  (`lwc-communication`); custom CSS with no in-code justification comment
-  (`lwc-styling`); an LMS `subscribe` with no matching `unsubscribe` in
-  `disconnectedCallback` (`lwc-communication`); component logic placed in
-  a static resource instead of the bundle (`lwc-placement`).
-- **Minor**: `@track` used on a property that is only ever reassigned,
-  never mutated in place (`lwc-js-conventions`); a jest test asserting via
-  `element.querySelector` instead of `element.shadowRoot.querySelector`
-  (`lwc-jest`); folder or naming convention deviations
-  (`lwc-structure`).
+(id: `lwc-placement`; severity: important; source: this standard)

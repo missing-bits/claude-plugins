@@ -40,9 +40,10 @@ alphabetically). Rename every element for what it does before saving —
 a default label (`Get_Records_0`, `Assignment_1`) makes every citation
 against it just as vague, not only the ones that "matter."
 
-(id: `flow-naming`; source: Flow documentation — "Naming Conventions for
-Flows"; the record-triggered pattern, the other-flow-types pattern, and
-the element/variable prefixes are this standard)
+(id: `flow-naming`; severity: minor; source: Flow documentation —
+"Naming Conventions for Flows"; the record-triggered pattern, the
+other-flow-types pattern, and the element/variable prefixes are this
+standard)
 
 ## Plan before you build
 
@@ -61,7 +62,7 @@ a quick diagram:
 Sketching first also surfaces subflow candidates before the canvas is
 already tangled (see the next section).
 
-(id: `flow-plan-before-build`; source: this standard)
+(id: `flow-plan-before-build`; severity: minor; source: this standard)
 
 ## One record-triggered flow per object and trigger moment
 
@@ -83,9 +84,15 @@ branching keeps execution order visible on a single canvas.
   flow's canvas, with no reuse and no clarity gain, is an unjustified
   extraction and a review finding in the other direction.
 
-(id: `flow-one-per-object-moment`; source: Salesforce Well-Architected —
-record-triggered flow consolidation guidance; the subflow
-reuse-or-clarity threshold is this standard)
+(id: `flow-one-per-object-moment`; severity: important; source:
+Salesforce Well-Architected — record-triggered flow consolidation
+guidance; the subflow reuse-or-clarity threshold is this standard)
+
+Sub-rules:
+- a second record-triggered flow created on an object and trigger
+  moment an existing flow already owns (id:
+  `flow-one-per-object-moment.duplicate-trigger-flow`; severity:
+  critical; kind: hardening)
 
 ## Bulk-safe patterns
 
@@ -113,8 +120,13 @@ loop that only assigns into a collection, and a single Update Records
 after the loop — is in
 [reference/flow-patterns.md](reference/flow-patterns.md).
 
-(id: `flow-bulk-safe`; source: Flow documentation — "Bulkify Your Design";
-Salesforce Well-Architected — bulkification guidance)
+(id: `flow-bulk-safe`; severity: important; source: Flow documentation —
+"Bulkify Your Design"; Salesforce Well-Architected — bulkification
+guidance)
+
+Sub-rules:
+- a Get/Update/Delete Records element inside a Loop (id:
+  `flow-bulk-safe.dml-in-loop`; severity: critical; kind: defect)
 
 ## Fault paths
 
@@ -138,8 +150,8 @@ failure disappears unseen.
   multiple DML elements fault into, is in
   [reference/flow-patterns.md](reference/flow-patterns.md).
 
-(id: `flow-fault-paths`; source: Flow documentation — "Fault Paths and
-Fault Connectors")
+(id: `flow-fault-paths`; severity: critical; kind: hardening; source:
+Flow documentation — "Fault Paths and Fault Connectors")
 
 ## Run context
 
@@ -166,8 +178,8 @@ default happens to be.** Flow properties expose the choice directly:
   can't normally edit is a deliberate design decision, not an accidental
   side effect discovered later in a support ticket.
 
-(id: `flow-run-context`; source: Flow documentation — "Set Flow Run
-Context and Data Access")
+(id: `flow-run-context`; severity: important; source: Flow
+documentation — "Set Flow Run Context and Data Access")
 
 ## Retired automation
 
@@ -179,26 +191,7 @@ a change beyond a trivial fix. Existing ones are edited in place only
 when the edit is small and low-risk; anything larger is rebuilt as a
 Flow rather than extended in the retired tool.
 
-(id: `flow-retired-automation`; source: Salesforce's own retirement
-guidance for Workflow Rules and Process Builder — Flow is the sole
-supported path for new declarative automation; this standard's
-maintenance-only enforcement)
-
-## Review severities
-
-- **Critical**: a Get/Update/Delete Records element inside a Loop
-  (`flow-bulk-safe`); a Create/Update/Delete Records or callout element
-  with no fault path, or a fault path that does nothing observable
-  (`flow-fault-paths`); a second record-triggered flow created on
-  an object and trigger moment an existing flow already owns
-  (`flow-one-per-object-moment`).
-- **Important**: run context left unstated or undocumented, especially
-  System Context Without Sharing with no reasoning given
-  (`flow-run-context`); missing or overly broad entry conditions that let
-  a flow's interview run on records it has no reason to touch
-  (`flow-bulk-safe`); a subflow extracted with neither reuse nor a
-  clarity justification (`flow-one-per-object-moment`); a new Workflow
-  Rule or Process Builder process (`flow-retired-automation`).
-- **Minor**: naming convention deviations on flows, elements, or
-  variables, including default un-renamed element labels
-  (`flow-naming`).
+(id: `flow-retired-automation`; severity: important; source: Salesforce's
+own retirement guidance for Workflow Rules and Process Builder — Flow
+is the sole supported path for new declarative automation; this
+standard's maintenance-only enforcement)
