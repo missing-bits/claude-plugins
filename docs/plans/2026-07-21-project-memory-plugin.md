@@ -27,7 +27,7 @@ base: master
 - Commit messages: ONE line, conventional-commit subject (`type:` / `type(scope):`), no body, no trailers.
 - `claude plugin validate .` and `claude plugin validate plugins/<name>` must pass before every commit that touches a plugin.
 - `claude plugin validate` does NOT check `rules/` — review rule frontmatter by hand; quote any YAML scalar containing `: `.
-- A commit/PR that changes any file under `plugins/<name>/` bumps that plugin's version in the same commit/PR: project-memory lands at `0.1.0`, working-process moves `0.8.0 → 0.9.0`.
+- A commit/PR that changes any file under `plugins/<name>/` bumps that plugin's version in the same commit/PR: project-memory lands at `0.1.0`, working-process moves `0.8.0 → 0.9.0`. (Landed as `0.10.0` — 0.9.0 was taken on master by the findings-ordering release that merged first.)
 - Marketplace sync: a new plugin lands with manifest, catalog entry, and repo README row in the SAME commit; `plugin.json` description is canonical, catalog/README may shorten but never contradict.
 - The project-memory core rule ships with NO `paths:` frontmatter (always-on, the justified exception); the conventions rule keeps `paths:` for `docs/memory/**` and `.claude/memory/**`.
 - All work happens on branch `feature/1-project-memory-plugin` (already exists, based on `master`).

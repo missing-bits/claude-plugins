@@ -134,6 +134,8 @@ has such a convention.
 - `plugin.json`: version `0.8.0 → 0.9.0` (component removal is
   breaking; pre-1.0.0 breaking changes ride a minor bump). The
   description stays unchanged — it never named the memory pair.
+  (Landed as `0.9.0 → 0.10.0`: the findings-ordering release took 0.9.0
+  on master before this branch merged.)
 
 ## Migration
 
