@@ -91,6 +91,66 @@ reports a contextual `enabled: false` and still counts as present);
 detected during `sync-rules` state discovery, offered for removal or
 adoption as the developer's own.
 
+**Severity**:
+The grading value a review finding carries: `critical | important |
+minor`, fixed per rule in its rule tag and read off by the reviewer —
+never judged per finding wherever a tag exists; a Candidate gap, having
+no tag, is graded by the Authoring rubric. The collective noun is
+"severity level" — never "tier", which stays reserved for the
+model-capability ladder.
+_Avoid_: severity tier
+
+**Rule tag**:
+The inline parenthesized annotation at a rule's (or sub-rule's)
+definition site carrying its identity and grade:
+`(id: <rule-id>; severity: critical|important|minor[; kind:
+defect|hardening]; source: <source>)` — `kind` required exactly when
+severity is critical, and the rule id backtick-wrapped inside the tag.
+The single source of truth for severity; no roll-up section may
+restate it.
+_Avoid_: inline tag (unqualified), severity row
+
+**Kind**:
+The orthogonal facet on critical-severity rules: `defect` (a genuine
+runtime/live-risk failure) or `hardening` (a standards-mandated
+protection graded critical by house policy). A property of the rule,
+assigned at authoring time — never judged per finding wherever a tag
+exists; a critical Candidate gap is always `defect` (no standard exists
+to mandate a hardening).
+_Avoid_: runtime/hardening split, criticality class
+
+**Authoring rubric**:
+The severity guidance used when writing or editing a rule (and when
+grading a Candidate gap). Canonical text lives in the repo authoring
+rule and appears verbatim in exactly three other places — the
+review-reports contract and the two code-review skills' standalone
+fallbacks — never restated beyond those (including here). Lives at
+authoring time; a reviewer never uses it to overrule a Rule tag.
+_Avoid_: severity definitions, step-3 definition
+
+**Candidate gap**:
+A review finding that violates no defined rule: reported and counted
+normally, cited `rule: none`, graded by the Authoring rubric, and
+surfaced in the run's reply as a candidate for a new rule — with offers
+to park it in Project memory (when a store exists) or report it
+upstream, generalized. Never cited with an invented rule id.
+_Avoid_: uncited observation, unmatched finding
+
+**Sub-rule**:
+A dot-suffixed, tagged refinement of a rule whose violations grade
+differently from the rule's default — its own entry under the rule's
+prose, with its own absolute severity (and kind when critical). Its
+identifier is the sub-id, `<group-id>.<suffix>`. A sub-rule whose
+severity equals the group default is redundant and not created.
+_Avoid_: sub-case, child rule, variant
+
+**Group default**:
+The severity a rule's own tag carries, applied to a finding that
+violates the rule but matches none of its sub-rules. Every rule has
+one — including rules with no sub-rules, where it is simply the rule's
+severity.
+_Avoid_: base severity, fallback severity
+
 **Tier**:
 A relative rung on the platform's current capability ladder of model
 families ("most capable available", "mid"), resolved at dispatch time —
