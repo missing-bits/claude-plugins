@@ -1,7 +1,7 @@
 {
   "name": "project-memory",
-  "description": "In-repo project memory for Claude Code sessions — committed Team memory (docs/memory/) and git-ignored per-user Private memory (.claude/memory/), shipped as a Rules payload installed via the working-process sync-rules engine",
-  "version": "0.1.0",
+  "description": "In-repo project memory for Claude Code sessions — committed Team memory (docs/memory/) and git-ignored per-user Private memory (.claude/memory/); a Rules payload plus memory-review-session and migrate-memory skills",
+  "version": "0.2.0",
   "author": { "name": "Missing Bits (Jacek Nakonieczny)" },
   "license": "MIT",
   "keywords": ["memory", "notes", "ideas", "knowledge", "rules"]
