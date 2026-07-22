@@ -6,7 +6,9 @@ in the project, in two parts:
 - **Team memory** — `docs/memory/`, committed, shared with the team.
 - **Private memory** — `.claude/memory/`, per-user, always git-ignored.
 
-Each part holds a thin `INDEX.md` (one-line pointers) plus flat topic files.
+Each part holds a thin `INDEX.md` (one-line pointers to live entries) plus
+flat topic files, and an `ARCHIVE.md` of closed-entry lines read on demand —
+never at session start.
 
 ## Loading
 
