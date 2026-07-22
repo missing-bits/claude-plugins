@@ -14,6 +14,9 @@ itself a review finding — "the team already knows Visualforce" or "the
 existing page is Visualforce" don't count; only a concrete platform gap
 does. See `salesforce-lwc` for where new UI work belongs.
 
+(id: `vf-maintenance-first`; severity: important; source: this
+standard)
+
 Cite rules in review findings as `(standard: salesforce-visualforce,
 rule: <id>)`; each rule names its source — the Visualforce Developer
 Guide, or `this standard` (a recorded house decision).
@@ -53,9 +56,15 @@ One worked example per rung — including the Apex for the extension and
 custom-controller rungs — is in
 [reference/controller-patterns.md](reference/controller-patterns.md).
 
-(id: `vf-controller-ladder`; source: Visualforce Developer Guide —
-"Standard Controllers", "Custom Controllers and Controller Extensions";
-the step-justification framing is this standard)
+(id: `vf-controller-ladder`; severity: important; source: Visualforce
+Developer Guide — "Standard Controllers", "Custom Controllers and
+Controller Extensions"; the step-justification framing is this
+standard)
+
+Sub-rules:
+- an extension used where standard controller alone would have
+  sufficed (id: `vf-controller-ladder.needless-extension`; severity:
+  minor)
 
 ## View state discipline
 
@@ -97,9 +106,9 @@ plain properties, reduced to the one scalar it actually needs to persist
 — is annotated in
 [reference/controller-patterns.md](reference/controller-patterns.md).
 
-(id: `vf-view-state`; source: Visualforce Developer Guide — "View State",
-"Reducing View State Size"; the durable-vs-transient framing is this
-standard)
+(id: `vf-view-state`; severity: important; source: Visualforce Developer
+Guide — "View State", "Reducing View State Size"; the durable-vs-transient
+framing is this standard)
 
 ## Data binding
 
@@ -127,9 +136,14 @@ standard)
   constructor, an action method, or a `transient`-cached getter — and
   bind the repeat to that already-populated property.
 
-(id: `vf-data-binding`; source: Visualforce Developer Guide — "Expression
-Language", "Using apex:repeat"; the getter-caching discipline is this
-standard)
+(id: `vf-data-binding`; severity: important; source: Visualforce
+Developer Guide — "Expression Language", "Using apex:repeat"; the
+getter-caching discipline is this standard)
+
+Sub-rules:
+- a page expression performing inline arithmetic or a multi-step
+  conditional instead of reading a precomputed controller property (id:
+  `vf-data-binding.inline-expression`; severity: minor)
 
 ## Security
 
@@ -150,30 +164,10 @@ standard)
   controller or extension's Apex. A Visualforce controller that queries
   or saves business/sensitive data in system context with none of that
   enforcement in place is a finding under that skill, not a separate
-  Visualforce-specific rule.
+  Visualforce-specific rule. System-context FLS in a controller or
+  extension is graded by `security-fls` (salesforce-security-model).
 
-(id: `vf-security`; source: Visualforce Developer Guide — "Preventing
-Cross-Site Scripting (XSS)"; the justification requirement is this
-standard; FLS mechanics: `salesforce-security-model`)
-
-## Review severities
-
-- **Critical**: `escape="false"` used
-  with no stated justification on content that can carry user-supplied
-  or external data (`vf-security`); a query or DML operation on
-  business/sensitive data running in system context inside a controller
-  or extension with no FLS/sharing enforcement (`salesforce-security-model`,
-  cited there).
-- **Important**: new Visualforce surface added with no named
-  platform-forcing reason (Maintenance-first); a custom controller
-  written where standard controller + extension would express the page
-  (`vf-controller-ladder`); a getter
-  bound to `apex:repeat`/`apex:pageBlockTable` that re-queries on every
-  call instead of returning a cached collection (`vf-data-binding`); a
-  controller holding query results or derived collections in
-  non-transient properties that could be `transient`-cached or reduced
-  to a smaller durable value (`vf-view-state`).
-- **Minor**: a page expression performing inline arithmetic or a
-  multi-step conditional instead of reading a precomputed controller
-  property (`vf-data-binding`); an extension used where standard
-  controller alone would have sufficed (`vf-controller-ladder`).
+(id: `vf-security`; severity: critical; kind: defect; source:
+Visualforce Developer Guide — "Preventing Cross-Site Scripting (XSS)";
+the justification requirement is this standard; FLS mechanics:
+`salesforce-security-model`)

@@ -14,6 +14,9 @@ finding — "the team already knows Aura" or "the existing component is
 Aura" are not forcing reasons; only a concrete platform gap is. See
 `salesforce-lwc` for where new UI work belongs and how it is built.
 
+(id: `aura-maintenance-first`; severity: important; source: this
+standard)
+
 Cite rules in review findings as `(standard: salesforce-aura, rule:
 <id>)`; each rule names its source — the Aura Components Developer
 Guide, or `this standard` (a recorded house decision).
@@ -46,9 +49,17 @@ Guide, or `this standard` (a recorded house decision).
   branch's state (scroll position, an in-progress edit) must survive
   it.
 
-(id: `aura-markup`; source: Aura Components Developer Guide — "Component
-Markup", "Conditional Markup with aura:if"; the toggling decision rule is
-this standard)
+(id: `aura-markup`; severity: important; source: Aura Components
+Developer Guide — "Component Markup", "Conditional Markup with
+aura:if"; the toggling decision rule is this standard)
+
+Sub-rules:
+- an expression in markup performing inline arithmetic or concatenation
+  instead of reading a precomputed attribute (id:
+  `aura-markup.inline-expression`; severity: minor)
+- `aura:if` used for a frequently-toggled, stateless visibility switch
+  that CSS-class toggling would serve more cheaply (id:
+  `aura-markup.frequent-toggle-aura-if`; severity: minor)
 
 ## Controller vs helper
 
@@ -71,9 +82,17 @@ this standard)
   of record for a rule Apex could enforce once and share across every
   caller (Flow, integrations, other UI).
 
-(id: `aura-controller-helper`; source: Aura Components Developer Guide —
-"Client-Side Controllers", "Helper Methods"; the thin-controller and
-no-business-logic stances are this standard)
+(id: `aura-controller-helper`; severity: important; source: Aura
+Components Developer Guide — "Client-Side Controllers", "Helper
+Methods"; the thin-controller and no-business-logic stances are this
+standard)
+
+Sub-rules:
+- business logic — a calculation, an eligibility or status rule —
+  implemented in a component's controller or helper instead of
+  delegated to Apex (id:
+  `aura-controller-helper.business-logic-in-client`; severity:
+  critical; kind: hardening)
 
 ## Events
 
@@ -112,9 +131,18 @@ no-business-logic stances are this standard)
   kinds, with the decision rule annotated inline — are in
   [reference/events.md](reference/events.md).
 
-(id: `aura-events`; source: Aura Components Developer Guide — "Component
-Events", "Application Events"; the naming/payload discipline and the
-component-first decision rule are this standard)
+(id: `aura-events`; severity: important; source: Aura Components
+Developer Guide — "Component Events", "Application Events"; the
+naming/payload discipline and the component-first decision rule are
+this standard)
+
+Sub-rules:
+- an application event fired where a component event would do,
+  discovered by tracing an unnecessary cross-tree dependency (id:
+  `aura-events.application-event-overuse`; severity: critical; kind:
+  hardening)
+- an event named after the firing component instead of what happened
+  (id: `aura-events.named-after-component`; severity: minor)
 
 ## Lightning Data Service
 
@@ -131,8 +159,8 @@ multi-record operations, cross-object queries, aggregates, or
 server-side business logic — never as the default path for
 single-record CRUD just because it's the familiar pattern.
 
-(id: `aura-lds`; source: Aura Components Developer Guide — "Lightning
-Data Service")
+(id: `aura-lds`; severity: important; source: Aura Components Developer
+Guide — "Lightning Data Service")
 
 ## Migration direction
 
@@ -165,30 +193,6 @@ had:
 - The full checklist, ready to run against a specific component, is in
   [reference/events.md](reference/events.md).
 
-(id: `aura-migration`; source: Aura Components Developer Guide —
-"Migrate from Aura to Lightning Web Components"; the checklist and its
-consumer-surface item are this standard)
-
-## Review severities
-
-- **Critical**: business logic — a calculation, an
-  eligibility or status rule — implemented in a component's controller
-  or helper instead of delegated to Apex (`aura-controller-helper`); an
-  application event fired where a component event would do, discovered
-  by tracing an unnecessary cross-tree dependency (`aura-events`).
-- **Important**: new Aura surface added with no named platform-forcing
-  reason (Maintenance-first); an `<aura:attribute>` typed as `Object`
-  with no justification (`aura-markup`); logic (a loop, a multi-line
-  conditional, a direct Apex call) living in a controller action instead
-  of a helper function (`aura-controller-helper`); an event payload
-  carrying the whole record or firing component's state instead of the
-  fields a handler actually needs (`aura-events`); a hand-written Apex
-  method doing single-record CRUD that `force:recordData` could cover
-  (`aura-lds`); a migration started without checking event-contract
-  parity for existing consumers (`aura-migration`).
-- **Minor**: an expression in markup performing inline arithmetic or
-  concatenation instead of reading a precomputed attribute
-  (`aura-markup`); `aura:if` used for a frequently-toggled, stateless
-  visibility switch that CSS-class toggling would serve more cheaply
-  (`aura-markup`); an event named after the firing component instead of
-  what happened (`aura-events`).
+(id: `aura-migration`; severity: important; source: Aura Components
+Developer Guide — "Migrate from Aura to Lightning Web Components"; the
+checklist and its consumer-surface item are this standard)
