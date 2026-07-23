@@ -53,17 +53,36 @@ provision.
    salesforce-lwc, salesforce-flow, salesforce-data-model,
    salesforce-security-model, salesforce-aura, salesforce-visualforce
    as the content demands.
-3. Grade every finding:
-   - **Critical** — a defect that corrupts data, breaks security or
-     sharing, or blows a governor limit on a bulk path.
-   - **Important** — violates a standard in a way that forces rework
-     or hides bugs (including new legacy-UI or retired-automation
-     surface without a named platform forcing reason).
-   - **Minor** — naming, style, documentation.
-   Cite the standard for each finding (`standard: <skill>, rule: <id>`
-   where the skill defines rule ids, e.g. PMD rule names).
+3. Grade every finding by its rule tag — the tag is binding; no general
+   intuition overrules it:
+   - the finding matches a listed sub-rule → that sub-rule's severity;
+     cite its sub-id (`standard: <skill>, rule: <group.suffix>`);
+   - the finding violates the rule but matches no listed sub-rule → the
+     group id's severity; cite the group id;
+   - no defined rule covers the finding → report and count it anyway,
+     cited `(standard: <the loaded skill that lacks the rule>,
+     rule: none)`, graded by the authoring rubric in the review-reports
+     contract; at critical its kind is always `defect`. Never invent a
+     rule id.
+   When a matching rule exists, citing its specific id is mandatory —
+   a bare `(standard: <skill>)` citation is not a valid finding.
+   Critical findings carry the rule's kind inline
+   (`…, kind: defect|hardening`); the Summary headline breaks critical
+   counts down by kind (e.g. "critical: 33 — 12 defect, 21 hardening").
+   Content matching no loaded domain skill stays a Summary out-of-scope
+   note, not a finding.
 4. Write the Review report (next section).
-5. Reply with the report path and the findings grouped by severity; a
+5. List `rule: none` findings in the reply as candidate standards gaps
+   (one line each: violation class, proposed rule id, graded severity),
+   then follow the review-reports contract's Candidate-gap offers
+   section: offer a Project-memory park when a store exists (probe
+   `docs/memory/INDEX.md` and `.claude/memory/INDEX.md`; explicit
+   guidance on store choice wins, both-stores means ask, never offer to
+   create one) and always offer a generalized upstream report (target
+   resolved from the installed marketplace's source; non-public source
+   → target-less draft; show the full draft before anything is filed;
+   never include the reviewed project's code, identifiers, or name).
+6. Reply with the report path and the findings grouped by severity; a
    zero-findings run still writes the report and states the result.
 
 ## Report contract
@@ -105,3 +124,17 @@ different shape:
   per-report decision.
 - No git root, or the file cannot be written → emit the full report
   in the reply and state why no file was written.
+- Grading: by the rule tags via the cascade in step 3 — sub-rule →
+  group → `rule: none` graded by the authoring rubric:
+  - **critical** — a defect that corrupts data, breaks security or
+    sharing, or blows a platform limit on a bulk path;
+  - **important** — violates a standard in a way that forces rework or
+    hides bugs;
+  - **minor** — naming, style, documentation.
+  Specific-id citations are mandatory; `rule: none` at critical is
+  always `kind: defect`.
+- Critical findings carry `kind:` inline and the Summary breaks critical
+  counts down by kind.
+- The candidate-gap listing and both offers (memory park, upstream
+  report) apply in full exactly as in step 5 — they are reply behavior
+  and do not depend on the shared contract being installed.

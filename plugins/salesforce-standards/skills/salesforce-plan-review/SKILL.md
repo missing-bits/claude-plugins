@@ -41,9 +41,9 @@ Severities noted per dimension bind — do not re-grade them.
   Important.
 - Any new Workflow Rule or Process Builder automation → Critical
   (retired surface; Flow is the target). Deliberately one grade above
-  the code-review rubric's Important for the same surface: at plan
-  time the design can still change; post-hoc review grades by the
-  shared severity definitions.
+  the severity `flow-retired-automation` carries in its rule tag: at
+  plan time the design can still change; post-hoc review grades by
+  that rule tag.
 
 ## 5. Deployment dependencies and ordering
 

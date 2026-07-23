@@ -14,5 +14,6 @@ and report writing.
   when the shared review-reports contract applies).
 - Never stage or commit the report.
 - Reply with the report path and the findings grouped Critical →
-  Important → Minor; zero findings is still a written report and a
-  stated result.
+  Important → Minor, then the candidate-gap list and offers per the
+  skill's step 5; zero findings is still a written report and a stated
+  result.

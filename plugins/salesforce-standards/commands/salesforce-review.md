@@ -12,4 +12,5 @@ skills.
 3. Salesforce files only, per the skill's run scope; note
    out-of-domain files in the report Summary as out of scope.
 4. Write the review report per the skill's report contract and reply
-   with the report path and findings by severity.
+   as the salesforce-code-review skill specifies (report path, severity
+   summary, candidate gaps and offers).
