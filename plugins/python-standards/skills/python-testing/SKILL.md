@@ -14,39 +14,43 @@ recorded house decision). Everything runs via `uv run pytest`.
 
 - `tests/` sits beside `src/` and mirrors the package: code in
   `src/pkg/profiles/loader.py` is tested in
-  `tests/profiles/test_loader.py`. (id: `test-mirror`; source: pytest
-  docs "Good Integration Practices"; the mirror rule is this standard)
+  `tests/profiles/test_loader.py`. (id: `test-mirror`; severity: minor;
+  source: pytest docs "Good Integration Practices"; the mirror rule is
+  this standard)
 - Files are `test_<module>.py`; functions `test_<behavior>` named for
   the behavior, not the method (`test_missing_profile_raises`, not
-  `test_load_2`). (id: `test-naming`; source: pytest docs "Conventions
-  for Python test discovery"; behavior-naming is this standard)
+  `test_load_2`). (id: `test-naming`; severity: minor; source: pytest
+  docs "Conventions for Python test discovery"; behavior-naming is this
+  standard)
 - No logic in `tests/__init__.py`; shared helpers live in fixtures or
-  plain modules imported explicitly. (id: `test-no-init-logic`; source:
-  this standard)
+  plain modules imported explicitly. (id: `test-no-init-logic`;
+  severity: minor; source: this standard)
 - Slow or environment-needing tests carry a marker (e.g.
   `@pytest.mark.integration`) declared in `[tool.pytest.ini_options]
-  markers` — the default run stays fast. (id: `test-markers`; source:
-  pytest docs "How to mark test functions with attributes")
+  markers` — the default run stays fast. (id: `test-markers`; severity:
+  minor; source: pytest docs "How to mark test functions with
+  attributes")
 
 ## Fixtures
 
 - **Scope discipline**: function scope is the default; wider scopes
   (session, module) only for genuinely expensive, read-only resources —
   a session-scoped mutable fixture is a test-pollution bug waiting.
-  (id: `test-fixture-scope`; source: pytest docs "Fixtures" — scope
-  section; the mutable-wide-scope ban is this standard)
+  (id: `test-fixture-scope`; severity: important; source: pytest docs
+  "Fixtures" — scope section; the mutable-wide-scope ban is this
+  standard)
 - **conftest.py at the nearest common ancestor** of its consumers —
-  never one giant root conftest. (id: `test-conftest-placement`; source:
-  pytest docs — conftest.py fixture sharing; the nearest-ancestor rule
-  is this standard)
+  never one giant root conftest. (id: `test-conftest-placement`;
+  severity: minor; source: pytest docs — conftest.py fixture sharing;
+  the nearest-ancestor rule is this standard)
 - **Factory fixtures over module-level state**: a fixture returns a
   builder (`make_profile(**overrides)`) so each test states what it
-  cares about. (id: `test-factories`; source: pytest docs "Factories as
-  fixtures")
+  cares about. (id: `test-factories`; severity: minor; source: pytest
+  docs "Factories as fixtures")
 - `autouse=True` is rare and always carries a comment saying why every
   test needs it. Examples: [reference/conftest.py](reference/conftest.py).
-  (id: `test-autouse-rare`; source: pytest docs — autouse fixtures; the
-  rarity-plus-comment rule is this standard)
+  (id: `test-autouse-rare`; severity: minor; source: pytest docs —
+  autouse fixtures; the rarity-plus-comment rule is this standard)
 
 ## Parametrization
 
@@ -54,18 +58,18 @@ recorded house decision). Everything runs via `uv run pytest`.
 behavior over different inputs; separate test functions when the
 BEHAVIOR differs (different asserts = different test). Examples:
 [reference/test-patterns.py](reference/test-patterns.py).
-(id: `test-parametrize`; source: pytest docs "How to parametrize
-fixtures and test functions"; the same-behavior boundary is this
-standard)
+(id: `test-parametrize`; severity: minor; source: pytest docs "How to
+parametrize fixtures and test functions"; the same-behavior boundary is
+this standard)
 
 ## Mocking
 
 Mock only at boundaries the code does not own (network, clock,
 subprocess); prefer a fake or a real temp resource over a mock when
 cheap. Never patch internals of the unit under test — that pins the
-implementation, not the behavior. (id: `test-mock-boundaries`; source:
-CPython `unittest.mock` docs, "Where to patch"; the
-boundaries-you-do-not-own rule is this standard)
+implementation, not the behavior. (id: `test-mock-boundaries`;
+severity: important; source: CPython `unittest.mock` docs, "Where to
+patch"; the boundaries-you-do-not-own rule is this standard)
 
 ## Coverage
 
@@ -73,12 +77,5 @@ Measured with pytest-cov (`uv run pytest --cov=src`); new and changed
 code ships with tests covering its behavior — reviewers judge coverage
 of the CHANGE, not the historical total. A numeric repo-wide gate is a
 per-project decision recorded in `pyproject.toml`, not assumed.
-(id: `test-coverage-of-change`; source: this standard — a recorded
-developer decision, 2026-07-17)
-
-## Review severities
-
-- Important: `test-mock-boundaries` (patched internals),
-  `test-fixture-scope` (mutable wide-scope fixtures), a behavior change
-  shipped with no covering test.
-- Minor: everything else in this skill.
+(id: `test-coverage-of-change`; severity: important; source: this
+standard — a recorded developer decision, 2026-07-17)

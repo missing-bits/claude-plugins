@@ -21,8 +21,12 @@ uv manages environments, dependencies, and packaging — end to end:
 - `uv run <cmd>` executes inside the project environment — no manual
   venv activation in docs or scripts.
 
-(id: `layout-uv-owns`; source: uv documentation — projects and lockfile
-concepts)
+(id: `layout-uv-owns`; severity: minor; source: uv documentation —
+projects and lockfile concepts)
+
+Sub-rules:
+- `uv.lock` not committed (id: `layout-uv-owns.uncommitted-lock`;
+  severity: important)
 
 ## Tool ownership — mise and uv
 
@@ -32,8 +36,9 @@ owns the project's Python interpreter and virtual environment
 two owners: the project's Python version lives in pyproject.toml and uv's
 pin, never in a mise config; mise's job ends at delivering uv.
 
-(id: `layout-interpreter-owner`; source: uv documentation — Python
-versions; the single-owner boundary is this standard)
+(id: `layout-interpreter-owner`; severity: important; source: uv
+documentation — Python versions; the single-owner boundary is this
+standard)
 
 ## pyproject.toml — the single manifest
 
@@ -43,12 +48,13 @@ the `[project]` table per PEP 621 — plus the build system (PEP 517/518)
 and every tool's configuration section. No `setup.py`, `setup.cfg`, or
 `requirements.txt` in new projects. Annotated example:
 [reference/pyproject.toml](reference/pyproject.toml).
-(id: `layout-single-manifest`; source: PEP 621, PEP 517/518)
+(id: `layout-single-manifest`; severity: minor; source: PEP 621,
+PEP 517/518)
 
 Static `version = "x.y.z"` in `[project]` is the default (PEP 440
 version format); dynamic versioning only with a recorded reason.
-(id: `layout-static-version`; source: PEP 440 for the format; the
-static-first stance is this standard)
+(id: `layout-static-version`; severity: minor; source: PEP 440 for the
+format; the static-first stance is this standard)
 
 ## src layout
 
@@ -56,27 +62,21 @@ Packages live under `src/<package_name>/` — imports resolve against the
 installed package, never the working directory, so tests catch packaging
 mistakes. Tests live in `tests/` beside `src/`, never inside the
 package. Canonical tree: [reference/src-layout.md](reference/src-layout.md).
-(id: `layout-src`; source: PyPA Python Packaging User Guide, "src
-layout vs flat layout")
+(id: `layout-src`; severity: minor; source: PyPA Python Packaging User
+Guide, "src layout vs flat layout")
 
 ## Module boundaries
 
 - **Dependency direction is one-way**: concrete edges point at
   abstractions/util modules, never back; an import cycle is always a
-  boundary bug, not a style choice. (id: `layout-dep-direction`; source:
-  this standard)
+  boundary bug, not a style choice. (id: `layout-dep-direction`;
+  severity: important; source: this standard)
 - **One purpose per module.** A module named for what it does
   (`retry.py`, `profiles.py`) — a `utils.py` grab-bag is a smell after
-  the second unrelated addition. (id: `layout-single-purpose`; source:
-  this standard)
+  the second unrelated addition. (id: `layout-single-purpose`;
+  severity: minor; source: this standard)
 - **When to split**: split a module when it serves two audiences
   (callers import disjoint halves), or when its top-level names stop
   fitting one sentence. Do NOT split on line count alone — a cohesive
   400-line module beats two coupled 200-line ones.
-  (id: `layout-when-to-split`; source: this standard)
-
-## Review severities
-
-- Important: `layout-interpreter-owner` (two interpreter owners),
-  `layout-dep-direction` (import cycles), uncommitted `uv.lock`.
-- Minor: everything else in this skill.
+  (id: `layout-when-to-split`; severity: minor; source: this standard)

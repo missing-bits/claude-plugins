@@ -25,8 +25,8 @@ decision).
 - A router importing a repository, or a service importing `fastapi`,
   fails review. Worked example:
   [reference/layering.py](reference/layering.py).
-(id: `web-layering`; source: this standard; DI mechanics per FastAPI
-documentation — "Dependencies")
+(id: `web-layering`; severity: important; source: this standard; DI
+mechanics per FastAPI documentation — "Dependencies")
 
 ## pydantic v2 models
 
@@ -36,9 +36,13 @@ documentation — "Dependencies")
   the service layer, data is already trusted and typed.
 - Response models are declared on the route (`response_model=`), so
   accidental field leaks are impossible.
-(id: `web-boundary-models`; source: FastAPI documentation —
-"Response Model" — and pydantic documentation; the separate-models rule
-is this standard)
+(id: `web-boundary-models`; severity: minor; source: FastAPI
+documentation — "Response Model" — and pydantic documentation; the
+separate-models rule is this standard)
+
+Sub-rules:
+- a route with no `response_model` declared (id:
+  `web-boundary-models.missing-response-model`; severity: important)
 
 ## Async boundaries
 
@@ -49,8 +53,8 @@ is this standard)
 - Genuinely sync work (CPU-bound, legacy driver) is offloaded:
   `run_in_threadpool` / `asyncio.to_thread`, or the handler is honest
   and declared plain `def` (FastAPI threads it).
-(id: `web-async-boundaries`; source: PEP 492; offloading mechanics per
-FastAPI documentation — "Async")
+(id: `web-async-boundaries`; severity: critical; kind: defect; source:
+PEP 492; offloading mechanics per FastAPI documentation — "Async")
 
 ## HTTP error handling
 
@@ -66,14 +70,10 @@ FastAPI documentation — "Async")
   [reference/error-handling.py](reference/error-handling.py).
 - Stack traces never reach a response body; they go to the log with the
   request id.
-(id: `web-error-envelope`; source: RFC 9457 "Problem Details for HTTP
-APIs"; the `code` extension member and the no-traceback rule are this
-standard)
+(id: `web-error-envelope`; severity: minor; source: RFC 9457 "Problem
+Details for HTTP APIs"; the `code` extension member and the
+no-traceback rule are this standard)
 
-## Review severities
-
-- Critical: blocking IO in an async path under load
-  (`web-async-boundaries` — it stalls the event loop for every request).
-- Important: layering violations, stack traces in responses, missing
-  `response_model`.
-- Minor: everything else in this skill.
+Sub-rules:
+- a stack trace reaching a response body (id:
+  `web-error-envelope.stack-trace-leak`; severity: important)
