@@ -19,7 +19,8 @@ Configuration lives in `pyproject.toml` under `[tool.ruff]` — the
 canonical, annotated block is in
 [reference/ruff-config.toml](reference/ruff-config.toml). Copy it into
 new projects; do not hand-roll a different rule selection without
-recording why. (id: `style-ruff-only`; source: ruff documentation)
+recording why. (id: `style-ruff-only`; severity: important; source:
+ruff documentation)
 
 ## Naming (PEP 8)
 
@@ -32,7 +33,11 @@ recording why. (id: `style-ruff-only`; source: ruff documentation)
 | class / exception | `CapWords`; exceptions end in `Error` | `ProfileNotFoundError` |
 | private | single leading underscore; no `__name` mangling without a documented reason | `_parse_row()` |
 
-(id: `style-naming`; source: PEP 8)
+(id: `style-naming`; severity: minor; source: PEP 8)
+
+Sub-rules:
+- naming that misleads (e.g. `get_x()` that mutates) (id:
+  `style-naming.misleading-name`; severity: important)
 
 ## Idioms
 
@@ -42,24 +47,24 @@ Before/after pairs for every rule below live in
 - **Comprehensions for transforms, loops for effects.** A comprehension
   builds a value; side effects belong in a `for` loop. Nested
   comprehensions past two `for` clauses become loops.
-  (id: `style-comprehensions`; source: PEP 202 for the construct, the
-  transform-vs-effect line is this standard)
+  (id: `style-comprehensions`; severity: minor; source: PEP 202 for the
+  construct, the transform-vs-effect line is this standard)
 - **Early returns over arrow code.** Guard clauses first, happy path at
-  the shallowest indent. (id: `style-early-return`; source: this
-  standard)
+  the shallowest indent. (id: `style-early-return`; severity: minor;
+  source: this standard)
 - **EAFP over LBYL** when the operation itself reports failure
   (`try/except KeyError` over `if key in d` + lookup) — except at
   validation boundaries, where explicit checks read better.
-  (id: `style-eafp`; source: the CPython glossary entries "EAFP" and
-  "LBYL")
+  (id: `style-eafp`; severity: minor; source: the CPython glossary
+  entries "EAFP" and "LBYL")
 - **f-strings** (PEP 498) for interpolation — never `%` or `.format()`
   in new code. Logging calls use lazy `%s` formatting
   (`logger.info("x=%s", x)`) so the string is built only when emitted
-  (ruff `G004`). (id: `style-fstrings`; source: PEP 498; lazy logging
-  args per the CPython logging docs)
+  (ruff `G004`). (id: `style-fstrings`; severity: minor; source:
+  PEP 498; lazy logging args per the CPython logging docs)
 - **pathlib over os.path** (PEP 428) — `Path` objects end-to-end;
   convert to `str` only at library boundaries that demand it.
-  (id: `style-pathlib`; source: PEP 428)
+  (id: `style-pathlib`; severity: minor; source: PEP 428)
 
 ## Docstrings
 
@@ -86,12 +91,6 @@ Before/after pairs for every rule below live in
   with `D` rules in CI): consistency inside a codebase beats this
   skill's preference — respect it, do not convert.
 
-(id: `style-docstrings`; source: PEP 257 + the Google Python Style
-Guide's docstring section; the project-override clause is this standard)
-
-## Review severities
-
-- Critical: none at this level (style never breaks production alone).
-- Important: `style-ruff-only` violations (competing formatter/linter
-  present), naming that misleads (`get_x()` that mutates).
-- Minor: everything else in this skill.
+(id: `style-docstrings`; severity: minor; source: PEP 257 + the Google
+Python Style Guide's docstring section; the project-override clause is
+this standard)

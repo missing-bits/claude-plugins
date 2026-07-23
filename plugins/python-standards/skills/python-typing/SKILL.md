@@ -20,7 +20,7 @@ editor. Astral's `ty` is the watched successor — revisit this choice when
 Run it as `uv run pyright`; configuration lives in `pyproject.toml`
 under `[tool.pyright]` — canonical block in
 [reference/pyright-config.toml](reference/pyright-config.toml).
-(id: `typing-pyright`; source: the Python typing spec —
+(id: `typing-pyright`; severity: minor; source: the Python typing spec —
 typing.python.org — for conformance, pyright documentation for
 configuration; the tool choice is this standard)
 
@@ -29,18 +29,18 @@ configuration; the tool choice is this standard)
 - **Every public function and method is fully annotated** (PEP 484 is
   the foundation) — parameters and return type, including `-> None`.
   Private helpers may rely on inference when the types are obvious from
-  one screen of context. (id: `typing-public-api`; source: PEP 484; the
-  public-minimum policy is this standard)
+  one screen of context. (id: `typing-public-api`; severity: important;
+  source: PEP 484; the public-minimum policy is this standard)
 - **Modern syntax only**: `X | None` over `Optional[X]` (PEP 604),
   `list[str]` over `List[str]` (PEP 585), `collections.abc`
   (`Iterable`, `Callable`) over their deprecated `typing` twins. ruff
-  `UP` enforces this. (id: `typing-modern-syntax`; source: PEP 604,
-  PEP 585)
+  `UP` enforces this. (id: `typing-modern-syntax`; severity: minor;
+  source: PEP 604, PEP 585)
 - **No `Any` laundering**: an `Any` that enters at a boundary is
   narrowed or validated before it spreads; `cast()` carries a comment
-  saying why it is safe. (id: `typing-no-any-laundering`; source:
-  PEP 484 defines `Any`'s escape-hatch semantics; the laundering ban is
-  this standard)
+  saying why it is safe. (id: `typing-no-any-laundering`; severity:
+  important; source: PEP 484 defines `Any`'s escape-hatch semantics;
+  the laundering ban is this standard)
 
 ## Strictness
 
@@ -48,9 +48,13 @@ New projects run pyright in **strict** mode. An adopted codebase starts
 in `standard` mode with per-directory `strict` overrides, ratcheting up
 — never down. Blanket `# type: ignore` is banned; each ignore names the
 error code (`# type: ignore[arg-type]`) and survives only with a reason.
-(id: `typing-strictness`; source: pyright documentation —
-`typeCheckingMode`; the strict-for-new / ratchet-for-adopted policy is
-this standard)
+(id: `typing-strictness`; severity: minor; source: pyright
+documentation — `typeCheckingMode`; the strict-for-new /
+ratchet-for-adopted policy is this standard)
+
+Sub-rules:
+- an unexplained `# type: ignore` (no error code, or no reason) (id:
+  `typing-strictness.unexplained-ignore`; severity: important)
 
 ## Protocols vs ABCs
 
@@ -61,12 +65,6 @@ this standard)
   or invariants enforced in a base class.
 - Never both for one seam. Worked example:
   [reference/typing-patterns.md](reference/typing-patterns.md).
-(id: `typing-protocol-vs-abc`; source: PEP 544 for Protocol, the
-CPython `abc` module docs for ABCs; the when-which rule is this
-standard)
-
-## Review severities
-
-- Important: `typing-no-any-laundering`, unexplained `type: ignore`,
-  public API without annotations.
-- Minor: everything else in this skill.
+(id: `typing-protocol-vs-abc`; severity: minor; source: PEP 544 for
+Protocol, the CPython `abc` module docs for ABCs; the when-which rule
+is this standard)
