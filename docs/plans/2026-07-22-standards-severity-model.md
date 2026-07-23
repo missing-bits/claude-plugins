@@ -1,7 +1,7 @@
 ---
 ticket: "[#6, #7, #8]"
 date: 2026-07-22
-status: approved
+status: implemented
 adversary: concerns (resolved 2026-07-22)
 branch: feature/8-standards-severity-model
 base: master

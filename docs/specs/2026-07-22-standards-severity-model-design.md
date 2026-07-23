@@ -1,7 +1,7 @@
 ---
 ticket: "[#6, #7, #8]"
 date: 2026-07-22
-status: approved
+status: implemented
 grilled: 2026-07-22
 architect: LGTM
 branch: feature/8-standards-severity-model
@@ -284,7 +284,10 @@ No new frontmatter counts until a machine consumer exists.
 - Every authoring-rubric excerpt — the review-reports contract and the
   two code-review skills' standalone fallbacks — is verbatim-identical
   to the canonical rubric in the repo authoring rule; no fifth copy
-  exists anywhere.
+  exists anywhere. (Quoted rubric text inside the implementation plan's
+  task instructions is a citation for builders, not a fifth authority
+  surface — recorded 2026-07-23 after the final whole-branch review
+  flagged the boundary.)
 - No id is defined in two skills with different severities; cross-skill
   mentions carry no severity words.
 - No `## Review severities` section survives anywhere.
