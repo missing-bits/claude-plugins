@@ -1,0 +1,49 @@
+# Release guard — runs on PRs targeting master (release PRs from develop).
+# Enforces the plugin-versioning rule's release-time invariants:
+#   1. no prerelease (-dev.*) version string reaches master;
+#   2. every plugin changed since master carries a version bump.
+name: release-guard
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  release-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: No prerelease versions reach master
+        run: |
+          fail=0
+          for m in plugins/*/.claude-plugin/plugin.json; do
+            v=$(jq -r .version "$m")
+            case "$v" in
+              *-*)
+                echo "::error file=$m::prerelease version '$v' must not reach master — strip the -dev suffix and size the final bump"
+                fail=1
+                ;;
+            esac
+          done
+          exit $fail
+
+      - name: Changed plugins carry a bump
+        run: |
+          base="origin/${{ github.base_ref }}"
+          fail=0
+          for d in plugins/*/; do
+            name=$(basename "$d")
+            manifest="${d}.claude-plugin/plugin.json"
+            if ! git diff --quiet "$base"...HEAD -- "$d"; then
+              base_v=$(git show "$base:$manifest" 2>/dev/null | jq -r .version || echo "<absent>")
+              head_v=$(jq -r .version "$manifest")
+              if [ "$base_v" = "$head_v" ]; then
+                echo "::error file=$manifest::plugin '$name' changed since master but version stayed '$head_v' — the release PR must bump it"
+                fail=1
+              fi
+            fi
+          done
+          exit $fail
