@@ -1,6 +1,6 @@
 ---
 name: python-code-review
-description: Use when auditing existing Python code against the python-standards skills — invoked by the /python-review command or the python-code-reviewer agent.
+description: Use when auditing existing Python code against the python-standards skills — invoked by the python-code-reviewer agent, which the /python-review command dispatches in the background.
 ---
 
 # Python code review
@@ -29,15 +29,26 @@ them in the report's Summary as out of scope.
      group id's severity; cite the group id;
    - no defined rule covers the finding → report and count it anyway,
      cited `(standard: <the loaded skill that lacks the rule>,
-     rule: none)`, graded by the authoring rubric in the review-reports
-     contract; at critical its kind is always `defect`. Never invent a
-     rule id.
+     rule: none)` — or `(standard: python-standards, rule: none)` when
+     no skill of this plugin covers the concern. A concern covered by
+     the domain of an existing but not-yet-loaded skill is NOT a
+     candidate gap: load that skill and grade by its tags —
+     `rule: none` is never asserted against a skill the run did not
+     read. Graded by the authoring rubric in the review-reports
+     contract; at critical its kind is always `defect`; when graded
+     below critical while touching data integrity, security or
+     sharing, or a platform limit, the finding states in one clause
+     why it falls short of critical. Never invent a rule id.
    When a matching rule exists, citing its specific id is mandatory —
-   a bare `(standard: <skill>)` citation is not a valid finding.
-   Critical findings carry the rule's kind inline
-   (`…, kind: defect|hardening`); the Summary headline breaks critical
-   counts down by kind. Content matching no loaded domain skill stays a
-   Summary out-of-scope note, not a finding.
+   a bare `(standard: <skill>)` citation is not a valid finding. A
+   finding cites exactly one rule id; one location violating two
+   rules yields two findings. Critical findings carry the rule's kind
+   inline (`…, kind: defect|hardening`); the Summary headline breaks
+   critical counts down by kind. The Run scope is given by the caller
+   and never self-extended: within it, a Python-domain concern no
+   rule covers is a counted `rule: none` finding (cascade above);
+   files outside the domain (Run scope section) stay Summary
+   out-of-scope notes.
 4. Write the Review report (next section).
 5. List `rule: none` findings in the reply as candidate standards gaps
    (one line each: violation class, proposed rule id, graded severity),
@@ -85,10 +96,16 @@ different shape:
   `findings: { critical: N, important: N, minor: N }` — the counts MUST
   equal the body.
 - **Body**: a Summary section (scope reviewed, out-of-scope files,
-  headline counts), then per-file sections with Critical → Important →
-  Minor subsections, line-ascending within a subsection; omit
-  no-findings files and empty severity sections; a zero-findings run
-  still writes the document.
+  headline counts); a `## Project` section FIRST when findings are
+  not attributable to an existing file (same severity subsections as
+  a file section; ordered by rule id, `rule: none` last by
+  violation-class name); then per-file sections
+  with Critical → Important → Minor subsections, line-ascending
+  within a subsection; omit no-findings files and empty severity
+  sections; a zero-findings run still writes the document. A finding
+  is one violation class in one file (or at project level), its body
+  enumerating every violating site, anchored by its first site; it
+  cites exactly one rule id.
 - Never stage or commit the report — committing is the developer's
   per-report decision.
 - No git root, or the file cannot be written → emit the full report in
