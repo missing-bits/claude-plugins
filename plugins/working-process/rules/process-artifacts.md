@@ -41,8 +41,8 @@ A declared ignored mode is materialized by whoever first acts on it —
 writing the `*` `.gitignore` — making the decision observable; a
 declared tracked mode becomes observable with the first committed
 file. This rule owns the signal list; other surfaces reference it
-rather than restating it (a self-contained command restatement is the
-one justified exception).
+rather than restating it (the self-contained restatements of the review commands
+and the project-memory core rule are the justified exceptions).
 
 `docs/memory/`'s tracked/ignored first-create question is asked by the
 project-memory plugin's core rule (when installed), not this one — it is
