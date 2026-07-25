@@ -18,9 +18,10 @@ at the repo root.
 ## First-create question
 
 When creating a Process directory — or touching one that already exists
-with no observable prior decision (neither a `.gitignore` containing
-exactly `*` nor any git-tracked file under it) — ASK the developer which
-mode the directory gets. Assume no default:
+with no prior decision (no `.gitignore` containing exactly `*`, no
+git-tracked file under it, and no explicit project instruction
+declaring the mode) — ASK the developer which mode the directory gets.
+Assume no default:
 
 - **Ignored mode**: write a `.gitignore` containing exactly `*` into the
   directory; its contents stay out of the repo.
@@ -29,11 +30,19 @@ mode the directory gets. Assume no default:
   e.g. the local pocket of `docs/code-review/` — does not change the
   mode).
 
-Never ask when either signal is already present: only a `.gitignore`
+Never ask when any signal is already present: only a `.gitignore`
 containing exactly `*` means ignored mode was chosen — one with any
 other content (e.g. a local pocket's `local-*`) signals nothing by
 itself; a git-tracked file under the directory (`git ls-files <dir>`
-non-empty) means tracked mode was chosen.
+non-empty) means tracked mode was chosen; and an
+explicit project instruction declaring the mode (e.g. a CLAUDE.md
+note that a directory is always git-ignored) counts as the decision.
+A declared ignored mode is materialized by whoever first acts on it —
+writing the `*` `.gitignore` — making the decision observable; a
+declared tracked mode becomes observable with the first committed
+file. This rule owns the signal list; other surfaces reference it
+rather than restating it (a self-contained command restatement is the
+one justified exception).
 
 `docs/memory/`'s tracked/ignored first-create question is asked by the
 project-memory plugin's core rule (when installed), not this one — it is
