@@ -43,9 +43,14 @@ writing anything — this rule owns that question:
 - **Tracked**: files are committed like any other; no `.gitignore` is
   written.
 
-Never ask when a prior decision is observable: a `.gitignore` containing
+Never ask when a prior decision is present: a `.gitignore` containing
 exactly `*` means ignored was chosen; any git-tracked file under the
-directory means tracked. Private memory (`.claude/memory/`) is always
+directory means tracked; and an
+explicit project instruction declaring the mode (e.g. a CLAUDE.md
+note) counts as the decision — a declared ignored mode is
+materialized by whoever first acts on it (writing the `*`
+`.gitignore`), a declared tracked mode becomes observable with the
+first committed file. Private memory (`.claude/memory/`) is always
 ignored, so it is never asked. When the working-process rules are installed,
 `docs/memory/` additionally counts as a Process directory there.
 
