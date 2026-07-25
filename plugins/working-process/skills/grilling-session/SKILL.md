@@ -34,10 +34,11 @@ The session writes to the project's domain directory, `docs/domain/`:
   containing exactly `*` — ignored mode) or committed (no `.gitignore` —
   tracked mode). Assume no default.
 - The directory already exists? Never ask when a prior decision is
-  observable: a `.gitignore` with `*` means ignored mode; any
-  git-tracked file under it (`git ls-files docs/domain` non-empty) means
-  tracked mode. Neither signal present? No decision was ever made — ask,
-  exactly as on first creation.
+  present — the decided signals (observable marks and the
+  declared-instruction signal, with its materialization duty) are
+  owned by the working-process process-artifacts rule; consult it. No
+  signal present? No decision was ever made — ask, exactly as on
+  first creation.
 
 ## Frontmatter stamping
 
