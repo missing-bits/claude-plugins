@@ -22,7 +22,12 @@ question (process-artifacts rule). Who asks depends on who can:
 - Dispatching a reviewer agent from an interactive session: the
   dispatcher runs the first-create check BEFORE dispatch and asks then
   — exactly as when the process creates `docs/specs/` or `docs/plans/`
-  — so the agent never meets an undecided directory.
+  — so the agent never meets an undecided directory. The decided
+  signals (including the declared-instruction signal) are owned by
+  the process-artifacts rule. The dispatch itself runs in the
+  background: a review never blocks an interactive dispatching
+  session, and the run's owner writes the one report regardless of
+  fore/background mode.
 - A run with no interactive dispatcher (automation, nested agents)
   defers: it writes the report and leaves the directory undecided.
   This is safe because reports are never staged (see Committing); the
@@ -85,7 +90,16 @@ findings: { critical: 0, important: 2, minor: 5 }
   model-generated and not globally unique, so the scope, not the runid
   alone, carries the identification. When set, the run's owner reads
   that report and notes the prior findings' disposition in Summary —
-  fixed / remaining / new.
+  fixed / remaining / new. Disposition tracks sites within a finding
+  ("lines 42, 87 fixed; 130 remaining"); a partially fixed finding
+  counts as remaining — a finding lives until its last site is fixed.
+  Reports are self-describing (they may live git-ignored or in an
+  archive outside the repo): rerun behavior never depends on anything
+  unreadable from the reports themselves. When the prior report's
+  findings do not follow the finding unit (a pre-convention report,
+  readable off the report itself), the Summary disposition says so
+  and maps prior findings best-effort; count deltas across that
+  boundary are not comparable.
 - `findings`: severity counts; they MUST equal the body.
 
 ## Run scope
@@ -102,12 +116,27 @@ rule.
 
 1. **Summary** — outcome, out-of-scope notes, and (for a rerun) the
    prior findings' disposition.
-2. **Per-file sections**, each with **Critical → Important → Minor**
+2. **`## Project` section**, present only when needed, always FIRST —
+   before the per-file sections: the home of findings not
+   attributable to an existing file (a missing lockfile, an absent
+   manifest). Same severity subsections as a file section; findings
+   ordered by rule id, `rule: none` findings last, ordered by
+   violation-class name.
+3. **Per-file sections**, each with **Critical → Important → Minor**
    subsections; findings within a subsection in ascending line order.
    Findings without a line anchor — files reviewed from metadata
    rather than source lines — are ordered by a domain-stated stable
    key: the reviewing domain names the key (e.g. cited element name,
    alphabetically) and applies it consistently.
+
+A finding is one violation class in one file (or at project level):
+for tagged rules the rule id names the class; for `rule: none`
+findings the class is the one the candidate-gap offer names. The
+finding's body enumerates every violating site — line numbers, or the
+domain's stable key where lines do not apply — and the finding
+anchors and sorts by its first violating site. One location violating
+two rules yields two findings. `findings:` counts therefore mean: the
+number of (violation class, file-or-project) pairs to fix.
 
 Files with no findings and empty severity subsections are omitted. A
 zero-findings run still writes the document.
@@ -118,14 +147,24 @@ zero-findings run still writes the document.
   `(standard: <skill>, rule: <id>)` — the sub-id when a sub-rule
   matched, the group id otherwise. When a matching rule exists, the
   specific id is mandatory; a bare `(standard: <skill>)` citation is
-  not a valid finding.
+  not a valid finding. A finding cites exactly one rule id — singular
+  `rule:` key; its severity is the cited rule's.
 - A finding no defined rule covers is still reported and counted:
   cited `(standard: <the loaded domain skill that lacks the rule>,
-  rule: none)`, graded by the authoring rubric below, and — when graded
-  critical — always `kind: defect` (hardening denotes a
+  rule: none)` — or, when no skill of the plugin covers the concern,
+  at plugin level: `(standard: <plugin-name>, rule: none)`. A concern
+  covered by the domain of an existing but not-yet-loaded skill is
+  NOT a candidate gap — the reviewer loads that skill and grades by
+  its tags; `rule: none` is never asserted against a skill the run
+  did not read. In a mixed run the cited plugin is the one whose
+  domain owns the finding's file; a project-level finding routes by
+  its violation-class domain. Graded by the authoring rubric below;
+  when graded critical — always `kind: defect` (hardening denotes a
   standards-mandated protection, and a `rule: none` finding has no
-  standard mandating it). A plausible-looking rule id is never
-  fabricated.
+  standard mandating it); when graded below critical while touching
+  data integrity, security or sharing, or a platform limit — the
+  finding states in one clause why it falls short of critical. A
+  plausible-looking rule id is never fabricated.
 - Critical findings carry the rule's kind inline:
   `(standard: <skill>, rule: <id>, kind: defect|hardening)`; the
   Summary headline adds a prose breakdown, e.g.
@@ -147,10 +186,13 @@ this excerpt is verbatim-identical):
 
 ## Candidate-gap offers
 
-`rule: none` findings are candidate standards gaps. After writing the
+`rule: none` findings are candidate standards gaps. The `rule: none`
+citation is the report's only candidate-gap marker; the proposals
+live in the run's reply, never in the report. After writing the
 report, the run's owner lists them in its reply — one line each:
-violation class, proposed rule id, graded severity — and then offers,
-never performs unprompted:
+violation class, proposed rule id, graded severity (a plugin-level
+`rule: none` finding may propose a new skill instead of a new rule) —
+and then offers, never performs unprompted:
 
 - **Project-memory park** — only when the reviewed project keeps a
   Project-memory store (probe `docs/memory/INDEX.md` and
