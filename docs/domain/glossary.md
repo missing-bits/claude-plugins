@@ -37,7 +37,8 @@ A process directory whose files are committed; detected by any git-tracked
 file under it.
 
 **Contract probe**:
-The ordered path check a domain review skill runs to find the installed
+The ordered path check a domain review skill — or a dispatching
+review command, pre-dispatch — runs to find the installed
 report contract: `<project>/.claude/rules/working-process/review-reports.md`,
 then `$HOME/.claude/rules/working-process/review-reports.md` — first hit
 wins, mirroring the Rules engine's project-over-user conflict rule. Part
@@ -148,8 +149,9 @@ _Avoid_: severity definitions, step-3 definition
 **Candidate gap**:
 A review finding that violates no defined rule: reported and counted
 normally, cited `rule: none` (against the loaded domain skill lacking
-the rule, or the standards plugin itself when no loaded skill's domain
-covers it), graded by the Authoring rubric, and surfaced in the run's
+the rule, or the standards plugin itself when no skill of the plugin
+covers the concern — never asserted against a skill the run did not
+read), graded by the Authoring rubric, and surfaced in the run's
 reply as a candidate for a new rule — or, at a plugin-level citation, a
 new skill — with offers to park it in Project memory (when a store
 exists) or report it upstream, generalized. Never cited with an
