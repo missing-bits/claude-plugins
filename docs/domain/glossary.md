@@ -16,9 +16,14 @@ _Avoid_: artifact folder
 
 **First-create question**:
 The question — ignored mode or tracked mode — asked when a process
-directory is created for the first time, or exists with no observable
-prior decision (neither a `.gitignore` containing exactly `*` nor a
-git-tracked file). Never asked when either signal is present.
+directory is created for the first time, or exists with no prior
+decision: neither an observable signal (a `.gitignore` containing
+exactly `*`, a git-tracked file) nor an explicit project instruction
+declaring the mode (e.g. a CLAUDE.md note). Never asked when any of
+these signals is present. A declared ignored mode is materialized by
+whoever first acts on it — writing the `*` `.gitignore` — making the
+decision observable; a declared tracked mode becomes observable with
+the first committed file.
 _Avoid_: self-ignore
 
 **Ignored mode**:
@@ -46,6 +51,18 @@ written by the run's owner. Shape defined by the review-reports rule's
 contract; a domain plugin's inline fallback is a strict subset of it,
 never a different shape.
 _Avoid_: review output, report file
+
+**Finding**:
+The unit a Review report counts and a rerun disposes: one violation
+class in one file, or at project level when no existing file carries
+the violation — for tagged rules the rule id names the class; for a
+Candidate gap the class is the one its offer names. Its body
+enumerates every violating site — line numbers, or the domain's stable
+key where lines do not apply. Cites exactly one rule id (or
+`rule: none`); its severity is the cited rule's (a Candidate gap's
+comes from the Authoring rubric). A finding with any site unfixed
+counts as remaining in a rerun.
+_Avoid_: issue, violation (for the counted unit)
 
 **Standards plugin**:
 A domain plugin of this marketplace encoding coding standards for one
@@ -130,10 +147,14 @@ _Avoid_: severity definitions, step-3 definition
 
 **Candidate gap**:
 A review finding that violates no defined rule: reported and counted
-normally, cited `rule: none`, graded by the Authoring rubric, and
-surfaced in the run's reply as a candidate for a new rule — with offers
-to park it in Project memory (when a store exists) or report it
-upstream, generalized. Never cited with an invented rule id.
+normally, cited `rule: none` (against the loaded domain skill lacking
+the rule, or the standards plugin itself when no loaded skill's domain
+covers it), graded by the Authoring rubric, and surfaced in the run's
+reply as a candidate for a new rule — or, at a plugin-level citation, a
+new skill — with offers to park it in Project memory (when a store
+exists) or report it upstream, generalized. Never cited with an
+invented rule id; the `rule: none` citation is the report's only
+candidate-gap marker.
 _Avoid_: uncited observation, unmatched finding
 
 **Sub-rule**:
