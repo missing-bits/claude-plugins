@@ -1,7 +1,7 @@
 ---
 ticket: "#10"
 date: 2026-07-23
-status: approved
+status: implemented
 grilled: 2026-07-23
 architect: LGTM
 branch: feature/10-contract-sharpening
