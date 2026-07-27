@@ -120,6 +120,28 @@ appended to both commands' step 3. Gate re-runs per Step 5; the
 systemic-aggregation design tension is parked as a Private-memory
 idea for a future family decision.
 
+Dogfooding gate rounds 2–3 (2026-07-27). Round 2: the command-layer
+constraint held (both dispatch prompts clean, shown by the
+developer), but reruns exposed a loophole — the reviewer inherited
+the prior report's counting-policy section, including its
+now-stale claim about what the dispatch asked; fixed by sharpening
+the rerun ban in both skills (no counting-policy/finding-unit-note
+inheritance, no alleged prior-dispatch instructions, an unchanged
+tree does not change the unit). Round 3, both commands: PASS on all
+criteria. The python rerun unfolded the mechanical classes
+(81→210 findings, boundary declared non-comparable, the
+toolchain-config finding correctly kept project-level with
+violations per file); the salesforce rerun — against a prior report
+that was aggregated AND carried the stale dispatch claim — quoted
+the ban, refused inheritance, re-derived every finding from source
+(53→540, three corrections to the prior run), and ran on the
+inherited session model, isolating the text effect. Residual risks
+for the PR description: the first-create ask-path was never
+exercised (every target already carried a decision signal), and the
+python round-3 agent was explicitly dispatched on a stronger model
+by its session (the salesforce round-3 run covers the weaker tier).
+Gate: PASSED.
+
 ---
 
 ### Task 1: Commit the process documents
