@@ -100,6 +100,26 @@ description invoker-chain edits added to Tasks 4/6; the parenthetical
 qualified "under the installed contract". Byte-exactness of all
 old-strings and all grep arithmetic confirmed clean this round.
 
+Dogfooding gate round 1 (2026-07-27, Task 10): five reruns across
+five projects plus two first-run session transcripts. Passed: the
+command path (contract probe, pre-dispatch first-create check,
+background dispatch with a live session and task-notification
+summary), single-rule citations in all reports, justify-not-critical
+clauses, rerun dispositions with the convention boundary, the
+first-review path, and the full candidate-gap reply machinery
+(verbatim proposals, store probes, degraded upstream, consent gates).
+Failed, two layers: reviewer agents folded systemic multi-file
+violation classes into project-level findings (three targets — twice
+self-chosen, once mandated by an aggregation instruction the
+dispatching session added to the dispatch prompt on its own), one
+rerun carried the prior report's counting convention forward for
+comparability, and one report annotated `rule: none` citations with
+"candidate gap, see reply". Fixes: three explicit bans appended to
+both code-review skills' step 4, and a dispatch-prompt constraint
+appended to both commands' step 3. Gate re-runs per Step 5; the
+systemic-aggregation design tension is parked as a Private-memory
+idea for a future family decision.
+
 ---
 
 ### Task 1: Commit the process documents
