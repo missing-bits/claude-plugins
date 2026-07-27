@@ -49,7 +49,22 @@ them in the report's Summary as out of scope.
    rule covers is a counted `rule: none` finding (cascade above);
    files outside the domain (Run scope section) stay Summary
    out-of-scope notes.
-4. Write the Review report (next section).
+4. Write the Review report (next section). Three bans bind in both
+   modes (installed contract and Standalone fallback); large audits
+   pressure each of them, and scale never changes the unit:
+   - A violation class spanning N files is N findings — one per
+     file, each enumerating only its own file's sites. Never fold a
+     multi-file class into one pattern-level finding, however
+     systemic or mechanical; `## Project` holds only findings not
+     attributable to an existing file. A full-project audit counts
+     exactly like a two-file diff.
+   - A rerun never adopts the prior report's counting convention:
+     when the prior report counts differently, the Summary
+     disposition declares that boundary and marks count deltas
+     non-comparable — comparability is never a reason to deviate.
+   - The `rule: none` citation is the report's only candidate-gap
+     trace — no "candidate gap" wording anywhere in the report body;
+     the proposals live in the reply (step 5).
 5. List `rule: none` findings in the reply as candidate standards gaps
    (one line each: violation class, proposed rule id, graded severity),
    then follow the review-reports contract's Candidate-gap offers
