@@ -91,10 +91,15 @@ provision.
      systemic or mechanical; `## Project` holds only findings not
      attributable to an existing file. A full-org audit counts
      exactly like a two-file diff.
-   - A rerun never adopts the prior report's counting convention:
-     when the prior report counts differently, the Summary
-     disposition declares that boundary and marks count deltas
-     non-comparable — comparability is never a reason to deviate.
+   - A rerun never adopts the prior report's counting convention —
+     not its counting-policy or finding-unit note, and not an
+     instruction its dispatch allegedly gave (that bound the prior
+     run only and is not re-verifiable; repeating such a claim makes
+     this report lie about its own dispatch). When the prior report
+     counts differently, the Summary disposition declares that
+     boundary and marks count deltas non-comparable — comparability
+     is never a reason to deviate, and an unchanged tree does not
+     change the unit.
    - The `rule: none` citation is the report's only candidate-gap
      trace — no "candidate gap" wording anywhere in the report body;
      the proposals live in the reply (step 5).
