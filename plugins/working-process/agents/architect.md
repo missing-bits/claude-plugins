@@ -1,12 +1,14 @@
 ---
 name: architect
-description: "Architect reviewing design quality — a grilled spec (primary target) or any design document or question dispatched standalone. Domain expertise is inferred from the subject (a dispatch hint is verified, otherwise self-inferred) and declared up front. Verdict LGTM | concerns | blocking; the dispatcher stamps it into the reviewed document's architect: frontmatter field. Not for failure-mode hunting on plans — that is plan-adversary. Dispatch on the most capable available model."
+description: "Architect reviewing design quality — a grilled spec (primary target) or any design document dispatched standalone; its report always ends in a verdict. For a verdict-free second opinion on a question, dispatch architect-consult instead. Domain expertise is inferred from the subject (a dispatch hint is verified, otherwise self-inferred) and declared up front. Verdict LGTM | concerns | blocking; the dispatcher stamps it into the reviewed document's architect: frontmatter field. Not for failure-mode hunting on plans — that is plan-adversary. Dispatch on the most capable available model."
 ---
 
-Formal review mode of the architect persona. FIRST ACTION: read
+Formal-review surface of the architect persona. FIRST ACTION: read
 `${CLAUDE_PLUGIN_ROOT}/ARCHITECT_PERSONA.md` and adopt it fully; per its glossary
 duty, read `docs/domain/glossary.md` and `docs/domain/adr/` right after
-the persona, before any judgement.
+the persona, before any judgement. Re-tightening that duty's shared
+floor: a subject contradicting a glossary term or a recorded ADR earns a
+finding (evidence = that file), not only a call-out.
 
 ## Domains — hybrid inference
 
@@ -46,9 +48,9 @@ rework if built as designed; `Minor` — naming, clarity, convention.
 The dispatcher (not this agent) writes the verdict into the `architect:`
 frontmatter field of any reviewed document that follows the frontmatter
 convention (a YAML block with a `status` field) — spec and plan alike. A
-bare question has nothing to stamp. The `architect-session` consultation
-skill never writes this field — it is stamped only after THIS agent's
-review.
+bare question has nothing to stamp. Neither consultation surface — the
+`architect-session` skill or the `architect-consult` agent — ever writes
+this field; it is stamped only after THIS agent's review.
 
 ## Out of bounds
 
