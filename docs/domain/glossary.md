@@ -54,16 +54,19 @@ never a different shape.
 _Avoid_: review output, report file
 
 **Finding**:
-The unit a Review report counts and a rerun disposes: one violation
-class in one file, or at project level when no existing file carries
-the violation — for tagged rules the rule id names the class; for a
-Candidate gap the class is the one its offer names. Its body
-enumerates every violating site — line numbers, or the domain's stable
-key where lines do not apply. Cites exactly one rule id (or
-`rule: none`); its severity is the cited rule's (a Candidate gap's
-comes from the Authoring rubric). A finding with any site unfixed
-counts as remaining in a rerun.
-_Avoid_: issue, violation (for the counted unit)
+One graded problem a review round reports, cited with evidence — in a
+design review (`architect`, `plan-adversary`) that is all it is. In a
+Review report it additionally takes the counted shape the review-reports
+contract defines: one violation class in one file, or at project level
+when no existing file carries the violation — for tagged rules the rule
+id names the class; for a Candidate gap the class is the one its offer
+names. Its body enumerates every violating site — line numbers, or the
+domain's stable key where lines do not apply. Cites exactly one rule id
+(or `rule: none`); its severity is the cited rule's (a Candidate gap's
+comes from the Authoring rubric). A finding with any site unfixed counts
+as remaining in a rerun. Never what a Consultation returns — that is a
+Contribution.
+_Avoid_: issue, violation (as a name for the unit)
 
 **Standards plugin**:
 A domain plugin of this marketplace encoding coding standards for one
@@ -220,6 +223,48 @@ relied on as the basis of further work — plan-writing for a spec,
 implementation for a plan. Where re-review offers on fallback-recorded
 verdicts fire.
 _Avoid_: usage point
+
+**Persona**:
+A role plus its duties, single-sourced in one `*_PERSONA.md` file at the
+working-process plugin root and adopted by one or more persona surfaces;
+two exist — architect and system designer — their shared duties and mutual
+boundary held once in `PERSONA_COMMON.md`. `plan-adversary` carries its
+role inline and is a reviewer, not a persona; the org user roles the
+salesforce-security-model skill calls personas are a different domain
+entirely.
+_Avoid_: role, hat
+
+**Persona surface**:
+A component that adopts a persona and puts it to work: a verdict-bearing
+agent (`architect`), a consult agent (`*-consult`), or a session skill
+(`*-session`) — the architect has three, the system designer two. Short
+form "surface" inside working-process material; unqualified "surface" in
+the repo's own rules means something else, a document location where a
+statement lives.
+_Avoid_: mode, channel, entrypoint
+
+**Session skill**:
+A skill whose content is an open-ended conversation, named `*-session` —
+`architect-session`, `grilling-session`, `memory-review-session` among
+them. Some are persona surfaces, some adopt no persona at all
+(`grilling-session`). Unqualified "session" always means the Claude Code
+conversation instead: what a session-scoped consent decision lasts for,
+and what a consult agent is isolated from.
+_Avoid_: session (for the skill), conversational skill
+
+**Consultation**:
+A verdict-free exchange with a persona, returning a contribution and
+stamping nothing. Verdict absence is the discriminator, not the absence of
+stamping — an `architect` dispatch on a bare question also stamps nothing
+(no document to stamp) yet still grades, so it stays a review round.
+_Avoid_: informal review, advisory review
+
+**Contribution**:
+What a consultation returns: reasoning, options, and the questions the
+persona would need answered next, relayed to the developer attributed and
+substantially verbatim. Never graded and never counted — the graded,
+counted unit is a Finding, which belongs to verdict-bearing reviews.
+_Avoid_: consultation finding, recommendation
 
 **Project memory**:
 The in-repo, rule-loaded memory store the project-memory plugin defines, in
