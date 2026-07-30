@@ -12,8 +12,9 @@ docs, README — and in commit messages:
   placeholders;
 - no company or client names;
 - all committed text is in English. One narrow exception: quoted example
-  trigger phrases inside a skill's `description:`, and the `query` values of
-  its trigger-eval files (`evals/trigger-evals.json`), may be non-English —
-  both mirror how a developer actually asks, and the evals exercise exactly
-  those phrases (precedent: grilling-session's "przemagluj"). The
-  surrounding prose stays English.
+  trigger phrases inside a component's `description:` (skill or agent),
+  the README trigger lines that mirror them, and the `query` values of
+  trigger-eval files (`evals/trigger-evals.json`), may be non-English —
+  all mirror how a developer actually asks, and the evals exercise
+  exactly those phrases (precedent: grilling-session's "przemagluj").
+  The surrounding prose stays English.
