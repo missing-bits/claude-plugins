@@ -36,8 +36,7 @@ As decisions settle, point at the right next step:
   conversation → a `system-designer-consult` dispatch. This skill runs in
   the main thread, so it assembles the briefing the consultation contract
   in `${CLAUDE_PLUGIN_ROOT}/PERSONA_COMMON.md` requires: the subject,
-  the binding constraints,
-  settled decisions separated from open questions, and pointers to files
-  rather than pasted content;
+  the binding constraints, settled decisions separated from open questions,
+  and pointers to files rather than pasted content;
 - a document ready for formal review → an `architect` agent dispatch,
   with a domain hint from this session.

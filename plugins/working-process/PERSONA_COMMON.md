@@ -45,7 +45,7 @@ subject:
   under load;
 - the **architect** asks *whether that shape is right* — every unit
   single-purpose, nothing speculative, alternatives argued, conventions
-  followed.
+  followed;
 - **`plan-adversary`** asks *how this will fail in execution* — the third
   leg, standing outside the design-quality/mechanics split rather than
   inside it: a reviewer hunting failure on plan mechanics, not a persona.
