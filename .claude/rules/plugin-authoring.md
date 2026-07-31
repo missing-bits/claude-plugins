@@ -12,7 +12,9 @@ paths:
   `claude plugin validate plugins/<name>` must both pass.
 - Names are kebab-case. Skills whose content is an open-ended
   conversation are named `*-session`; formal reviews that end in a verdict
-  are agents. Operational skills may prompt for decisions without being
+  are agents; verdict-free consultation agents — one briefing in, one
+  contribution out, from a fresh isolated context — are named `*-consult`.
+  Operational skills may prompt for decisions without being
   sessions — they are named for what they do (e.g. `sync-rules`).
 - Author skills with the `skill-creator` skill when it is available —
   scaffolding, `description:` tuning, and evals; it complements
