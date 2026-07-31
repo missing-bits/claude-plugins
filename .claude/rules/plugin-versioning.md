@@ -20,16 +20,20 @@ paths:
   plugins is invalid.
 - Dogfooding unreleased content needs a changed version string — the
   plugin cache keys content by version. A topic branch that dogfoods a
-  plugin sets `X.Y.Z-dev.<issue>` on it (the issue number the branch
-  name carries); the suffix flows into develop as-is. A topic that
+  plugin sets `X.Y.Z-dev.<discriminator>` on it — the issue number the
+  branch name carries, or the branch short-name when the topic has no
+  issue (e.g. `-dev.design-personas`). Widening the discriminator
+  instead of minting another channel keeps one channel for one purpose;
+  the discriminator only needs to be unique among parallel topics. The
+  suffix flows into develop as-is. A topic that
   does not dogfood never touches the version. On a version-line merge
   conflict between parallel topics, the merging topic's own
-  `-dev.<issue>` wins — both strings are provisional. The release PR
+  `-dev.<discriminator>` wins — both strings are provisional. The release PR
   strips every `-dev` suffix while minting the final numbers; the
   `release-guard` workflow fails any PR to master that carries a
   prerelease version or a changed plugin without a bump.
 - Prerelease grammar: `-<channel>.<discriminator>`. Defined channels:
-  `dev.<issue>` (topic-branch dogfooding, above) and `rc.<n>` (release
+  `dev.<discriminator>` (topic-branch dogfooding, above) and `rc.<n>` (release
   candidate — a freeze of develop dogfooded as one bundle when a
   release warrants whole-unit validation; minted by a release-prep
   commit and stripped by the release PR like any prerelease). Future
@@ -41,8 +45,9 @@ paths:
     additions;
   - **major** — rename or removal of a component, or a breaking change to
     a convention others rely on (the frontmatter process fields, the
-    `*-plan-review` discovery convention, the plugin-root persona path —
-    `ARCHITECT_PERSONA.md`).
+    `*-plan-review` discovery convention, the plugin-root persona paths —
+    `ARCHITECT_PERSONA.md`, `SYSTEM_DESIGNER_PERSONA.md`,
+    `PERSONA_COMMON.md`).
   - Before 1.0.0, breaking changes ride a **minor** bump (semver's 0.x
     rule); major is reserved for the promotion to 1.0.0 and for breaking
     changes after it.
