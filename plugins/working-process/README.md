@@ -20,6 +20,21 @@ writing-plans (plan) → plan-adversary → implementation.
   in-session consultation: no verdict, no stamping; hands off to a
   grilling-session or an `architect` dispatch. Triggers: "ask the
   architect" / "porozmawiajmy z architektem".
+- **`architect-consult` agent** — the architect as a one-shot
+  consultation from a fresh, isolated context: one briefing in, one
+  contribution out, no verdict, nothing stamped. Dispatched as a named
+  background agent on the most capable available model. Triggers:
+  "konsultacja z architektem" / "second opinion from the architect".
+- **`system-designer-consult` agent** — the system designer persona
+  (parts, contracts, state, behaviour under load, observability,
+  technology choice) as the same kind of one-shot consultation.
+  Triggers: "zapytaj designera na świeżo" / "second opinion from the
+  system designer".
+- **`system-designer-session` skill** — the system designer as an
+  interactive in-session consultation; hands off to a grilling-session,
+  a `system-designer-consult` dispatch (assembling its briefing), or an
+  `architect` dispatch. Triggers: "ask the designer" / "porozmawiajmy z
+  designerem".
 - **`plan-adversary` agent** — adversarial review of implementation
   plans (plans only; handed a spec it declines toward the `architect`
   agent). Generic failure-mode dimensions live here; domain specifics
@@ -29,11 +44,15 @@ writing-plans (plan) → plan-adversary → implementation.
   files shipped by plugins of this marketplace (Rules payloads); see the
   "Process rules" section.
 
-The architect persona is single-sourced in [ARCHITECT_PERSONA.md](./ARCHITECT_PERSONA.md),
-shared by the `architect` agent and the `architect-session` skill. Every
-component reads `docs/domain/glossary.md` and `docs/domain/adr/` first,
-when they exist, so it speaks the project's language from its first
-message.
+Each persona is single-sourced in its file at the plugin root —
+[ARCHITECT_PERSONA.md](./ARCHITECT_PERSONA.md) and
+[SYSTEM_DESIGNER_PERSONA.md](./SYSTEM_DESIGNER_PERSONA.md) — with the
+shared duties, the persona boundary, and the consultation contract held
+once in [PERSONA_COMMON.md](./PERSONA_COMMON.md). `plan-adversary`
+sources its standing duties from the same shared file without being a
+persona. Every component reads `docs/domain/glossary.md` and
+`docs/domain/adr/` first, when they exist, so it speaks the project's
+language from its first message.
 
 ## Requirements
 
@@ -81,7 +100,9 @@ Find unfinished work (the anchored match skips resolved concerns):
 The architect is dispatched on the most capable available model; the
 plan-adversary on a model scaled to the plan's size and risk — most
 capable for complex or risky plans, one family below for small
-mechanical ones. The model is always named explicitly at dispatch, and
+mechanical ones. Consultations (the `*-consult` agents) dispatch on the most capable
+available model as named background agents; they return no verdict, so
+the fallback machinery below never applies to them. The model is always named explicitly at dispatch, and
 reviews never dispatch on the cheapest available family. A dispatch
 refused on the dispatched model's cap offers a one-family drop (once)
 or waiting for the reset; a verdict produced below the prescribed tier
