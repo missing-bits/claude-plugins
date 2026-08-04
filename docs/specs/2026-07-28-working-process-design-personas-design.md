@@ -703,3 +703,23 @@ any git repository still depends on that briefing line. The same
 consultation also surfaced the consent state's unspecified lifecycle
 across compaction; `rules/workflow.md` now says to re-ask when a
 compacted conversation leaves it unclear.
+
+## Amendment — 2026-07-30: dispatcher duties move to the workflow rule
+
+Acting early on two watch items from the same consultation — the context
+tax of four long descriptions on a user-level install, and the
+dispatcher carrying the most obligations while owning no file — both
+consult descriptions are trimmed to selection-critical content
+(identity and dimensions, trigger phrases, counterpoints, a one-line
+dispatch trace), and the dispatcher-side obligations now live in a
+dedicated paragraph of `rules/workflow.md`, which is already resident
+in every session. `PERSONA_COMMON.md`'s contract section
+cross-references it so the two copies are edited together. This
+supersedes §6's choice to duplicate the cross-dispatch invariants into
+each `description:` — the always-on rule reaches the dispatcher just as
+early and is paid once rather than per agent. Residual: a standalone
+install without the rules keeps only the descriptions' compressed
+trace. The contract and the rule also codify a lesson the first
+dogfooding session paid for: a follow-up to a consultation is a fresh
+cross-check dispatch, never a resumption — a message sent to a running
+one-shot agent races its completion and can be silently lost.
