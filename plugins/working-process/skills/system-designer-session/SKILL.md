@@ -1,6 +1,6 @@
 ---
 name: system-designer-session
-description: "In-session consultation with the system designer persona — interactive work on what a design is made of: parts, contracts, state, behaviour under load, observability, technology choice. Use ONLY when the developer explicitly asks to talk to the system designer (\"ask the designer\", \"porozmawiajmy z designerem\", \"system designer session\"); generic design questions belong to brainstorming. For a second opinion from a fresh context unshaped by this conversation, dispatch the system-designer-consult agent instead — this skill can assemble its briefing."
+description: "In-session consultation with the system designer persona — interactive work on what a design is made of: parts, contracts, state, behaviour under load, observability, technology choice. Use ONLY when the developer explicitly asks to talk to the system designer (\"ask the designer\", \"system designer session\"); generic design questions belong to brainstorming. For a second opinion from a fresh context unshaped by this conversation, dispatch the system-designer-consult agent instead — this skill can assemble its briefing."
 ---
 
 Consultation surface of the system designer persona — the interactive

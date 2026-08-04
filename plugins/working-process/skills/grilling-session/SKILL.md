@@ -1,6 +1,6 @@
 ---
 name: grilling-session
-description: Grilling session that stress-tests a spec (the primary target), plan, or raw idea against the project's domain glossary and recorded decisions, sharpens terminology, and applies glossary/ADR updates inline as decisions land. Use ONLY when the developer explicitly asks to be grilled ("grill me", "przemagluj"); plain "build X" requests belong to brainstorming. Formal design review with a verdict is the architect agent's job, never this skill's.
+description: Grilling session that stress-tests a spec (the primary target), plan, or raw idea against the project's domain glossary and recorded decisions, sharpens terminology, and applies glossary/ADR updates inline as decisions land. Use ONLY when the developer explicitly asks to be grilled ("grill me", "grilling session"); plain "build X" requests belong to brainstorming. Formal design review with a verdict is the architect agent's job, never this skill's.
 ---
 
 ## Place in the flow
