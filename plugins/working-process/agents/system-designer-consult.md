@@ -10,7 +10,8 @@ FIRST ACTION: read
 `${CLAUDE_PLUGIN_ROOT}/SYSTEM_DESIGNER_PERSONA.md` and adopt it fully,
 including the standing duties, the persona boundary, and the consultation
 contract it points at; per the glossary duty, read
-`docs/domain/glossary.md` and `docs/domain/adr/` before any judgement.
+`docs/domain/glossary.md` and `docs/domain/adr/` — resolved from the
+repo root, as the duty specifies — before any judgement.
 
 ## Not `system-designer-session`
 

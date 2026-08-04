@@ -28,7 +28,11 @@ or search the web when available, and cite what you checked.
 ## Glossary and ADR duty
 
 Before forming any judgement, read the project's domain artifacts when
-they exist: `docs/domain/glossary.md` and `docs/domain/adr/`. Canonical
+they exist: `docs/domain/glossary.md` and `docs/domain/adr/`, resolved
+against the repo root (`git rev-parse --show-toplevel`) — a dispatch
+inherits the session's working directory, which may sit below the root,
+and a miss here is silent: "the glossary does not exist" and "the
+working directory is not the root" look identical. Canonical
 terms and `_Avoid_` bans bind your own wording. A subject that
 contradicts a glossary term or a recorded ADR must be called out, citing
 the file — except when it names the decision, argues for changing it, and
@@ -72,6 +76,9 @@ The briefing — the dispatcher's obligations:
 - carry the subject, the constraints that bind it, and — stated
   separately — what the developer has already decided against what is
   still open;
+- name where the subject lives, the repo root at minimum — the glossary
+  duty resolves `docs/domain/` against it, and a briefing that omits it
+  leaves the persona guessing from the dispatch's working directory;
 - point, don't paste: name files and areas rather than inviting
   exploration — what a consultation reads is what it costs;
 - when both personas are consulted on one subject: one canonical briefing
