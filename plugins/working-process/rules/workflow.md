@@ -14,7 +14,9 @@ disables its suggestion — never the work itself.
    preference belongs in the developer's own instructions and is
    respected when present). After a yes, dispatch a consultation when it
    looks worth its cost, without asking again for that conversation, and
-   state the consent decision whenever it is made or changed. On a
+   state the consent decision whenever it is made or changed — and when
+   a compacted conversation leaves the current consent state unclear,
+   ask again rather than guess. On a
    genuinely ambiguous ask — in-thread dialogue or a fresh-context
    consultation? — ask one short question rather than silently picking a
    surface.
