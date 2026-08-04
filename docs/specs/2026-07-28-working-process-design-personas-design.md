@@ -723,3 +723,17 @@ trace. The contract and the rule also codify a lesson the first
 dogfooding session paid for: a follow-up to a consultation is a fresh
 cross-check dispatch, never a resumption — a message sent to a running
 one-shot agent races its completion and can be silently lost.
+
+## Amendment — 2026-07-30: trigger phrases go English-only
+
+At the developer's direction, every Polish trigger phrase leaves this
+plugin — the surfaces this spec added and the pre-existing
+`architect-session` ("porozmawiajmy z architektem") and
+`grilling-session` ("przemagluj") alike, descriptions and the README
+lines that mirror them. Each removed phrase is replaced by an English
+equivalent so no surface drops below two triggers. Section 3's lexical
+arbitration is unaffected — it never depended on the phrases' language,
+only on their verbatim presence. The repo-hygiene exception for
+non-English phrases stays: the project-memory plugin still uses it, and
+its precedent citation is repointed there ("przejrzyjmy memory") so the
+rule cites a phrase that exists.
