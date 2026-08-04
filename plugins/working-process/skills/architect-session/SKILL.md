@@ -1,6 +1,6 @@
 ---
 name: architect-session
-description: In-session consultation with the architect persona — interactive design discussion with domain expertise and glossary duty. Use ONLY when the developer explicitly asks to talk to the architect ("ask the architect", "porozmawiajmy z architektem", "architect session"); generic design questions belong to brainstorming. A formal review with a verdict is the architect agent's job, never this skill's; for a second opinion from a fresh context unshaped by this conversation, dispatch the architect-consult agent instead — this skill can assemble its briefing.
+description: In-session consultation with the architect persona — interactive design discussion with domain expertise and glossary duty. Use ONLY when the developer explicitly asks to talk to the architect ("ask the architect", "architect session"); generic design questions belong to brainstorming. A formal review with a verdict is the architect agent's job, never this skill's; for a second opinion from a fresh context unshaped by this conversation, dispatch the architect-consult agent instead — this skill can assemble its briefing.
 ---
 
 Consultation surface of the architect persona — the interactive one.

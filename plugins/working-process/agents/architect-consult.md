@@ -1,6 +1,6 @@
 ---
 name: architect-consult
-description: "Architect in consultation — judges whether a design's shape is right: fit, boundaries, over-engineering, alternatives, convention fit. One briefing in, one contribution out, from a fresh context unshaped by the current conversation; never a verdict, nothing stamped (\"konsultacja z architektem\", \"second opinion from the architect\", \"consult the architect from a clean context\"). For a stamped verdict dispatch the architect agent instead; for a live back-and-forth, the architect-session skill. Dispatch named, in the background, on the most capable available model; brief both personas identically and independently when consulting both — full dispatcher duties in the workflow rule, when installed."
+description: "Architect in consultation — judges whether a design's shape is right: fit, boundaries, over-engineering, alternatives, convention fit. One briefing in, one contribution out, from a fresh context unshaped by the current conversation; never a verdict, nothing stamped (\"second opinion from the architect\", \"consult the architect from a clean context\"). For a stamped verdict dispatch the architect agent instead; for a live back-and-forth, the architect-session skill. Dispatch named, in the background, on the most capable available model; brief both personas identically and independently when consulting both — full dispatcher duties in the workflow rule, when installed."
 disallowedTools: SendMessage
 background: true
 ---

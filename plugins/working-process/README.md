@@ -11,7 +11,7 @@ writing-plans (plan) → plan-adversary → implementation.
 - **`grilling-session` skill** — stress-tests a spec (the primary
   target), plan, or raw idea against the project's domain glossary
   (`docs/domain/glossary.md`), sharpens terminology, and records
-  decisions as ADRs. Triggers: "grill me" / "przemagluj".
+  decisions as ADRs. Triggers: "grill me" / "grilling session".
 - **`architect` agent** — formal design-quality review of a grilled spec
   or any design document dispatched standalone; verdict
   `LGTM | concerns | blocking`, stamped into the reviewed document's
@@ -19,22 +19,23 @@ writing-plans (plan) → plan-adversary → implementation.
 - **`architect-session` skill** — the same persona as an interactive
   in-session consultation: no verdict, no stamping; hands off to a
   grilling-session or an `architect` dispatch. Triggers: "ask the
-  architect" / "porozmawiajmy z architektem".
+  architect" / "architect session".
 - **`architect-consult` agent** — the architect as a one-shot
   consultation from a fresh, isolated context: one briefing in, one
   contribution out, no verdict, nothing stamped. Dispatched as a named
   background agent on the most capable available model. Triggers:
-  "konsultacja z architektem" / "second opinion from the architect".
+  "second opinion from the architect" / "consult the architect from a
+  clean context".
 - **`system-designer-consult` agent** — the system designer persona
   (parts, contracts, state, behaviour under load, observability,
   technology choice) as the same kind of one-shot consultation.
-  Triggers: "zapytaj designera na świeżo" / "second opinion from the
-  system designer".
+  Triggers: "second opinion from the system designer" / "consult the
+  designer from a clean context".
 - **`system-designer-session` skill** — the system designer as an
   interactive in-session consultation; hands off to a grilling-session,
   a `system-designer-consult` dispatch (assembling its briefing), or an
-  `architect` dispatch. Triggers: "ask the designer" / "porozmawiajmy z
-  designerem".
+  `architect` dispatch. Triggers: "ask the designer" / "system designer
+  session".
 - **`plan-adversary` agent** — adversarial review of implementation
   plans (plans only; handed a spec it declines toward the `architect`
   agent). Generic failure-mode dimensions live here; domain specifics

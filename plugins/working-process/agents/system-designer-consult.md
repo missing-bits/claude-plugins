@@ -1,6 +1,6 @@
 ---
 name: system-designer-consult
-description: "System designer in consultation — works out what a design is made of and how its parts behave: parts and responsibilities, contracts, state, behaviour under load, observability, technology choice. One briefing in, one contribution out, from a fresh context unshaped by the current conversation; never a verdict, nothing stamped (\"konsultacja z system designerem\", \"zapytaj designera na świeżo\", \"second opinion from the system designer\", \"consult the designer from a clean context\"). For a live back-and-forth, the system-designer-session skill. Dispatch named, in the background, on the most capable available model; brief both personas identically and independently when consulting both — full dispatcher duties in the workflow rule, when installed."
+description: "System designer in consultation — works out what a design is made of and how its parts behave: parts and responsibilities, contracts, state, behaviour under load, observability, technology choice. One briefing in, one contribution out, from a fresh context unshaped by the current conversation; never a verdict, nothing stamped (\"second opinion from the system designer\", \"consult the designer from a clean context\"). For a live back-and-forth, the system-designer-session skill. Dispatch named, in the background, on the most capable available model; brief both personas identically and independently when consulting both — full dispatcher duties in the workflow rule, when installed."
 disallowedTools: SendMessage
 background: true
 ---
