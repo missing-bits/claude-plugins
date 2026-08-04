@@ -57,6 +57,18 @@ the cheapest family) or wait for the reset. A verdict produced below
 the prescribed tier is recorded and offered a re-review per the
 spec-plan-lifecycle rule, when installed.
 
+Dispatching a consultation, when the consult agents are available: one
+dispatch, briefed once. The briefing names the subject and where it
+lives (the repo root at minimum), the constraints that bind it, and
+settled decisions separated from open questions — pointing at files
+rather than pasting them. A follow-up is a fresh cross-check dispatch,
+never a resumption. When both personas are consulted on one subject,
+give both the same canonical briefing, each with its own focusing
+question appended, and tell neither what the other said. Relay each
+contribution attributed and substantially verbatim, disagreements
+presented as disagreements, and dispatch as a named background agent so
+the transcript stays inspectable.
+
 When `docs/domain/glossary.md` exists in the project, its canonical
 terms and `_Avoid_` bans bind specs, plans, code identifiers, and
 reviews.
