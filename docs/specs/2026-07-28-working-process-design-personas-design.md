@@ -685,3 +685,21 @@ below, verdict annotated in frontmatter.
   discovered later, and believed to be an improvement — but it is a
   behaviour change to a verdict-bearing gate, shipped in a change whose
   headline is a new persona.
+
+## Amendment — 2026-07-30: domain artifacts resolve from the repo root
+
+Found by the first dogfooding dispatch of `system-designer-consult`, on
+itself: the glossary/ADR duty named its artifacts by relative path, so a
+dispatch from a session whose working directory sits below the repo root
+would conclude in good faith that no glossary exists — a silent
+degradation of exactly the shape the Accepted risks list carries, but
+unlisted. The consultation demonstrated it empirically (its own
+environment started in a subdirectory) and proposed the fix applied
+here: the shared glossary duty now resolves `docs/domain/` against the
+repo root (`git rev-parse --show-toplevel`), all four agents defer to
+that clause, and the briefing contract gains a bullet obliging the
+dispatcher to name where the subject lives. Residual: a subject outside
+any git repository still depends on that briefing line. The same
+consultation also surfaced the consent state's unspecified lifecycle
+across compaction; `rules/workflow.md` now says to re-ask when a
+compacted conversation leaves it unclear.
