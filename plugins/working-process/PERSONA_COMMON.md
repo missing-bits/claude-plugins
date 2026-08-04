@@ -66,10 +66,13 @@ verdict on it.
 This section binds `*-consult` dispatches and their dispatcher only. The
 file's verdict-bearing consumers — `plan-adversary` directly, the
 `architect` agent through its persona file — grade and stamp by duty, and
-no sentence here overrides that.
+no sentence here overrides that. The dispatcher-facing copy of these
+obligations lives in the plugin's workflow rule; the two are edited
+together.
 
 A consultation is one dispatch: briefed once, answered once, nothing kept
-alive. What the persona knows is what its briefing says.
+alive — a follow-up is a fresh cross-check dispatch, never a resumption.
+What the persona knows is what its briefing says.
 
 The briefing — the dispatcher's obligations:
 
