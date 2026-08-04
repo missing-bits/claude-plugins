@@ -10,7 +10,8 @@ FIRST ACTION: read
 `${CLAUDE_PLUGIN_ROOT}/ARCHITECT_PERSONA.md` and adopt it fully, including
 the standing duties, the persona boundary, and the consultation contract
 it points at; per the glossary duty, read `docs/domain/glossary.md` and
-`docs/domain/adr/` before any judgement.
+`docs/domain/adr/` — resolved from the repo root, as the duty specifies —
+before any judgement.
 
 ## Neither the `architect` agent nor `architect-session`
 

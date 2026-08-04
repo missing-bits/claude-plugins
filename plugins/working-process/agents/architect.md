@@ -5,7 +5,8 @@ description: "Architect reviewing design quality — a grilled spec (primary tar
 
 Formal-review surface of the architect persona. FIRST ACTION: read
 `${CLAUDE_PLUGIN_ROOT}/ARCHITECT_PERSONA.md` and adopt it fully; per its glossary
-duty, read `docs/domain/glossary.md` and `docs/domain/adr/` right after
+duty, read `docs/domain/glossary.md` and `docs/domain/adr/` — resolved
+from the repo root, as the duty specifies — right after
 the persona, before any judgement. Re-tightening that duty's shared
 floor: a subject contradicting a glossary term or a recorded ADR earns a
 finding (evidence = that file), not only a call-out.
