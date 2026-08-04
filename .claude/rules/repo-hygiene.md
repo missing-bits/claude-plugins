@@ -16,5 +16,5 @@ docs, README — and in commit messages:
   the README trigger lines that mirror them, and the `query` values of
   trigger-eval files (`evals/trigger-evals.json`), may be non-English —
   all mirror how a developer actually asks, and the evals exercise
-  exactly those phrases (precedent: grilling-session's "przemagluj").
-  The surrounding prose stays English.
+  exactly those phrases (precedent: project-memory's "przejrzyjmy
+  memory"). The surrounding prose stays English.
