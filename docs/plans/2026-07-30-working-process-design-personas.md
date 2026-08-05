@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-07-30
-status: draft
+status: implemented
 adversary: concerns (resolved 2026-07-30)
 branch: feature/design-personas
 base: develop
@@ -89,7 +89,7 @@ Every task's requirements implicitly include all of these:
 - Produces: a clean baseline so later tasks' `git add` of plugin paths
   never drags unrelated docs along.
 
-- [ ] **Step 1: Verify the three artifacts are the only dirty docs paths**
+- [x] **Step 1: Verify the three artifacts are the only dirty docs paths**
 
 Run: `git status --short docs/`
 Expected: exactly `M docs/domain/glossary.md`, `?? docs/domain/adr/`,
@@ -97,7 +97,7 @@ Expected: exactly `M docs/domain/glossary.md`, `?? docs/domain/adr/`,
 (plus, after this plan file is saved,
 `?? docs/plans/2026-07-30-working-process-design-personas.md` — include it).
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add docs/specs/2026-07-28-working-process-design-personas-design.md docs/domain/glossary.md docs/domain/adr/0001-persona-independence.md docs/plans/2026-07-30-working-process-design-personas.md
@@ -120,7 +120,7 @@ git commit -m "docs: add design-personas spec, plan, glossary entries, and perso
   clause; Tasks 3–6 reference it by that exact heading. Persona files
   point at the contract for consult dispatches.
 
-- [ ] **Step 1: Rework the file opening**
+- [x] **Step 1: Rework the file opening**
 
 In `plugins/working-process/PERSONA_COMMON.md`, replace the two opening
 paragraphs (everything between the `# ` title and `## Domain expertise`)
@@ -139,7 +139,7 @@ boundary section nor the consultation contract binds it — its own charter
 is the one the persona files state, failure hunting on plan mechanics.
 ```
 
-- [ ] **Step 2: Append the contract section**
+- [x] **Step 2: Append the contract section**
 
 At the end of the file, after the boundary section, append:
 
@@ -184,7 +184,7 @@ from it is stamped into frontmatter:
   trust it.
 ```
 
-- [ ] **Step 3: Add the third leg to the boundary section**
+- [x] **Step 3: Add the third leg to the boundary section**
 
 Spec §2: "A consumer must not read a boundary that omits it" — and
 `plan-adversary` (Task 6) reads only this file, never the persona files.
@@ -197,7 +197,7 @@ In `## The boundary between the personas`, after the two persona bullets
   inside it: a reviewer hunting failure on plan mechanics, not a persona.
 ```
 
-- [ ] **Step 4: Extend both persona files' pointer sentences**
+- [x] **Step 4: Extend both persona files' pointer sentences**
 
 Both edits are exact drop-in replace pairs. In
 `plugins/working-process/ARCHITECT_PERSONA.md`, replace:
@@ -228,12 +228,12 @@ architect; a consult dispatch is additionally governed by the
 consultation contract there.
 ```
 
-- [ ] **Step 5: Validate**
+- [x] **Step 5: Validate**
 
 Run: `claude plugin validate . && claude plugin validate plugins/working-process`
 Expected: both pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add plugins/working-process/PERSONA_COMMON.md plugins/working-process/ARCHITECT_PERSONA.md plugins/working-process/SYSTEM_DESIGNER_PERSONA.md
@@ -258,7 +258,7 @@ git commit -m "feat(working-process): add shared persona file with consultation 
   a prerequisite, or the agent descriptions below would ship non-English
   phrases the rule's letter covers only for skills.
 
-- [ ] **Step 1: Widen the repo-hygiene exception to agent descriptions**
+- [x] **Step 1: Widen the repo-hygiene exception to agent descriptions**
 
 In `.claude/rules/repo-hygiene.md`, replace:
 
@@ -290,7 +290,7 @@ git add .claude/rules/repo-hygiene.md
 git commit -m "docs(rules): widen the non-English trigger-phrase exception to agent descriptions"
 ```
 
-- [ ] **Step 2: Write `agents/architect-consult.md` — exact full content**
+- [x] **Step 2: Write `agents/architect-consult.md` — exact full content**
 
 ```markdown
 ---
@@ -347,7 +347,7 @@ worth more to the developer than a confident answer built on it.
   back one opinion where the developer asked for two.
 ```
 
-- [ ] **Step 3: Write `agents/system-designer-consult.md` — exact full content**
+- [x] **Step 3: Write `agents/system-designer-consult.md` — exact full content**
 
 ```markdown
 ---
@@ -402,13 +402,13 @@ more to the developer than a confident proposal built on it.
   back one opinion where the developer asked for two.
 ```
 
-- [ ] **Step 4: Validate**
+- [x] **Step 4: Validate**
 
 Run: `claude plugin validate . && claude plugin validate plugins/working-process`
 Expected: both pass — this exercises the quoted descriptions (which
 contain `: ` and escaped quotes) and the `background: true` key.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add plugins/working-process/agents/architect-consult.md plugins/working-process/agents/system-designer-consult.md
@@ -428,7 +428,7 @@ git commit -m "feat(working-process): add architect-consult and system-designer-
 - Produces: the designer's interactive surface. Do NOT create any
   `evals/` directory or `trigger-evals.json` for it.
 
-- [ ] **Step 1: Write the skill — exact full content**
+- [x] **Step 1: Write the skill — exact full content**
 
 ```markdown
 ---
@@ -476,12 +476,12 @@ As decisions settle, point at the right next step:
   with a domain hint from this session.
 ```
 
-- [ ] **Step 2: Validate**
+- [x] **Step 2: Validate**
 
 Run: `claude plugin validate . && claude plugin validate plugins/working-process`
 Expected: both pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add plugins/working-process/skills/system-designer-session/SKILL.md
@@ -502,7 +502,7 @@ git commit -m "feat(working-process): add system-designer-session skill"
   agent; glossary duty re-tightened to "earns a finding" on the
   verdict-bearing agent.
 
-- [ ] **Step 1: Narrow and counterpoint the `architect` agent description**
+- [x] **Step 1: Narrow and counterpoint the `architect` agent description**
 
 In `plugins/working-process/agents/architect.md`, in the `description:`
 value, replace:
@@ -519,7 +519,7 @@ Architect reviewing design quality — a grilled spec (primary target) or any de
 
 The rest of the description is unchanged.
 
-- [ ] **Step 2: Re-tighten the glossary duty in the agent body**
+- [x] **Step 2: Re-tighten the glossary duty in the agent body**
 
 In the same file, replace:
 
@@ -541,7 +541,7 @@ floor: a subject contradicting a glossary term or a recorded ADR earns a
 finding (evidence = that file), not only a call-out.
 ```
 
-- [ ] **Step 3: Extend the Stamping section to both consultation surfaces**
+- [x] **Step 3: Extend the Stamping section to both consultation surfaces**
 
 In the same file, replace:
 
@@ -559,7 +559,7 @@ bare question has nothing to stamp. Neither consultation surface — the
 this field; it is stamped only after THIS agent's review.
 ```
 
-- [ ] **Step 4: Counterpoint and staleness fix in `architect-session`**
+- [x] **Step 4: Counterpoint and staleness fix in `architect-session`**
 
 In `plugins/working-process/skills/architect-session/SKILL.md`:
 
@@ -607,12 +607,12 @@ grilling-session bullet and the formal-review bullet:
   rather than pasted content;
 ```
 
-- [ ] **Step 5: Validate**
+- [x] **Step 5: Validate**
 
 Run: `claude plugin validate . && claude plugin validate plugins/working-process`
 Expected: both pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add plugins/working-process/agents/architect.md plugins/working-process/skills/architect-session/SKILL.md
@@ -633,7 +633,7 @@ git commit -m "feat(working-process): tighten architect surfaces for consultatio
   gains the domain-expertise duty; its checklist scan becomes that duty's
   first source.
 
-- [ ] **Step 1: Replace the FIRST ACTION paragraph**
+- [x] **Step 1: Replace the FIRST ACTION paragraph**
 
 In `plugins/working-process/agents/plan-adversary.md`, replace:
 
@@ -656,7 +656,7 @@ contradicting a glossary term or a recorded ADR is a finding
 (evidence = that file).
 ```
 
-- [ ] **Step 2: Position the checklist mechanism under the duty**
+- [x] **Step 2: Position the checklist mechanism under the duty**
 
 In the same file, replace the `## Domain checklists` section body:
 
@@ -681,12 +681,12 @@ remaining sources (other skills, then verified model knowledge) covering
 the expertise.
 ```
 
-- [ ] **Step 3: Validate**
+- [x] **Step 3: Validate**
 
 Run: `claude plugin validate . && claude plugin validate plugins/working-process`
 Expected: both pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add plugins/working-process/agents/plan-adversary.md
@@ -708,7 +708,7 @@ git commit -m "feat(working-process): source plan-adversary standing duties from
   model-selection paragraph. This file is the payload's only always-on
   rule — keep the additions to the lines specified, nothing more.
 
-- [ ] **Step 1: Extend step 1**
+- [x] **Step 1: Extend step 1**
 
 Replace:
 
@@ -737,7 +737,7 @@ with:
    surface.
 ```
 
-- [ ] **Step 2: Tighten "architect" to the agent in step 3 and the stamping sentence**
+- [x] **Step 2: Tighten "architect" to the agent in step 3 and the stamping sentence**
 
 Replace:
 
@@ -770,7 +770,7 @@ verdict (`LGTM` | `concerns` | `blocking`) in the reviewed document's
 (`*-consult`) produces no verdict and nothing to record.
 ```
 
-- [ ] **Step 3: Name consultations in the model-selection paragraph**
+- [x] **Step 3: Name consultations in the model-selection paragraph**
 
 Replace:
 
@@ -789,7 +789,7 @@ is not a review, returns no verdict, and never gets a fallback record or
 a re-review offer.
 ```
 
-- [ ] **Step 4: Hand-review and validate**
+- [x] **Step 4: Hand-review and validate**
 
 `rules/` is not covered by `claude plugin validate` — re-read the whole
 file top to bottom checking: the file still has no YAML frontmatter (it
@@ -799,7 +799,7 @@ conventions. Then run
 `claude plugin validate . && claude plugin validate plugins/working-process`
 (unaffected, but confirms nothing else broke).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add plugins/working-process/rules/workflow.md
@@ -821,7 +821,7 @@ git commit -m "feat(working-process): add consultation consent offer to the work
   edit MUST carry its rationale inline — the grilling declined this
   decision an ADR on exactly that condition.
 
-- [ ] **Step 1: Add the `*-consult` category to the authoring rule**
+- [x] **Step 1: Add the `*-consult` category to the authoring rule**
 
 In `.claude/rules/plugin-authoring.md`, replace:
 
@@ -843,7 +843,7 @@ with:
   sessions — they are named for what they do (e.g. `sync-rules`).
 ```
 
-- [ ] **Step 2: Widen the `dev` discriminator in the versioning rule**
+- [x] **Step 2: Widen the `dev` discriminator in the versioning rule**
 
 In `.claude/rules/plugin-versioning.md`, replace:
 
@@ -887,7 +887,7 @@ with:
   `dev.<discriminator>` (topic-branch dogfooding, above) and `rc.<n>` (release
 ```
 
-- [ ] **Step 3: Add the two persona paths to the breaking-surface list**
+- [x] **Step 3: Add the two persona paths to the breaking-surface list**
 
 In the same file, replace:
 
@@ -904,14 +904,14 @@ with:
     `PERSONA_COMMON.md`).
 ```
 
-- [ ] **Step 4: Hand-review**
+- [x] **Step 4: Hand-review**
 
 Re-read both edited rules end to end: rule files under `.claude/rules/`
 are not validated by any tool; check no other line still says
 `-dev.<issue>` (`grep -n 'dev\.<issue>' .claude/rules/plugin-versioning.md`
 must return nothing).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add .claude/rules/plugin-authoring.md .claude/rules/plugin-versioning.md
@@ -938,7 +938,7 @@ plugin README rides along.
 - Produces: version `0.11.0-dev.design-personas` — the dogfooding key for
   the whole topic.
 
-- [ ] **Step 1: `plugin.json` — description and version**
+- [x] **Step 1: `plugin.json` — description and version**
 
 Replace the `description` value with:
 
@@ -948,7 +948,7 @@ Spec-driven working process on top of superpowers: grilling-session, architect-s
 
 Replace the `version` value: `0.11.0-dev.10` → `0.11.0-dev.design-personas`.
 
-- [ ] **Step 2: `.claude-plugin/marketplace.json` — catalog description**
+- [x] **Step 2: `.claude-plugin/marketplace.json` — catalog description**
 
 Replace the working-process entry's `description` value with:
 
@@ -956,7 +956,7 @@ Replace the working-process entry's `description` value with:
 Spec-driven working process on top of superpowers: grilling-session, architect-session, system-designer-session and sync-rules skills, architect and plan-adversary review agents, architect-consult and system-designer-consult consultation agents, plus distributed process rules
 ```
 
-- [ ] **Step 3: Repo `README.md` — the plugin table row**
+- [x] **Step 3: Repo `README.md` — the plugin table row**
 
 Replace the `working-process` row's description cell with:
 
@@ -964,7 +964,7 @@ Replace the `working-process` row's description cell with:
 Spec-driven working process: grilling-session, architect-session, system-designer-session and sync-rules skills, architect and plan-adversary review agents, two verdict-free consultation agents, distributed process rules
 ```
 
-- [ ] **Step 4: Plugin `README.md` — components, single-sourcing, model selection**
+- [x] **Step 4: Plugin `README.md` — components, single-sourcing, model selection**
 
 (a) In `## Components`, after the `architect-session` entry, insert:
 
@@ -1019,12 +1019,12 @@ available model as named background agents; they return no verdict, so
 the fallback machinery below never applies to them.
 ```
 
-- [ ] **Step 5: Validate**
+- [x] **Step 5: Validate**
 
 Run: `claude plugin validate . && claude plugin validate plugins/working-process`
 Expected: both pass (this exercises the edited JSON files).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add plugins/working-process/.claude-plugin/plugin.json .claude-plugin/marketplace.json README.md plugins/working-process/README.md
@@ -1039,12 +1039,12 @@ git commit -m "feat(working-process): sync plugin identity and set dogfooding ve
 - No new edits expected; fixes discovered here ride in a final
   `fix(working-process):` commit.
 
-- [ ] **Step 1: Validate both levels one last time**
+- [x] **Step 1: Validate both levels one last time**
 
 Run: `claude plugin validate . && claude plugin validate plugins/working-process`
 Expected: both pass.
 
-- [ ] **Step 2: Glossary-ban greps — all must come back clean**
+- [x] **Step 2: Glossary-ban greps — all must come back clean**
 
 ```bash
 # banned qualified persona form (only the "working-process persona(s)"
@@ -1062,7 +1062,7 @@ Expected: first grep empty; second grep only "failure … modes" senses
 review-report `mode:` mentions, never "X mode of the Y persona"; third
 grep only the contrastive "never a finding" lines.
 
-- [ ] **Step 3: Cross-reference sweep**
+- [x] **Step 3: Cross-reference sweep**
 
 ```bash
 # every plugin file naming the consult agents spells them correctly:
@@ -1076,7 +1076,7 @@ grep -rn 'design-personas' plugins/working-process/.claude-plugin/plugin.json
 Expected: first grep only prose uses of "consultation/consulted"; second
 grep empty; third grep exactly the one version line.
 
-- [ ] **Step 4: Confirm a clean tree**
+- [x] **Step 4: Confirm a clean tree**
 
 Run: `git status --short`
 Expected: empty (every task committed its files). If anything is dirty,

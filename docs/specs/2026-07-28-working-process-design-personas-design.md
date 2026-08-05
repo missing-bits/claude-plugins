@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-07-28
-status: draft
+status: implemented
 grilled: 2026-07-30
 architect: concerns (resolved 2026-07-30)
 branch: feature/design-personas
