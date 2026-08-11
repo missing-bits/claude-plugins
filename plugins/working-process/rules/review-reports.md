@@ -195,12 +195,13 @@ violation class, proposed rule id, graded severity (a plugin-level
 and then offers, never performs unprompted:
 
 - **Project-memory park** — only when the reviewed project keeps a
-  Project-memory store (probe `docs/memory/INDEX.md` and
-  `.claude/memory/INDEX.md`). The write is done by whoever accepts,
+  Project-memory store (store probe: one existence test per part,
+  on `docs/memory/` and `.claude/memory/` — the directory,
+  never a file inside it). The write is done by whoever accepts,
   never by the review run. Store selection: explicit guidance wins
   (project CLAUDE.md, the developer's own instructions, the store's
-  conventions); otherwise with both stores present the offer asks the
-  developer which one; with one store it names that one. No store — no
+  conventions); otherwise with both parts present the offer asks the
+  developer which one; with one part it names that one. No store — no
   offer, and never an offer to create a store.
 - **Upstream report** — always offered: a report to the standards
   plugin's source repository, resolved at offer time from the installed
