@@ -35,6 +35,23 @@ so it never carries history.
 Shape, not topic, is the criterion; the `idea-` prefix is authoritative (the
 INDEX section and frontmatter follow it).
 
+Every entry opens with an H1 carrying its title and carries a `description:`
+— one line, the summary that makes it findable. Its `INDEX.md` line is a
+projection of the entry, both halves of it: the link text from the H1, the
+text after the dash from `description`.
+
+    - [H1 of the entry](file.md) — <description>
+
+Quote the `description` scalar whenever it contains `: `, as index summaries
+routinely do. Nothing parses entry frontmatter today, but an unquoted colon
+makes the block invalid YAML the moment something does.
+
+On drift the entry wins — the file is the entry, the index a view of it — so
+an index line is never authored directly, only re-projected: correct the H1 or
+the `description` first, then re-derive the line from them. `INDEX.md` and
+`ARCHIVE.md` are registry files, not entries: no frontmatter, no
+`description`, no H1 requirement.
+
 - **note** (no prefix) — a gotcha or cross-ticket state; a cross-ticket
   registry, exempt from any per-work `ticket` convention the project keeps.
   It may carry an optional `adr-candidate: yes` frontmatter flag — presence
@@ -46,6 +63,16 @@ INDEX section and frontmatter follow it).
   working-process ticket-frontmatter convention) — `ticket`. On graduation or
   drop the body closes per the Lifecycle section; the `spec:` pointer then
   lives on the `ARCHIVE.md` Done redirect line, not a live file.
+
+Every field this rule defines — `description`, `status`, `spec`, `ticket`,
+`adr-candidate` — sits at the top level of the frontmatter, never nested
+under a `metadata:` block. Nesting would break the anchored `^ticket:` sweep
+the project's ticket convention publishes (when it keeps one), across the
+whole project rather than only in the store.
+
+Entries may carry frontmatter that other tools wrote. Leave unknown keys
+alone: never remove them, never rewrite them, and never let one change an
+entry's shape — the `idea-` prefix stays authoritative.
 
 ## Team-memory scope
 
