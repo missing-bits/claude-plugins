@@ -21,7 +21,10 @@ The plugin ships two rule files as a Rules payload:
   first-create question. Always-on deliberately: index loading has no file
   path to scope on.
 - `project-memory-conventions.md` — paths-scoped to the two store
-  directories: note/idea entry shapes, team-memory scope, the gotcha↔ADR
+  directories: note/idea entry shapes, the required H1 and `description` and
+  the index line projected from them, top-level placement of the plugin's own
+  frontmatter fields, the tolerance clause for keys other tools wrote,
+  team-memory scope, the gotcha↔ADR
   promotion offer, the live-only `INDEX.md` / on-demand `ARCHIVE.md` layout,
   and the closure lifecycle.
 
@@ -49,7 +52,7 @@ counts as a Process directory and the routing targets light up.
 - **memory-review-session** — an explicit-ask grooming conversation: audits
   `INDEX.md`/`ARCHIVE.md` consistency, then walks entries toward their correct
   lifecycle state (close finished notes, promote or drop ideas, split/merge,
-  sharpen index lines). Recommends per entry; never bulk-cleans; never commits.
+  sharpen entry descriptions). Recommends per entry; never bulk-cleans; never commits.
 - **migrate-memory** — moves project-scoped facts about the current repo out
   of home-dir memory into this store (one direction), routing each to Team or
   Private memory and offering store adoption when none exists yet.
@@ -60,3 +63,8 @@ Each part keeps a thin `INDEX.md` of **live** entries (the only file read at
 session start), an `ARCHIVE.md` of closed-entry lines (Done / Dropped, read on
 demand), and the live entry bodies. A closed entry keeps no body — only its
 one-line archive record.
+
+Every entry opens with an H1 and carries a one-line `description:` in its
+frontmatter, and its index line is a projection of the two — link text from
+the H1, summary from `description` — so index lines are re-derived, never
+authored by hand. Frontmatter written by other tools is left alone.
