@@ -1,6 +1,6 @@
 ---
 name: memory-review-session
-description: "Grooming session for a Project-memory store: audits INDEX/ARCHIVE consistency, then walks entries toward their correct lifecycle state — closing finished notes, promoting or dropping ideas, splitting or merging, sharpening index lines. Use ONLY when the developer explicitly asks to review or tidy Project memory (\"groom the store\", \"memory review\", \"przejrzyjmy memory\"). A routine memory read or write, or a question about an entry's content, is NOT a trigger."
+description: "Grooming session for a Project-memory store: audits INDEX/ARCHIVE consistency, then walks entries toward their correct lifecycle state — closing finished notes, promoting or dropping ideas, splitting or merging, sharpening entry descriptions. Use ONLY when the developer explicitly asks to review or tidy Project memory (\"groom the store\", \"memory review\", \"przejrzyjmy memory\"). A routine memory read or write, or a question about an entry's content, is NOT a trigger."
 ---
 
 # memory-review-session
@@ -24,11 +24,25 @@ From `INDEX.md` plus a directory listing, surface the worklist:
 - dangling `INDEX.md` links (a line pointing at a missing file);
 - body files with no `INDEX.md` line;
 - empty or stub body files (a lifecycle violation);
+- index lines whose text after the dash differs from the entry's
+  `description` — the entry wins, so the fix is to confirm the entry and
+  re-project the line, never to edit the line alone;
+- index lines whose link text differs from the entry's H1 — same authority,
+  same fix;
+- frontmatter keys this plugin does not define: report them and move on,
+  never remove them;
 - `idea-*` files whose `status` is `spec'd` or `dropped` but that still sit as
   live bodies;
 - **sweep**: any closed line still in `INDEX.md` (legacy, or a botched close)
   moves to `ARCHIVE.md`. Under the invariant this should be empty; the sweep
   is the safety net.
+
+Entries written before these fields existed carry **format debt, not
+defects**: an entry with no `description`, or with no H1 to project a title
+from, is incomplete, not broken. Count the debt and list it apart from the
+defects above — a dangling link is a fault in the store, a missing
+`description` is work the store has not had yet — and offer to fill it in
+during the walk.
 
 ## Entry walk (ordered, existential first)
 
@@ -41,8 +55,9 @@ One entry at a time, a recommendation with each:
 3. **Is it the right size and shape?** split an overgrown note, trim it, merge
    duplicates; a note that has grown into a mini-spec is a candidate for a
    real spec, not a longer note.
-4. **Does the `INDEX.md` line summarize it well?** Recall depends on the
-   one-liner — the cheapest tidiness there is.
+4. **Is the `description` right?** Recall depends on it. The `INDEX.md` line
+   is only its projection, so judge the `description` itself and let the line
+   follow.
 
 ## adr-candidate flags
 
