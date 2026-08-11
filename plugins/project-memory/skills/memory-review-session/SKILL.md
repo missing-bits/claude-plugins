@@ -40,7 +40,10 @@ surface the worklist:
 
 Entries written before these fields existed carry **format debt, not
 defects**: an entry with no `description`, or with no H1 to project a title
-from, is incomplete, not broken. Count the debt and list it apart from the
+from, is incomplete, not broken. Title drift on such an entry is part of the
+same debt — its index line predates the projection, so a link text disagreeing
+with the H1 of an entry that has no `description` is re-projected when the
+debt is paid, not reported as drift. Count the debt and list it apart from the
 defects above — a dangling link is a fault in the store, a missing
 `description` is work the store has not had yet — and offer to fill it in
 during the walk.
