@@ -64,7 +64,8 @@ conventions below.
   ledgers) carry a `ticket` frontmatter field; registry files that live
   across tickets (the domain glossary, `.gitignore` files, and — when the
   project-memory plugin's rules are installed — Project memory notes and
-  `INDEX.md`) are exempt. Project-memory idea entries DO carry `ticket`
+  the store's registry files, whose list that plugin's conventions rule
+  owns) are exempt. Project-memory idea entries DO carry `ticket`
   and are not exempt. Team memory (`docs/memory/`) is a Process
   directory; Private memory (`.claude/memory/`) is not — it is the
   per-user store defined by the project-memory plugin's rules.

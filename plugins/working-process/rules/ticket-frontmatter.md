@@ -20,9 +20,10 @@ GitLab, or anything else; the field is always `ticket`.
   `ticket`-only set of `.superpowers/**` artifacts.
 - Every other document under `docs/`: `ticket` + `date`.
 - Project memory (`docs/memory/`, `.claude/memory/` — when the
-  project-memory plugin's rules are installed): notes and `INDEX.md`
-  are `ticket`-exempt registry files (like the glossary); idea entries
-  (`idea-*.md`) carry `ticket`. See that plugin's
+  project-memory plugin's rules are installed): notes and the store's
+  registry files are `ticket`-exempt (like the glossary; the
+  registry-file list belongs to that plugin's conventions rule); idea
+  entries (`idea-*.md`) carry `ticket`. See that plugin's
   project-memory-conventions rule.
 - Per-work process artifacts (`.superpowers/**`, ADRs): `ticket` only —
   see the process-artifacts rule.
