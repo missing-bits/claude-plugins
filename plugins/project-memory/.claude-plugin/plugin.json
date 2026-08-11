@@ -1,7 +1,7 @@
 {
   "name": "project-memory",
   "description": "In-repo project memory for Claude Code sessions — committed Team memory (docs/memory/) and git-ignored per-user Private memory (.claude/memory/); a Rules payload plus memory-review-session and migrate-memory skills",
-  "version": "0.3.0",
+  "version": "0.4.0-dev.memory-entry-format",
   "author": { "name": "Missing Bits (Jacek Nakonieczny)" },
   "license": "MIT",
   "keywords": ["memory", "notes", "ideas", "knowledge", "rules"]
