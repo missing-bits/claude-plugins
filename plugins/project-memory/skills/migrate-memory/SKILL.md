@@ -22,6 +22,12 @@ Read home-dir memory (`MEMORY.md` plus its entry files). Candidates are facts
 personal facts stay in home-dir memory — do not propose them. When a fact's
 scope is unclear, ask; never guess.
 
+A `type:` of `user` or `feedback` — nested under `metadata:`, where the
+harness writes it — hints that the fact may be personal rather than scoped to
+this repository, so consider those entries last. The hint never decides: a
+per-user fact ABOUT this repo belongs in Private memory, and content stays the
+criterion.
+
 ## No store yet → offer adoption
 
 If the project has no store, running this skill IS the signal of intent the
@@ -36,9 +42,13 @@ Team memory, per-user → Private memory. The developer decides each.
 
 ## Move mechanics
 
-- Translate shape: a home-dir entry (`name`/`description`/`metadata`
-  frontmatter) becomes a **note** or an `idea-<slug>.md` per the conventions
-  rule — shape is the criterion, the `idea-` prefix authoritative.
+- Carry the shape across: a home-dir entry becomes a **note** or an
+  `idea-<slug>.md` per the conventions rule — shape is the criterion, the
+  `idea-` prefix authoritative. `description` moves over unchanged. `name`
+  and `metadata` do not survive as fields, but `name` carries the entry's
+  only title, so it becomes the new entry's H1 and its slug the filename —
+  dropped as a field, kept as information. Add the plugin's own fields per
+  the conventions rule.
 - Add the entry's line to the target part's `INDEX.md`.
 - Delete the home-dir body file and its `MEMORY.md` line.
 - `ticket` frontmatter on a migrated idea only when the project keeps that
@@ -54,6 +64,11 @@ wins: offer to merge into the project entry and remove the home-dir copy.
 After moving one or more facts, leave a single roll-up line in home-dir
 `MEMORY.md` — "project-scoped notes for <repo> migrated to its Project
 memory, <date>" — not a per-entry pointer.
+
+The harness loads that index and caps what it reads (200 lines or 25KB),
+and a write past the cap comes back with an error telling you to shorten
+it. Keep the trace to one line; on that error, report it and offer to
+shorten the index rather than retrying the write.
 
 ## Boundaries
 
