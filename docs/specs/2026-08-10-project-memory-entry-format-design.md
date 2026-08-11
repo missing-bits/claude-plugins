@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-08-10
-status: approved
+status: implemented
 grilled: 2026-08-10
 architect: LGTM
 branch: feature/memory-entry-format

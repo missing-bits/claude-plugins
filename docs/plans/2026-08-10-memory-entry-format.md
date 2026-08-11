@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-08-10
-status: approved
+status: implemented
 adversary: blocking (resolved 2026-08-10)
 branch: feature/memory-entry-format
 base: develop
