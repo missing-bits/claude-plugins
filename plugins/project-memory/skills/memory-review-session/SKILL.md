@@ -19,7 +19,8 @@ mirroring the core rule's "never scans, creates, or nags" stance.
 
 ## Opening audit (mechanical)
 
-From `INDEX.md` plus a directory listing, surface the worklist:
+From `INDEX.md`, a directory listing, and each entry's frontmatter and H1,
+surface the worklist:
 
 - dangling `INDEX.md` links (a line pointing at a missing file);
 - body files with no `INDEX.md` line;

@@ -49,7 +49,8 @@ Team memory, per-user → Private memory. The developer decides each.
   only title, so it becomes the new entry's H1 and its slug the filename —
   dropped as a field, kept as information. Add the plugin's own fields per
   the conventions rule.
-- Add the entry's line to the target part's `INDEX.md`.
+- Project the entry's line into the target part's `INDEX.md` — link text from
+  its H1, summary from its `description`, per the conventions rule.
 - Delete the home-dir body file and its `MEMORY.md` line.
 - `ticket` frontmatter on a migrated idea only when the project keeps that
   convention (e.g. via working-process).
