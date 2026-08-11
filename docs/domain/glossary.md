@@ -286,10 +286,20 @@ asked, and NOT a Process directory — a per-user store under the `.claude/`
 config namespace, governed by the Project-memory rule.
 _Avoid_: local memory
 
+**Auto-memory**:
+The harness's own memory mechanism — the notes Claude Code writes for itself,
+their `MEMORY.md` index and its load budget, and the `autoMemoryDirectory` /
+`autoMemoryEnabled` settings that place and disable it. The mechanism, never a
+store: the store it manages by default is Home-dir memory. Project memory
+borrows none of its machinery.
+_Avoid_: native memory, auto memory (unhyphenated)
+
 **Home-dir memory**:
-The built-in Claude Code memory at `~/.claude/…/memory/`, auto-loaded by the
-harness. The store the Project-memory rule redirects project-scoped writes
-away from; it keeps cross-project and personal facts.
+The store Auto-memory manages, one per repository and machine-local, kept by
+default under `~/.claude/projects/<project>/memory/` — a default, not a
+definition, since `autoMemoryDirectory` may place it anywhere. The store the
+Project-memory rule redirects project-scoped writes away from; it keeps
+cross-project and personal facts.
 _Avoid_: native memory
 
 **Idea entry**:
