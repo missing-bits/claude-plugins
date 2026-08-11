@@ -45,6 +45,16 @@ wins, mirroring the Rules engine's project-over-user conflict rule. Part
 of the review-reports contract: the paths may not drift independently.
 _Avoid_: discovery, probe (unqualified)
 
+**Store probe**:
+The existence check a plugin other than project-memory runs to decide
+whether the reviewed project keeps a Project-memory part: one test per
+part, on the part's directory (`docs/memory/`, `.claude/memory/`) — never
+on a file inside it. Three surfaces run it (the review-reports
+Candidate-gap park offer and the two standards code-review restatements).
+Distinct from the Contract probe, which finds the installed report
+contract; the unqualified word stays banned there.
+_Avoid_: index check, store check
+
 **Review report**:
 The single persistent document one code-review run writes under
 `docs/code-review/` of the reviewed project — one run, one report,
