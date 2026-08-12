@@ -154,7 +154,8 @@ memory's `MEMORY.md`. The rule defers: a part whose index the session
 context already carries (the Auto-memory block) is not read again;
 everywhere else — non-hybrid stores, untrusted sessions, subagents —
 the rule loads it as today and remains the safety net. Additionally,
-when `.claude/settings.local.json` carries `autoMemoryDirectory`, the
+when Private memory exists and
+`.claude/settings.local.json` carries `autoMemoryDirectory`, the
 rule compares it with `realpath(<project>/.claude/memory)` and says so
 plainly on mismatch. This check is mandatory, not decorative: the
 platform has no fallback for a resolving-but-wrong path, so the rule's
@@ -251,9 +252,6 @@ redirect activates per.
 - Trust is per environment (and per volume where `~/.claude.json` lives
   in one); an environment that does not persist that file loses the
   activation on every rebuild.
-- Sessions on the inactive side degrade to that environment's Home-dir
-  memory; merging Home-dir stores into the project store stays manual
-  (`migrate-memory`, run per environment).
 
 ## Out of scope
 
