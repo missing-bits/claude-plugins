@@ -301,16 +301,35 @@ The harness's own memory mechanism — the notes Claude Code writes for itself,
 their `MEMORY.md` index and its load budget, and the `autoMemoryDirectory` /
 `autoMemoryEnabled` settings that place and disable it. The mechanism, never a
 store: the store it manages by default is Home-dir memory. Project memory
-borrows none of its machinery.
+borrows none of its machinery — even a Hybrid store only points the harness
+at the plugin's directory.
 _Avoid_: native memory, auto memory (unhyphenated)
 
 **Home-dir memory**:
-The store Auto-memory manages, one per repository and machine-local, kept by
-default under `~/.claude/projects/<project>/memory/` — a default, not a
-definition, since `autoMemoryDirectory` may place it anywhere. The store the
-Project-memory rule redirects project-scoped writes away from; it keeps
-cross-project and personal facts.
+The store Auto-memory manages when no redirect points it elsewhere — one
+per checkout path and per Environment, kept by default under
+`~/.claude/projects/<project>/memory/`; a default, not a definition, since
+`autoMemoryDirectory` may place it anywhere. The store the Project-memory
+rule redirects project-scoped writes away from; it keeps cross-project and
+personal facts.
 _Avoid_: native memory
+
+**Hybrid store**:
+The Private memory store that is the current session's Auto-memory
+directory — the opt-in redirect (`autoMemoryDirectory` pointing at
+`.claude/memory/`) honored in that session and landing on the store. A property of the
+session, never of the checkout: the same store may be hybrid in one
+environment and plain in another. Team memory is never one — Auto-memory's
+team mounts are server-backed, so a repo directory cannot join.
+_Avoid_: hybrid memory, hybrid mode
+
+**Environment**:
+One filesystem view a session runs in — its own path namespace, settings
+home (`~/.claude`), and trust record: the host, a dev container, a WSL
+distro. The unit the redirect activates per, and the unit each Home-dir
+memory store belongs to; one checkout may be visible from several
+environments through different absolute paths.
+_Avoid_: machine (where the path namespace is what matters)
 
 **Idea entry**:
 A Project-memory entry with the idea shape: an `idea-` filename prefix and
@@ -323,18 +342,18 @@ _Avoid_: backlog item
 **Archive**:
 The closed-entry record of a Project-memory part — `ARCHIVE.md`, holding one
 line per closed entry in a **Done** or **Dropped** section, read on demand and
-never at session start. Distinct from a live entry (listed in `INDEX.md`): a
+never at session start. Distinct from a live entry (listed in `MEMORY.md`): a
 closed entry keeps no body, only its archive line.
 _Avoid_: archive folder, backlog
 
 **Live entry**:
-A Project-memory entry currently listed in `INDEX.md` — an active note or a
+A Project-memory entry currently listed in `MEMORY.md` — an active note or a
 `parked` idea. The only entries reachable at session start (via the index).
 Opposite of an archived (closed) entry.
 _Avoid_: active entry, open entry
 
 **Close (an entry)**:
-Move an entry out of `INDEX.md` when it reaches a terminal state — Done (its
+Move an entry out of `MEMORY.md` when it reaches a terminal state — Done (its
 content now lives in a spec, ADR, glossary, or another artifact) or Dropped
 (abandoned) — leaving a one-line Archive record. Deleting an obsolete entry is
 NOT a close: it leaves no Archive line.
