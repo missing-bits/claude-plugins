@@ -38,8 +38,8 @@ A store whose live index is still named `INDEX.md` predates this
 convention. Offer once to rename the file to `MEMORY.md` (`git mv` in a
 tracked part, a plain rename in an ignored one) — content untouched, and
 nothing to re-point: no plugin outside project-memory names the index
-file. Declined, the store simply stays unread by this rule's loading
-clause until renamed.
+file. Declined, the offer rests for the session; the core rule keeps
+reading the old-named index meanwhile, so nothing goes dark.
 
 ## Entry shapes
 
