@@ -17,6 +17,14 @@ Only on a direct request to review or tidy the store. Routine memory
 reads/writes and questions about an entry's content do NOT start a session —
 mirroring the core rule's "never scans, creates, or nags" stance.
 
+## Scope
+
+The developer may narrow a session to one section ("only the Ideas"), a
+topic, or named entries. The narrowing binds the walk alone: the opening
+audit and its sweep always cover the whole part — they are the invariant's
+safety net and never depend on what the developer asked to see. Inside a
+narrowed walk, per-entry recommendation and consent are unchanged.
+
 ## Opening audit (mechanical)
 
 From `MEMORY.md`, a directory listing, and each entry's frontmatter and H1,
