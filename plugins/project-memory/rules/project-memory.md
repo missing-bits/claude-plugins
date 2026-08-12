@@ -6,15 +6,31 @@ in the project, in two parts:
 - **Team memory** — `docs/memory/`, committed, shared with the team.
 - **Private memory** — `.claude/memory/`, per-user, always git-ignored.
 
-Each part holds a thin `INDEX.md` (one-line pointers to live entries) plus
+Each part holds a thin `MEMORY.md` (one-line pointers to live entries) plus
 flat topic files, and an `ARCHIVE.md` of closed-entry lines read on demand —
 never at session start.
 
 ## Loading
 
-When a part's `INDEX.md` exists, read it at session start and pull a topic
-file only when its index line is relevant. If neither `INDEX.md` exists this
-rule is a no-op — it never scans, creates, or nags.
+When a part's `MEMORY.md` exists, read it at session start and pull a topic
+file only when its index line is relevant — unless the session context
+already carries that index: in a Hybrid store, Auto-memory loads Private
+memory's `MEMORY.md` itself, and reading it twice buys nothing. If neither
+`MEMORY.md` exists this rule is a no-op — it never scans, creates, or nags.
+
+One exception to the no-op: a part directory holding an `INDEX.md` and no
+`MEMORY.md` is a store from before the rename, never "no store". Say so at
+session start, point at the conventions rule's rename offer, and read the
+old-named index as the part's index meanwhile — the Adoption clause must
+never create a second index beside it.
+
+When Private memory exists (`.claude/memory/` present) and
+`.claude/settings.local.json` carries `autoMemoryDirectory`, compare its
+value with the realpath of `<project>/.claude/memory`. On a mismatch, say
+so plainly: the redirect points elsewhere in this session's filesystem
+namespace, so Auto-memory is writing a stray store or none at all — the
+platform gives no other visible signal. Never edit settings from this rule;
+that is the redirect-memory skill's job, when it is available.
 
 ## Routing (best-effort)
 
@@ -32,8 +48,8 @@ guarantee. On a miss a fact lands in home-dir memory and can be moved later.
 Adoption is opt-in: the store exists only when the developer creates it. Offer
 to create it only when the developer signals intent to record something
 project-scoped — never proactively. On first creation, point at the
-project-memory-conventions rule for the INDEX sections and entry shapes (no
-`INDEX.md` yet exists to trigger it).
+project-memory-conventions rule for the index sections and entry shapes (no
+`MEMORY.md` yet exists to trigger it).
 
 For Team memory (`docs/memory/`), ask the tracked/ignored question before
 writing anything — this rule owns that question:
