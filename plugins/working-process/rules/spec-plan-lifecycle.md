@@ -70,7 +70,10 @@ only when the tool is available: grill a fresh spec (grilling-session);
 architect-review a grilled spec (architect agent dispatch);
 adversary-review a plan before implementation (plan-adversary agent
 dispatch); offer the pending re-review of a fallback-recorded verdict at
-its consumption gate (fresh round at the prescribed tier). After any
+its consumption gate (fresh round at the prescribed tier); and when a
+spec or plan moves to `implemented` and the memory-review-session skill
+is available, offer a Project memory review — released work-state notes
+close, resolved entries sweep to the archive. After any
 review round, stamp the verdict into the document's field.
 
 When implementation is about to start, suggest committing the work's
