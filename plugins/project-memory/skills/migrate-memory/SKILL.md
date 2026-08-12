@@ -17,7 +17,15 @@ trigger.
 
 ## Scan
 
-Read home-dir memory (`MEMORY.md` plus its entry files). Candidates are facts
+First check for identity: when the Auto-memory redirect is active in this
+environment (`autoMemoryDirectory` in `.claude/settings.local.json` equals
+the realpath of `<project>/.claude/memory`), home-dir → Private is a no-op
+— the two directories are one. Say so and skip the Private-memory
+candidates; Team-memory moves are unaffected. Each environment keeps its
+own Home-dir store, so run the migration where the notes live.
+
+Read home-dir memory — the Home-dir store's `MEMORY.md` and entry files,
+under `~/.claude/projects/<project>/memory/` by default. Candidates are facts
 **project-scoped to the current repo**, judged by content. Cross-project and
 personal facts stay in home-dir memory — do not propose them. When a fact's
 scope is unclear, ask; never guess.
@@ -49,9 +57,10 @@ Team memory, per-user → Private memory. The developer decides each.
   only title, so it becomes the new entry's H1 and its slug the filename —
   dropped as a field, kept as information. Add the plugin's own fields per
   the conventions rule.
-- Project the entry's line into the target part's `INDEX.md` — link text from
-  its H1, summary from its `description`, per the conventions rule.
-- Delete the home-dir body file and its `MEMORY.md` line.
+- Project the entry's line into the target part's `MEMORY.md` — link text
+  from its H1, summary from its `description`, per the conventions rule.
+- Delete the home-dir body file and its line in the Home-dir store's
+  `MEMORY.md`.
 - `ticket` frontmatter on a migrated idea only when the project keeps that
   convention (e.g. via working-process).
 
@@ -62,14 +71,13 @@ wins: offer to merge into the project entry and remove the home-dir copy.
 
 ## Migration trace
 
-After moving one or more facts, leave a single roll-up line in home-dir
-`MEMORY.md` — "project-scoped notes for <repo> migrated to its Project
-memory, <date>" — not a per-entry pointer.
+After moving one or more facts, leave a single roll-up line in the Home-dir store's
+`MEMORY.md` — "project-scoped notes for <repo> migrated to its Project memory, <date>"
+— not a per-entry pointer.
 
-The harness loads that index and caps what it reads (200 lines or 25KB),
-and a write past the cap comes back with an error telling you to shorten
-it. Keep the trace to one line; on that error, report it and offer to
-shorten the index rather than retrying the write.
+The harness caps what it loads from that index — 200 lines / 25 KB, the
+budget convention the conventions rule owns. Keep the trace to one line;
+on a cap error shorten the index, never retry the write.
 
 ## Boundaries
 
