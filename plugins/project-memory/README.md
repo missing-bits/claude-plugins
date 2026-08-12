@@ -41,6 +41,14 @@ by the working-process plugin's Rules engine:
 2. `/plugin install working-process@missing-bits` (brings the engine)
 3. Run the `working-process:sync-rules` skill and pick this payload.
 
+Optional companion: the `elements-of-style` plugin. When its
+`writing-clearly-and-concisely` skill is present, the conventions rule
+routes entry prose through it; without it nothing changes. Not a
+dependency — install it yourself:
+
+    /plugin marketplace add obra/superpowers-marketplace
+    /plugin install elements-of-style@superpowers-marketplace
+
 The engine dependency is operational only — it installs and updates the
 rule files. The rules' content does not require the working-process
 *rules*: without them there is simply no Process-directory ceremony beyond

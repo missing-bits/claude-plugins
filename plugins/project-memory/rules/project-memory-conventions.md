@@ -89,6 +89,13 @@ whose missing H1 is format debt, and an index line it appends lands
 section-blind — re-sectioning belongs to the grooming walk
 (memory-review-session, when available), never to a routine write.
 
+When the `elements-of-style:writing-clearly-and-concisely` skill is
+available, entry prose gets its pass: invoke it before writing a new body
+or `description`, and run an explicit editing pass when reshaping one.
+The pass binds wording, never an entry's content or lifecycle; entries
+Auto-memory writes on its own keep their own voice. Without the skill
+there is no substitute pass.
+
 ## Team-memory scope
 
 Team memory owns only parked ideas, cross-ticket initiative state, and
