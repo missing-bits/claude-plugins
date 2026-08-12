@@ -70,13 +70,22 @@ only when the tool is available: grill a fresh spec (grilling-session);
 architect-review a grilled spec (architect agent dispatch);
 adversary-review a plan before implementation (plan-adversary agent
 dispatch); offer the pending re-review of a fallback-recorded verdict at
-its consumption gate (fresh round at the prescribed tier). After any
+its consumption gate (fresh round at the prescribed tier); and when a
+spec or plan moves to `implemented` and the memory-review-session skill
+is available, offer a Project memory review — released work-state notes
+close, resolved entries sweep to the archive. After any
 review round, stamp the verdict into the document's field.
 
-When implementation is about to start, suggest committing the work's
-documents under `docs/` — only paths git tracks or would track;
-deliberately ignored documents are skipped silently, and committing
-itself stays with the developer.
+The process suggests committing the work's documents under `docs/` at
+exactly one point — the implementation-ready gate: the developer has
+approved the plan (the `status` flip to `approved`) and implementation
+is about to start. During authoring — spec drafting, grilling, review
+rounds, plan writing — it never makes that suggestion; the documents'
+uncommitted state is deliberate, not dirt in the process-artifacts
+sense, and the developer may commit sooner on their own call. The
+suggestion covers only paths git tracks or would track; deliberately
+ignored documents are skipped silently, and committing itself stays
+with the developer.
 
 Ticket value format, sourcing order, and backfill live in the
 ticket-frontmatter rule.

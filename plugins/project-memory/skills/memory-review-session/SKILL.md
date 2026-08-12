@@ -1,6 +1,6 @@
 ---
 name: memory-review-session
-description: "Grooming session for a Project-memory store: audits INDEX/ARCHIVE consistency, then walks entries toward their correct lifecycle state — closing finished notes, promoting or dropping ideas, splitting or merging, sharpening index lines. Use ONLY when the developer explicitly asks to review or tidy Project memory (\"groom the store\", \"memory review\", \"przejrzyjmy memory\"). A routine memory read or write, or a question about an entry's content, is NOT a trigger."
+description: "Grooming session for a Project-memory store: audits MEMORY/ARCHIVE consistency, then walks entries toward their correct lifecycle state — closing finished notes, promoting or dropping ideas, splitting or merging, sharpening entry descriptions. Use ONLY when the developer explicitly asks to review or tidy Project memory (\"groom the store\", \"memory review\", \"przejrzyjmy memory\"). A routine memory read or write, or a question about an entry's content, is NOT a trigger."
 ---
 
 # memory-review-session
@@ -17,18 +17,48 @@ Only on a direct request to review or tidy the store. Routine memory
 reads/writes and questions about an entry's content do NOT start a session —
 mirroring the core rule's "never scans, creates, or nags" stance.
 
+## Scope
+
+The developer may narrow a session to one section ("only the Ideas"), a
+topic, or named entries. The narrowing binds the walk alone: the opening
+audit and its sweep always cover the whole part — they are the invariant's
+safety net and never depend on what the developer asked to see. Inside a
+narrowed walk, per-entry recommendation and consent are unchanged.
+
 ## Opening audit (mechanical)
 
-From `INDEX.md` plus a directory listing, surface the worklist:
+From `MEMORY.md`, a directory listing, and each entry's frontmatter and H1,
+surface the worklist:
 
-- dangling `INDEX.md` links (a line pointing at a missing file);
-- body files with no `INDEX.md` line;
+- dangling `MEMORY.md` links (a line pointing at a missing file);
+- body files with no `MEMORY.md` line;
 - empty or stub body files (a lifecycle violation);
+- index lines whose text after the dash differs from the entry's
+  `description` — the entry wins, so the fix is to confirm the entry and
+  re-project the line, never to edit the line alone;
+- index lines whose link text differs from the entry's H1 — same authority,
+  same fix;
+- frontmatter keys this plugin does not define: report them and move on,
+  never remove them;
 - `idea-*` files whose `status` is `spec'd` or `dropped` but that still sit as
   live bodies;
-- **sweep**: any closed line still in `INDEX.md` (legacy, or a botched close)
+- index lines sitting in the wrong section (a section-blind writer —
+  Auto-memory in a Hybrid store — appended them): move the line to its
+  part's proper section; the entry body is untouched;
+- **sweep**: any closed line still in `MEMORY.md` (legacy, or a botched close)
   moves to `ARCHIVE.md`. Under the invariant this should be empty; the sweep
   is the safety net.
+
+Entries written before these fields existed — or written by Auto-memory,
+which knows nothing of them — carry **format debt, not defects**: an entry
+with no `description`, or with no H1 to project a title from, is
+incomplete, not broken. Title drift on such an entry is part of the
+same debt — its index line predates the projection, so a link text disagreeing
+with the H1 of an entry that has no `description` is re-projected when the
+debt is paid, not reported as drift. Count the debt and list it apart from the
+defects above — a dangling link is a fault in the store, a missing
+`description` is work the store has not had yet — and offer to fill it in
+during the walk.
 
 ## Entry walk (ordered, existential first)
 
@@ -41,8 +71,9 @@ One entry at a time, a recommendation with each:
 3. **Is it the right size and shape?** split an overgrown note, trim it, merge
    duplicates; a note that has grown into a mini-spec is a candidate for a
    real spec, not a longer note.
-4. **Does the `INDEX.md` line summarize it well?** Recall depends on the
-   one-liner — the cheapest tidiness there is.
+4. **Is the `description` right?** Recall depends on it. The `MEMORY.md` line
+   is only its projection, so judge the `description` itself and let the line
+   follow.
 
 ## adr-candidate flags
 

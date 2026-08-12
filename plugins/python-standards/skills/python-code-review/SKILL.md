@@ -73,10 +73,11 @@ them in the report's Summary as out of scope.
 5. List `rule: none` findings in the reply as candidate standards gaps
    (one line each: violation class, proposed rule id, graded severity),
    then follow the review-reports contract's Candidate-gap offers
-   section: offer a Project-memory park when a store exists (probe
-   `docs/memory/INDEX.md` and `.claude/memory/INDEX.md`; explicit
-   guidance on store choice wins, both-stores means ask, never offer to
-   create one) and always offer a generalized upstream report (target
+   section: offer a Project-memory park when a store exists
+   (store probe: the `docs/memory/` and `.claude/memory/` directories,
+   never a file inside them; explicit guidance on store choice wins,
+   both parts means ask, never offer to create one) and always offer
+   a generalized upstream report (target
    resolved from the installed marketplace's source; non-public source
    → target-less draft; show the full draft before anything is filed;
    never include the reviewed project's code, identifiers, or name).

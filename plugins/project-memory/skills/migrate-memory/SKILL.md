@@ -17,10 +17,24 @@ trigger.
 
 ## Scan
 
-Read home-dir memory (`MEMORY.md` plus its entry files). Candidates are facts
+First check for identity: when the Auto-memory redirect is active in this
+environment (`autoMemoryDirectory` in `.claude/settings.local.json` equals
+the realpath of `<project>/.claude/memory`), home-dir → Private is a no-op
+— the two directories are one. Say so and skip the Private-memory
+candidates; Team-memory moves are unaffected. Each environment keeps its
+own Home-dir store, so run the migration where the notes live.
+
+Read home-dir memory — the Home-dir store's `MEMORY.md` and entry files,
+under `~/.claude/projects/<project>/memory/` by default. Candidates are facts
 **project-scoped to the current repo**, judged by content. Cross-project and
 personal facts stay in home-dir memory — do not propose them. When a fact's
 scope is unclear, ask; never guess.
+
+A `type:` of `user` or `feedback` — nested under `metadata:`, where the
+harness writes it — hints that the fact may be personal rather than scoped to
+this repository, so consider those entries last. The hint never decides: a
+per-user fact ABOUT this repo belongs in Private memory, and content stays the
+criterion.
 
 ## No store yet → offer adoption
 
@@ -36,11 +50,17 @@ Team memory, per-user → Private memory. The developer decides each.
 
 ## Move mechanics
 
-- Translate shape: a home-dir entry (`name`/`description`/`metadata`
-  frontmatter) becomes a **note** or an `idea-<slug>.md` per the conventions
-  rule — shape is the criterion, the `idea-` prefix authoritative.
-- Add the entry's line to the target part's `INDEX.md`.
-- Delete the home-dir body file and its `MEMORY.md` line.
+- Carry the shape across: a home-dir entry becomes a **note** or an
+  `idea-<slug>.md` per the conventions rule — shape is the criterion, the
+  `idea-` prefix authoritative. `description` moves over unchanged. `name`
+  and `metadata` do not survive as fields, but `name` carries the entry's
+  only title, so it becomes the new entry's H1 and its slug the filename —
+  dropped as a field, kept as information. Add the plugin's own fields per
+  the conventions rule.
+- Project the entry's line into the target part's `MEMORY.md` — link text
+  from its H1, summary from its `description`, per the conventions rule.
+- Delete the home-dir body file and its line in the Home-dir store's
+  `MEMORY.md`.
 - `ticket` frontmatter on a migrated idea only when the project keeps that
   convention (e.g. via working-process).
 
@@ -51,9 +71,13 @@ wins: offer to merge into the project entry and remove the home-dir copy.
 
 ## Migration trace
 
-After moving one or more facts, leave a single roll-up line in home-dir
-`MEMORY.md` — "project-scoped notes for <repo> migrated to its Project
-memory, <date>" — not a per-entry pointer.
+After moving one or more facts, leave a single roll-up line in the Home-dir store's
+`MEMORY.md` — "project-scoped notes for <repo> migrated to its Project memory, <date>"
+— not a per-entry pointer.
+
+The harness caps what it loads from that index — 200 lines / 25 KB, the
+budget convention the conventions rule owns. Keep the trace to one line;
+on a cap error shorten the index, never retry the write.
 
 ## Boundaries
 
