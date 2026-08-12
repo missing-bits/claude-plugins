@@ -72,3 +72,10 @@ the transcript stays inspectable.
 When `docs/domain/glossary.md` exists in the project, its canonical
 terms and `_Avoid_` bans bind specs, plans, code identifiers, and
 reviews.
+
+When the `elements-of-style:writing-clearly-and-concisely` skill is
+available, prose artifacts under `docs/` — specs, plans, ADRs, the
+glossary — get its pass: invoke it before drafting a new document, and
+run an explicit editing pass over the changed prose of an existing one.
+The pass binds wording, never decisions. Without the skill there is no
+substitute pass and no install nagging — the work proceeds normally.

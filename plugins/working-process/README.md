@@ -61,6 +61,13 @@ language from its first message.
   rules loading; the skills and agents alone work on ≥ 2.1.143).
 - The `superpowers` plugin — declared as a dependency and installed
   automatically alongside this plugin.
+- Optional companion: the `elements-of-style` plugin. When its
+  `writing-clearly-and-concisely` skill is present, the process rules
+  route prose artifacts under `docs/` through it; without it nothing
+  changes. Not a dependency — install it yourself:
+
+      /plugin marketplace add obra/superpowers-marketplace
+      /plugin install elements-of-style@superpowers-marketplace
 
 ## Extending with a domain checklist
 
