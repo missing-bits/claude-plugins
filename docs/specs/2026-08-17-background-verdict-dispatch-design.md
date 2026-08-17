@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-08-17
-status: approved
+status: implemented
 grilled: 2026-08-17
 architect: concerns (resolved 2026-08-17)
 branch: feature/background-verdict-dispatch
@@ -102,7 +102,7 @@ outweighs the context weight.
 
 Both verdict agents gain `background: true` in their frontmatter and
 one description phrase: "runs in the background; the verdict arrives
-as a task notification; the dispatcher stamps after relay, not
+as a task notification, and the dispatcher stamps after relay, not
 before". The description carries only that phrase — the full sequence
 has exactly one definition site, the workflow rule.
 
@@ -155,7 +155,7 @@ dispatch, before any background run starts.
   review round, stamp the verdict into the document's field" becomes
   "After any review round, relay the report to the developer, then
   stamp the verdict into the document's field"; nothing else moves.
-  That sentence and the workflow rule's dispatcher-sequence subsection
+  That sentence and the workflow rule's verdict-agent dispatch subsection
   state the same ordering and are edited together — the plugin's
   existing device for a deliberate two-site statement.
 - `plugins/working-process/rules/review-reports.md` — untouched; the
@@ -183,8 +183,12 @@ exercise. Pre-implementation rounds — starting with this spec's own
 architect review — verify the dispatcher sequence hand-driven: the
 session stays free, the verdict arrives as a notification, and the
 stamp lands after the relay. The shipped agent and rule changes are
-verified only after the topic branch's dogfood version bump and a
-rules re-sync — the plugin cache keys content by version.
+verified after the topic branch's dogfood version bump, against the
+installed cache and the rules made live for the dogfood sessions — as
+executed 2026-08-17 through a developer-authorized temporary setup (a
+checkout-sourced marketplace in a scratch config, the payload rules
+project-scope); the sync-rules delivery half is regression scope,
+untouched by this change. The plugin cache keys content by version.
 
 ## Review rounds
 
