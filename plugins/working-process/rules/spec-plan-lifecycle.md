@@ -50,7 +50,7 @@ base: master        # optional: branch the topic branch was cut from
   re-arms at the same gate). Declined: the field gains `, waived <date>`.
   Moving `status` to `implemented` with a bare fallback field stamps the
   waiver as part of the move.
-- Review agents self-report the model they ran on (family plus version);
+- Verdict agents self-report the model they ran on (family plus version);
   the dispatcher compares it against the dispatched and prescribed
   tiers before stamping, and each round's verdict, model, and date are
   recorded in the document body. Committed examples of the bare fallback form use

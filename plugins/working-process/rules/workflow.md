@@ -84,16 +84,17 @@ available:
 - From an interactive session the dispatch always runs in the
   background — a review never blocks the session, mirroring the
   review-reports rule's precedent. A run with no interactive
-  dispatcher cannot relay, so it never stamps; the next interactive
-  touch closes the round through the lifecycle rule's re-offer loop.
+  dispatcher cannot relay, so it never stamps; on a document whose
+  field is still unstamped, the next interactive touch re-offers the
+  round through the lifecycle rule's offer loop. A round lost on an
+  already-stamped document leaves no signal and is accepted as lost —
+  never corruption, only a missing re-run.
 - Before dispatch, resolve any undecided Process directory
   (`docs/specs/`, `docs/plans/`) so the first-create question cannot
   interrupt the stamp turn.
 - At dispatch, tell the developer the round is running in the
   background and its result will arrive as a task notification, with
-  progress visible in the session's task list. (This bullet is part of
-  the spec's sequence — added there 2026-08-17, routed from this
-  plan's adversary round 4.)
+  progress visible in the session's task list.
 - On the completion notification, in one turn and in this order:
   verify the agent's model self-report (the comparison the lifecycle
   rule defines), relay the report to the developer, then stamp the
