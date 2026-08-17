@@ -1,7 +1,7 @@
 {
   "name": "working-process",
   "description": "Spec-driven working process on top of superpowers: grilling-session, architect-session, system-designer-session and sync-rules skills, architect and plan-adversary review agents, architect-consult and system-designer-consult consultation agents, and process rules distributed as a Rules payload; domain plugins hook in via *-plan-review checklist skills and their own rules/ payloads",
-  "version": "0.13.0",
+  "version": "0.14.0-dev.background-verdict-dispatch",
   "author": { "name": "Missing Bits (Jacek Nakonieczny)" },
   "license": "MIT",
   "keywords": ["process", "workflow", "spec", "plan", "review", "glossary", "adr", "architecture"],
