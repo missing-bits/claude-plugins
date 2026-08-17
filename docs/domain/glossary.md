@@ -253,6 +253,22 @@ the repo's own rules means something else, a document location where a
 statement lives.
 _Avoid_: mode, channel, entrypoint
 
+**Verdict agent**:
+An agent whose report ends in a verdict the dispatcher stamps into the
+reviewed document's frontmatter — `architect` and `plan-adversary`.
+Orthogonal to Persona: the architect is a persona surface, the
+plan-adversary a plain reviewer. Consult agents are not verdict agents —
+a consultation returns a Contribution and stamps nothing.
+_Avoid_: review agent (unqualified), reviewer agent
+
+**Relay**:
+The delivery of a background agent's result to the developer before any
+further action on it — a verdict agent's report before its stamp (the
+verdict, the model self-report, and every finding in substance), a
+consultation's Contribution attributed and substantially verbatim. The
+developer's standing veto point.
+_Avoid_: report back, forward (as the term)
+
 **Session skill**:
 A skill whose content is an open-ended conversation, named `*-session` —
 `architect-session`, `grilling-session`, `memory-review-session` among
