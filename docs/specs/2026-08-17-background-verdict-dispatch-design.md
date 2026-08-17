@@ -28,7 +28,7 @@ verdict arrives as a task notification instead of a tool result.
 
 ### Dispatcher sequence — canonical in the workflow rule
 
-A dispatcher-sequence subsection in the workflow rule's dispatch
+A verdict-agent dispatch subsection in the workflow rule's dispatch
 guidance defines the sequence; steps 3 and 5 reference it instead of
 restating it. The workflow rule loads in every session (the plugin's
 deliberate always-on exception), so the subsection is context every
@@ -41,9 +41,11 @@ outweighs the context weight.
   foreground escape: a developer who wants to wait simply waits for the
   notification.
 - A run with no interactive dispatcher cannot relay, so it never
-  stamps — mirroring the review-reports precedent's deferral. The next
-  interactive touch closes the round through the re-offer loop the
-  Recovery section supplies.
+  stamps — mirroring the review-reports precedent's deferral. On a
+  document whose field is still unstamped, the next interactive touch
+  re-offers the round through the Recovery section's offer loop; a
+  round lost on an already-stamped document leaves no signal and is
+  accepted as lost.
 - A verdict agent writes nothing, so no directory question guards the
   agent itself; what the pre-dispatch check guards is the stamp turn.
   A pre-existing but undecided `docs/specs/` or `docs/plans/` would
@@ -126,7 +128,10 @@ semantics — value equals latest verdict — would break. Recovery
 without a marker is idempotent: a missing stamp means the round never
 closed, so the lifecycle rule's existing offer loop re-offers the
 review at the document's next touch. The worst case is a repeated run
-— wasted compute, no corruption.
+— wasted compute, no corruption. That idempotence covers an unstamped field. A later round lost on an
+already-stamped document leaves no signal — the field shows the prior
+verdict and looks closed — and is accepted as invisible, like the
+cross-session cases.
 
 Two platform assumptions, stated so the wording can be revisited if
 either proves wrong: a task notification is delivered once, to the
@@ -137,7 +142,7 @@ dispatch, before any background run starts.
 ## Changes by file
 
 - `plugins/working-process/rules/workflow.md` — the new
-  dispatcher-sequence subsection; steps 3 and 5 gain a reference to it,
+  verdict-agent dispatch subsection; steps 3 and 5 gain a reference to it,
   and the rule's standalone "After every round … record the verdict"
   paragraph folds into that reference — the subsection's
   relay-then-stamp statement replaces it, leaving no third restatement.
@@ -245,3 +250,29 @@ bullet joined the sequence (the session tells the developer the round
 runs in the background and the result arrives as a notification) —
 routed from the implementation plan's adversary round 4, which flagged
 the plan shipping it beyond this spec's enumeration.
+
+### 2026-08-17 — architect, fable, concerns (round 5)
+
+One Important finding and one Minor:
+
+1. Important — the Recovery guarantee ("a missing stamp means the
+   round never closed, so the offer loop re-offers at the next touch")
+   holds only for an unstamped field. On any round after the first the
+   field already carries a verdict, and the lifecycle rule's greppable
+   anchors match only bare `blocking|concerns` values — a document
+   reading `LGTM` or `concerns (resolved …)` presents as fully closed,
+   so a lost later round leaves no signal and silently vanishes. Not
+   the out-of-scope unverdicted case: this is a verdicted-but-stale
+   state Recovery claims to close and cannot. Suggested: scope the
+   Recovery claim to rounds on an unstamped field and fold the
+   stamped-document lost round into the accepted-invisible bucket, or
+   give the offer loop a visible trigger.
+2. Minor — the spec names the new subsection "dispatcher-sequence"
+   while both edited-together consumers ship "verdict-agent dispatch
+   subsection"; two names for one two-site statement invite the drift
+   the edited-together device exists to prevent. Suggested: rename the
+   spec's references to match the shipped heading.
+
+Resolution note, 2026-08-17: both findings fixed the same day — the
+recovery claim narrowed in the spec and the shipped rule, and the
+subsection references unified to the heading's name.

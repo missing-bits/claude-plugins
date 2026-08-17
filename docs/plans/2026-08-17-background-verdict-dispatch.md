@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-08-17
 status: approved
-adversary: concerns (resolved 2026-08-17)
+adversary: blocking
 branch: feature/background-verdict-dispatch
 base: develop
 ---
@@ -26,7 +26,7 @@ base: develop
 - Never force-add ignored files; tracked `docs/` documents ride the closing commit (Task 9), not per-task commits.
 - `claude plugin validate .` and `claude plugin validate plugins/working-process` must pass before every commit.
 - The spec is the contract: wording below is copied from it; on a conflict the spec wins. The spec's change enumeration binds shipped BEHAVIOR; user-facing docs (the README, Task 6) follow the repo convention that they match shipped behavior, extending the enumeration without amending it.
-- Prescribed tiers for this plan's own review rounds: the architect on the most capable available family; the plan-adversary one family below it (a small mechanical plan) — rounds 1–3 ran exactly there (opus, below fable), so no fallback record applies. A dispatch below these tiers lands the `*-fallback: <family> (chosen <date>)` record in the same stamp edit, resolved or waived before Task 9's flip.
+- Prescribed tiers for this plan's own review rounds: the architect on the most capable available family; the plan-adversary one family below it (a small mechanical plan) — a standing rule for every round of this plan, not a per-round record; a round at these tiers needs no fallback record. A dispatch below these tiers lands the `*-fallback: <family> (chosen <date>)` record in the same stamp edit, resolved or waived before Task 9's flip.
 - Rollout pairing: the plugin version delivers agent frontmatter immediately; the dispatcher sequence reaches a project only through a rules re-sync. The reverse window degrades sanely — the previously installed rules still carry the old "record the verdict" obligation, so no round is lost — and Task 6 states the pairing where users see it.
 
 ---
@@ -116,9 +116,7 @@ available:
   interrupt the stamp turn.
 - At dispatch, tell the developer the round is running in the
   background and its result will arrive as a task notification, with
-  progress visible in the session's task list. (This bullet is part of
-  the spec's sequence — added there 2026-08-17, routed from this
-  plan's adversary round 4.)
+  progress visible in the session's task list.
 - On the completion notification, in one turn and in this order:
   verify the agent's model self-report (the comparison the lifecycle
   rule defines), relay the report to the developer, then stamp the
@@ -560,7 +558,9 @@ Expected: validations PASS; each rule file reports exactly `1`.
 
 - [ ] **Step 1: Reconcile round records and review fields**
 
-Check both documents' "Review rounds" sections list every architect/adversary round with verdict, model, and date — including Task 8's dogfood rounds. Reconcile the frontmatter fields: a verdict resolved without a fresh round carries the `(resolved <date>)` annotation with its body note; a live fallback record is resolved (fresh prescribed-tier round) or waived. STOP: a non-LGTM dogfood verdict that is neither resolved nor annotated blocks Step 2.
+Check both documents' "Review rounds" sections list every architect/adversary round with verdict, model, and date — including Task 8's dogfood rounds. Reconcile the frontmatter fields: a verdict resolved without a fresh round carries the `(resolved <date>)` annotation with its body note; a live fallback record is resolved (fresh prescribed-tier round) or waived. STOP: a non-LGTM dogfood verdict that is neither resolved nor annotated blocks Step 2. Also verify branch cleanliness: `git diff develop...HEAD --stat`
+touches only `plugins/working-process/` and the three gate-time docs
+paths — an unexpected path is a defect, not luck.
 
 - [ ] **Step 2: Flip lifecycle status — with the developer's confirmation**
 
@@ -568,11 +568,13 @@ With the developer's explicit go-ahead (never silently), move `status: approved`
 
 - [ ] **Step 3: Commit the docs**
 
-The glossary rides this commit because the grilling session edited it (two terms: Verdict agent, Relay) outside the plan's tasks and it is still uncommitted.
+The gate-time commit (6d780e3) already carries the spec, the plan,
+and the glossary; this closing commit stages what changed since —
+the two documents' round records, dispositions, and status flips.
 
 ```bash
-git add docs/specs/2026-08-17-background-verdict-dispatch-design.md docs/plans/2026-08-17-background-verdict-dispatch.md docs/domain/glossary.md
-git commit -m "docs: background-verdict-dispatch spec, plan, and glossary terms"
+git add docs/specs/2026-08-17-background-verdict-dispatch-design.md docs/plans/2026-08-17-background-verdict-dispatch.md
+git commit -m "docs: close background-verdict-dispatch spec and plan"
 ```
 
 - [ ] **Step 4: Offer the memory review**
@@ -686,3 +688,52 @@ Resolution note, 2026-08-17: all five round-4 findings fixed in this
 revision (the list above says how); the developer accepted the
 resolution in place of a fifth round after the 12→10→8→5 convergence
 across four rounds.
+
+### 2026-08-17 — plan-adversary, opus 5, blocking (round 5)
+
+Four Important, three Minor; the plan judged as the record of work
+largely done (Tasks 1–7 committed, Task 8 dogfood in flight, Task 9
+remaining):
+
+1. Task 9 Step 1's closing gate accepts an annotation for a dogfood
+   finding that names shipped `plugins/` rule text as wrong — the
+   architect dogfood round's recovery-guarantee overclaim in
+   `workflow.md` could close as `implemented`; the plan defines no
+   route (fix, re-mint, re-dogfood) for such findings (I1).
+2. Task 8's make-live gate is unmet in the environment the dogfood is
+   running in: the installed plugin is still 0.13.0 from the GitHub
+   clone, and the dogfood project's rules copy was hand-placed without
+   a `.manifest.json` — stage-two verification proves nothing about
+   the shipped marketplace/cache/sync-rules delivery path (I2).
+3. Task 2 Step 2's prescribed text ships plan-internal review
+   provenance ("routed from this plan's adversary round 4") into the
+   always-on workflow rule, unresolvable for installed readers (I3).
+4. The branch's own glossary ban (`review agent`, unqualified) is
+   violated by `spec-plan-lifecycle.md:53` — the very sentence the new
+   subsection defers to — and no task sweeps shipped content for the
+   new bans, unlike the memory-hybrid precedent (I4).
+5. The plan-as-record contradicts the branch: the docs commit is
+   already the branch's FIRST commit (6d780e3, carrying spec, plan,
+   and glossary), so Global Constraints line "docs ride the closing
+   commit" and Task 9 Step 3's "still uncommitted" rationale, staging,
+   and message are stale (M5).
+6. The closing task has no whole-branch untouched-proof (no
+   `git diff --name-only develop... -- plugins/` check), unlike the
+   memory-hybrid precedent's Task 9 (M6).
+7. The prescribed-tier statement enumerates rounds 1–3 only, leaving
+   rounds 4–5 outside the record Task 9's fallback reconciliation
+   reads; restate as a standing rule (M7).
+
+Dispositions, 2026-08-17: I1 fixed — the recovery claim is narrowed in
+the spec and the shipped rule, and the fix→re-mint→re-check path ran
+(discriminator -2). I2 partially rejected — the temp-config install
+proved marketplace→cache→load for the dogfood version (version,
+content, enabled state all verified); the un-exercised half is
+sync-rules delivery, which this branch does not touch and which is
+regression scope, not this plan's deliverable; the developer
+authorized the temporary setup. I3 fixed — the provenance parenthesis
+is deleted from the shipped rule and the plan block. I4 fixed —
+"Verdict agents self-report" in the lifecycle rule. M5 fixed — Task 9
+Step 3 rewritten for the gate-time commit. M6 fixed — branch-diff
+check added to Task 9 Step 1. M7 fixed — the tier line is a standing
+rule. A fresh adversary round follows the re-mint.
