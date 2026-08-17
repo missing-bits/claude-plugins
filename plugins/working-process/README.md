@@ -15,7 +15,10 @@ writing-plans (plan) → plan-adversary → implementation.
 - **`architect` agent** — formal design-quality review of a grilled spec
   or any design document dispatched standalone; verdict
   `LGTM | concerns | blocking`, stamped into the reviewed document's
-  `architect:` frontmatter field by the dispatcher. Dispatched on the most capable available model.
+  `architect:` frontmatter field by the dispatcher. Dispatched in the
+  background on the most capable available model; the verdict arrives
+  as a task notification and is stamped after the dispatcher relays
+  the report.
 - **`architect-session` skill** — the same persona as an interactive
   in-session consultation: no verdict, no stamping; hands off to a
   grilling-session or an `architect` dispatch. Triggers: "ask the
@@ -39,8 +42,9 @@ writing-plans (plan) → plan-adversary → implementation.
 - **`plan-adversary` agent** — adversarial review of implementation
   plans (plans only; handed a spec it declines toward the `architect`
   agent). Generic failure-mode dimensions live here; domain specifics
-  come from `*-plan-review` checklist skills. Dispatched scaled to the
-  plan's size and risk.
+  come from `*-plan-review` checklist skills. Dispatched in the
+  background, scaled to the plan's size and risk; the verdict arrives
+  as a task notification and is stamped after relay.
 - **`sync-rules` skill** — installs, updates, and uninstalls the rule
   files shipped by plugins of this marketplace (Rules payloads); see the
   "Process rules" section.
@@ -109,8 +113,14 @@ The architect is dispatched on the most capable available model; the
 plan-adversary on a model scaled to the plan's size and risk — most
 capable for complex or risky plans, one family below for small
 mechanical ones. Consultations (the `*-consult` agents) dispatch on the most capable
-available model as named background agents; they return no verdict, so
-the fallback machinery below never applies to them. The model is always named explicitly at dispatch, and
+available model; like the verdict agents, they run as named background
+agents — consultations return no verdict, so the fallback machinery
+below never applies to them. The verdict agents' relay-then-stamp
+sequence lives in the workflow rule's Rules payload: after a plugin
+update, run a rules re-sync so the dispatcher side of the behavior
+matches the agents (until then the previously installed rules still
+carry the older record-the-verdict obligation, so no round is lost).
+The model is always named explicitly at dispatch, and
 reviews never dispatch on the cheapest available family. A dispatch
 refused on the dispatched model's cap offers a one-family drop (once)
 or waiting for the reset; a verdict produced below the prescribed tier
