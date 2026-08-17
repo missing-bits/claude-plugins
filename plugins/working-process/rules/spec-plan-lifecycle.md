@@ -74,7 +74,10 @@ its consumption gate (fresh round at the prescribed tier); and when a
 spec or plan moves to `implemented` and the memory-review-session skill
 is available, offer a Project memory review — released work-state notes
 close, resolved entries sweep to the archive. After any
-review round, stamp the verdict into the document's field.
+review round, relay the report to the developer, then stamp the
+verdict into the document's field — this sentence and the workflow
+rule's verdict-agent dispatch subsection state the same ordering and
+are edited together.
 
 The process suggests committing the work's documents under `docs/` at
 exactly one point — the implementation-ready gate: the developer has
