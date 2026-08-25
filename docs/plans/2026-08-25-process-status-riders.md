@@ -323,7 +323,7 @@ with:
 
 ```
 - A session cut short leaves `grilling` in place on purpose: the
-  Grilling-pending class of the lifecycle rule's Unfinished-work list,
+  Grilling pending class of the lifecycle rule's Unfinished-work list,
   which publishes the command and which `process-status` runs.
 ```
 
