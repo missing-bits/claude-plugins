@@ -36,6 +36,15 @@ GitLab, or anything else; the field is always `ticket`.
   use the inline list form `[ABC-123, ABC-456]` — one greppable line,
   never a multi-line dash list. No ticket means an explicit
   `ticket: none`; the field is always present.
+- A value that starts with `#` is quoted: `ticket: "#123"`, and
+  `ticket: ["#6", "#12"]` for several. YAML reads an unquoted `#` after
+  a space as a comment, and the two forms fail differently — the single
+  value becomes null with no error, while the list breaks the parse and
+  takes the whole frontmatter block with it. A Jira key and the
+  `org/repo#123` form need no quotes, since neither puts `#` after a
+  space. Earlier documents here quote the whole list instead
+  (`ticket: "[#6, #7, #8]"`); that parses as a string rather than a
+  sequence and stays as it is — the sweep below finds it either way.
 - `date`: the ISO creation date (`2026-07-13`).
 
 ## Sourcing and backfill
@@ -57,3 +66,9 @@ The `ticket:` line matches both single-reference and inline-list forms;
 `--no-ignore` reaches ignored-mode artifacts, and the tolerant leading
 anchor finds the field where a second writer relocated it:
 `rg -l --no-ignore --crlf '^\s*ticket:.*ABC-123' docs/ .superpowers/`
+
+The sweep reads the value on the `ticket:` line itself, which bounds it:
+a co-writer that reshapes an inline list into a multi-line dash list
+moves the values off that line, and no leading anchor recovers them
+(observed in a Project-memory store, 2026-08-25). Such an entry is found
+by a multi-line `rg -U` or by the store's grooming walk, not here.
