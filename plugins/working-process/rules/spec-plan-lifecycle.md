@@ -54,18 +54,60 @@ base: master        # optional: branch the topic branch was cut from
   the dispatcher compares it against the dispatched and prescribed
   tiers before stamping, and each round's verdict, model, and date are
   recorded in the document body. Committed examples of the bare fallback form use
-  placeholders (as above) so they never match the grep below.
+  placeholders (as above) so they never match the list below.
 - `branch` and `base` appear once the topic branch exists — never guessed
   up front, omitted entirely when there is no topic branch.
-- Unfinished process work is greppable:
-  `rg -l '^grilled: grilling' docs/` and
-  `rg -l '^(architect|adversary): (blocking|concerns)$' docs/` — the
-  anchored match deliberately skips resolved-concern annotations.
-  `rg -l '^(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)$' docs/`
-  — pending re-reviews; the waived annotation deliberately defeats the
-  anchor.
 
-Lifecycle offers — each an offer the developer may decline, and each made
+## Unfinished-work list
+
+One entry per class of unfinished process work: the class name, its
+command, and the owner of the next move. This section is the list — a
+command published elsewhere, such as the ticket sweep in the
+ticket-frontmatter rule, is a lookup and not part of it. The
+`process-status` skill, when available, runs exactly what stands here,
+and this heading is the name it keys on: the heading and the skill move
+together or not at all.
+
+A command returns hits, not Findings. A hit counts only when the
+matching line sits inside the document's frontmatter block — between the
+`---` on the file's first line and the `---` that closes it, never a
+later pair — because a document quoting this convention in its body
+describes it rather than instantiating it.
+
+- **Grilling pending** — a session's outcomes are recorded and not yet
+  applied.
+  `rg -l --no-ignore --crlf '^\s*grilled: grilling' docs/`
+  Owner: the grilling-session, when available.
+- **Unresolved verdict** — a round ended in `concerns` or `blocking`
+  and nothing closed it.
+  `rg -l --no-ignore --crlf '^\s*(architect|adversary): (blocking|concerns)$' docs/`
+  Owner: a fresh round at the prescribed tier, or the resolution
+  annotation above.
+- **Pending re-review** — a verdict produced below the prescribed tier,
+  neither refreshed nor waived.
+  `rg -l --no-ignore --crlf '^\s*(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)$' docs/`
+  Owner: the re-review offer at the document's consumption gate.
+- **Misplaced stamp** — a process field outside the top level of the
+  frontmatter, at any value.
+  `rg -l --no-ignore --crlf '^\s+(grilled|architect|adversary|architect-fallback|adversary-fallback):' docs/`
+  Owner: the developer; no process surface owns moving a stamp back.
+  The class suppresses per field: it hides the one other class whose
+  published command would match the relocated line, and no other —
+  itself excluded, since its own command matches every process field.
+  Match semantics are the mapping, so a class published later needs no
+  extra rule.
+
+The tail anchors are exact on purpose: a `(resolved <date>)`,
+`(adjudicated <date>)` or `, waived <date>` annotation defeats the
+match, and that defeat is the recorded closed state. The leading
+anchors are tolerant on purpose, so a relocated field is still found.
+The Misplaced stamp command anchors `^\s+` instead, because there the
+indentation is the defect it looks for rather than an accident to
+tolerate.
+
+## Lifecycle offers
+
+Each an offer the developer may decline, and each made
 only when the tool is available: grill a fresh spec (grilling-session);
 architect-review a grilled spec (architect agent dispatch);
 adversary-review a plan before implementation (plan-adversary agent

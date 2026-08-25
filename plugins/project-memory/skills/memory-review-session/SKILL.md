@@ -41,7 +41,9 @@ surface the worklist:
 - frontmatter keys this plugin does not define: report them and move on,
   never remove them;
 - `idea-*` files whose `status` is `spec'd` or `dropped` but that still sit as
-  live bodies;
+  live bodies — read `status` wherever it sits inside the frontmatter, since
+  a co-writer may have relocated it, and take the top-level copy where two
+  exist;
 - index lines sitting in the wrong section (a section-blind writer —
   Auto-memory in a Hybrid store — appended them): move the line to its
   part's proper section; the entry body is untouched;

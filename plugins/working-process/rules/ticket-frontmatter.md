@@ -54,5 +54,6 @@ documents). `date` is the file's git creation date:
 ## Finding documents by ticket
 
 The `ticket:` line matches both single-reference and inline-list forms;
-`--no-ignore` reaches ignored-mode artifacts:
-`rg -l --no-ignore '^ticket:.*ABC-123' docs/ .superpowers/`
+`--no-ignore` reaches ignored-mode artifacts, and the tolerant leading
+anchor finds the field where a second writer relocated it:
+`rg -l --no-ignore --crlf '^\s*ticket:.*ABC-123' docs/ .superpowers/`
