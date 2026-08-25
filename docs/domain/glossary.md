@@ -234,6 +234,23 @@ implementation for a plan. Where re-review offers on fallback-recorded
 verdicts fire.
 _Avoid_: usage point
 
+**Unfinished-work list**:
+The named section of the spec-plan-lifecycle rule holding one entry per
+class of unfinished process work — class name, grep command, and the
+owner of the next move — and the single definition site for which
+classes exist, so a new class costs one edit in the rule and none in
+the consumers that run it. A command's output is hits to confirm
+against the frontmatter block, never Findings.
+_Avoid_: anchor list, debt list
+
+**Misplaced stamp**:
+A process field — `grilled`, `architect`, `adversary`, `*-fallback` —
+sitting outside the top level of a document's frontmatter, where the
+stamping steps put it. One entry of the Unfinished-work list detects it,
+and the value is irrelevant: a misplaced `LGTM` is as malformed as a
+misplaced `concerns`.
+_Avoid_: malformed stamp, nested field
+
 **Persona**:
 A role plus its duties, single-sourced in one `*_PERSONA.md` file at the
 working-process plugin root and adopted by one or more persona surfaces;
