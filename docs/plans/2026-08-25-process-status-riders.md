@@ -801,7 +801,7 @@ The negative branch above proves only that the step stays silent. The spec's Ver
 
 Rewrite the steps above to match the executed path where it differed, and note the outcome.
 
-**Executed 2026-08-25, six of seven steps, by the controller session rather than the developer.** The delivery path was `claude -p --plugin-dir` against this checkout, so no installed state changed and no version re-mint was needed. Outcomes:
+**Executed 2026-08-25 by the controller session rather than the developer, on the developer's explicit go-ahead.** The loop stopped at this task and handed it over as the plan requires; the developer then asked the controller to run it, which is what authorizes the departure from the reserved executor. The delivery path was `claude -p --plugin-dir` against this checkout, so no installed state changed and no version re-mint was needed. Outcomes:
 
 - Steps 1-2: the run loaded the working tree's plugin and named all four classes, Misplaced stamp among them — a class that exists only in this checkout, which is what distinguishes a fresh load from a stale cache. The report stated it had read the payload copy rather than `.claude/rules/`.
 - Steps 3-4: on a scratch fixture repo the report was exactly the designed one. The fixture that matters carried a nested `grilled:` beside a top-level `architect: concerns`: the report named Misplaced stamp with its field, said Grilling pending was suppressed **for that field**, and still reported the verdict — per-field precedence, live. Two body-quoted lines were rejected with the reason. On this repo the report came back clean with the one known rejection at `docs/plans/2026-07-13-rules-distribution.md:267`.
