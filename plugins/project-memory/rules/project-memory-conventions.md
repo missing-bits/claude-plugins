@@ -76,10 +76,27 @@ the `description` first, then re-derive the line from them. `MEMORY.md` and
   lives on the `ARCHIVE.md` Done redirect line, not a live file.
 
 Every field this rule defines — `description`, `status`, `spec`, `ticket`,
-`adr-candidate` — sits at the top level of the frontmatter, never nested
-under a `metadata:` block. Nesting would break the anchored `^ticket:` sweep
-the project's ticket convention publishes (when it keeps one), across the
-whole project rather than only in the store.
+`adr-candidate` — is written at the top level of the frontmatter, which is
+where the index projection and a human reader look first. That is a write
+place, not an invariant: in a Hybrid store the harness relocates fields
+into its own block, and it rewrites the frontmatter of any entry it
+touches, so a repair is undone at its next write.
+
+- A write creates a field the entry lacks at the top level, and updates
+  a field the entry already carries where it sits. Where two copies
+  exist, the write takes the top-level one.
+- A read accepts the field anywhere inside the frontmatter block, and
+  where two copies exist the top-level one wins. The read names no block
+  of the harness — the format is that tool's own moving detail.
+- Nothing rewrites an entry solely to move a field, and no surface nags
+  about a relocated one. A grooming walk the developer asked for is not
+  nagging, so its standing report of foreign keys stands.
+- Never write a duplicate deliberately. `status` changes, and two copies
+  of a changing value with nobody to reconcile them is a dual-write.
+
+Any anchored grep over these fields is written `^\s*<field>:` with
+`--crlf` from the start, so tolerance is built in rather than retrofitted
+after a sweep goes blind.
 
 Entries may carry frontmatter that other tools wrote. Leave unknown keys
 alone: never remove them, never rewrite them, and never let one change an

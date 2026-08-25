@@ -23,8 +23,9 @@ The plugin ships two rule files as a Rules payload:
   Always-on deliberately: index loading has no file path to scope on.
 - `project-memory-conventions.md` — paths-scoped to the two store
   directories: note/idea entry shapes, the required H1 and `description` and
-  the index line projected from them, top-level placement of the plugin's own
-  frontmatter fields, the tolerance clause for keys other tools wrote,
+  the index line projected from them, the top-level write place and tolerant
+  read of the plugin's own frontmatter fields, the tolerance clause for keys
+  other tools wrote,
   team-memory scope, the gotcha↔ADR
   promotion offer, the live-only `MEMORY.md` / on-demand `ARCHIVE.md` layout,
   and the closure lifecycle.
