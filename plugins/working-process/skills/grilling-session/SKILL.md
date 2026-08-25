@@ -7,7 +7,8 @@ description: Grilling session that stress-tests a spec (the primary target), pla
 
 idea → brainstorming (spec) → **grilling-session on the spec** →
 architect review (an `architect` agent dispatch) → writing-plans (plan) →
-plan-adversary on the plan → implementation. Offer a grilling once a spec
+plan-adversary on the plan → implementation → code review. Offer a
+grilling once a spec
 exists and before its implementation plan is written. Specs are the
 primary target; plans and raw ideas are in scope too.
 
@@ -51,8 +52,9 @@ applies (edit with the Edit tool):
 - Session end: replace it with the ISO date (e.g. `grilled: 2026-07-13`)
   — but ONLY once every decision, glossary update, and document amendment
   from the session has been applied.
-- A session cut short leaves `grilling` in place on purpose: greppable
-  debt (`rg -l '^grilled: grilling' docs/`).
+- A session cut short leaves `grilling` in place on purpose: the
+  Grilling-pending class of the lifecycle rule's Unfinished-work list,
+  which publishes the command and which `process-status` runs.
 
 ## Grilling mechanics
 

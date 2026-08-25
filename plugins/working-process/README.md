@@ -4,7 +4,7 @@ Tech-agnostic tooling for a spec-driven working process on top of the
 `superpowers` plugin:
 
 idea → brainstorming (spec) → grilling-session → architect review →
-writing-plans (plan) → plan-adversary → implementation.
+writing-plans (plan) → plan-adversary → implementation → code review.
 
 ## Components
 

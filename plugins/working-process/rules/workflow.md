@@ -39,6 +39,16 @@ disables its suggestion — never the work itself.
 6. **Implementation.** Test-driven when
    superpowers:test-driven-development is available; bugs go through
    superpowers:systematic-debugging when available.
+7. **Implementation → code review.** When a `*-code-review` skill is
+   installed for a domain the change touches, offer a review of the
+   work's diff — once implementation is complete and before the plan's
+   `status` moves to `implemented`, so a finding can still become work.
+   Domains are judged as the plan-adversary judges them: from the change
+   itself and the repo's own markers. Several domains touched mean one
+   run per domain; orchestrating them into a single run is not this
+   step. The step re-specifies no mechanics — the offer routes to
+   whatever review surface the matched plugin ships, and that surface
+   owns scope resolution, dispatch, and the report.
 
 Model selection for these dispatches: always name the model explicitly —
 an omitted model inherits the session's model, defeating the heuristic
