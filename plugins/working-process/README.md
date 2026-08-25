@@ -45,6 +45,12 @@ writing-plans (plan) → plan-adversary → implementation → code review.
   come from `*-plan-review` checklist skills. Dispatched in the
   background, scaled to the plan's size and risk; the verdict arrives
   as a task notification and is stamped after relay.
+- **`process-status` skill** — reports what the process left unfinished
+  in the current repo: a pending grilling, an unresolved verdict, a
+  re-review nobody ran, a stamp outside the top level of a frontmatter
+  block. Runs the Unfinished-work list the lifecycle rule publishes and
+  fires none of the offers those classes name. Triggers: "what is
+  unfinished" / "process status".
 - **`sync-rules` skill** — installs, updates, and uninstalls the rule
   files shipped by plugins of this marketplace (Rules payloads); see the
   "Process rules" section.
@@ -100,12 +106,11 @@ document body. Concerns later resolved without a fresh round keep the
 verdict and gain a resolution date — `concerns (resolved 2026-07-16)` —
 plus a body note saying what resolved them.
 
-Find unfinished work (the anchored match skips resolved concerns):
-
-    rg -l '^grilled: grilling' docs/
-    rg -l '^architect: (blocking|concerns)$' docs/
-    rg -l '^adversary: (blocking|concerns)$' docs/
-    rg -l '^(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)$' docs/
+Finding unfinished work is one command per class, published as the
+`## Unfinished-work list` section of the lifecycle rule — the exact
+anchors live there, and the `process-status` skill runs them. The tail
+anchors are exact, so a resolved-concern annotation drops out of the
+match by design.
 
 ## Model selection
 
