@@ -67,7 +67,7 @@ the `description` first, then re-derive the line from them. `MEMORY.md` and
   registry, exempt from any per-work `ticket` convention the project keeps.
   It may carry an optional `adr-candidate: yes` frontmatter flag — presence
   marks a decision-shaped note for later ADR review
-  (`rg 'adr-candidate:'`); absent means not a candidate.
+  (`rg --crlf '^\s*adr-candidate:'`); absent means not a candidate.
 - **idea** (`idea-<slug>.md`) — a `parked` idea (a live entry). Frontmatter:
   `status` (parked → spec'd | dropped), a `spec:` pointer once it graduates,
   and — when the project links documents to its issue tracker (e.g. the
