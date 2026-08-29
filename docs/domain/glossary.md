@@ -244,9 +244,9 @@ against the frontmatter block, never Findings.
 _Avoid_: anchor list, debt list
 
 **Misplaced stamp**:
-A process field — `grilled`, `architect`, `adversary`, `*-fallback` —
-sitting outside the top level of a document's frontmatter, where the
-stamping steps put it. One entry of the Unfinished-work list detects it,
+A process field — `grilled`, `architect`, `adversary`, `*-fallback`,
+`integrity` — sitting outside the top level of a document's
+frontmatter, where the stamping steps put it. One entry of the Unfinished-work list detects it,
 and the value is irrelevant: a misplaced `LGTM` is as malformed as a
 misplaced `concerns`.
 _Avoid_: malformed stamp, nested field
@@ -269,6 +269,24 @@ form "surface" inside working-process material; unqualified "surface" in
 the repo's own rules means something else, a document location where a
 statement lives.
 _Avoid_: mode, channel, entrypoint
+
+**Audit agent**:
+An agent whose report ends in no verdict and stamps nothing: it checks a
+document and returns material for the dispatcher's disposition — hits
+(`propagation-auditor`, the mechanical pass) or defects-with-quotes and
+ranked questions (`integrity-auditor`, the judgment pass). Dispatched as
+a gate before expensive work — a clean audit is a precondition, never a
+judgment on the design. The third dispatch category beside Verdict agent
+and Consultation: an audit agent adopts no persona and its output is
+never a Contribution.
+_Avoid_: sweep agent, verifier
+
+**Hit**:
+The unit a mechanical check returns — an Unfinished-work list command's
+match or a propagation-auditor detection: located, binary, confirmed or
+dismissed by the dispatcher, never graded. Graded problems are Findings
+and belong to review rounds.
+_Avoid_: mechanical finding
 
 **Verdict agent**:
 An agent whose report ends in a verdict the dispatcher stamps into the
