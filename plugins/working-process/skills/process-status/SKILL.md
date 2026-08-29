@@ -19,12 +19,15 @@ shipped beside this skill, never an installed copy under
 so that copy is always in step with this skill.
 
 Each entry carries three legs: the class name, one command, and the
-owner of the next move. Take all three.
+owner of the next move. Take all three. An entry may carry a fourth, its
+own match scope — where in a document its hits count; take that too
+whenever the entry publishes one.
 
 The read fails, and the report says so instead of reporting a clean
-repo, when the section is missing or an entry lacks a leg. A run that
-could not read the list must never look like a run that found no
-unfinished work.
+repo, when the section is missing or an entry lacks one of the three
+legs. A run that could not read the list must never look like a run that
+found no unfinished work. A missing fourth leg fails nothing: it means
+the entry keeps the default scope.
 
 ## Step 2 — run each command
 
@@ -35,18 +38,23 @@ differs from the published one answers a different question.
 ## Step 3 — confirm every hit
 
 A command returns hits. A hit becomes a report line only when its
-matching line sits inside the document's frontmatter block: the file's
-opening `---` on line 1 and its closing `---`. Read the head of the
-file to decide.
+matching line sits where the entry says its hits count. The default
+scope is the document's frontmatter block: the file's opening `---` on
+line 1 and its closing `---`. An entry publishing a scope of its own
+replaces that default with what it publishes, and replaces nothing else.
+Read the head of the file for the default scope, and the lines above the
+match for a scope naming a section.
 
-- The line sits inside that block → the hit is real.
+- The line sits inside the entry's scope → the hit is real.
 - The line sits anywhere else → the document quotes the convention
   instead of instantiating it. Reject the hit.
-- The file has no opening `---`, or none closing it → treat it as having
-  no frontmatter block and reject every hit in it. A file whose
-  frontmatter never closes is broken for every consumer of frontmatter,
-  so it surfaces on its next touch rather than here. Say so if asked;
-  never invent a class for it.
+- The file has no opening `---`, or none closing it → reject every hit in
+  it, whatever scope the entry publishes. A process document always
+  carries frontmatter, so a file without it is no process document at
+  all; a file whose frontmatter never closes is broken for every consumer
+  of frontmatter, so it surfaces on its next touch rather than here. An
+  entry's own scope narrows where a hit counts, never whether the file
+  qualifies. Say so if asked; never invent a class for it.
 
 ## Step 4 — report
 
