@@ -24,3 +24,10 @@ interactions should be (that belongs to the system designer):
   argued?
 - Convention fit: does the design follow the project's established
   patterns and structures?
+
+Integrity-class textual defects belong to the integrity audit, not to this
+round: a contradiction between two sections, a count that no longer matches
+its list, a reference that drifted from what it names. When a round trips
+over them, note the class in one line and leave the enumeration to the
+`integrity-auditor` dispatch, which proves each defect with two quotes —
+enumerating them here spends the top tier twice on one set of findings.
