@@ -236,11 +236,14 @@ _Avoid_: usage point
 
 **Unfinished-work list**:
 The named section of the spec-plan-lifecycle rule holding one entry per
-class of unfinished process work — class name, grep command, and the
-owner of the next move — and the single definition site for which
-classes exist, so a new class costs one edit in the rule and none in
-the consumers that run it. A command's output is hits to confirm
-against the frontmatter block, never Findings.
+class of unfinished process work — class name, grep command, the owner
+of the next move, and optionally the entry's own match scope — and the
+single definition site for which classes exist. A class that accepts
+the default scope costs one edit in the rule and none in the consumers
+that run it; a class that publishes its own scope costs a consumer edit
+too, and the ledger class is the first. A command's output is hits to
+confirm against the entry's scope — the frontmatter block by default —
+never Findings.
 _Avoid_: anchor list, debt list
 
 **Misplaced stamp**:

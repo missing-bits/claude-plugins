@@ -137,6 +137,13 @@ load-bearing — a later LGTM round leaves the frontmatter greps clean
 while a decision question still pends. No frontmatter counter mirrors
 the lines: one home, one grep.
 
+A plan's owed confirming round has no anchor of its own and needs none:
+its marker is the latest round heading with no later full-document
+round after it, which is a comparison across headings rather than a
+match on one line. Recovery reads the ledger for it, at the document's
+next touch, the way it reads any state no single line can carry — the
+two anchors above stay the only greppable ones.
+
 They join as ONE Unfinished-work entry — one class, an unfinished
 review-loop ledger — whose entry text names both owners: an `open`
 line's next move belongs to the document's next touch (the re-offer),
