@@ -186,8 +186,9 @@ leg, and the review-loop ledger entry below is the one that does.
   frontmatter, at any value.
   `rg -l --no-ignore --crlf '^\s+(grilled|architect|adversary|architect-fallback|adversary-fallback|integrity):' docs/`
   Owner: the developer; no process surface owns moving a stamp back.
-  The class suppresses per field: it hides the one other class whose
-  published command would match the relocated line, and no other —
+  The class suppresses per field: it hides any other class whose
+  published command would match the relocated line — at most one, and
+  for a field no other command names, such as `integrity`, none —
   itself excluded, since its own command matches every process field.
   Match semantics are the mapping, so a class published later needs no
   extra rule.

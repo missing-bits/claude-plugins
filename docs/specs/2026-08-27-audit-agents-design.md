@@ -125,6 +125,19 @@ run does this procedural work casually badly, so a false clean line
 would feed the integrity gate unnoticed. A mismatched run earns no
 reliance and is re-dispatched at the right rung.
 
+*Observed limitation (2026-08-29).* A live dogfood dispatched two
+propagation runs under one named model — the dispatched string was
+`claude-haiku-4-5-20251001` both times — and they self-reported
+"haiku 4" and "claude-3-5-haiku-20241022". At the rung the comparison
+held: both self-reports land on the cheapest available family, so both
+runs were relied on correctly. At family plus version it did not: the
+two strings disagree, and neither matches the dispatched one. A model
+knows its rung more reliably than its own version, so the version half
+of the comparison can fire on an otherwise correct run. The
+prescription above stands unchanged — narrowing it to the rung is the
+developer's call, and this paragraph records the measurement rather
+than pre-empting it.
+
 **Preconditions**: every edit from the conversation written to disk —
 the deliverable is text-to-text comparison, so one unsaved decision
 manufactures a run of false defects; and a clean propagation audit,

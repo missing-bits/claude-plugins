@@ -42,8 +42,10 @@ matching line sits where the entry says its hits count. The default
 scope is the document's frontmatter block: the file's opening `---` on
 line 1 and its closing `---`. An entry publishing a scope of its own
 replaces that default with what it publishes, and replaces nothing else.
-Read the head of the file for the default scope, and the lines above the
-match for a scope naming a section.
+Read the head of the file in every case, whatever scope the entry
+publishes — the third bullet below turns on whether the file opens and
+closes a frontmatter block at all — and, for a scope naming a section,
+read the lines above the match as well.
 
 - The line sits inside the entry's scope → the hit is real.
 - The line sits anywhere else → the document quotes the convention
@@ -64,9 +66,10 @@ the class distinguishes fields, and the owner the entry carries. Read
 the owner from the entry — never supply one from your own knowledge of
 the process.
 
-Misplaced stamp suppresses per field: it hides the one other class whose
-published command would match the relocated line — itself excluded,
-since its own command matches every process field. Match semantics are
+Misplaced stamp suppresses per field: it hides any other class whose
+published command would match the relocated line — at most one, and for
+some fields none — itself excluded, since its own command matches every
+process field. Match semantics are
 the mapping, so you never need process knowledge to find it and a class
 published later works the same way. Name the field on the line, so the
 developer can see which class went quiet.

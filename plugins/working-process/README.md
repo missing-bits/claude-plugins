@@ -167,9 +167,10 @@ out as well, and both reports open with a model self-report the
 dispatcher checks before relying on the run: a mismatched propagation
 run earns no reliance, a below-tier integrity run no stamp.
 
-The dispatcher's half of all this lives in the workflow rule's Rules
-payload — the verdict agents' relay-then-stamp sequence, the two audit
-offers, and the `integrity:` gate. After a plugin update, run a rules
+The dispatcher's half of all this lives in the plugin's Rules payload —
+the verdict agents' relay-then-stamp sequence and the two audit offers
+in the workflow rule, the `integrity:` stamp and its
+recompute-and-compare gate in the spec-plan-lifecycle rule. After a plugin update, run a rules
 re-sync so the dispatcher side matches the agents; until then the
 previously installed rules still carry the older record-the-verdict
 obligation and make neither audit offer, so no round is lost and the

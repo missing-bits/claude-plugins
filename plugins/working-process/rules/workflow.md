@@ -36,10 +36,18 @@ disables its suggestion — never the work itself.
 4. **Spec → plan.** At the spec's consumption gate, before the plan is
    written, offer an integrity audit when the `integrity-auditor` agent
    is available: a fresh-context read of the whole spec, returning
-   defects and the questions an implementer would have to ask. For a
-   spec whose LGTM came from a diff-scoped chain the offer takes the
-   pair form the verdict-agent dispatch subsection defines, and narrows
-   as that definition says when the auditor is absent. Then write the
+   defects and the questions an implementer would have to ask. The
+   offer fires unless a standing `integrity:` stamp still matches the
+   spec's recomputed body hash — a match means the standing stamp
+   satisfies the gate, and the spec-plan-lifecycle rule owns that
+   comparison. For a spec whose LGTM came from a diff-scoped chain the
+   offer takes the pair form the verdict-agent dispatch subsection
+   defines, and narrows as that definition says when the auditor is
+   absent. The brief
+   confirms the auditor's two preconditions: every edit from the
+   conversation is written to disk, since one unsaved decision
+   manufactures a run of false defects; and the propagation gate below
+   is clean, when that agent is available. Then write the
    implementation plan with superpowers:writing-plans when available;
    plans live in `docs/plans/`.
 5. **Plan → adversary review.** Before implementing a non-trivial plan,
@@ -134,7 +142,9 @@ available:
   verify the agent's model self-report (the comparison the lifecycle
   rule defines), relay the report to the developer, then stamp the
   verdict (`LGTM` | `concerns` | `blocking`) into the reviewed
-  document's `architect:` / `adversary:` frontmatter field.
+  document's `architect:` / `adversary:` frontmatter field. The order
+  has one named exception, defined under *What a diff-scoped LGTM
+  certifies* below: a plan's diff-scoped LGTM.
 - The relay carries the verdict, the model self-report, and every
   finding in substance — condense narrative prose, never drop a
   finding or its severity.
@@ -142,6 +152,9 @@ available:
   the lifecycle rule defines — lands as one edit, body record first
   where edit granularity forces separate writes, and goes to the
   document named in the report, never to "the most recent dispatch".
+  The same exception splits that one edit: on a plan's diff-scoped
+  LGTM the round record lands while the frontmatter stamp waits for
+  the confirming round.
 - The sequence ends the delivery, not the loop: after relay and stamp
   the session may fix the document and dispatch a fresh round, or put
   its questions to the developer first.
@@ -306,5 +319,7 @@ Scoping never spans a close. An annotation close ends the loop, and a
 later round on the same document opens a new one, reading the whole
 document again.
 
-This subsection and the lifecycle rule's relay-then-stamp sentence
-state the same ordering and are edited together.
+The `## Dispatching a verdict agent` section above — its bullet list
+and every subsection under it, this one included — and the lifecycle
+rule's relay-then-stamp sentence state the same ordering and are edited
+together.
