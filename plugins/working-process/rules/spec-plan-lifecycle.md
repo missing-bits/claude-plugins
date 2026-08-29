@@ -217,7 +217,10 @@ close, resolved entries sweep to the archive. After any
 review round, relay the report to the developer, then stamp the
 verdict into the document's field — this sentence and the workflow
 rule's verdict-agent dispatch subsection state the same ordering and
-are edited together.
+are edited together. The order has one named exception, defined in that
+subsection: a plan's diff-scoped LGTM is relayed and its round record
+written, while only the frontmatter stamp waits for the confirming
+full-document round.
 
 A document's consumption gate is the backstop for its ledger: a spec
 does not pass to plan-writing, nor a plan to implementation, while
