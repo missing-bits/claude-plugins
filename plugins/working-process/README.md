@@ -4,7 +4,9 @@ Tech-agnostic tooling for a spec-driven working process on top of the
 `superpowers` plugin:
 
 idea → brainstorming (spec) → grilling-session → architect review →
-writing-plans (plan) → plan-adversary → implementation → code review.
+integrity audit → writing-plans (plan) → plan-adversary →
+implementation → code review — with a propagation audit gating every
+verdict dispatch and the integrity audit itself.
 
 ## Components
 
@@ -18,7 +20,10 @@ writing-plans (plan) → plan-adversary → implementation → code review.
   `architect:` frontmatter field by the dispatcher. Dispatched in the
   background on the most capable available model; the verdict arrives
   as a task notification and is stamped after the dispatcher relays
-  the report.
+  the report. A round that trips over integrity-class textual defects —
+  a contradiction between two sections, a count adrift from its list, a
+  reference that drifted from what it names — notes the class in one
+  line and leaves the enumeration to the integrity audit.
 - **`architect-session` skill** — the same persona as an interactive
   in-session consultation: no verdict, no stamping; hands off to a
   grilling-session or an `architect` dispatch. Triggers: "ask the
@@ -45,12 +50,34 @@ writing-plans (plan) → plan-adversary → implementation → code review.
   come from `*-plan-review` checklist skills. Dispatched in the
   background, scaled to the plan's size and risk; the verdict arrives
   as a task notification and is stamped after relay.
+- **`propagation-auditor` agent** — the mechanical audit of a spec or
+  plan: it parses every changed interface to enumerate its consumers,
+  diffs every prescribed block against the file it targets, re-derives
+  every counter, and runs the document's own verification commands. Its
+  unit is the hit: located, binary, and carrying the derivation that
+  produced it; a clean audit reports the single line `CLEAN`. It grades
+  nothing, ends in no verdict, and stamps nothing. Dispatched in the
+  background on the cheapest available family, because every duty is
+  procedural; the workflow gates every verdict-agent dispatch and every
+  integrity audit on a clean run, and offers the same audit at
+  authoring time after any multi-site edit.
+- **`integrity-auditor` agent** — the judgment audit of a churned
+  document, read on a fresh context: the document against itself, then
+  the document as an implementer who must build from that text alone.
+  It reports defects, each proved by two located quotes, beside a ranked
+  list of the questions an implementer would have to ask; it grades
+  nothing and ends in no verdict. Dispatched in the background on the
+  most capable available tier, and offered at a spec's consumption gate
+  before the plan is written. Once its dispositions land, the dispatcher
+  records the run in the spec's `integrity:` field.
 - **`process-status` skill** — reports what the process left unfinished
-  in the current repo: a pending grilling, an unresolved verdict, a
-  re-review nobody ran, a stamp outside the top level of a frontmatter
-  block. Runs the Unfinished-work list the lifecycle rule publishes and
-  fires none of the offers those classes name. Triggers: "what is
-  unfinished" / "process status".
+  in the current repo: a pending grilling, an unresolved verdict, an
+  unfinished review-loop ledger (an `open` or `held` disposition line,
+  counted only inside a `## Review rounds` section), a re-review nobody
+  ran, a stamp outside the top level of a frontmatter block. Runs the
+  Unfinished-work list the lifecycle rule publishes and fires none of
+  the offers those classes name. Triggers: "what is unfinished" /
+  "process status".
 - **`sync-rules` skill** — installs, updates, and uninstalls the rule
   files shipped by plugins of this marketplace (Rules payloads); see the
   "Process rules" section.
@@ -61,9 +88,10 @@ Each persona is single-sourced in its file at the plugin root —
 shared duties, the persona boundary, and the consultation contract held
 once in [PERSONA_COMMON.md](./PERSONA_COMMON.md). `plan-adversary`
 sources its standing duties from the same shared file without being a
-persona. Every component reads `docs/domain/glossary.md` and
-`docs/domain/adr/` first, when they exist, so it speaks the project's
-language from its first message.
+persona; the two `*-auditor` agents inherit neither persona nor standing
+duties and carry what they need in their own files. Every component
+reads `docs/domain/glossary.md` and `docs/domain/adr/` first, when they
+exist, so it speaks the project's language from its first message.
 
 ## Requirements
 
@@ -100,6 +128,7 @@ containing a `status` field:
 | `architect` | `LGTM` \| `concerns` \| `blocking` | latest architect verdict |
 | `adversary` | `LGTM` \| `concerns` \| `blocking` | latest plan-adversary verdict |
 | `architect-fallback` / `adversary-fallback` | `<model> (degraded <date>)` \| `<model> (chosen <date>)` \| `…, waived <date>` | verdict produced below the prescribed tier (`degraded` = unchosen, `chosen` = deliberate); re-review pending until re-reviewed or waived |
+| `integrity` | `<ISO date> (sha: <short-hash>)` | last integrity audit — the date for the reader, the body hash for the check; the dispatcher writes it once the audit's dispositions land, and a spec's consumption gate recomputes the hash to decide whether the stamp still holds |
 
 A round ending in `concerns` or `blocking` records its findings in the
 document body. Concerns later resolved without a fresh round keep the
@@ -120,18 +149,31 @@ capable for complex or risky plans, one family below for small
 mechanical ones. Consultations (the `*-consult` agents) dispatch on the most capable
 available model; like the verdict agents, they run as named background
 agents — consultations return no verdict, so the fallback machinery
-below never applies to them. The verdict agents' relay-then-stamp
-sequence lives in the workflow rule's Rules payload: after a plugin
-update, run a rules re-sync so the dispatcher side of the behavior
-matches the agents (until then the previously installed rules still
-carry the older record-the-verdict obligation, so no round is lost).
-The model is always named explicitly at dispatch, and
-reviews never dispatch on the cheapest available family. A dispatch
-refused on the dispatched model's cap offers a one-family drop (once)
-or waiting for the reset; a verdict produced below the prescribed tier
-gets a fallback record and a re-review offer — grammar and lifecycle in
-the spec-plan-lifecycle rule. Agents self-report the model they ran on
-(family plus version) so the dispatcher can verify before stamping.
+below never applies to them. The model is always named explicitly at
+dispatch, and reviews never dispatch on the cheapest available family.
+A dispatch refused on the dispatched model's cap offers a one-family
+drop (once) or waiting for the reset; a verdict produced below the
+prescribed tier gets a fallback record and a re-review offer — grammar
+and lifecycle in the spec-plan-lifecycle rule. Agents self-report the
+model they ran on (family plus version) so the dispatcher can verify
+before stamping.
+
+An audit is not a review, and that floor governs reviews alone: the
+`propagation-auditor` dispatches on the cheapest available family,
+since every duty it walks is procedural, and the `integrity-auditor` on
+the most capable available tier — each named like any other dispatch.
+Both audits end in no verdict, so the fallback machinery leaves them
+out as well, and both reports open with a model self-report the
+dispatcher checks before relying on the run: a mismatched propagation
+run earns no reliance, a below-tier integrity run no stamp.
+
+The dispatcher's half of all this lives in the workflow rule's Rules
+payload — the verdict agents' relay-then-stamp sequence, the two audit
+offers, and the `integrity:` gate. After a plugin update, run a rules
+re-sync so the dispatcher side matches the agents; until then the
+previously installed rules still carry the older record-the-verdict
+obligation and make neither audit offer, so no round is lost and the
+new gates merely stay silent.
 
 ## Process rules
 
