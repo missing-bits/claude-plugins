@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-08-27
-status: draft
+status: implemented
 grilled: 2026-08-27
 architect: LGTM
 ---

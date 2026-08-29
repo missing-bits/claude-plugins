@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-08-17
-status: draft
+status: implemented
 grilled: 2026-08-27
 architect: concerns (resolved 2026-08-27)
 ---
