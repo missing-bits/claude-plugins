@@ -236,17 +236,20 @@ _Avoid_: usage point
 
 **Unfinished-work list**:
 The named section of the spec-plan-lifecycle rule holding one entry per
-class of unfinished process work — class name, grep command, and the
-owner of the next move — and the single definition site for which
-classes exist, so a new class costs one edit in the rule and none in
-the consumers that run it. A command's output is hits to confirm
-against the frontmatter block, never Findings.
+class of unfinished process work — class name, grep command, the owner
+of the next move, and optionally the entry's own match scope — and the
+single definition site for which classes exist. A class that accepts
+the default scope costs one edit in the rule and none in the consumers
+that run it; a class that publishes its own scope costs a consumer edit
+too, and the ledger class is the first. A command's output is hits to
+confirm against the entry's scope — the frontmatter block by default —
+never Findings.
 _Avoid_: anchor list, debt list
 
 **Misplaced stamp**:
-A process field — `grilled`, `architect`, `adversary`, `*-fallback` —
-sitting outside the top level of a document's frontmatter, where the
-stamping steps put it. One entry of the Unfinished-work list detects it,
+A process field — `grilled`, `architect`, `adversary`, `*-fallback`,
+`integrity` — sitting outside the top level of a document's
+frontmatter, where the stamping steps put it. One entry of the Unfinished-work list detects it,
 and the value is irrelevant: a misplaced `LGTM` is as malformed as a
 misplaced `concerns`.
 _Avoid_: malformed stamp, nested field
@@ -269,6 +272,24 @@ form "surface" inside working-process material; unqualified "surface" in
 the repo's own rules means something else, a document location where a
 statement lives.
 _Avoid_: mode, channel, entrypoint
+
+**Audit agent**:
+An agent whose report ends in no verdict and stamps nothing: it checks a
+document and returns material for the dispatcher's disposition — hits
+(`propagation-auditor`, the mechanical pass) or defects-with-quotes and
+ranked questions (`integrity-auditor`, the judgment pass). Dispatched as
+a gate before expensive work — a clean audit is a precondition, never a
+judgment on the design. The third dispatch category beside Verdict agent
+and Consultation: an audit agent adopts no persona and its output is
+never a Contribution.
+_Avoid_: sweep agent, verifier
+
+**Hit**:
+The unit a mechanical check returns — an Unfinished-work list command's
+match or a propagation-auditor detection: located, binary, confirmed or
+dismissed by the dispatcher, never graded. Graded problems are Findings
+and belong to review rounds.
+_Avoid_: mechanical finding
 
 **Verdict agent**:
 An agent whose report ends in a verdict the dispatcher stamps into the
