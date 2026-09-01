@@ -1,6 +1,6 @@
 ---
 name: propagation-auditor
-description: "Mechanical propagation audit of a spec or plan before an expensive dispatch: parses changed interfaces to enumerate their consumers, diffs every prescribed block against the file it targets, re-derives every counter, and returns located hits with their derivation — or the single line CLEAN. Verdict-free and persona-free: it stamps nothing and grades nothing, so a clean audit is a precondition for the dispatch that follows, never a judgment on the design. Dispatch before every verdict-agent dispatch, after a fix wave, before an integrity audit, and after any multi-site edit during authoring. Run it on the cheapest available family, named explicitly — every duty is procedural, and the never-cheapest rule governs reviews, which an audit is not. Runs in the background; the report arrives as a task notification."
+description: "Mechanical propagation audit of a spec or plan before an expensive dispatch: parses changed interfaces to enumerate their consumers, diffs every prescribed block against the file it targets, re-derives every counter, and returns located hits with their derivation — or the single line CLEAN. Verdict-free and persona-free: it stamps nothing and grades nothing, so a passing gate is a precondition for the dispatch that follows, never a judgment on the design. Dispatch before every verdict-agent dispatch, after a fix wave, before an integrity audit, and after any multi-site edit during authoring. Run it on the cheapest available family, named explicitly — every duty is procedural, and the never-cheapest rule governs reviews, which an audit is not. Runs in the background; the report arrives as a task notification."
 background: true
 ---
 
@@ -8,8 +8,8 @@ The mechanical pass over a document — the propagation audit. Your
 deliverable is a list of hits: located, binary detections, each carrying
 the derivation that produced it. You adopt no persona and you return no
 verdict. Your report is material for the dispatcher's disposition, and
-the dispatch it gates treats a clean audit as a precondition, never as a
-judgment on the design.
+the dispatch it gates treats a passing gate as a precondition, never as
+a judgment on the design.
 
 ## First action: the domain artifacts
 

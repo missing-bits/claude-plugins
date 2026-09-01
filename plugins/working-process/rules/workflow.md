@@ -47,7 +47,8 @@ disables its suggestion — never the work itself.
    confirms the auditor's two preconditions: every edit from the
    conversation is written to disk, since one unsaved decision
    manufactures a run of false defects; and the propagation gate below
-   is clean, when that agent is available. Then write the
+   has passed, leaving no confirmed hit, when that agent is available.
+   Then write the
    implementation plan with superpowers:writing-plans when available;
    plans live in `docs/plans/`.
 5. **Plan → adversary review.** Before implementing a non-trivial plan,
@@ -230,19 +231,40 @@ per round, and only over a decision that is genuinely theirs.
 
 ### The propagation gate
 
-When the `propagation-auditor` agent is available, a clean propagation
-audit is the precondition for the dispatches it gates: the session
+When the `propagation-auditor` agent is available, a passing propagation
+gate is the precondition for the dispatches it gates: the session
 dispatches the audit over the document, fixes its hits, and repeats
-until the audit returns no hits, so an expensive reader only ever meets
+until no confirmed hit remains, so an expensive reader only ever meets
 a mechanically consistent document. The gate fires before every
 verdict-agent dispatch, first rounds included — authoring errors exist
 before any repair; after a fix wave, before the next round; and before
 an integrity audit. A hit's fix is licensed by its own derivation — a
 recounted counter and an enumerated missed call site decide
-themselves — so hits never wait for the developer; a hit the session
-believes is wrong escalates as held, its line carrying `[hit]` in the
-severity slot, because a hit stays ungraded even when contested.
-Without the agent installed, every dispatch proceeds as it did before.
+themselves — so hits never wait for the developer.
+
+A hit the session believes is wrong is dismissed, never silently: the
+session writes the `dismissed` line the spec-plan-lifecycle rule
+defines and reports the dismissal in the next report it relays to the
+developer. A hit is a report, not a question, so it never enters the
+held batch and never spends the round's one interruption — the
+developer reads the dismissal and keeps their standing veto over it.
+The written line is what makes the gate terminate: a dismissed hit
+recurs on every re-dispatch, so a gate waiting on a hitless audit would
+wait forever, and a dismissal nobody wrote down would be re-derived
+from nothing every round. Both dispositions take the gate lines the
+spec-plan-lifecycle rule defines.
+
+Two re-dispatches bound one gate episode — the run before a single
+dispatch, never the document's lifetime, so every round gets its own
+gate. A third is not attempted. The session reports the hits still
+outstanding, with the standing of a dismissal, and holds the dispatch
+the gate was guarding: a gate that cannot come clean has not done the
+one job the expensive reader depends on. The report names what keeps
+recurring, since fixes breeding fresh hits is the failure this bound
+exists to catch. It stays a report — the developer may order the
+dispatch anyway, as they may order any step — so it never becomes a
+second question in a round that already spent its one. Without the
+agent installed, every dispatch proceeds as it did before.
 
 ### Re-dispatch briefs
 
@@ -252,16 +274,24 @@ directs the reviewer to attack the previous wave's fixes first, and
 forbids re-reviewing the rest — repair-born defects are the dominant
 late-round class, and diff-scoping also ends stale-read findings.
 
+The ledger supplies what changed. The previous round's `fixed` lines and
+their `<what changed>` clauses, together with any gate lines under the
+same heading, are the record of that wave, so the brief cites them and
+needs no snapshot, commit, or hash — these documents stay uncommitted
+through the rounds, and the ledger is the only durable account of the
+diff.
+
 Every brief states the loop's terminators outright — the cap and the
 all-Minor signal below — rather than improvising them late, and asks
-the reviewer for its own stop signal: when the round's remaining
-findings are all Minor wording residue, say so and judge whether
-another round earns its cost. That judgment concerns the next round's
-marginal value, never whether the document is good enough, and it
-informs the developer's decision rather than replacing it. Where the
-ledger records a deviation from a reviewer's suggestion, the brief
-invites refutation of the recorded rationale — a rationale is evidence
-to attack, never a defence to protect.
+the reviewer for its own stop signal: judge whether another round earns
+its cost, and say what the round's leftovers are worth. The ask stands
+every round, whatever grades the findings carry — a round can leave one
+Important behind and still not repay a re-read. That judgment concerns
+the next round's marginal value, never whether the document is good
+enough, and it informs the developer's decision rather than replacing
+it. Where the ledger records a deviation from a reviewer's suggestion,
+the brief invites refutation of the recorded rationale — a rationale is
+evidence to attack, never a defence to protect.
 
 ### Terminators
 
@@ -276,9 +306,12 @@ to attack, never a defence to protect.
   fixed, what remains, why — rather than halting silently, and any
   developer contact resets the count.
 - All-Minor signal: two consecutive rounds whose findings are all Minor
-  end the unattended run. Fix the residue, annotate
-  `concerns (resolved <date>)`, and escalate with an offer of a fresh
-  round instead of dispatching one.
+  end the unattended run. Triage the round as always — by license, never
+  by grade — and escalate with an offer of a fresh round instead of
+  dispatching one. The escalation is a question, so the loop stays open
+  until the developer answers it: the resolution annotation the
+  spec-plan-lifecycle rule defines records their close, and no session
+  writes it without their answer.
 - Oscillation tripwire: a finding re-raised against a `fixed` line is
   never re-fixed autonomously. Two readings of one license are a
   contested reading, so it escalates as held, the flip named.

@@ -19,6 +19,8 @@ architect: LGTM     # optional: latest architect verdict (LGTM | concerns | bloc
 adversary: LGTM     # optional: latest plan-adversary verdict (LGTM | concerns | blocking)
 architect-fallback: <model> (degraded <date>)   # optional: verdict above produced below the prescribed tier (adversary-fallback: for plans)
 integrity: <ISO date> (sha: <short-hash>)   # optional: date of the last integrity audit, plus the body hash it certifies
+revises: ./<file>.md   # optional: documents this one departs from; inline list when several
+spec: ../specs/<file>.md   # plans only: the spec this plan implements; inline list when several
 branch: feature/ABC-123-short-name   # optional: topic branch of the work
 base: master        # optional: branch the topic branch was cut from
 ---
@@ -27,6 +29,18 @@ base: master        # optional: branch the topic branch was cut from
 - `status` is linear and moves forward only. Review rounds are iterative
   and live in their own fields; `grilled`, `architect`, and `adversary`
   appear only once the corresponding step has run.
+- An `implemented` document records what shipped at its release, and the
+  surfaces it named are the current truth. Never build from one without
+  diffing it against those surfaces first — the document is the archive,
+  not the specification of what stands today. It is amended only in
+  frontmatter, never in the body: a verdict certifies the body it was
+  given, and an `integrity:` hash covers exactly that text.
+- `revises:` names the documents a newer one departs from — written on
+  the newer document, pointing back, and never on the older one, which
+  stays as its stamps left it. It records supersession, not lineage: a
+  document that merely builds on another says so in its prose, and a
+  plan's `spec:` pointer is lineage too. What `revises:` claims is that
+  the named document's design no longer matches what shipped.
 - A round that ends in `concerns` or `blocking` records its findings (or
   their disposition) in the document body — a verdict whose findings were
   never written down cannot be honestly resolved later.
@@ -84,6 +98,19 @@ base: master        # optional: branch the topic branch was cut from
 - `branch` and `base` appear once the topic branch exists — never guessed
   up front, omitted entirely when there is no topic branch.
 
+## Finding what revises a document
+
+`revises:` points backward only, so the documents that departed from a
+given one are found by sweeping for it. The line matches both the
+single-reference and inline-list forms, `--no-ignore` reaches
+ignored-mode artifacts, and the tolerant leading anchor finds the field
+where a second writer relocated it:
+`rg -l --no-ignore --crlf '^\s*revises:.*<file-stem>' docs/`
+
+This is a lookup, not an Unfinished-work entry: a `revises:` pointer
+owes nobody a next move, and the implemented-document principle above
+already warns every reader of an archived document without it.
+
 ## The disposition ledger
 
 The body record a `concerns` or `blocking` round owes has a canonical
@@ -103,7 +130,7 @@ Under the heading each finding takes one line, its disposition the
 leading token:
 
     - fixed — [<severity>] <claim>; license: <citation>; <what changed>
-    - held — [<severity>] <claim>; question: <one short question>
+    - held — [<severity>] <claim>; question: <one short question>[; counter: <counter-evidence>]
     - open — [<severity>] <claim>
     - resolved <date> — [<severity>] <claim>; landed in <section>
     - resolved <date> (declined) — [<severity>] <claim>; <why the document stands>
@@ -117,22 +144,64 @@ leading token:
   citation goes on the line. No citable license means the finding is
   held, and a finding that could go either way is a decision.
 - `held` — the finding needs the developer. The line carries the
-  concrete question, or the dispute plus the session's counter-evidence,
-  phrased so one short answer resolves it.
+  concrete question, phrased so one short answer resolves it. Where the
+  finding is disputed or contested, the `counter:` clause carries the
+  evidence the developer needs in order to answer, so the dispute and
+  the question travel on one line. The oscillation tripwire's named
+  flip is that evidence.
 - `resolved <date>` — closes a held line once the answer lands. The
   answer's substance goes into the document's design text; the ledger
   line points at it and never duplicates it.
   `resolved <date> (declined)` records the developer keeping the
   document as it was.
 
-Two variants extend those shapes, and nothing else does. A contested hit
-from the `propagation-auditor` agent, when it is available, takes the
-held shape with `[hit]` in the severity slot, because a hit stays
-ungraded even when contested. A spec whose developer accepts a
+One annotation extends those shapes, and nothing else does. A spec whose
+developer accepts a
 diff-scoped chain at the consumption gate gains `, chain accepted <date>`
 on that round's LGTM heading: the dispatcher appends it there on the
 decline, and its presence defeats the gate's re-ask, as `, waived <date>`
 defeats the re-review offer.
+
+### Gate lines
+
+The propagation gate, when that agent is available, writes two shapes of
+its own. They carry their own leading token and never a severity, because
+a hit is a located detection the dispatcher confirms or dismisses, never
+a graded finding:
+
+    - hit fixed <date> — <the hit's claim>; <what changed>
+    - hit dismissed <date> — <the hit's claim>; counter: <the derivation that refutes it>
+
+Neither carries a license either, because a hit's fix is licensed by its
+own derivation.
+
+Both are written at gate time, under the last round's heading. The date
+each line carries tells a gate episode apart from that round's own
+findings, so a gate never mints a heading of its own — the round
+heading's grammar is closed, and a gate is not a round. Writing at gate
+time is what the lines are for: a dismissal must exist while the episode
+is still re-dispatching, or the gate cannot terminate, and the next
+diff-scoped brief is composed before its own round is stamped. A gate
+before a document's first round has no heading to write under; its lines
+wait for that round and are written at its stamp, the one case where
+they do.
+
+A gate episode always lands somewhere: its lines are the reason a later
+reader need not re-derive what the session already settled.
+
+Neither shape covers a hit left outstanding when the re-dispatch bound
+in the workflow rule stops an episode. That state owes the developer a
+decision, so neither `hit fixed` nor `hit dismissed` can honestly carry
+it, and no anchor surfaces it today — a stated gap, not an oversight.
+Until a shape exists, the workflow rule's report is its only record.
+
+A `hit fixed` line puts the gate's ordinary work where the next
+diff-scoped brief already looks, beside the round's `fixed` lines. A
+`hit dismissed` line records a decision the developer was never asked to
+make, so a later round cites it instead of re-deriving it and a session
+that would dismiss the same hit differently argues against written words
+rather than silence. Neither joins the unfinished-work anchors: both are
+closed when written and owe nobody a next move.
 
 A resolved held line is a recorded decision. When a later round re-raises
 the problem it settled, the new finding is folded and cited against that

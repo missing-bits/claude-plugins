@@ -278,8 +278,9 @@ An agent whose report ends in no verdict and stamps nothing: it checks a
 document and returns material for the dispatcher's disposition — hits
 (`propagation-auditor`, the mechanical pass) or defects-with-quotes and
 ranked questions (`integrity-auditor`, the judgment pass). Dispatched as
-a gate before expensive work — a clean audit is a precondition, never a
-judgment on the design. The third dispatch category beside Verdict agent
+a gate before expensive work: the precondition is a disposed audit —
+every hit fixed or dismissed, every defect applied or declined — never
+an empty one, and never a judgment on the design. The third dispatch category beside Verdict agent
 and Consultation: an audit agent adopts no persona and its output is
 never a Contribution.
 _Avoid_: sweep agent, verifier
