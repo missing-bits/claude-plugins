@@ -4,6 +4,7 @@ date: 2026-09-02
 status: draft
 grilled: 2026-09-02
 architect: concerns (resolved 2026-09-02)
+integrity: 2026-09-02 (sha: bf41005)
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-08-31-review-loop-errata-wave-one.md]
 branch: feature/audit-errata
 base: develop
