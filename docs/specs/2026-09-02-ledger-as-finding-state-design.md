@@ -431,3 +431,16 @@ A first draft of this paragraph stated six episodes and three fixes,
 conflating this loop's gates with the previous wave's. The recount is
 the third time in this document that a frozen number was wrong — which
 is why the severity section now states none.
+
+- hit dismissed 2026-09-02 — that the episode counts above invert the record, since all five `hit dismissed` lines sit under the round-1 heading and so come from one episode; counter: the placement rule writes gate lines under the *last* round's heading at gate time, so the gate before round 1 deferred its line to that stamp and the gate before round 2 wrote four more under the same heading — two episodes, five hits, and the third CLEAN before round 3. The count stands
+
+That dismissal is worth more than the hit. The audit reconstructed the
+history wrongly because gate lines carry no episode identity, which this
+design refuses on the ground that losing it costs at most two extra
+dispatches on the cheapest family. This is the refusal's first live
+instance, and the cost it produced was a different one: not a re-run,
+but a careful mechanical reader drawing a false conclusion from the
+record. The refusal priced the operational loss and not the legibility
+loss. It stands — but the seam it leaves is now measured rather than
+assumed, and this line, written under round 3's heading by a gate that
+ran after round 3, is itself the demonstration.
