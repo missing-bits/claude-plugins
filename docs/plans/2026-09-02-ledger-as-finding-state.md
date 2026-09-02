@@ -27,7 +27,7 @@ base: develop
 - **Historical ledger lines are never rewritten** to the new grammar. One task normalizes exactly one line, for a reason that task states.
 - **No version bump.** `plugins/working-process/.claude-plugin/plugin.json` already carries `0.14.0-dev.audit-errata`; the release PR mints the real number. This branch dogfoods through `--plugin-dir` and project-level rules, neither of which is cache-keyed, so the discriminator needs no re-mint.
 - **The spec is the source.** Where this plan and `docs/specs/2026-09-02-ledger-as-finding-state-design.md` disagree, the spec wins and the plan is wrong.
-- **Every phrase check against a rule file uses `rg -U`, never `grep`.** These files wrap prose at about 72 characters, so any searched phrase longer than a few words may straddle a line ending — and a single-line `grep` then returns 0 where the phrase is plainly present. Three checks in the first draft of this plan had exactly that fault. Write the pattern with `\s+` where the prose has a space: `rg -U -c 'the phrase\s+continues' <file>`.
+- **A check that searches for prose uses `rg -U` with `\s+` between words; a check that searches for an anchored structural pattern uses `grep`.** These files wrap prose at about 72 characters, so a searched phrase may straddle a line ending and a single-line `grep` then returns 0 where the phrase is plainly present — three checks in this plan's first draft had exactly that fault. An anchored pattern like `^    - fixed <date>` or `^| \`ruling:` cannot straddle by construction, so single-line matching is correct there and multi-line matching would be misleading.
 
 ---
 
@@ -245,7 +245,7 @@ git commit -m "feat(working-process): the ledger's clause table"
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-grep -c 'described historical forms' plugins/working-process/rules/spec-plan-lifecycle.md
+rg -U -c 'described\s+historical\s+forms' plugins/working-process/rules/spec-plan-lifecycle.md
 ```
 
 - [ ] **Step 2: Run it**
@@ -350,7 +350,7 @@ git commit -m "fix(working-process): the hit token discriminates a gate line, no
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-grep -c 'A resolved held line is a recorded decision' plugins/working-process/rules/spec-plan-lifecycle.md
+rg -U -c 'A\s+resolved\s+held\s+line\s+is\s+a\s+recorded\s+decision' plugins/working-process/rules/spec-plan-lifecycle.md
 ```
 
 - [ ] **Step 2: Run it**
@@ -420,7 +420,7 @@ git commit -m "feat(working-process): relitigation branches on the authorizer cl
 
 ```bash
 rg -U -n 'review-loop\s+ledger entry' plugins/working-process/rules/spec-plan-lifecycle.md
-grep -c 'becomes `resolved <date>`' plugins/working-process/rules/spec-plan-lifecycle.md
+rg -U -c 'becomes\s+`resolved <date>`' plugins/working-process/rules/spec-plan-lifecycle.md
 ```
 
 - [ ] **Step 2: Run it**
@@ -485,13 +485,13 @@ git commit -m "fix(working-process): ledger close names the merged tokens"
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-grep -c 'a finding re-raised against a `fixed` line' plugins/working-process/rules/workflow.md
-grep -c 'A blocking' plugins/working-process/rules/workflow.md
+rg -U -c 'a\s+finding\s+re-raised\s+against\s+a\s+`fixed`\s+line' plugins/working-process/rules/workflow.md
+rg -U -c 'licenses\s+no\s+self-fixes' plugins/working-process/rules/workflow.md
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: `1` and `1`.
+Expected: `1` and `1`. The second pattern names the clause this task deletes, so it fails if the deletion is skipped; a looser pattern such as `A blocking` would pass either way.
 
 - [ ] **Step 3: Rekey the tripwire**
 
@@ -621,7 +621,7 @@ git commit -m "feat(working-process): define developer contact, state the cap is
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-grep -c 'always in scope for a diff-scoped round' plugins/working-process/rules/workflow.md
+rg -U -c 'always\s+in\s+scope\s+for\s+a\s+diff-scoped\s+round' plugins/working-process/rules/workflow.md
 ```
 
 - [ ] **Step 2: Run it**
