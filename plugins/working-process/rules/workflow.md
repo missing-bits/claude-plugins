@@ -281,6 +281,32 @@ needs no snapshot, commit, or hash — these documents stay uncommitted
 through the rounds, and the ledger is the only durable account of the
 diff.
 
+Diff-scoping forbids re-reviewing the document beyond the diff, and the
+ledger is part of the document — so without a clause the reviewer is cut
+off from the one section recording what the developer already decided.
+The ledger is therefore always in scope for a diff-scoped round as
+context, never as a review target, and what that protects is narrow:
+
+- settled lines may be re-raised only with new evidence — new against
+  what the folded line records, the base the spec-plan-lifecycle rule
+  defines — which routes to `held` rather than to a fold. A line
+  carrying `ruling:` is settled by that clause; a historical line
+  written before this design, `resolved <date> (declined)` included,
+  carries no authorizer clause and is settled by its token alone. Both
+  are the developer's decisions, and both are protected on the same
+  footing;
+- `held` lines carry questions already put, so a round does not
+  duplicate one;
+- `fixed` lines carrying `license:` get no protection at all — the
+  previous round's are the diff and are named as the first thing to
+  attack, and older ones are simply unprotected, since a reviewer told
+  not to re-raise a fix would lose the property diff-scoping was
+  adopted for.
+
+The reviewer learns what it may not reopen, never what it may not find.
+Naming the section rather than copying its lines keeps the brief from
+growing with the round count.
+
 Every brief states the loop's terminators outright — the cap and the
 all-Minor signal below — rather than improvising them late, and asks
 the reviewer for its own stop signal: judge whether another round earns
