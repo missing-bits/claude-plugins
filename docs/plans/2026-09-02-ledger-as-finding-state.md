@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-02
-status: draft
+status: approved
 adversary: concerns (resolved 2026-09-02)
 spec: ../specs/2026-09-02-ledger-as-finding-state-design.md
 branch: feature/audit-errata
@@ -847,7 +847,7 @@ rg -l --no-ignore --crlf '^\s+(grilled|architect|adversary|architect-fallback|ad
 Expected, with two known hits:
 
 - the **first** returns `docs/plans/2026-07-13-rules-distribution.md`, a body quotation of the convention rather than a frontmatter hit — confirm with `grep -n 'grilled: grilling'` on that file and check the line sits below the closing `---`;
-- the **second** returns **this plan**, whose own `adversary:` field carries a live verdict throughout the review loop. That is a true unfinished-work hit, not a false positive, and it clears when the confirming full-document round's `LGTM` is stamped — which happens before implementation, so by the time an executor reaches this step the command should return nothing. If it still returns this plan, the loop has not closed and implementation has started early;
+- the **second** returned **this plan** throughout the review loop, whose own `adversary:` field carried a live verdict. That was a true unfinished-work hit, not a false positive. It cleared when the loop closed on 2026-09-02 with `adversary: concerns (resolved 2026-09-02)`, the annotation defeating the command's tail anchor exactly as an `LGTM` replacement would have. By the time an executor reaches this step the command returns nothing; if it returns this plan again, a later round reopened the loop and implementation has started early;
 - the remaining three return nothing.
 
 An earlier draft of this step claimed all four of the last commands were clean "as this plan was written", which its own frontmatter falsified on the day the step was written — the plan was carrying `adversary: blocking` at the time.
