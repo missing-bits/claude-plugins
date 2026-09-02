@@ -944,6 +944,26 @@ checks fail against the *correct* state, which it called the more
 dangerous direction, since an executor may "fix" the document to satisfy
 a broken check.
 
+The propagation gate before round 2 ran twice and returned CLEAN both
+times: once over the fix wave at `107dec0`, and again over `4041e4f`
+after the developer-raised repairs, the second time with a sixth scope
+class added for before/after equivalence. It produced no hits, so it
+writes no gate lines.
+
+Neither run opened with the model self-report the workflow rule requires,
+the second omitting it despite an emphatic instruction. That is a
+measured property of this agent rather than a one-off, and it is recorded
+here because the rule makes an unverified self-report a reason to
+withhold reliance. Reliance is taken anyway, on a narrow derivation: the
+guard exists to catch a silent substitution of the model actually run for
+the one dispatched, and a propagation audit's prescribed rung is the
+cheapest available family, which is what was named at dispatch. A
+substitution could therefore only have run the audit *above* its
+prescribed tier, which does not invalidate a structural CLEAN. Several of
+the second run's specific claims — the quoted blocks at their stated
+lines, and the `1, 1, 0, 0` starting state — were independently verified
+in-session before it was dispatched.
+
 Its stop signal: a re-round after the fix wave earns its cost, but
 diff-scoped — the findings sit in check mechanics and two scope gaps,
 not in the prescribed rule prose, which matched the spec everywhere it
