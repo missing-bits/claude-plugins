@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-09-02
 status: draft
+grilled: 2026-09-02
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-08-31-review-loop-errata-wave-one.md]
 branch: feature/audit-errata
 base: develop
@@ -145,7 +146,7 @@ nothing and bounds the spend the cap exists to bound.
 The two shapes stand. One stated reason does not: the rule claims the
 date tells a gate episode apart from the round's own findings, and wave
 one's own record disproves it — three `hit fixed 2026-09-01` lines sit
-beside six `resolved 2026-09-01` finding lines under one heading, and
+beside six `resolved 2026-09-01` disposition lines under one heading, and
 two episodes share the date 2026-08-31. **The `hit` token is the
 discriminator.** A wrong stated reason invites a later session to
 correct the right practice, so the sentence is replaced rather than
@@ -188,26 +189,40 @@ reviewer's grade read `blocking`.
 
 ## Severity casing
 
-The glossary fixes `critical | important | minor`; all 163 severity
-slots in this repo capitalize. **The ledger's severity slot capitalizes
-the glossary term.** One sentence legitimizes practice, respects the
-canonical vocabulary, and migrates nothing. Deferring this to a lint
-would make the lint's first act the condemnation of every committed
-line.
+All 163 severity slots in this repo capitalize, against a glossary that
+fixed `critical | important | minor` in lower case. The grilling settled
+it in the glossary rather than here: the value is canonical as a word,
+and its casing follows the syntax it sits in — lower case as a rule
+tag's field value, capitalized in the ledger's bracket slot. One
+concept, two syntaxes, two rendering conventions, and no migration.
+
+This design therefore states no casing rule of its own; it cites the
+**Severity** entry. Deferring the question to a lint would have made the
+lint's first act the condemnation of every committed line.
 
 ## Changes by file
 
 - `plugins/working-process/rules/spec-plan-lifecycle.md` — the four
   states and their shapes, the clause table, the authorizer rule, the
-  write-ahead sentence, the severity-casing sentence, the corrected gate
-  discriminator, the refusals, and the relitigation clause rekeyed to
-  `ruling:`.
+  write-ahead sentence, the corrected gate discriminator, the refusals,
+  and the relitigation clause rekeyed to `ruling:`. Two further sites
+  the grilling found: the Unfinished-work section says a ledger close is
+  `open` or `held` becoming `resolved <date>`, which the merge makes
+  `fixed <date>` or `declined <date>`; and two sentences call the
+  list's own entry a "review-loop ledger entry", a phrase the glossary
+  now bans as a name for a disposition line, so both read
+  "review-loop entry" instead.
 - `plugins/working-process/rules/workflow.md` — the oscillation tripwire
   rekeyed to `license:`, the `blocking` terminator's prohibition
   deleted, and the cap's contact definition with its
   cannot-count escalation.
-- `docs/domain/glossary.md` — no term changes; the refusal of
-  `hit outstanding` is what keeps **Hit** binary.
+- `docs/domain/glossary.md` — already changed by the grilling, not by
+  the implementation: six new terms (**Adjudication** and **Ruling** as
+  a level-distinguishing pair; **Disposition ledger**, **Round
+  heading**, **Disposition line** and **Gate line** for the structure
+  the loop had been naming without defining), plus a **Severity**
+  sentence putting casing under the syntax each value sits in. The
+  refusal of `hit outstanding` is what keeps **Hit** binary.
 - `docs/specs/2026-08-31-review-loop-errata-wave-one.md` — its bare
   `- dismissed 2026-08-31` line takes the `hit dismissed` shape the
   grammar defines.

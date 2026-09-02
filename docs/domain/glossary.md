@@ -126,7 +126,10 @@ adoption as the developer's own.
 The grading value a review finding carries: `critical | important |
 minor`, fixed per rule in its rule tag and read off by the reviewer —
 never judged per finding wherever a tag exists; a Candidate gap, having
-no tag, is graded by the Authoring rubric. The collective noun is
+no tag, is graded by the Authoring rubric. The value is canonical as a
+word and its casing follows the syntax it sits in — lower case as a rule
+tag's field value (`severity: minor`), capitalized in the ledger's
+bracket slot (`[Minor]`). The collective noun is
 "severity level" — never "tier", which stays reserved for the
 model-capability ladder.
 _Avoid_: severity tier
@@ -210,6 +213,18 @@ refusal. Marked by the `(chosen <date>)` token in the `*-fallback`
 field; carries the same re-review offer as a degraded verdict.
 _Avoid_: voluntary degradation
 
+**Adjudication**:
+The developer's close of a `blocking` verdict without a fresh round,
+written `blocking (adjudicated <date>)` in the document's frontmatter.
+Closes a round; the finding-level counterpart is a Ruling.
+_Avoid_: developer override, manual close
+
+**Ruling**:
+The developer's authorization of one finding's disposition, written as
+the `ruling: <date>` clause on that finding's ledger line. Closes a
+finding; the round-level counterpart is an Adjudication.
+_Avoid_: developer decision (as the name), developer fix
+
 **Fallback**:
 The model that actually produced a degraded or chosen verdict, standing
 in for the prescribed tier; named (as a family alias) in the value of
@@ -291,6 +306,38 @@ match or a propagation-auditor detection: located, binary, confirmed or
 dismissed by the dispatcher, never graded. Graded problems are Findings
 and belong to review rounds.
 _Avoid_: mechanical finding
+
+**Disposition ledger**:
+The record a review loop keeps inside the reviewed document, under one
+`## Review rounds` section: what each round found and what became of it.
+It carries the loop's durable state, and nothing else does — the
+session, the reviewer and the developer are all volatile, and these
+documents stay uncommitted through the rounds. Per-finding and per-hit
+state is written into it; loop-level state is derived from the round
+headings and stored nowhere. The name comes from the terminal states
+that dominate it in practice; a leading token names a state, terminal or
+not.
+_Avoid_: review log, findings table, round log
+
+**Round heading**:
+The immutable record of one dispatch, opening a round's block in the
+disposition ledger: date, agent, model self-report, verdict, ordinal and
+scope. The loop's derived state — round count, the all-Minor signal, the
+diff-scoped chain — is read by folding these.
+_Avoid_: round title, round record (for the heading alone)
+
+**Disposition line**:
+One line of the disposition ledger carrying the state of one Finding:
+its leading token is that state, its clauses the payload. The unit the
+ledger's state machine acts on.
+_Avoid_: finding line, ledger entry
+
+**Gate line**:
+One line of the disposition ledger carrying the state of one Hit,
+written by the propagation gate. It shares the container with
+disposition lines and nothing else — its own leading token, no severity,
+no license.
+_Avoid_: hit line, audit line
 
 **Verdict agent**:
 An agent whose report ends in a verdict the dispatcher stamps into the
