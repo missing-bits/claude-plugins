@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-02
-status: approved
+status: implemented
 adversary: concerns (resolved 2026-09-02)
 spec: ../specs/2026-09-02-ledger-as-finding-state-design.md
 branch: feature/audit-errata
@@ -963,6 +963,13 @@ author did. Only running the tasks in order exposed it. A stated
 before-value in a multi-task plan is a claim about a *simulated
 intermediate state*, and nothing but execution or an explicitly
 sequenced simulation can check it.
+
+Task 11's Step 5 propagation gate ran over the whole implemented change
+set and returned CLEAN — no internal contradiction, no consumer left
+behind, no counter wrong. It produced no hits, so it writes no gate
+lines. Like the four before it, it omitted the model self-report the
+workflow rule requires; five dispatches, five omissions, and the
+reliance derivation is the one recorded under round 1's heading.
 
 Everything else landed clean: Task 1 `0,0,1,1`; Task 2's paired table
 row and the `6,1` anchor claim; Task 3's block placed after the
