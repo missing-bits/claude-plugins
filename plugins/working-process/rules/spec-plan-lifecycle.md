@@ -252,10 +252,12 @@ a graded finding:
 Neither carries a license either, because a hit's fix is licensed by its
 own derivation.
 
-Both are written at gate time, under the last round's heading. The date
-each line carries tells a gate episode apart from that round's own
-findings, so a gate never mints a heading of its own — the round
-heading's grammar is closed, and a gate is not a round. Writing at gate
+Both are written at gate time, under the last round's heading. The `hit`
+token tells a gate line apart from that round's own findings; the date
+does not, since a gate episode and the round it precedes commonly share
+one. A gate still never mints a heading of its own, on the separate
+ground that the round heading's grammar is closed and a gate is not a
+round. Writing at gate
 time is what the lines are for: a dismissal must exist while the episode
 is still re-dispatching, or the gate cannot terminate, and the next
 diff-scoped brief is composed before its own round is stamped. A gate
