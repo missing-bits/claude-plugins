@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-02
 status: draft
-adversary: concerns
+adversary: concerns (resolved 2026-09-02)
 spec: ../specs/2026-09-02-ledger-as-finding-state-design.md
 branch: feature/audit-errata
 base: develop
@@ -945,6 +945,27 @@ what their steps expect.
 **Known seam.** Task 2's Step 5 verifies the "four of the five" anchor claim by counting published commands. That count includes the `revises:` lookup, which is not an Unfinished-work entry — the step says so, but a future command added to either group will make the assertion wrong before the prose is. It is a check with a short shelf life, deliberately kept because the alternative is trusting the claim.
 
 ## Review rounds
+
+**Loop closed 2026-09-02 by the developer**, with `adversary: concerns
+(resolved 2026-09-02)` rather than a fifth round. What resolved it: round
+4's single Minor was fixed in `e91da57`, and round 4 was a full-document
+round whose reviewer stated that absent that one seam its verdict would
+have been the terminating `LGTM`. The fix was one insertion-point change,
+verified directly — the anchor text exists verbatim in the target, no
+step still refers to the old location, and no check's value moves,
+since Task 3's phrase check and Task 11's ordering assertion are both
+position-independent within the section.
+
+The loop ran four rounds and four propagation-gate episodes, every gate
+returning CLEAN. Rounds 1 and 2 concentrated on check mechanics, round 3
+read the prescribed rule prose against the spec, and round 4 simulated
+the whole plan and re-tested every historically recurring class with no
+recurrence. The developer was in contact at every round boundary, so the
+round cap was never the binding constraint; the closure is a cost
+judgment, taken with the reviewer's own stop signal in hand.
+
+The plan is implementation-ready. The next gate is the developer's
+`status` flip to `approved`.
 
 ### 2026-09-02 — plan-adversary, fable 5, concerns (round 4, full-document)
 
