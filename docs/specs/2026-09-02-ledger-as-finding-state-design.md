@@ -39,7 +39,9 @@ levels the shipped grammar conflates:
 - a **round heading** records one dispatch and never changes;
 - a **disposition line** carries the mutable state of one finding;
 - a **gate line** carries the state of one hit — a smaller machine
-  sharing the container but not the vocabulary.
+  sharing the container and one clause, `counter:`, but neither the
+  state set nor the graded and licensed slots a disposition line
+  carries.
 
 Loop state proper — the round count, the all-Minor signal, the
 diff-scoped chain — is derived by folding the headings. It is stored
@@ -237,15 +239,22 @@ with evidence rather than by taste.
   the next gate episode regenerates it for the price of the cheapest
   agent in the system. A lost finding is gone forever; a lost hit is
   not. The state has also never occurred, and minting it would
-  contradict two glossary entries that call a hit binary.
+  contradict the glossary's **Hit** entry, the one that calls a hit
+  binary, and would force a second widening of **Audit agent**, whose
+  bar enumerates exactly two dispositions.
 - **No `why:` clause on `held`.** Its value is drawn from a closed
   four-way set — no license, a contradiction between decisions, a
   disputed finding, or one that could go either way — which the
   `question:` phrasing already carries.
-- **No episode identity for gates.** One consumer needs it — the
-  re-dispatch bound's counter — and only across session loss. Losing it
-  costs at most two dispatches on the cheapest family. Let it die with
-  the session.
+- **No episode identity for gates.** One consumer needs it
+  operationally — the re-dispatch bound's counter, and only across
+  session loss — at a cost of at most two dispatches on the cheapest
+  family. A second consumer emerged while this document was being
+  written: a reader reconstructing which episode produced which line,
+  who without it can draw a false conclusion from the record, as the
+  closing section documents. The refusal stands on the operational
+  price; the legibility price is now measured rather than assumed, and
+  is what a later wave should weigh when reopening this.
 - **No structured block, sidecar file, or git as the diff source.** An
   LLM hand-writes this record either way, so structure buys checkability
   the writer's nature does not deliver; and the lifecycle rule keeps
@@ -285,8 +294,9 @@ lint's first act the condemnation of every committed line.
 - `plugins/working-process/rules/spec-plan-lifecycle.md` — the four
   states and their shapes, the clause table, the authorizer rule, the
   write-ahead sentence, the corrected gate discriminator, the refusals,
-  and the relitigation clause rekeyed to `ruling:`. Two further sites
-  the grilling found: the Unfinished-work section says a ledger close is
+  the relitigation clause rekeyed to `ruling:`, and the sentence
+  recording that pre-merge ledger lines stay as written. Two further
+  sites the grilling found: the Unfinished-work section says a ledger close is
   `open` or `held` becoming `resolved <date>`, which the merge makes
   `fixed <date>` or `declined <date>`; and two sentences call the
   list's own entry a "review-loop ledger entry", a phrase the glossary
@@ -367,16 +377,16 @@ deferred its line here, as the placement rule's one deferral case
 prescribes.
 
 - hit dismissed 2026-09-02 — the glossary's new `ledger entry` ban is violated by `spec-plan-lifecycle.md` lines 228 and 272; counter: both say "review-loop ledger entry" for the Unfinished-work list's own entry, not a disposition line, so the banned sense is not the one in use — and Changes by file already schedules both rewordings, the designed sequence being glossary at grilling, rules at implementation. The round confirmed the dismissal on both legs
-- fixed — [Important] the relitigation fold had no expressible production: a re-raise folded against a `ruling:` line still needs its own terminal line, which must be `declined` and so must carry `ruling:` — but no developer ruled on the new finding, so the line either misreported its authorizer or could not be written. The same shape as the audit's defect 1, in the document that exists to cure it; ruling: 2026-09-02; the developer chose the cited-authorizer shape over a separate `folds:` clause and over producing no line at all — the fold now takes `declined <date>` with `ruling:` carrying the prior ruling's date and a citation of the folded line, the clause table and the glossary's **Ruling** entry both widened to admit a cited authorization
-- fixed — [Minor] "the Unfinished-work commands anchor on `^- `" was true of one of five; license: the five published commands read from the rule; the claim now names the split and rests the payload-is-free conclusion on the scope guard, which is what actually defends it
-- fixed — [Minor] "Historical ledger lines stay as written" sat beside a scheduled rewrite of one historical line; license: the spec's own distinction between remapping under the merge and normalizing to a shape defined later; the exception is now stated with its reason
-- fixed — [Minor] wave one routed implementer question 3 here and only its missing-anchor half was carried; license: wave one's own routing sentence; the autonomy-and-cap half joins the seams, deliberately unanswered because it decides the loop's authority rather than the ledger's shape
-- fixed — [Minor] "163 severity slots" counted lines, not slots; license: the recount — 164 occurrences across 163 lines, one audit line quoting two; both numbers now stated
+- fixed 2026-09-02 — [Important] the relitigation fold had no expressible production: a re-raise folded against a `ruling:` line still needs its own terminal line, which must be `declined` and so must carry `ruling:` — but no developer ruled on the new finding, so the line either misreported its authorizer or could not be written. The same shape as the audit's defect 1, in the document that exists to cure it; ruling: 2026-09-02; the developer chose the cited-authorizer shape over a separate `folds:` clause and over producing no line at all — the fold now takes `declined <date>` with `ruling:` carrying the prior ruling's date and a citation of the folded line, the clause table and the glossary's **Ruling** entry both widened to admit a cited authorization
+- fixed 2026-09-02 — [Minor] "the Unfinished-work commands anchor on `^- `" was true of one of five; license: the five published commands read from the rule; the claim now names the split and rests the payload-is-free conclusion on the scope guard, which is what actually defends it
+- fixed 2026-09-02 — [Minor] "Historical ledger lines stay as written" sat beside a scheduled rewrite of one historical line; license: the spec's own distinction between remapping under the merge and normalizing to a shape defined later; the exception is now stated with its reason
+- fixed 2026-09-02 — [Minor] wave one routed implementer question 3 here and only its missing-anchor half was carried; license: wave one's own routing sentence; the autonomy-and-cap half joins the seams, deliberately unanswered because it decides the loop's authority rather than the ledger's shape
+- fixed 2026-09-02 — [Minor] "163 severity slots" counted lines, not slots; license: the recount — 164 occurrences across 163 lines, one audit line quoting two; both numbers now stated
 - hit dismissed 2026-09-02 — Changes by file prescribes edits to `spec-plan-lifecycle.md` the commit does not contain; counter: this is a design document, and Changes by file is a promise about implementation rather than an edit
 - hit dismissed 2026-09-02 — the same, for `workflow.md`; counter: as above
 - hit dismissed 2026-09-02 — the same, for wave one's record and its bare `dismissed` line; counter: as above
 - hit dismissed 2026-09-02 — that the previous gate's dismissal contradicts Changes by file by calling the rewordings "scheduled"; counter: both texts say the same thing, and the audit read "scheduled for implementation" as "scheduled for a later wave"
-- fixed — the developer, reading the Important above, asked why a round re-raises a settled finding at all; the answer is that a diff-scoped round is formally cut off from the ledger, so the cause is upstream of the fold; ruling: 2026-09-02; a new section puts the ledger permanently in a diff-scoped round's context, protecting settled and `held` lines while leaving session fixes as legitimate targets
+- fixed 2026-09-02 — the developer, reading the Important above, asked why a round re-raises a settled finding at all; the answer is that a diff-scoped round is formally cut off from the ledger, so the cause is upstream of the fold; ruling: 2026-09-02; a new section puts the ledger permanently in a diff-scoped round's context, protecting settled and `held` lines while leaving session fixes as legitimate targets
 
 That line, and every other in this section carrying `ruling:`, is
 written in the grammar this design proposes rather than the one it
@@ -395,19 +405,19 @@ exists to prevent.
 
 ### 2026-09-02 — architect, fable 5, blocking (round 2, diff-scoped)
 
-- fixed — [Important] the scope section licensed a re-raise "with new evidence" while the fold stayed unconditional, so the licensed path had no disposition, and an autonomous fold of an evidence-bearing challenge is the arbitration the workflow rule forbids; ruling: 2026-09-02; the fold now covers evidence-free re-raises only, and an evidence-bearing one routes to `held` with `counter:` citing the prior ruling
-- fixed — [Important] `[n/a]` was lawful under neither grammar, since all four shapes require `[<Severity>]` and the glossary admits three values — the authorizer gap closed, the grade gap did not; ruling: 2026-09-02; severity is omitted entirely on a line whose sole authorizer is `ruling:` and which no reviewer graded, which is the absence of a grade rather than a fourth value
-- fixed — [Minor] the fold's citation had no slot; license: the fold production this wave wrote; `ruling:` now carries the prior date followed by `folding <section or line quote>`
-- fixed — [Minor] this document's own deferred gate line read bare `- dismissed 2026-09-02`, the shape it schedules normalizing away elsewhere; license: the `hit dismissed` shape wave one shipped; the token is restored
-- fixed — [Minor] the recount was falsified by the commit that wrote it, which added five slots in its own ledger while stating 164; license: the recount itself; the number is gone and the universal claim stands, with the reason a frozen count cannot survive a growing ledger
-- fixed — [Minor] aggregating four gate hits into one line contradicted the **Gate line** entry this design owns; license: that entry; split into four lines rather than amending the definition, which would pre-empt an open question about controlled aggregation in reports
-- fixed — [Minor] "those carrying `ruling:`, and `declined` lines" was redundant and did not cover historical settled lines; license: the authorizer rule; the conjunct is gone and pre-design lines are named as settled by their token alone
+- fixed 2026-09-02 — [Important] the scope section licensed a re-raise "with new evidence" while the fold stayed unconditional, so the licensed path had no disposition, and an autonomous fold of an evidence-bearing challenge is the arbitration the workflow rule forbids; ruling: 2026-09-02; the fold now covers evidence-free re-raises only, and an evidence-bearing one routes to `held` with `counter:` citing the prior ruling
+- fixed 2026-09-02 — [Important] `[n/a]` was lawful under neither grammar, since all four shapes require `[<Severity>]` and the glossary admits three values — the authorizer gap closed, the grade gap did not; ruling: 2026-09-02; severity is omitted entirely on a line whose sole authorizer is `ruling:` and which no reviewer graded, which is the absence of a grade rather than a fourth value
+- fixed 2026-09-02 — [Minor] the fold's citation had no slot; license: the fold production this wave wrote; `ruling:` now carries the prior date followed by `folding <section or line quote>`
+- fixed 2026-09-02 — [Minor] this document's own deferred gate line read bare `- dismissed 2026-09-02`, the shape it schedules normalizing away elsewhere; license: the `hit dismissed` shape wave one shipped; the token is restored
+- fixed 2026-09-02 — [Minor] the recount was falsified by the commit that wrote it, which added five slots in its own ledger while stating 164; license: the recount itself; the number is gone and the universal claim stands, with the reason a frozen count cannot survive a growing ledger
+- fixed 2026-09-02 — [Minor] aggregating four gate hits into one line contradicted the **Gate line** entry this design owns; license: that entry; split into four lines rather than amending the definition, which would pre-empt an open question about controlled aggregation in reports
+- fixed 2026-09-02 — [Minor] "those carrying `ruling:`, and `declined` lines" was redundant and did not cover historical settled lines; license: the authorizer rule; the conjunct is gone and pre-design lines are named as settled by their token alone
 
 ### 2026-09-02 — architect, fable 5, concerns (round 3, diff-scoped)
 
-- fixed — [Minor] the states block's caption said "a `ruling:`-only line" where the rule twelve lines below requires two legs, and this document's own three `ruling:`-only lines carry `[Important]` because a reviewer graded them; license: that fuller paragraph; the caption now carries both legs
-- fixed — [Minor] a fold against a pre-design settled line had no date to cite, since historical lines carry no authorizer clause; license: this design's own statement that such lines are settled by their token alone; the fold cites the date on that token, which is when the developer decided
-- fixed — [Minor] "without new evidence" named no comparison base, and a wrong not-new call silently performs the arbitration the split exists to prevent; license: the workflow rule's triage principle that a finding which could go either way is a decision; evidence is new relative to what the folded line records, and a session that cannot tell holds
+- fixed 2026-09-02 — [Minor] the states block's caption said "a `ruling:`-only line" where the rule twelve lines below requires two legs, and this document's own three `ruling:`-only lines carry `[Important]` because a reviewer graded them; license: that fuller paragraph; the caption now carries both legs
+- fixed 2026-09-02 — [Minor] a fold against a pre-design settled line had no date to cite, since historical lines carry no authorizer clause; license: this design's own statement that such lines are settled by their token alone; the fold cites the date on that token, which is when the developer decided
+- fixed 2026-09-02 — [Minor] "without new evidence" named no comparison base, and a wrong not-new call silently performs the arbitration the split exists to prevent; license: the workflow rule's triage principle that a finding which could go either way is a decision; evidence is new relative to what the folded line records, and a session that cannot tell holds
 
 Round 3 judged the symmetry sound rather than rhetorical: an authorizer
 is constitutive of a terminal transition and is therefore cited when it
@@ -421,16 +431,20 @@ gate's integrity audit reads with two quotes per defect at the same tier
 over a broader scope. The document is done being reviewed in this loop.
 
 Loop closed 2026-09-02 by the developer, on round 3's stop signal and
-with every finding of every round disposed. Three architect rounds —
-concerns, blocking, concerns — and three propagation gate episodes, one
-CLEAN and two producing five hits, every one dismissed with a written
-counter-derivation and none requiring a fix. The next reader is the
+with every finding of every round disposed. Three architect rounds
+ended concerns, blocking, concerns; every propagation gate episode
+returned either CLEAN or hits that were dismissed with a written
+counter-derivation, and none required a fix. The next reader is the
 consumption gate's integrity audit, before the plan is written.
 
-A first draft of this paragraph stated six episodes and three fixes,
-conflating this loop's gates with the previous wave's. The recount is
-the third time in this document that a frozen number was wrong — which
-is why the severity section now states none.
+No episode or hit count appears here, and the omission is the lesson
+rather than an oversight. Two drafts of this paragraph carried counts
+and both were wrong: the first conflated this loop's gates with the
+previous wave's, and the second froze a total that a later gate episode
+invalidated by writing one more line into this very section — two
+paragraphs below the sentence saying a growing ledger falsifies any
+frozen number. The section reports what happened; the lines are the
+count.
 
 - hit dismissed 2026-09-02 — that the episode counts above invert the record, since all five `hit dismissed` lines sit under the round-1 heading and so come from one episode; counter: the placement rule writes gate lines under the *last* round's heading at gate time, so the gate before round 1 deferred its line to that stamp and the gate before round 2 wrote four more under the same heading — two episodes, five hits, and the third CLEAN before round 3. The count stands
 

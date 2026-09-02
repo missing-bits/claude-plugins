@@ -329,9 +329,10 @@ diff-scoped chain — is read by folding these.
 _Avoid_: round title, round record (for the heading alone)
 
 **Disposition line**:
-One line of the disposition ledger carrying the state of one Finding:
-its leading token is that state, its clauses the payload. The unit the
-ledger's state machine acts on.
+One line of the disposition ledger carrying the state of one Finding, or
+of one change the developer directed mid-round, which is not a Finding
+and carries no severity: its leading token is that state, its clauses
+the payload. The unit the ledger's state machine acts on.
 _Avoid_: finding line, ledger entry
 
 **Gate line**:
