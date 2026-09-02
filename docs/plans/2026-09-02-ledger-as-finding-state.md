@@ -435,7 +435,7 @@ State prevents relitigation, not the reviewer's memory.
 
 - [ ] **Step 4: Run the check again**
 
-Expected: no output, and `grep -c 'folding' plugins/working-process/rules/spec-plan-lifecycle.md` prints at least `2` (the clause table row from Task 2 and this paragraph). Its before-value is `0` — the word does not appear in the file until Task 2 writes it — so the pair discriminates.
+Expected: no output, and `grep -c 'folding' plugins/working-process/rules/spec-plan-lifecycle.md` prints at least `2` (the clause table row from Task 2 and this paragraph). Its before-value **at this task's own sequence point is `1`**, not `0`: the word is absent from the pristine file, but Task 2 has already written the clause-table row by the time Task 5 runs. The pair still discriminates, `1` to `2`. Measured during implementation, where a stated `0` was the first thing this step got wrong.
 
 - [ ] **Step 5: Validate and commit**
 
@@ -945,6 +945,34 @@ what their steps expect.
 **Known seam.** Task 2's Step 5 verifies the "four of the five" anchor claim by counting published commands. That count includes the `revises:` lookup, which is not an Unfinished-work entry — the step says so, but a future command added to either group will make the assertion wrong before the prose is. It is a check with a short shelf life, deliberately kept because the alternative is trusting the claim.
 
 ## Review rounds
+
+### 2026-09-02 — implementation
+
+All eleven tasks executed on `feature/audit-errata`, one commit each,
+every check run and every stated value reproduced except one:
+
+- fixed 2026-09-02 — [Minor] Task 5's Step 4 stated a before-value of `0` for its `folding` count, true of the pristine file but not of the file Task 5 actually meets — Task 2 writes the clause-table row first, so the real before-value at that sequence point is `1`; license: the measurement, taken during implementation; the step now states `1` and names the sequence point, and the check discriminates either way
+
+The defect is the before/after constraint's own blind spot, and worth
+naming: the constraint asks for a value *before the step*, and a plan
+author naturally computes it against the document as it stands rather
+than as the task will find it. Four rounds of review, two full
+simulations and four propagation gates all reproduced the `0` without
+challenging it, because every one of them measured the same thing the
+author did. Only running the tasks in order exposed it. A stated
+before-value in a multi-task plan is a claim about a *simulated
+intermediate state*, and nothing but execution or an explicitly
+sequenced simulation can check it.
+
+Everything else landed clean: Task 1 `0,0,1,1`; Task 2's paired table
+row and the `6,1` anchor claim; Task 3's block placed after the
+chain-accepted paragraph, with round 4's antecedent fix confirmed in the
+file (the live shapes at line 132 remain the nearest block above the
+"One annotation extends those shapes" sentence at 217, and the
+historical block sits below it at 228–229); Tasks 4–9 each returning
+exactly their stated after-values, with both sentences round 3 restored
+verified present; Task 10's two gate lines; and Task 11's five published
+commands returning only the known body-quotation hit.
 
 **Loop closed 2026-09-02 by the developer**, with `adversary: concerns
 (resolved 2026-09-02)` rather than a fifth round. What resolved it: round
