@@ -1005,17 +1005,23 @@ checks fail against the *correct* state, which it called the more
 dangerous direction, since an executor may "fix" the document to satisfy
 a broken check.
 
-The propagation gate before round 2 ran twice and returned CLEAN both
-times: once over the fix wave at `107dec0`, and again over `4041e4f`
-after the developer-raised repairs, the second time with a sixth scope
-class added for before/after equivalence. It produced no hits, so it
-writes no gate lines.
+The propagation gate ran three times across this document's loop and
+returned CLEAN every time: over the round-1 fix wave at `107dec0`, over
+`4041e4f` after the developer-raised repairs, and over `c5339e6` before
+the confirming round, each dispatch widening its positive scope as the
+loop taught it what to look for. None produced a hit, so none writes a
+gate line.
 
-Neither run opened with the model self-report the workflow rule requires,
-the second omitting it despite an emphatic instruction. That is a
-measured property of this agent rather than a one-off, and it is recorded
-here because the rule makes an unverified self-report a reason to
-withhold reliance. Reliance is taken anyway, on a narrow derivation: the
+No run opened with the model self-report the workflow rule requires. The
+second omitted it despite an emphatic instruction naming the first
+omission, and the third returned the single word `CLEAN` and nothing
+else. Three for three is a property of the agent rather than a one-off,
+and the likely mechanism is that a self-report is neither a hunt target
+nor a premise for classifying — the two kinds of instruction this agent
+demonstrably acts on. Fixing it belongs in the agent's own card, where
+the self-report becomes a duty instead of a request a brief can lose.
+It is recorded here because the rule makes an unverified self-report a
+reason to withhold reliance. Reliance is taken anyway, on a narrow derivation: the
 guard exists to catch a silent substitution of the model actually run for
 the one dispatched, and a propagation audit's prescribed rung is the
 cheapest available family, which is what was named at dispatch. A
