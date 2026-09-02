@@ -255,7 +255,9 @@ git commit -m "feat(working-process): the ledger's clause table"
 ### Task 3: Historical shapes, the pre-merge sentence, and lawful prose
 
 **Files:**
-- Modify: `plugins/working-process/rules/spec-plan-lifecycle.md` — after the clause table
+- Modify: `plugins/working-process/rules/spec-plan-lifecycle.md` — after the paragraph beginning "One annotation extends those shapes", immediately before the `### Gate lines` heading
+
+**The insertion point is chosen, not incidental.** The obvious place is straight after Task 2's clause table, and that is wrong: the shipped sentence "One annotation extends those shapes, and nothing else does" refers to the live shapes block, and Tasks 1–3 push roughly a hundred lines between the two. Inserting this task's historical block just above that sentence hands it a nearer and false antecedent — a reader would bind "those shapes" to the two forms this very task declares nobody may mint. Placing the block *after* that paragraph leaves the live shapes as the sentence's nearest shapes block, which is what it means, and costs no new prose in a rule the spec did not ask to reword.
 
 **Interfaces:**
 - Consumes: the merge from Task 1.
@@ -274,6 +276,8 @@ rg -U -c 'described\s+historical\s+forms' plugins/working-process/rules/spec-pla
 Expected: no output.
 
 - [ ] **Step 3: Add the paragraph**
+
+Insert immediately after the paragraph ending "defeats the re-review offer" and immediately before the `### Gate lines` heading:
 
 ```
 Ledger lines written before this merge stay as written, as the `scope`
@@ -941,6 +945,49 @@ what their steps expect.
 **Known seam.** Task 2's Step 5 verifies the "four of the five" anchor claim by counting published commands. That count includes the `revises:` lookup, which is not an Unfinished-work entry — the step says so, but a future command added to either group will make the assertion wrong before the prose is. It is a check with a short shelf life, deliberately kept because the alternative is trusting the claim.
 
 ## Review rounds
+
+### 2026-09-02 — plan-adversary, fable 5, concerns (round 4, full-document)
+
+- fixed — [Minor] Tasks 1–3 insert roughly a hundred lines between the shipped sentence "One annotation extends those shapes, and nothing else does" and the shapes it refers to, and Task 3's block landed directly above that sentence — handing it a nearer and false antecedent, the two historical forms this plan declares nobody may mint; license: the plan's own statement that the historical shapes are described and never minted, which the drifted antecedent contradicts; Task 3's insertion point moves to after the chain-accepted paragraph and immediately before `### Gate lines`, restoring the live shapes block as the sentence's nearest antecedent with no new prose and no reworded rule text, and the task now records that the placement is chosen rather than incidental
+
+This round would otherwise have carried the terminating verdict. The
+reviewer said so outright: absent the antecedent seam, its verdict would
+have been `LGTM`.
+
+Its verification was the most complete of the four rounds, and it
+confirmed both historically recurring classes are extinct rather than
+merely quiet. Every stated before-value in the plan was executed against
+the tree and reproduced, including the two known Task 11 hits. The whole
+plan was applied to scratch copies: sixteen of sixteen Replace blocks
+matched verbatim and uniquely, every after-check reproduced its stated
+value, and Task 1's Step 6 was additionally checked at its own sequence
+point rather than only at the end. Every edit-verifying check was
+re-derived for vacuity, including the one this session had just rekeyed,
+and no other check was found to have been made vacuous by the round-3
+wave. No fifth wrapped-phrase instance exists, and every anchored check
+is either paired or a verbatim copy of a published command.
+
+It also cleared the round-3 deviation it was asked to attack rather than
+protect: Task 9's pointer carries the base's substance inline — "new
+against what the folded line records" — and defers to the lifecycle rule
+only for the refinement, so a reader of `workflow.md` alone can apply the
+rule. The reviewer declined to re-raise it. Task 8's un-specced qualifier
+survived the same treatment: a heading is minted at stamp time and
+carries the verdict, so a heading-derived count necessarily counts only
+verdict-returning rounds, and the qualifier states a consequence rather
+than adding a rule.
+
+The spec mapping was verified in both directions — every Changes-by-file
+item lands in a named task, and no task ships prose the spec does not
+design or license.
+
+Its stop signal: a fifth round does not earn its cost. The leftover was a
+single insertion-point change whose correctness is verifiable by eye, and
+the plan has now been fully simulated twice by two separate rounds with
+zero recurrence in any historical class. The reviewer's recommendation to
+the dispatcher was to apply the one fix, verify the single edit directly,
+and treat a further full round as the developer's call rather than a
+process necessity.
 
 ### 2026-09-02 — plan-adversary, fable 5, concerns (round 3, full-document)
 
