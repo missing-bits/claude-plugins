@@ -3,6 +3,7 @@ ticket: none
 date: 2026-09-02
 status: draft
 grilled: 2026-09-02
+architect: concerns
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-08-31-review-loop-errata-wave-one.md]
 branch: feature/audit-errata
 base: develop
@@ -71,7 +72,7 @@ The leading token is a queryable state. Clauses are payload.
 | clause | carries | on |
 |---|---|---|
 | `license: <citation>` | the written decision the session acted on | `fixed` |
-| `ruling: <date>` | the developer authorized it | `fixed`, `declined` |
+| `ruling: <date>` | the developer authorized it, or the date of a cited prior ruling this line folds against | `fixed`, `declined` |
 | `question:` | the question, phrased so one short answer resolves it | `held` |
 | `options:` | the options and the session's recommendation | `held` |
 | `counter:` | the session's evidence where the finding is disputed or contested | `held` |
@@ -88,10 +89,13 @@ Every terminal line carries exactly one authorizer, `license:` or
 `ruling:`. A `declined` line always carries `ruling:`: declining is a
 decision, and triage gives a session no license to decide.
 
-Payload costs nothing structurally. The Unfinished-work commands anchor
-on `^- `, so an indented continuation under a disposition line matches
-no command and disturbs no consumer. Where payload runs long, it
-belongs in indented sub-bullets rather than in a longer line.
+Payload costs nothing structurally. Four of the five Unfinished-work
+commands anchor a frontmatter field and are held to the frontmatter
+block by the list's default scope guard, so no body line reaches them at
+all; the fifth is the ledger's own, anchored on `^- `, which an indented
+continuation does not match. Payload under a line is therefore invisible
+to every published command, and where it runs long it belongs in
+indented sub-bullets rather than in a longer line.
 
 ## What the authorizer buys
 
@@ -109,6 +113,50 @@ both move to the clause:
 This is stronger than what it replaces. Today both rules key on a proxy:
 `resolved` happens to imply the developer. After the change the
 predicate says what it means.
+
+**A fold produces a line like any other disposition.** The re-raised
+finding is still a finding of its round, so it takes
+`declined <date>` — the document stands — carrying `ruling:` with the
+**prior** ruling's date and a citation of the line it folds against. The
+authorizer is cited rather than fresh, and the line says so; a session
+never manufactures an authorization that did not happen. Without this
+the fold has no honest production, since no developer ruled on the new
+finding and `declined` admits no other authorizer — the same shape as
+the audit's first defect, which this design exists to cure.
+
+The fold is a safety net, not the primary mechanism. A reviewer is a
+stateless one-shot dispatch, so it cannot remember what earlier rounds
+settled — which is why the shipped rule says state prevents
+relitigation, not the reviewer's memory.
+
+## What a diff-scoped round may read
+
+Diff-scoping forbids re-reviewing the document beyond the diff, and the
+ledger is part of the document — so the reviewer has been formally cut
+off from the one section recording what the developer already decided.
+That is the cause of the re-raises the fold exists to absorb, and it is
+cheaper to fix at the source.
+
+**The ledger is always in scope for a diff-scoped round as context,
+never as a review target.** What that protects is narrow and deliberate:
+
+- **Settled lines** — those carrying `ruling:`, and `declined` lines —
+  may not be re-raised without new evidence. They are the developer's
+  decisions.
+- **`held` lines** carry questions already put, so a round does not
+  duplicate one.
+- **Session fixes** — `fixed` lines carrying `license:` — get no
+  protection at all. The previous round's are the diff and are named as
+  the first thing to attack; older ones are simply unprotected. A
+  reviewer told not to re-raise a fix would lose the property
+  diff-scoping was adopted for, since repair-born defects are the
+  dominant late-round class.
+
+The reviewer learns what it may not reopen, never what it may not find.
+Naming the section rather than copying its lines keeps the brief from
+growing with the round count, and follows the same
+point-at-files-rather-than-paste discipline the workflow rule already
+applies to consultations.
 
 ## Write-ahead
 
@@ -189,8 +237,9 @@ reviewer's grade read `blocking`.
 
 ## Severity casing
 
-All 163 severity slots in this repo capitalize, against a glossary that
-fixed `critical | important | minor` in lower case. The grilling settled
+All 164 severity slots in this repo capitalize, across 163 lines — one
+audit line quotes two — against a glossary that fixed
+`critical | important | minor` in lower case. The grilling settled
 it in the glossary rather than here: the value is canonical as a word,
 and its casing follows the syntax it sits in — lower case as a rule
 tag's field value, capitalized in the ledger's bracket slot. One
@@ -214,22 +263,29 @@ lint's first act the condemnation of every committed line.
   "review-loop entry" instead.
 - `plugins/working-process/rules/workflow.md` — the oscillation tripwire
   rekeyed to `license:`, the `blocking` terminator's prohibition
-  deleted, and the cap's contact definition with its
-  cannot-count escalation.
+  deleted, the cap's contact definition with its cannot-count
+  escalation, and the re-dispatch brief's scope clause putting the
+  ledger permanently in a diff-scoped round's context.
 - `docs/domain/glossary.md` — already changed by the grilling, not by
   the implementation: six new terms (**Adjudication** and **Ruling** as
   a level-distinguishing pair; **Disposition ledger**, **Round
   heading**, **Disposition line** and **Gate line** for the structure
   the loop had been naming without defining), plus a **Severity**
-  sentence putting casing under the syntax each value sits in. The
-  refusal of `hit outstanding` is what keeps **Hit** binary.
+  sentence putting casing under the syntax each value sits in. Round 1
+  added one more: **Ruling** admits a cited earlier ruling, which is
+  what makes a fold expressible. The refusal of `hit outstanding` is
+  what keeps **Hit** binary.
 - `docs/specs/2026-08-31-review-loop-errata-wave-one.md` — its bare
   `- dismissed 2026-08-31` line takes the `hit dismissed` shape the
   grammar defines.
 
-Historical ledger lines stay as written. One sentence records that they
-predate the merge, as the `scope` token's introduction already
-established.
+Historical ledger lines stay as written, with one sentence recording
+that they predate the merge, as the `scope` token's introduction already
+established. The bare `- dismissed 2026-08-31` line above is the one
+exception, and for a different reason: it is not a line the merge
+remaps but a line that never matched any shape, written before the
+`hit dismissed` shape existed. Normalizing it to a shape its own wave
+later defined is not a rewrite under the merge.
 
 Merging a published token narrows a shipped convention, so the release
 carrying this takes a minor bump.
@@ -256,6 +312,12 @@ carrying this takes a minor bump.
 - **The deferred grammar lint.** Roughly half of this design becomes
   mechanically checkable if it ships and stays convention if it does
   not.
+- **Is a plan's confirming round autonomous, and does it count against
+  the cap?** Wave one routed the audit's implementer question 3 here.
+  Its missing-anchor half is the seam above; this half is a decision
+  about the loop's authority, not about the ledger, so it stays open
+  rather than being answered in passing by a document about record
+  shapes.
 - **Per-round commits, with a named trigger.** The lifecycle rule
   suggests committing only at the implementation-ready gate, while
   allowing the developer to commit sooner on their own call. If a loop
@@ -264,3 +326,28 @@ carrying this takes a minor bump.
   thins to a sentence, and the round heading can carry a commit hash.
   That trades this design's shapes for fewer, so it belongs to a later
   wave and not to this one.
+
+## Review rounds
+
+### 2026-09-02 — architect, fable 5, concerns (round 1, full-document)
+
+The gate episode preceding this round had no heading to write under and
+deferred its line here, as the placement rule's one deferral case
+prescribes.
+
+- dismissed 2026-09-02 — the glossary's new `ledger entry` ban is violated by `spec-plan-lifecycle.md` lines 228 and 272; counter: both say "review-loop ledger entry" for the Unfinished-work list's own entry, not a disposition line, so the banned sense is not the one in use — and Changes by file already schedules both rewordings, the designed sequence being glossary at grilling, rules at implementation. The round confirmed the dismissal on both legs
+- fixed — [Important] the relitigation fold had no expressible production: a re-raise folded against a `ruling:` line still needs its own terminal line, which must be `declined` and so must carry `ruling:` — but no developer ruled on the new finding, so the line either misreported its authorizer or could not be written. The same shape as the audit's defect 1, in the document that exists to cure it; ruling: 2026-09-02; the developer chose the cited-authorizer shape over a separate `folds:` clause and over producing no line at all — the fold now takes `declined <date>` with `ruling:` carrying the prior ruling's date and a citation of the folded line, the clause table and the glossary's **Ruling** entry both widened to admit a cited authorization
+- fixed — [Minor] "the Unfinished-work commands anchor on `^- `" was true of one of five; license: the five published commands read from the rule; the claim now names the split and rests the payload-is-free conclusion on the scope guard, which is what actually defends it
+- fixed — [Minor] "Historical ledger lines stay as written" sat beside a scheduled rewrite of one historical line; license: the spec's own distinction between remapping under the merge and normalizing to a shape defined later; the exception is now stated with its reason
+- fixed — [Minor] wave one routed implementer question 3 here and only its missing-anchor half was carried; license: wave one's own routing sentence; the autonomy-and-cap half joins the seams, deliberately unanswered because it decides the loop's authority rather than the ledger's shape
+- fixed — [Minor] "163 severity slots" counted lines, not slots; license: the recount — 164 occurrences across 163 lines, one audit line quoting two; both numbers now stated
+- fixed — [n/a] the developer, reading the Important above, asked why a round re-raises a settled finding at all; the answer is that a diff-scoped round is formally cut off from the ledger, so the cause is upstream of the fold; ruling: 2026-09-02; a new section puts the ledger permanently in a diff-scoped round's context, protecting settled and `held` lines while leaving session fixes as legitimate targets
+
+This last line cannot be written honestly under the grammar it replaces.
+It records neither a self-fixed finding (`fixed`, which the shipped rule
+defines as licensed by a citable decision) nor the close of a `held` line
+(`resolved <date>`, which closes nothing here) — and it carries no
+severity, because no reviewer graded it. It is a developer-directed
+change mid-round, which is the audit's defect 2 exactly, and the
+`ruling:` clause this design adds is what makes it expressible. The
+`[n/a]` slot above is what the gap looks like when it is written down.
