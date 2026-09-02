@@ -27,6 +27,7 @@ base: develop
 - **Historical ledger lines are never rewritten** to the new grammar. One task normalizes exactly one line, for a reason that task states.
 - **No version bump.** `plugins/working-process/.claude-plugin/plugin.json` already carries `0.14.0-dev.audit-errata`; the release PR mints the real number. This branch dogfoods through `--plugin-dir` and project-level rules, neither of which is cache-keyed, so the discriminator needs no re-mint.
 - **The spec is the source.** Where this plan and `docs/specs/2026-09-02-ledger-as-finding-state-design.md` disagree, the spec wins and the plan is wrong.
+- **Every phrase check against a rule file uses `rg -U`, never `grep`.** These files wrap prose at about 72 characters, so any searched phrase longer than a few words may straddle a line ending — and a single-line `grep` then returns 0 where the phrase is plainly present. Three checks in the first draft of this plan had exactly that fault. Write the pattern with `\s+` where the prose has a space: `rg -U -c 'the phrase\s+continues' <file>`.
 
 ---
 
@@ -294,12 +295,12 @@ git commit -m "feat(working-process): retain historical ledger shapes, permit pr
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-grep -c 'The date each line carries tells a gate episode apart' plugins/working-process/rules/spec-plan-lifecycle.md
+rg -U -c 'The date\s+each line carries tells a gate episode apart' plugins/working-process/rules/spec-plan-lifecycle.md
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: `1`.
+Expected: `1`. The phrase wraps after "The date", so `grep` returns 0 here and `rg -U` is required.
 
 - [ ] **Step 3: Replace the false reason, keeping the conclusion**
 
@@ -559,13 +560,13 @@ git commit -m "feat(working-process): tripwire keys on license, blocking drops i
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-grep -c 'any developer contact resets the count' plugins/working-process/rules/workflow.md
-grep -c 'a message from the developer' plugins/working-process/rules/workflow.md
+rg -U -c 'any\s+developer contact resets the count' plugins/working-process/rules/workflow.md
+rg -U -c 'a message from the developer' plugins/working-process/rules/workflow.md
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: `1` and `0`.
+Expected: `1` and `0`. The first phrase wraps after "any", so `grep` returns 0 here and `rg -U` is required.
 
 - [ ] **Step 3: Replace the bullet**
 
@@ -776,14 +777,23 @@ git commit -m "fix(working-process): close the propagation gate on the ledger re
 
 **Name consistency.** `license:`, `ruling:`, `question:`, `options:`, `counter:`, `deviation:`, `folding`, `fixed <date>`, `declined <date>`, `open`, `held`, `hit fixed`, `hit dismissed` are spelled identically in Tasks 1, 2, 5, 6, 7, 9 and 10.
 
-**One defect the self-review caught.** Task 6's check first asserted two
-single-line matches for `review-loop ledger entry`. Only one occurrence
-sits on a single line; the other wraps across a line ending, so `grep`
-finds one, and an executor would have read that as the work half done.
-The check is now `rg -U`, with the reason stated on the step. Every
-other phrase check in this plan was re-run against the working tree
-before the plan was saved: the five-shape block, the close description,
-the tripwire wording, the bare `dismissed` line, and the command counts
-all match what their steps expect.
+**One defect class, three instances, and the lesson about finding it.**
+Task 6's check first asserted two single-line matches for
+`review-loop ledger entry`; only one occurrence sits on a single line,
+so `grep` found one and an executor would have read that as the work
+half done. The self-review caught that instance **and treated it as
+isolated** — which it was not. A propagation gate over the committed
+plan found two more of exactly the same shape, in Tasks 4 and 8, where a
+phrase wraps after "The date" and after "any". A sweep of every phrase
+check in the plan then confirmed those three and no fourth.
+
+The fix is the Global Constraint above rather than three patches: in
+files that wrap prose, a phrase check is multi-line or it is unsound.
+Finding one instance of a mechanical fault is weak evidence that it is
+the only one, and the cheap move is to sweep the class immediately.
+
+Every other check was re-run against the working tree: the five-shape
+block, the close description, the tripwire wording, the bare `dismissed`
+line, and the command counts all match what their steps expect.
 
 **Known seam.** Task 2's Step 5 verifies the "four of the five" anchor claim by counting published commands. That count includes the `revises:` lookup, which is not an Unfinished-work entry — the step says so, but a future command added to either group will make the assertion wrong before the prose is. It is a check with a short shelf life, deliberately kept because the alternative is trusting the claim.
