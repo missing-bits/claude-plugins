@@ -320,7 +320,7 @@ matching line sits inside the document's frontmatter block — between the
 later pair — because a document quoting this convention in its body
 describes it rather than instantiating it. That guard is the default. An
 entry re-scopes it only by publishing its own match scope as a fourth
-leg, and the review-loop ledger entry below is the one that does.
+leg, and the review-loop entry below is the one that does.
 
 - **Grilling pending** — a session's outcomes are recorded and not yet
   applied.
@@ -364,9 +364,9 @@ anchors are tolerant on purpose, so a relocated field is still found.
 The Misplaced stamp command anchors `^\s+` instead, because there the
 indentation is the defect it looks for rather than an accident to
 tolerate. Those anchors all sit on a frontmatter field; the review-loop
-ledger entry anchors a leading disposition token instead, so there the
-close is a rewrite — `open` or `held` becomes `resolved <date>`, and the
-anchor stops matching.
+entry anchors a leading disposition token instead, so there the close is
+a rewrite — `open` or `held` becomes `fixed <date>` or
+`declined <date>`, and the anchor stops matching.
 
 ## Lifecycle offers
 
