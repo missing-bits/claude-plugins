@@ -189,8 +189,8 @@ the developer.
 Triage decides each finding by its license, never by its grade. A
 finding is self-fixable when the session can cite the decision that
 licenses the fix — a statement in the document itself, a glossary term
-or `_Avoid_` ban, a recorded ADR, or a previously resolved `held`
-line — and the citation goes on the finding's line in the disposition
+or `_Avoid_` ban, a recorded ADR, or a line carrying `ruling:` — and
+the citation goes on the finding's line in the disposition
 ledger the spec-plan-lifecycle rule defines. Everything else is held
 for the developer, and a finding that could go either way is a
 decision. Consequences the loop states outright:
@@ -297,10 +297,11 @@ evidence to attack, never a defence to protect.
 
 - `LGTM` ends the loop — on a plan, only a full-document round's LGTM
   does.
-- `blocking` suspends autonomy entirely: relay, stamp, stop. A blocking
-  round licenses no self-fixes, because reshaping a design the reviewer
-  judged broken as a whole is design work and re-enters through the
-  design conversation. `concerns` is the autonomy zone.
+- `blocking` suspends autonomy entirely: relay, stamp, stop — no further
+  round without the developer. It licenses no separate fix prohibition,
+  because triage already holds what the prohibition was reaching for: a
+  design reshape has no citable license by construction, so it is held
+  whatever the verdict's grade. `concerns` is the autonomy zone.
 - Round cap: three autonomous rounds per document per field without
   developer contact. Hitting the cap escalates in one batch — what was
   fixed, what remains, why — rather than halting silently, and any
@@ -312,9 +313,11 @@ evidence to attack, never a defence to protect.
   until the developer answers it: the resolution annotation the
   spec-plan-lifecycle rule defines records their close, and no session
   writes it without their answer.
-- Oscillation tripwire: a finding re-raised against a `fixed` line is
-  never re-fixed autonomously. Two readings of one license are a
-  contested reading, so it escalates as held, the flip named.
+- Oscillation tripwire: a finding re-raised against a line carrying
+  `license:` is never re-fixed autonomously. Two readings of one license
+  are a contested reading, so it escalates as held, the flip named. A
+  re-raise against a line carrying `ruling:` is the relitigation case
+  instead, and the spec-plan-lifecycle rule owns it.
 
 The cap guards spend and the signal guards sense; both escalate, and
 neither is a wall. Relay stays the developer's standing veto — every
