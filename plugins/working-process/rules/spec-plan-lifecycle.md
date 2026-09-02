@@ -282,10 +282,26 @@ that would dismiss the same hit differently argues against written words
 rather than silence. Neither joins the unfinished-work anchors: both are
 closed when written and owe nobody a next move.
 
-A resolved held line is a recorded decision. When a later round re-raises
-the problem it settled, the new finding is folded and cited against that
-line, never asked again — state prevents relitigation, not the
-reviewer's memory.
+A line carrying `ruling:` is a recorded developer decision, and what a
+later round may do with it depends on what that round brings:
+
+- re-raised without new evidence — folded and cited, never asked again;
+  the fold produces `declined <date>` carrying `ruling:` with the prior
+  ruling's date and a `folding` citation of the line it folds against,
+  so the authorizer is cited rather than manufactured;
+- re-raised with new evidence — `held`, its `counter:` citing the prior
+  ruling, because a session that folded this alone would arbitrate
+  between a reviewer and a recorded developer decision.
+
+Evidence is new relative to what the folded line records — its claim and
+the reasoning its clauses carry — not relative to the reviewer's
+wording. A session that cannot tell holds rather than folds.
+
+A pre-design settled line carries no authorizer clause and is settled by
+its token alone; a fold against one cites the date on that token, which
+is when the developer decided.
+
+State prevents relitigation, not the reviewer's memory.
 
 ## Unfinished-work list
 
