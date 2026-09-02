@@ -186,6 +186,34 @@ silently wrong. Writing contemporaneously makes a partial wave
 self-evident, since `open` and `fixed` lines mixed under one heading say
 exactly where the session stopped.
 
+The leading token is a queryable state. Clauses are payload.
+
+| clause | carries | on |
+|---|---|---|
+| `license: <citation>` | the written decision the session acted on | `fixed` |
+| `ruling: <date>` | the developer authorized it; on a fold, the prior ruling's date followed by `folding <section or line quote>` naming what it folds against | `fixed`, `declined` |
+| `question:` | the question, phrased so one short answer resolves it | `held` |
+| `options:` | the options and the session's recommendation | `held` |
+| `counter:` | the session's evidence where the finding is disputed or contested | `held` |
+| `deviation: <section>` | where the rationale for departing from a reviewer's suggestion lives | `fixed` |
+
+`question:` and `options:` are both required on a `held` line: the batch
+that relays them is a transcript, and a session that dies between the
+relay and the answer leaves the next session to re-derive the options,
+possibly differently, so the developer answers a question that silently
+changed. `counter:` and `deviation:` are conditional, written whenever
+their condition holds.
+
+Every terminal line carries exactly one authorizer.
+
+Payload costs nothing structurally. Four of the five Unfinished-work
+commands anchor a frontmatter field and are held to the frontmatter
+block by the list's default scope guard, so no body line reaches them at
+all; the fifth is this ledger's own, anchored on `^- `, which an indented
+continuation does not match. Payload under a line is therefore invisible
+to every published command, and where it runs long it belongs in
+indented sub-bullets rather than in a longer line.
+
 One annotation extends those shapes, and nothing else does. A spec whose
 developer accepts a
 diff-scoped chain at the consumption gate gains `, chain accepted <date>`
