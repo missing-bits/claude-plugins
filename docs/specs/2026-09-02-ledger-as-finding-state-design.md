@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-02
 status: draft
 grilled: 2026-09-02
-architect: blocking
+architect: concerns (resolved 2026-09-02)
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-08-31-review-loop-errata-wave-one.md]
 branch: feature/audit-errata
 base: develop
@@ -54,7 +54,9 @@ Four, replacing five.
     - fixed <date> — [<Severity>] <claim>; <authorizer>; <what changed>
     - declined <date> — [<Severity>] <claim>; <authorizer>; <why the document stands>
 
-The severity bracket is omitted on a `ruling:`-only line, as below:
+The severity bracket is omitted on a line whose sole authorizer is
+`ruling:` **and** which no reviewer graded — both legs, never one, as
+below:
 
     - fixed <date> — <claim>; ruling: <date>; <what changed>
 
@@ -126,6 +128,12 @@ both move to the clause:
   autonomously would be arbitrating between a reviewer and a recorded
   developer decision, which the workflow rule forbids it to do.
 
+Evidence is new relative to what the folded line records — its claim and
+the reasoning its clauses carry — not relative to the reviewer's wording.
+A session that cannot tell holds rather than folds, since triage already
+says a finding that could go either way is a decision, and a wrong
+not-new call performs the arbitration this split exists to prevent.
+
 This is stronger than what it replaces. Today both rules key on a proxy:
 `resolved` happens to imply the developer. After the change the
 predicate says what it means.
@@ -161,7 +169,8 @@ never as a review target.** What that protects is narrow and deliberate:
   with new evidence, which routes to `held` rather than to a fold.
   They are the developer's decisions. Historical lines written before
   this design, including `resolved <date> (declined)`, carry no
-  authorizer clause and are settled by their token alone.
+  authorizer clause and are settled by their token alone; a fold against
+  one cites the date on that token, which is when the developer decided.
 - **`held` lines** carry questions already put, so a round does not
   duplicate one.
 - **Session fixes** — `fixed` lines carrying `license:` — get no
@@ -393,3 +402,32 @@ exists to prevent.
 - fixed — [Minor] the recount was falsified by the commit that wrote it, which added five slots in its own ledger while stating 164; license: the recount itself; the number is gone and the universal claim stands, with the reason a frozen count cannot survive a growing ledger
 - fixed — [Minor] aggregating four gate hits into one line contradicted the **Gate line** entry this design owns; license: that entry; split into four lines rather than amending the definition, which would pre-empt an open question about controlled aggregation in reports
 - fixed — [Minor] "those carrying `ruling:`, and `declined` lines" was redundant and did not cover historical settled lines; license: the authorizer rule; the conjunct is gone and pre-design lines are named as settled by their token alone
+
+### 2026-09-02 — architect, fable 5, concerns (round 3, diff-scoped)
+
+- fixed — [Minor] the states block's caption said "a `ruling:`-only line" where the rule twelve lines below requires two legs, and this document's own three `ruling:`-only lines carry `[Important]` because a reviewer graded them; license: that fuller paragraph; the caption now carries both legs
+- fixed — [Minor] a fold against a pre-design settled line had no date to cite, since historical lines carry no authorizer clause; license: this design's own statement that such lines are settled by their token alone; the fold cites the date on that token, which is when the developer decided
+- fixed — [Minor] "without new evidence" named no comparison base, and a wrong not-new call silently performs the arbitration the split exists to prevent; license: the workflow rule's triage principle that a finding which could go either way is a decision; evidence is new relative to what the folded line records, and a session that cannot tell holds
+
+Round 3 judged the symmetry sound rather than rhetorical: an authorizer
+is constitutive of a terminal transition and is therefore cited when it
+exists elsewhere, while a grade is a reviewer's description whose true
+absence is honestly recorded by omission. One principle, two treatments
+— cite what exists, omit what never did.
+
+Its stop signal: a fourth round would not earn its cost. The leftovers
+were wording at a definition site, which is the class the consumption
+gate's integrity audit reads with two quotes per defect at the same tier
+over a broader scope. The document is done being reviewed in this loop.
+
+Loop closed 2026-09-02 by the developer, on round 3's stop signal and
+with every finding of every round disposed. Three architect rounds —
+concerns, blocking, concerns — and three propagation gate episodes, one
+CLEAN and two producing five hits, every one dismissed with a written
+counter-derivation and none requiring a fix. The next reader is the
+consumption gate's integrity audit, before the plan is written.
+
+A first draft of this paragraph stated six episodes and three fixes,
+conflating this loop's gates with the previous wave's. The recount is
+the third time in this document that a frozen number was wrong — which
+is why the severity section now states none.
