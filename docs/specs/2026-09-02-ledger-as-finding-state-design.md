@@ -66,6 +66,13 @@ below:
 Unfinished-work list anchors. `fixed` and `declined` are terminal and
 say what became of the document: it changed, or it stands.
 
+The two dates on a terminal line record different events and are both
+written even when they coincide. The leading date is when the line
+reached its terminal state; `ruling:` is when the decision it cites was
+taken. On an ordinary developer-authorized line the two are the same
+day and say so; on a fold they differ, and that divergence is the point
+of carrying both.
+
 The severity slot is a reviewer's grade, so it is omitted exactly where
 there is none: a line whose sole authorizer is `ruling:` and which no
 reviewer graded — a change the developer directed mid-round — carries
@@ -182,6 +189,13 @@ never as a review target.** What that protects is narrow and deliberate:
   diff-scoping was adopted for, since repair-born defects are the
   dominant late-round class.
 
+Narrative prose between the lines of a `## Review rounds` section is
+lawful and expected. The grammar governs headings, lines and their
+indented payload; a paragraph explaining why a wave went the way it did
+belongs there too, and every reason this loop found worth keeping was
+written as one. A lint over this section reads the anchored lines and
+ignores the prose.
+
 The reviewer learns what it may not reopen, never what it may not find.
 Naming the section rather than copying its lines keeps the brief from
 growing with the round count, and follows the same
@@ -228,7 +242,9 @@ beside six `resolved 2026-09-01` disposition lines under one heading, and
 two episodes share the date 2026-08-31. **The `hit` token is the
 discriminator.** A wrong stated reason invites a later session to
 correct the right practice, so the sentence is replaced rather than
-dropped.
+dropped — and only its date claim is. The same sentence concludes that
+a gate never mints a heading of its own, which stands on the round
+heading's grammar being closed, a reason the date never carried.
 
 ## What this does not build
 
@@ -294,9 +310,12 @@ lint's first act the condemnation of every committed line.
 - `plugins/working-process/rules/spec-plan-lifecycle.md` — the four
   states and their shapes, the clause table, the authorizer rule, the
   write-ahead sentence, the corrected gate discriminator, the refusals,
-  the relitigation clause rekeyed to `ruling:`, and the sentence
-  recording that pre-merge ledger lines stay as written. Two further
-  sites the grilling found: the Unfinished-work section says a ledger close is
+  the relitigation clause rekeyed to `ruling:`, the sentence recording
+  that pre-merge ledger lines stay as written, the retained historical
+  `resolved` shapes, the lawfulness of narrative prose between ledger
+  lines, and — from "What a diff-scoped round may read" — its grammar
+  half: that a pre-design line is settled by its token alone and that a
+  fold cites the date on it. Two further sites the grilling found: the Unfinished-work section says a ledger close is
   `open` or `held` becoming `resolved <date>`, which the merge makes
   `fixed <date>` or `declined <date>`; and two sentences call the
   list's own entry a "review-loop ledger entry", a phrase the glossary
@@ -304,9 +323,14 @@ lint's first act the condemnation of every committed line.
   "review-loop entry" instead.
 - `plugins/working-process/rules/workflow.md` — the oscillation tripwire
   rekeyed to `license:`, the `blocking` terminator's prohibition
-  deleted, the cap's contact definition with its cannot-count
-  escalation, and the re-dispatch brief's scope clause putting the
-  ledger permanently in a diff-scoped round's context.
+  deleted, and the cap's contact definition with its cannot-count
+  escalation. From "What a diff-scoped round may read" it takes the
+  reviewer's behaviour: the ledger's permanent place in a diff-scoped
+  round's context, the three protection tiers, and the base against
+  which evidence counts as new. The split follows the two rules' own
+  division — workflow says what a round does, the lifecycle rule says
+  what the record is — so the grammar half of that section goes below
+  rather than here.
 - `docs/domain/glossary.md` — already changed by the grilling, not by
   the implementation: six new terms (**Adjudication** and **Ruling** as
   a level-distinguishing pair; **Disposition ledger**, **Round
@@ -322,11 +346,19 @@ lint's first act the condemnation of every committed line.
 
 Historical ledger lines stay as written, with one sentence recording
 that they predate the merge, as the `scope` token's introduction already
-established. The bare `- dismissed 2026-08-31` line above is the one
+established. The shipped `resolved <date>` and `resolved <date>
+(declined)` shapes are kept in the rule as described historical forms
+rather than deleted: a reader must still parse pre-merge documents, and
+a fold against a pre-design settled line cites a date off a token the
+live grammar no longer produces. The bare `- dismissed 2026-08-31` line above is the one
 exception, and for a different reason: it is not a line the merge
 remaps but a line that never matched any shape, written before the
 `hit dismissed` shape existed. Normalizing it to a shape its own wave
-later defined is not a rewrite under the merge.
+later defined is not a rewrite under the merge. That edit records
+itself where it happens: a gate line in wave one's own ledger, under
+its last round heading. Wave one carries an adjudicated verdict, and
+editing a stamped document's body without a trace there is the thing
+wave one itself refused to do.
 
 Merging a published token narrows a shipped convention, so the release
 carrying this takes a minor bump.

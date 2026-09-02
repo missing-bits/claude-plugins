@@ -223,8 +223,9 @@ _Avoid_: developer override, manual close
 The developer's authorization of one finding's disposition, written as
 the `ruling: <date>` clause on that finding's ledger line — dated fresh,
 or carrying an earlier ruling's date where the line folds a re-raise
-against it. Closes a finding; the round-level counterpart is an
-Adjudication.
+against it. On a fold against a line written before the clause existed,
+the date on that line's own terminal token is the earlier ruling. Closes
+a finding; the round-level counterpart is an Adjudication.
 _Avoid_: developer decision (as the name), developer fix
 
 **Fallback**:
