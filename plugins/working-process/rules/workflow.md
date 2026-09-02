@@ -303,9 +303,16 @@ evidence to attack, never a defence to protect.
   design reshape has no citable license by construction, so it is held
   whatever the verdict's grade. `concerns` is the autonomy zone.
 - Round cap: three autonomous rounds per document per field without
-  developer contact. Hitting the cap escalates in one batch — what was
-  fixed, what remains, why — rather than halting silently, and any
-  developer contact resets the count.
+  developer contact, counting only rounds that returned a verdict.
+  Hitting the cap escalates in one batch — what was fixed, what remains,
+  why — rather than halting silently, and any developer contact resets
+  the count. Developer contact is a message from the developer: not a
+  relay they read, not an escalation the session sent, not an unanswered
+  batch. The count is derived from the round headings and the reset
+  event is recorded nowhere, so the cap is best-effort by construction;
+  a session that cannot count its own rounds escalates rather than
+  assuming, since resetting to zero would let a long session grant
+  itself three fresh rounds after every compaction.
 - All-Minor signal: two consecutive rounds whose findings are all Minor
   end the unattended run. Triage the round as always — by license, never
   by grade — and escalate with an offer of a fresh round instead of
@@ -322,7 +329,7 @@ evidence to attack, never a defence to protect.
 The cap guards spend and the signal guards sense; both escalate, and
 neither is a wall. Relay stays the developer's standing veto — every
 report reaches them before the session acts on it — and a model-cap
-refusal mid-loop is already developer contact: the drop-or-wait
+refusal mid-loop forces developer contact: the drop-or-wait
 question above is never answered autonomously.
 
 ### What a diff-scoped LGTM certifies
