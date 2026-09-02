@@ -30,7 +30,12 @@ base: develop
 - **The spec is the source.** Where this plan and `docs/specs/2026-09-02-ledger-as-finding-state-design.md` disagree, the spec wins and the plan is wrong.
 - **A check that searches for prose uses `rg -U` and puts `\s+` between *every* pair of words in the pattern; a check that searches for an anchored structural pattern uses `grep`.** These files wrap prose at about 72 characters, so a searched phrase may straddle a line ending and a single-line `grep` then returns 0 where the phrase is plainly present. Four checks in this plan's earlier drafts had exactly that fault, found across three sweeps that each declared the class closed — which is why the constraint is now unconditional rather than applied where a wrap looks likely. Where the wrap falls is not something a reader reliably predicts, and a pattern that is uniformly `\s+` is correct whether or not it wraps, so no judgement is exercised and no instance can be missed. An anchored pattern like `^    - fixed <date>` or `^| \`ruling:` cannot straddle by construction, so single-line matching is correct there and multi-line matching would be misleading.
 - **`rg -c` prints nothing and exits 1 when its pattern does not match** — it never prints `0`. A step asserting absence with `rg` therefore expects *no output*; only `grep -c`, which does print `0`, is given a numeric zero expectation.
-- **Leading-anchor tolerance follows the direction of the assertion.** A check asserting that text is *gone* uses a tolerant anchor (`^\s*`), because a leftover the pattern fails to match reads as success — the same false-clean failure the wrapped-phrase class produces. A check asserting that prescribed text is *present* uses the exact anchor (`^    ` for an indented grammar block, `^| ` for a table row), because the indentation is part of what the step prescribes and a tolerant match would accept a malformed block as correct. This is the lifecycle rule's own reasoning applied here: its Unfinished-work anchors are tolerant so a relocated field is still found, and its Misplaced-stamp anchor is exact precisely because there the indentation *is* the defect. One published command is copied verbatim rather than reasoned about — the ledger anchor `^- `, which is strict by design so indented payload cannot match it; a check mirroring a published command reproduces it exactly.
+- **An anchored check on an indented block publishes *both* anchors — exact and tolerant — and asserts their equality.** Never one alone, and never a per-site decision about which. The exact anchor (`^    ` for a grammar block, `^| ` for a table row) proves the prescribed text is well-formed at the indent the step prescribes; the tolerant anchor (`^\s*`) proves no variant survives anywhere else. Each alone has a blind spot that reads as success: the exact one passes while a leftover sits at another indent, the tolerant one passes while the prescribed block is mis-indented. Equality of the two counts is the assertion, and a divergence localizes which half failed.
+
+  An earlier draft of this constraint made tolerance depend on the direction of the assertion — tolerant for "is it gone", exact for "is it present". That reasoning is sound and it is *why* the pair works, but it is a judgement exercised at every site, and the wrapped-phrase constraint above is the standing evidence for what that costs. Applying it, this plan got Task 11's Step 3 wrong: that step asserts both directions at once and the rule had no answer for it. Publishing both anchors always is mechanical, subsumes both directions, and cannot be misapplied. The lifecycle rule's own asymmetry — tolerant Unfinished-work anchors so a relocated field is still found, an exact `^\s+` on Misplaced stamp because there the indentation *is* the defect — is the reasoning this pair captures without asking any later reader to re-derive it.
+
+  One case is copied rather than reasoned about: a check mirroring a command the rules publish reproduces it verbatim, the ledger anchor `^- ` included, which is strict by design so indented payload cannot match it.
+- **Every check must return a different value before and after its step, and both values are stated.** A check whose before-value equals its after-value verifies nothing, however correct both numbers look — and it survives review precisely because nothing about it appears wrong. Task 11's Step 3 was exactly this: it counted a shape one task deletes and a later one restores, scoring `2` both before and after the entire plan. Where a count cannot distinguish the two states, assert something that can — a line ordering against text that does not exist until the work is done.
 
 ---
 
@@ -46,15 +51,18 @@ base: develop
 
 ```bash
 # The old five-shape block must still be present, and the new tokens absent.
-grep -c '^\s*- resolved <date> — \[<severity>\]' plugins/working-process/rules/spec-plan-lifecycle.md
-grep -c '^    - declined <date>' plugins/working-process/rules/spec-plan-lifecycle.md
+f=plugins/working-process/rules/spec-plan-lifecycle.md
+grep -c '^    - resolved <date> — \[<severity>\]' "$f"   # old shape, exact indent
+grep -c '^\s*- resolved <date> — \[<severity>\]' "$f"    # old shape, any indent
+grep -c '^    - declined <date>' "$f"                    # new shape, exact indent
+grep -c '^\s*- declined <date>' "$f"                     # new shape, any indent
 ```
 
-The two anchors differ deliberately, per the tolerance constraint above. The first ends this task asserting the old shape is *gone*, so it is tolerant — a leftover line at any indent must still be caught. The second ends it asserting the new shape is *present* at the grammar block's own indent, so it is exact — a block written at the wrong indent is not a code block and must fail.
+Each shape is counted twice, exact and tolerant, per the paired-anchor constraint above. The two counts for a shape must always match: a divergence means a line sits at an indent the grammar block does not use, which the single-anchor form of this check could not see in either direction.
 
 - [ ] **Step 2: Run it to confirm the starting state**
 
-Expected: first command prints `1`, second prints `0`.
+Expected: `1`, `1`, `0`, `0` — the old shape present at the block's indent and nowhere else, the new shape absent everywhere.
 
 - [ ] **Step 3: Replace the shapes block**
 
@@ -143,7 +151,7 @@ exactly where the session stopped.
 
 - [ ] **Step 6: Run the check again**
 
-Expected: first command prints `0`, second prints `1`.
+Expected: `0`, `0`, `1`, `1` — the old shape gone at every indent, the new shape present at the block's indent and nowhere else. Each pair must match.
 
 - [ ] **Step 7: Validate**
 
@@ -174,12 +182,16 @@ git commit -m "feat(working-process): four ledger states, authorizer as a clause
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-grep -c '^| `ruling: <date>` |' plugins/working-process/rules/spec-plan-lifecycle.md
+f=plugins/working-process/rules/spec-plan-lifecycle.md
+grep -c '^| `ruling: <date>` |' "$f"     # exact: a table row starts at column 0
+grep -c '^\s*| `ruling: <date>` |' "$f"  # any indent
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: `0`.
+Expected: `0` and `0`.
+
+The pair matters here for a reason particular to Markdown: a table row indented by four spaces stops being a table and renders as a code block, silently, with no parse error. The exact anchor alone would report the row missing without saying why; the tolerant one alone would report it present while the table was broken. A divergence between the two is the diagnosis.
 
 - [ ] **Step 3: Add the table and its two rules**
 
@@ -217,7 +229,7 @@ indented sub-bullets rather than in a longer line.
 
 - [ ] **Step 4: Run the check again**
 
-Expected: `1`.
+Expected: `1` and `1`, matching.
 
 - [ ] **Step 5: Verify the anchor claim against the file itself**
 
@@ -286,10 +298,12 @@ ignores the prose.
 Expected: `1`. Also confirm the reinstated shapes are present, which Task 11's Step 3 will re-assert:
 
 ```bash
-grep -c '^    - resolved <date> ' plugins/working-process/rules/spec-plan-lifecycle.md
+f=plugins/working-process/rules/spec-plan-lifecycle.md
+grep -c '^    - resolved <date> ' "$f"    # exact indent
+grep -c '^\s*- resolved <date> ' "$f"     # any indent
 ```
 
-Expected: `2`.
+Expected: `2` and `2`, matching. Task 1 left this at `0` and `0`, so the pair also proves this task ran rather than merely that the shapes exist somewhere.
 
 - [ ] **Step 5: Validate and commit**
 
@@ -646,7 +660,7 @@ with:
 
 - [ ] **Step 4: Run the check again**
 
-Expected: second command prints `1`.
+Expected: the first command prints nothing, the second prints `1`. Both are stated because the replacement deletes the first phrase and introduces the second, so each command changes value and a step that asserted only one would let half the edit pass unverified.
 
 - [ ] **Step 5: Validate and commit**
 
@@ -800,11 +814,17 @@ The `grep -v` is not slack. The glossary's **Disposition line** entry defines th
 - [ ] **Step 3: Confirm the live grammar is gone and the historical block remains**
 
 ```bash
-grep -c '^\s*- resolved <date> — \[' plugins/working-process/rules/spec-plan-lifecycle.md
-grep -c '^\s*- resolved <date> (declined) — \[' plugins/working-process/rules/spec-plan-lifecycle.md
+f=plugins/working-process/rules/spec-plan-lifecycle.md
+rg -U -n 'described\s+historical\s+forms' "$f" | cut -d: -f1   # the paragraph Task 3 adds
+grep -n '^    - resolved <date> ' "$f"                          # exact: the block, well-formed
+grep -c '^\s*- resolved <date> ' "$f"                           # tolerant: nothing else, any indent
 ```
 
-Expected: `1` and `1` — the two lines Task 3 writes into its historical-forms block, and nothing else. Task 1 deleted both shapes from the live block; Task 3 reinstated them as described history. Two hits on the first command would mean a live-block line survived.
+Expected: the paragraph's line number prints; exactly two `resolved <date>` lines print, **both numbered greater than it**; and the tolerant count is `2`, equal to the number of exact-anchored hits.
+
+**A bare count here would be vacuous, and was.** This step's first draft compared counts alone, and the file scores `2` and `2` *before* any task runs — the two shapes sit in the live block today, and Task 1 deleting them while Task 3 writes them back leaves the total unchanged. A check that passes identically in the starting and finishing states verifies nothing, and it would have gone unnoticed because both numbers are right. The line-ordering comparison is what makes the step discriminate: before implementation the introducing paragraph does not exist, and the shape lines sit above where it will be, so the assertion fails exactly when the work has not happened.
+
+The two anchors then split the remaining work in opposite directions. The exact one says Task 3's block is well-formed at the grammar block's own indent — fewer than two hits means missing or mis-indented. The tolerant one says nothing matching the retired shape survives anywhere else at any indent — a count above the number of exact hits means a leftover the exact anchor cannot see, which is the live-block line Task 1 was supposed to delete. Neither anchor alone carries both claims.
 
 - [ ] **Step 4: Validate**
 
@@ -884,10 +904,37 @@ what their steps expect.
 
 The developer authorized this fix wave despite the `blocking` verdict, which otherwise suspends autonomy. Every finding above carried a citable written license, and none was a design decision — the verdict's grade and the findings' licenses pointed in different directions, which is the case the loop's triage rule was written for.
 
-One further defect was raised by the developer during the wave, outside
-the round:
+Four further defects were raised by the developer during the wave,
+outside the round. All four came from one observation — that the
+anchored `grep` checks had no whitespace treatment — pursued
+mechanically rather than site by site, the developer returning three
+times because each answer still left a judgement in place:
 
 - fixed — [Important] the anchored `grep` checks used an exact four-space leading anchor where the Unfinished-work list's own commands are deliberately tolerant, so a leftover line at a different indent would read as absent — the same false-clean failure as the wrapped-phrase class; license: the lifecycle rule's stated reasoning that leading anchors are tolerant on purpose and its Misplaced-stamp anchor exact because there the indentation is the defect; a third Global Constraint now ties anchor tolerance to the direction of the assertion, and Task 1's two anchors differ accordingly with the step saying why
+- fixed — [Critical] Task 11's Step 3 was vacuous: it compared counts of the retired shape, and the file scores `2` and `2` *before* any task runs, since Task 1 deleting the two shapes while Task 3 writes them back leaves the total unchanged — the step passed identically in the starting and finishing states, and both numbers being right is why nobody noticed; license: the plan's own requirement that a check be capable of failing if its step were skipped; the step now compares the shape lines' line numbers against the introducing paragraph's, which does not exist before implementation, and the step records the vacuity so the next reader sees why the ordering comparison is there
+- fixed — [Important] Task 8's Step 4 stated only one of its two post-edit expectations, leaving the deletion half of the edit unverified — the same defect the round found in Task 7, in the task next to it, and missed there; license: that round's finding on Task 7, which is a written decision about this exact shape; both expectations are now stated
+
+- fixed — [Important] the repair above still made anchor tolerance depend on a per-site judgement — tolerant for "is it gone", exact for "is it present" — which is the same shape as the wrapped-phrase rule that produced four instances, and the developer said so after Tasks 1 and 3 kept their single exact anchors; license: this plan's own wrapped-phrase constraint, whose stated reason for going unconditional is that a rule requiring a prediction at each site keeps failing at the rate the prediction does; the constraint now requires *both* anchors on every anchored check with their equality as the assertion, and all five checks are paired
+
+The vacuity above is the wave's most serious finding and none of the
+three reviews caught it — not the self-review, not the propagation gate,
+not the `blocking` round. It surfaced because the developer's anchor
+question forced a mechanical audit of every anchored pattern, and the
+audit asked a question reading never asks: does this check return a
+different value before and after its task? That question is now worth
+asking of every check in every plan, and Task 8's defect fell out of the
+same sweep moments later.
+
+The sequence is the lesson, more than any of the four repairs. The first
+answer fixed the sites the developer pointed at. The second generalized
+to a rule — but a rule with a judgement in it, and the judgement was
+promptly got wrong on the one step that asserts both directions at once.
+The third removed the judgement. Twice in one plan the same correction
+was needed on the same class, and both times the intermediate stop
+looked like a principled rule rather than an unfinished one. A
+constraint that still asks the reader to classify the site is not
+finished; the test is whether it can be applied without deciding
+anything.
 
 Answering the round's focusing question — what is still broken if every
 stated check passes — the reviewer named three: the retired token still
