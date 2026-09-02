@@ -129,31 +129,62 @@ always says so.
 Under the heading each finding takes one line, its disposition the
 leading token:
 
-    - fixed — [<severity>] <claim>; license: <citation>; <what changed>
-    - held — [<severity>] <claim>; question: <one short question>[; counter: <counter-evidence>]
-    - open — [<severity>] <claim>
-    - resolved <date> — [<severity>] <claim>; landed in <section>
-    - resolved <date> (declined) — [<severity>] <claim>; <why the document stands>
+    - open — [<Severity>] <claim>
+    - held — [<Severity>] <claim>; question: <one closed question>; options: <the options and the session's recommendation>
+    - fixed <date> — [<Severity>] <claim>; <authorizer>; <what changed>
+    - declined <date> — [<Severity>] <claim>; <authorizer>; <why the document stands>
+
+The severity bracket is omitted on a line whose sole authorizer is
+`ruling:` **and** which no reviewer graded — both legs, never one:
+
+    - fixed <date> — <claim>; ruling: <date>; <what changed>
+
+`open` and `held` are the non-terminal states, and the only two the
+Unfinished-work list anchors. `fixed` and `declined` are terminal and
+say what became of the document: it changed, or it stands.
+
+The two dates on a terminal line record different events and are both
+written even when they coincide. The leading date is when the line
+reached its terminal state; `ruling:` is when the decision it cites was
+taken. On an ordinary developer-authorized line the two are the same day
+and say so; on a fold they differ, and that divergence is the point of
+carrying both.
+
+The severity slot is a reviewer's grade, so it is omitted exactly where
+there is none: a change the developer directed mid-round is not a
+finding, and inventing a grade for it would be the same manufacture the
+authorizer rule forbids. This adds no fourth severity value; the
+glossary's three stand.
+
+`fixed` and `resolved` merge because they were never two states. Both
+mean the document changed on account of this finding, and they differed
+only in who authorized it, which is now a clause. Merging also frees a
+word the rules used for two objects — `concerns (resolved <date>)`
+annotates a verdict, while `resolved <date>` annotated a finding.
 
 - `open` — written at stamp time, before the findings are triaged. An
   `open` line surviving a session means the remediation never ran, and
   the document's next touch re-offers it.
-- `fixed` — the session fixed the finding alone, licensed by a decision
-  it can cite: a statement in the document itself, a glossary term or
-  `_Avoid_` ban, a recorded ADR, or a previously resolved held line. The
-  citation goes on the line. No citable license means the finding is
-  held, and a finding that could go either way is a decision.
 - `held` — the finding needs the developer. The line carries the
-  concrete question, phrased so one short answer resolves it. Where the
-  finding is disputed or contested, the `counter:` clause carries the
-  evidence the developer needs in order to answer, so the dispute and
-  the question travel on one line. The oscillation tripwire's named
-  flip is that evidence.
-- `resolved <date>` — closes a held line once the answer lands. The
-  answer's substance goes into the document's design text; the ledger
-  line points at it and never duplicates it.
-  `resolved <date> (declined)` records the developer keeping the
-  document as it was.
+  concrete question and the options with the session's recommendation;
+  where the finding is disputed or contested, `counter:` carries the
+  evidence the developer needs in order to answer, and the oscillation
+  tripwire's named flip is that evidence.
+- `fixed <date>` — the document changed on account of this finding. Its
+  authorizer says who decided: `license:` where the session cited a
+  written decision, `ruling:` where the developer did.
+- `declined <date>` — the document stands. It always carries `ruling:`,
+  because declining is a decision and triage gives a session no license
+  to decide.
+
+Each disposition line is written before the edit it describes, or with
+it — never batched at the end of a wave. The dangerous failure is not a
+session dying mid-round but a fix wave half-applied with no lines
+written: the body has changed, nothing says which change belongs to
+which finding, and the next round's brief reads a diff source that is
+silently wrong. Writing contemporaneously makes a partial wave
+self-evident, since `open` and `fixed` lines mixed under one heading say
+exactly where the session stopped.
 
 One annotation extends those shapes, and nothing else does. A spec whose
 developer accepts a
