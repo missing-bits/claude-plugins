@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-09-02
 status: draft
+adversary: blocking
 spec: ../specs/2026-09-02-ledger-as-finding-state-design.md
 branch: feature/audit-errata
 base: develop
@@ -27,7 +28,9 @@ base: develop
 - **Historical ledger lines are never rewritten** to the new grammar. One task normalizes exactly one line, for a reason that task states.
 - **No version bump.** `plugins/working-process/.claude-plugin/plugin.json` already carries `0.14.0-dev.audit-errata`; the release PR mints the real number. This branch dogfoods through `--plugin-dir` and project-level rules, neither of which is cache-keyed, so the discriminator needs no re-mint.
 - **The spec is the source.** Where this plan and `docs/specs/2026-09-02-ledger-as-finding-state-design.md` disagree, the spec wins and the plan is wrong.
-- **A check that searches for prose uses `rg -U` with `\s+` between words; a check that searches for an anchored structural pattern uses `grep`.** These files wrap prose at about 72 characters, so a searched phrase may straddle a line ending and a single-line `grep` then returns 0 where the phrase is plainly present — three checks in this plan's first draft had exactly that fault. An anchored pattern like `^    - fixed <date>` or `^| \`ruling:` cannot straddle by construction, so single-line matching is correct there and multi-line matching would be misleading.
+- **A check that searches for prose uses `rg -U` and puts `\s+` between *every* pair of words in the pattern; a check that searches for an anchored structural pattern uses `grep`.** These files wrap prose at about 72 characters, so a searched phrase may straddle a line ending and a single-line `grep` then returns 0 where the phrase is plainly present. Four checks in this plan's earlier drafts had exactly that fault, found across three sweeps that each declared the class closed — which is why the constraint is now unconditional rather than applied where a wrap looks likely. Where the wrap falls is not something a reader reliably predicts, and a pattern that is uniformly `\s+` is correct whether or not it wraps, so no judgement is exercised and no instance can be missed. An anchored pattern like `^    - fixed <date>` or `^| \`ruling:` cannot straddle by construction, so single-line matching is correct there and multi-line matching would be misleading.
+- **`rg -c` prints nothing and exits 1 when its pattern does not match** — it never prints `0`. A step asserting absence with `rg` therefore expects *no output*; only `grep -c`, which does print `0`, is given a numeric zero expectation.
+- **Leading-anchor tolerance follows the direction of the assertion.** A check asserting that text is *gone* uses a tolerant anchor (`^\s*`), because a leftover the pattern fails to match reads as success — the same false-clean failure the wrapped-phrase class produces. A check asserting that prescribed text is *present* uses the exact anchor (`^    ` for an indented grammar block, `^| ` for a table row), because the indentation is part of what the step prescribes and a tolerant match would accept a malformed block as correct. This is the lifecycle rule's own reasoning applied here: its Unfinished-work anchors are tolerant so a relocated field is still found, and its Misplaced-stamp anchor is exact precisely because there the indentation *is* the defect. One published command is copied verbatim rather than reasoned about — the ledger anchor `^- `, which is strict by design so indented payload cannot match it; a check mirroring a published command reproduces it exactly.
 
 ---
 
@@ -43,9 +46,11 @@ base: develop
 
 ```bash
 # The old five-shape block must still be present, and the new tokens absent.
-grep -c '^    - resolved <date> — \[<severity>\]' plugins/working-process/rules/spec-plan-lifecycle.md
+grep -c '^\s*- resolved <date> — \[<severity>\]' plugins/working-process/rules/spec-plan-lifecycle.md
 grep -c '^    - declined <date>' plugins/working-process/rules/spec-plan-lifecycle.md
 ```
+
+The two anchors differ deliberately, per the tolerance constraint above. The first ends this task asserting the old shape is *gone*, so it is tolerant — a leftover line at any indent must still be caught. The second ends it asserting the new shape is *present* at the grammar block's own indent, so it is exact — a block written at the wrong indent is not a code block and must fail.
 
 - [ ] **Step 2: Run it to confirm the starting state**
 
@@ -240,7 +245,9 @@ git commit -m "feat(working-process): the ledger's clause table"
 
 **Interfaces:**
 - Consumes: the merge from Task 1.
-- Produces: the statement that `resolved <date>` and `resolved <date> (declined)` remain parseable historical forms. Task 5's fold and Task 11's normalization both rely on it.
+- Produces: the two historical shape lines, quoted verbatim, and the statement that they remain parseable. Task 5's fold and Task 11's Step 3 both rely on them being present in the file.
+
+**This task reinstates shape lines Task 1 deleted.** Task 1 removes all five old shapes from the live block; this task writes two of them back, in a block explicitly labelled historical. Task 1's own post-edit check is therefore true only at Task 1's completion, and Task 11 accounts for the reinstated pair rather than expecting the file to be free of them.
 
 - [ ] **Step 1: Write the failing check**
 
@@ -250,17 +257,22 @@ rg -U -c 'described\s+historical\s+forms' plugins/working-process/rules/spec-pla
 
 - [ ] **Step 2: Run it**
 
-Expected: `0`.
+Expected: no output.
 
 - [ ] **Step 3: Add the paragraph**
 
 ```
 Ledger lines written before this merge stay as written, as the `scope`
-token's introduction already established. The shapes they use —
-`resolved <date>` and `resolved <date> (declined)` — are kept here as
-described historical forms rather than deleted: a reader must still
-parse pre-merge documents, and a fold against a pre-design settled line
-cites a date off a token the live grammar no longer produces.
+token's introduction already established. The shapes they use are kept
+here as described historical forms rather than deleted:
+
+    - resolved <date> — [<severity>] <claim>; landed in <section>
+    - resolved <date> (declined) — [<severity>] <claim>; <why the document stands>
+
+A reader must still parse pre-merge documents, and a fold against a
+pre-design settled line cites a date off a token the live grammar no
+longer produces. These two shapes are described, never minted: no
+session writes a new line in either form.
 
 Narrative prose between the lines of a `## Review rounds` section is
 lawful and expected. This grammar governs headings, lines, and their
@@ -271,7 +283,13 @@ ignores the prose.
 
 - [ ] **Step 4: Run the check again**
 
-Expected: `1`.
+Expected: `1`. Also confirm the reinstated shapes are present, which Task 11's Step 3 will re-assert:
+
+```bash
+grep -c '^    - resolved <date> ' plugins/working-process/rules/spec-plan-lifecycle.md
+```
+
+Expected: `2`.
 
 - [ ] **Step 5: Validate and commit**
 
@@ -295,7 +313,7 @@ git commit -m "feat(working-process): retain historical ledger shapes, permit pr
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-rg -U -c 'The date\s+each line carries tells a gate episode apart' plugins/working-process/rules/spec-plan-lifecycle.md
+rg -U -c 'The\s+date\s+each\s+line\s+carries\s+tells\s+a\s+gate\s+episode\s+apart' plugins/working-process/rules/spec-plan-lifecycle.md
 ```
 
 - [ ] **Step 2: Run it**
@@ -326,7 +344,7 @@ round.
 
 - [ ] **Step 4: Run the check again**
 
-Expected: `0`.
+Expected: no output.
 
 - [ ] **Step 5: Validate and commit**
 
@@ -395,7 +413,7 @@ State prevents relitigation, not the reviewer's memory.
 
 - [ ] **Step 4: Run the check again**
 
-Expected: `0`, and `grep -c 'folding' plugins/working-process/rules/spec-plan-lifecycle.md` prints at least `2` (the clause table row from Task 2 and this paragraph).
+Expected: no output, and `grep -c 'folding' plugins/working-process/rules/spec-plan-lifecycle.md` prints at least `2` (the clause table row from Task 2 and this paragraph).
 
 - [ ] **Step 5: Validate and commit**
 
@@ -419,21 +437,27 @@ git commit -m "feat(working-process): relitigation branches on the authorizer cl
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-rg -U -n 'review-loop\s+ledger entry' plugins/working-process/rules/spec-plan-lifecycle.md
-rg -U -c 'becomes\s+`resolved <date>`' plugins/working-process/rules/spec-plan-lifecycle.md
+rg -U -n 'review-loop\s+ledger\s+entry' plugins/working-process/rules/spec-plan-lifecycle.md
+rg -U -c 'becomes\s+`resolved\s+<date>`' plugins/working-process/rules/spec-plan-lifecycle.md
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: the first prints three lines covering two occurrences — one whole at line 228, one wrapped across lines 271–272 — and the second prints `1`.
+Expected: the first reports two occurrences of `review-loop ledger entry` — one falling on a single line, in the paragraph about a re-scoped match scope, and one wrapping across a line ending, in the closing paragraph about the anchors. The second prints `1`.
+
+Line numbers are deliberately not stated: Tasks 1–5 insert text above both occurrences, so any number quoted here would be wrong by the time this task runs. Match on the surrounding sentence instead.
 
 **`rg -U` is not optional here.** The second occurrence breaks across a line ending, so a single-line `grep` finds only the first and reports the work half done. Any check for this phrase in this file is multi-line.
 
-- [ ] **Step 3: Reword both "review-loop ledger entry" occurrences**
+- [ ] **Step 3: Reword the first occurrence**
 
-Change each to `review-loop entry`. The glossary's **Disposition line** entry bans `ledger entry` as a name for a disposition line, and both sentences mean the Unfinished-work list's own entry — the reword removes the collision without changing the referent.
+In the paragraph about the re-scoped match scope, change `the review-loop ledger entry below is the one that does` to `the review-loop entry below is the one that does`.
 
-- [ ] **Step 4: Correct the close description**
+The glossary's **Disposition line** entry bans `ledger entry` as a name for a disposition line, and the sentence means the Unfinished-work list's own entry — the reword removes the collision without changing the referent.
+
+**The second occurrence is not touched here.** It sits inside the block Step 4 replaces wholesale, and Step 4's replacement text already carries the reword. Rewording it now would leave Step 4 quoting text that no longer exists.
+
+- [ ] **Step 4: Correct the close description, rewording the second occurrence as part of it**
 
 Replace:
 
@@ -446,14 +470,16 @@ anchor stops matching.
 with:
 
 ```
-review-loop entry anchors a leading disposition token instead, so there
-the close is a rewrite — `open` or `held` becomes `fixed <date>` or
+entry anchors a leading disposition token instead, so there the
+close is a rewrite — `open` or `held` becomes `fixed <date>` or
 `declined <date>`, and the anchor stops matching.
 ```
 
+The word `review-loop` sits on the preceding line and is not part of either block, so dropping `ledger` from the start of the replacement is what completes the reword — the sentence then reads "the review-loop entry anchors a leading disposition token instead". Re-wrap the paragraph to the file's ~72-character habit after the edit.
+
 - [ ] **Step 5: Run the check again**
 
-Expected: `rg -U -n 'review-loop\s+ledger entry'` prints nothing, and the second command prints `0`.
+Expected: both commands print nothing.
 
 - [ ] **Step 6: Run the published command against the repo**
 
@@ -473,27 +499,50 @@ git commit -m "fix(working-process): ledger close names the merged tokens"
 
 ---
 
-### Task 7: The oscillation tripwire and the blocking terminator
+### Task 7: `workflow.md`'s three consumers of the retired token
 
 **Files:**
-- Modify: `plugins/working-process/rules/workflow.md` — the `### Terminators` list
+- Modify: `plugins/working-process/rules/workflow.md` — the triage paragraph under `### The review loop`, and the `### Terminators` list
 
 **Interfaces:**
-- Consumes: `license:` from Task 2.
+- Consumes: `license:` and `ruling:` from Task 2; the merge from Task 1.
 - Produces: nothing new.
+
+The merge in Task 1 retires `resolved` as a disposition token, and `workflow.md` reads it in three places: the triage paragraph's list of license sources, the oscillation tripwire, and the blocking terminator. All three are fixed here, in one file, so no consumer of the retired token is left behind.
 
 - [ ] **Step 1: Write the failing check**
 
 ```bash
+rg -U -c 'a\s+previously\s+resolved\s+`held`\s+line' plugins/working-process/rules/workflow.md
 rg -U -c 'a\s+finding\s+re-raised\s+against\s+a\s+`fixed`\s+line' plugins/working-process/rules/workflow.md
 rg -U -c 'licenses\s+no\s+self-fixes' plugins/working-process/rules/workflow.md
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: `1` and `1`. The second pattern names the clause this task deletes, so it fails if the deletion is skipped; a looser pattern such as `A blocking` would pass either way.
+Expected: `1`, `1` and `1`. Each pattern names text this task removes, so each fails if its step is skipped; a looser pattern such as `A blocking` would pass either way and verifies nothing.
 
-- [ ] **Step 3: Rekey the tripwire**
+- [ ] **Step 3: Rekey the triage paragraph's license sources**
+
+The triage paragraph lists what a session may cite to license a self-fix, and one item names a state the live grammar stops producing. Replace:
+
+```
+licenses the fix — a statement in the document itself, a glossary term
+or `_Avoid_` ban, a recorded ADR, or a previously resolved `held`
+line — and the citation goes on the finding's line in the disposition
+```
+
+with:
+
+```
+licenses the fix — a statement in the document itself, a glossary term
+or `_Avoid_` ban, a recorded ADR, or a line carrying `ruling:` — and
+the citation goes on the finding's line in the disposition
+```
+
+A held line the developer answered now terminates as `fixed <date>` or `declined <date>` carrying `ruling:`, so the authorizer clause is what identifies a recorded developer decision, whatever token the line ends on. The reword also picks up pre-design settled lines, which the old wording missed.
+
+- [ ] **Step 4: Rekey the tripwire**
 
 Replace:
 
@@ -513,7 +562,7 @@ with:
   instead, and the spec-plan-lifecycle rule owns it.
 ```
 
-- [ ] **Step 4: Delete the self-fix prohibition**
+- [ ] **Step 5: Delete the self-fix prohibition**
 
 Replace:
 
@@ -534,16 +583,16 @@ with:
   whatever the verdict's grade.
 ```
 
-- [ ] **Step 5: Run the check again**
+- [ ] **Step 6: Run the check again**
 
-Expected: first command prints `0`.
+Expected: all three commands print nothing. Each corresponds to one of Steps 3, 4 and 5, so a skipped step is the one that still prints `1`.
 
-- [ ] **Step 6: Validate and commit**
+- [ ] **Step 7: Validate and commit**
 
 ```bash
 claude plugin validate . && claude plugin validate plugins/working-process
 git add plugins/working-process/rules/workflow.md
-git commit -m "feat(working-process): tripwire keys on license, blocking drops its fix ban"
+git commit -m "feat(working-process): move workflow.md off the retired resolved token"
 ```
 
 ---
@@ -560,13 +609,13 @@ git commit -m "feat(working-process): tripwire keys on license, blocking drops i
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-rg -U -c 'any\s+developer contact resets the count' plugins/working-process/rules/workflow.md
-rg -U -c 'a message from the developer' plugins/working-process/rules/workflow.md
+rg -U -c 'any\s+developer\s+contact\s+resets\s+the\s+count' plugins/working-process/rules/workflow.md
+rg -U -c 'a\s+message\s+from\s+the\s+developer' plugins/working-process/rules/workflow.md
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: `1` and `0`. The first phrase wraps after "any", so `grep` returns 0 here and `rg -U` is required.
+Expected: `1`, then no output. The first phrase wraps after "any" and the second wraps after "a message" once written, so both are uniformly `\s+` — the second is the instance that made the constraint unconditional.
 
 - [ ] **Step 3: Replace the bullet**
 
@@ -626,7 +675,7 @@ rg -U -c 'always\s+in\s+scope\s+for\s+a\s+diff-scoped\s+round' plugins/working-p
 
 - [ ] **Step 2: Run it**
 
-Expected: `0`.
+Expected: no output.
 
 - [ ] **Step 3: Add the paragraph**
 
@@ -637,8 +686,12 @@ off from the one section recording what the developer already decided.
 The ledger is therefore always in scope for a diff-scoped round as
 context, never as a review target, and what that protects is narrow:
 
-- lines carrying `ruling:` may be re-raised only with new evidence,
-  which routes to `held` rather than to a fold;
+- settled lines may be re-raised only with new evidence, which routes
+  to `held` rather than to a fold. A line carrying `ruling:` is settled
+  by that clause; a historical line written before this design,
+  `resolved <date> (declined)` included, carries no authorizer clause
+  and is settled by its token alone. Both are the developer's
+  decisions, and both are protected on the same footing;
 - `held` lines carry questions already put, so a round does not
   duplicate one;
 - `fixed` lines carrying `license:` get no protection at all — the
@@ -732,21 +785,26 @@ rg -l --no-ignore --crlf '^\s+(grilled|architect|adversary|architect-fallback|ad
 
 Expected: the first returns `docs/plans/2026-07-13-rules-distribution.md`, which is a body quotation of the convention and not a frontmatter hit — confirm with `grep -n 'grilled: grilling'` on that file and check the line sits below the closing `---`. The other four return nothing.
 
+These expectations describe the repo as this plan was written, and the process's own artifacts can falsify them at execution time: a spec grilled or a round stamped between now and then is a real unfinished-work hit, not a defect in this plan. Investigate any extra hit against the document it names before continuing, exactly as Task 6's Step 6 directs — a hit here is a question about that document, never a reason to edit this one.
+
 - [ ] **Step 2: Confirm no banned term returned**
 
 ```bash
-grep -rn --include='*.md' 'ledger entry' plugins/ docs/domain/
+grep -rn --include='*.md' 'ledger entry' plugins/ docs/domain/ | grep -v '_Avoid_'
 ```
 
 Expected: no output.
 
-- [ ] **Step 3: Confirm the old grammar is gone from the rules**
+The `grep -v` is not slack. The glossary's **Disposition line** entry defines the ban by writing the banned phrase — `_Avoid_: finding line, ledger entry` — so an unfiltered sweep necessarily hits the one line that must keep saying it, and the check could never pass in the correct end state. Filtering the definition site is what makes the sweep assert what it means: no *use* of the banned term survives.
+
+- [ ] **Step 3: Confirm the live grammar is gone and the historical block remains**
 
 ```bash
-grep -n 'resolved <date> — \[' plugins/working-process/rules/spec-plan-lifecycle.md
+grep -c '^\s*- resolved <date> — \[' plugins/working-process/rules/spec-plan-lifecycle.md
+grep -c '^\s*- resolved <date> (declined) — \[' plugins/working-process/rules/spec-plan-lifecycle.md
 ```
 
-Expected: no output outside the historical-forms paragraph from Task 3. If the paragraph quotes the shape, that single hit is correct.
+Expected: `1` and `1` — the two lines Task 3 writes into its historical-forms block, and nothing else. Task 1 deleted both shapes from the live block; Task 3 reinstated them as described history. Two hits on the first command would mean a live-block line survived.
 
 - [ ] **Step 4: Validate**
 
@@ -771,29 +829,78 @@ git commit -m "fix(working-process): close the propagation gate on the ledger re
 
 ## Self-review
 
-**Spec coverage.** Every section of the spec maps to a task: the states and severity omission and write-ahead to Task 1; the clauses and the authorizer rule to Task 2; historical shapes and lawful prose to Task 3; the gate discriminator to Task 4; the fold and the relitigation branch to Task 5; the Unfinished-work corrections to Task 6; the tripwire and blocking terminator to Task 7; the cap to Task 8; the diff-scoped reading scope to Task 9; wave one's line to Task 10. The glossary needs no task — the grilling already changed it. The four refusals need no task: they are decisions not to build, and Task 1's severity paragraph carries the only one with prose consequences.
+**Spec coverage.** Every section of the spec maps to a task: the states and severity omission and write-ahead to Task 1; the clauses and the authorizer rule to Task 2; historical shapes and lawful prose to Task 3; the gate discriminator to Task 4; the fold and the relitigation branch to Task 5; the Unfinished-work corrections to Task 6; the triage license sources, the tripwire and the blocking terminator — `workflow.md`'s three consumers of the retired token — to Task 7; the cap to Task 8; the diff-scoped reading scope to Task 9; wave one's line to Task 10. The glossary needs no task — the grilling already changed it. The four refusals need no task: they are decisions not to build, and Task 1's severity paragraph carries the only one with prose consequences.
 
 **Placeholders.** None. Every step carries the literal text to write or the literal command to run.
 
 **Name consistency.** `license:`, `ruling:`, `question:`, `options:`, `counter:`, `deviation:`, `folding`, `fixed <date>`, `declined <date>`, `open`, `held`, `hit fixed`, `hit dismissed` are spelled identically in Tasks 1, 2, 5, 6, 7, 9 and 10.
 
-**One defect class, three instances, and the lesson about finding it.**
+**One defect class, four instances, and the lesson about how to close it.**
 Task 6's check first asserted two single-line matches for
 `review-loop ledger entry`; only one occurrence sits on a single line,
 so `grep` found one and an executor would have read that as the work
 half done. The self-review caught that instance **and treated it as
-isolated** — which it was not. A propagation gate over the committed
-plan found two more of exactly the same shape, in Tasks 4 and 8, where a
-phrase wraps after "The date" and after "any". A sweep of every phrase
-check in the plan then confirmed those three and no fourth.
+isolated** — which it was not. A propagation gate found two more of
+exactly the same shape, in Tasks 4 and 8. A sweep then declared those
+three complete, and the plan-adversary found a fourth: Task 8's own
+post-edit pattern, written during the repair of the third.
 
-The fix is the Global Constraint above rather than three patches: in
-files that wrap prose, a phrase check is multi-line or it is unsound.
-Finding one instance of a mechanical fault is weak evidence that it is
-the only one, and the cheap move is to sweep the class immediately.
+Three sweeps, each declaring the class closed, each wrong. What finally
+closed it was not a fourth sweep but a change of method. The constraint
+above no longer says "use `rg -U` where a phrase might wrap" — a
+judgement, re-exercised per pattern, wrong roughly a third of the time
+here. It says every prose pattern is uniformly `\s+` between every pair
+of words, which is correct whether or not the phrase wraps and so cannot
+be misapplied. The lesson is not "sweep harder": a rule that requires a
+prediction at each site will keep producing instances at the rate the
+prediction fails, and the repair is to remove the prediction.
+
+The same reasoning produced two further constraints during this wave —
+one on `rg -c`'s zero behaviour, one on leading-anchor tolerance, the
+latter raised by the developer. Each replaces a per-site judgement with
+a mechanical rule.
 
 Every other check was re-run against the working tree: the five-shape
-block, the close description, the tripwire wording, the bare `dismissed`
-line, and the command counts all match what their steps expect.
+block, the close description, the tripwire wording, the triage
+paragraph, the bare `dismissed` line, and the command counts all match
+what their steps expect.
 
 **Known seam.** Task 2's Step 5 verifies the "four of the five" anchor claim by counting published commands. That count includes the `revises:` lookup, which is not an Unfinished-work entry — the step says so, but a future command added to either group will make the assertion wrong before the prose is. It is a check with a short shelf life, deliberately kept because the alternative is trusting the claim.
+
+## Review rounds
+
+### 2026-09-02 — plan-adversary, fable 5, blocking (round 1, full-document)
+
+- fixed — [Important] Task 8's post-edit pattern uses literal spaces while the replacement it verifies wraps as "a message / from the developer", so the check false-fails against a correct edit — a fourth instance of the wrapped-phrase class, in the plan whose self-review had just declared that class swept; license: this plan's own Global Constraint on prose checks; the pattern is now uniformly `\s+`, and the constraint itself was rewritten from a per-site judgement into an unconditional rule so the class cannot recur
+- fixed — [Important] Task 11's banned-term sweep expects no output from a command that necessarily hits the glossary's own `_Avoid_` line, so the check cannot pass in the correct end state; license: the glossary's **Disposition line** entry, whose ban is stated by writing the banned phrase; the sweep now filters the definition site with `grep -v '_Avoid_'` and the step says why that is not slack
+- fixed — [Important] Task 6's Steps 3 and 4 prescribe overlapping edits: Step 3 rewords both occurrences, and the second opens Step 4's replace-this block, so Step 4 then targets text that no longer exists; license: Step 4's own replacement text, which already carried the reword; Step 3 is narrowed to the first occurrence and Step 4 completes the second as part of its block, each step saying so
+- fixed — [Important] a consumer of the retired token is left behind — `workflow.md` licenses a self-fix off "a previously resolved `held` line", a state the live grammar stops producing, and no task touches it; license: the spec's merge of `fixed` and `resolved` plus its authorizer rule; Task 7 is rescoped from two consumers to all three in that file, retitled accordingly, and the triage paragraph now cites "a line carrying `ruling:`", which also picks up pre-design settled lines the old wording missed
+- fixed — [Important] Task 3 claims the historical `resolved` shapes are "kept" while Task 1 deletes the shape lines and only the token names survive; Task 11's conditional expectation shows the plan has not decided its own end state; license: the spec's statement that the shapes are kept as described historical forms; Task 3 now writes both shape lines verbatim into its block, states that they are described and never minted, and warns that it reinstates lines Task 1 deleted; Task 11's expectation is now unconditional
+- fixed — [Important] Task 6's Step 2 states absolute line numbers that Tasks 1–5 invalidate by inserting above them, so a literal executor reads a correct state as a failed check; license: this plan's own task ordering; the numbers are gone, replaced by the surrounding sentence as the locator, with a note saying why no number is quoted
+- fixed — [Important] Task 7's Step 5 states only one of its two post-edit expectations, so the deletion the second pattern exists to verify passes unchecked if skipped; license: that step's own stated rationale that each pattern must fail if its step is skipped; the task now carries three checks for three steps and asserts all three
+- fixed — [Minor] five "Expected: 0" lines sit on `rg -c` commands, which print nothing and exit 1 rather than printing 0; license: the measured behaviour of `rg -c`, verified in-session; a Global Constraint states it once and six steps — one more than the round found — now expect "no output"
+- fixed — [Minor] Task 9's workflow text protects only lines carrying `ruling:`, narrower than the spec's Settled-lines tier, which includes historical token-settled lines; license: the spec's **Settled lines** bullet; the rule text now names both, protected on the same footing
+- fixed — [Minor] Task 11's Step 1 asserts a repo state the process's own artifacts can falsify at execution time, without the investigate-versus-defect caveat Task 6's Step 6 carries; license: Task 6's Step 6, which carries exactly that caveat; the step now says an extra hit is a question about the document it names, never a reason to edit this plan
+
+The developer authorized this fix wave despite the `blocking` verdict, which otherwise suspends autonomy. Every finding above carried a citable written license, and none was a design decision — the verdict's grade and the findings' licenses pointed in different directions, which is the case the loop's triage rule was written for.
+
+One further defect was raised by the developer during the wave, outside
+the round:
+
+- fixed — [Important] the anchored `grep` checks used an exact four-space leading anchor where the Unfinished-work list's own commands are deliberately tolerant, so a leftover line at a different indent would read as absent — the same false-clean failure as the wrapped-phrase class; license: the lifecycle rule's stated reasoning that leading anchors are tolerant on purpose and its Misplaced-stamp anchor exact because there the indentation is the defect; a third Global Constraint now ties anchor tolerance to the direction of the assertion, and Task 1's two anchors differ accordingly with the step saying why
+
+Answering the round's focusing question — what is still broken if every
+stated check passes — the reviewer named three: the retired token still
+licenses a self-fix in `workflow.md`, the rule claims to keep shapes it
+deleted, and Task 7's deletion may silently not have happened. Two
+checks fail against the *correct* state, which it called the more
+dangerous direction, since an executor may "fix" the document to satisfy
+a broken check.
+
+Its stop signal: a re-round after the fix wave earns its cost, but
+diff-scoped — the findings sit in check mechanics and two scope gaps,
+not in the prescribed rule prose, which matched the spec everywhere it
+was diffed. And a standing instruction for that round: **the
+wrapped-phrase class has now produced four instances across two sweeps
+that each declared completeness, so it is re-verified mechanically
+rather than by reading.**
