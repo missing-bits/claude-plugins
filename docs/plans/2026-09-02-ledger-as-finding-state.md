@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-02
 status: draft
-adversary: blocking
+adversary: concerns
 spec: ../specs/2026-09-02-ledger-as-finding-state-design.md
 branch: feature/audit-errata
 base: develop
@@ -35,7 +35,9 @@ base: develop
   An earlier draft of this constraint made tolerance depend on the direction of the assertion — tolerant for "is it gone", exact for "is it present". That reasoning is sound and it is *why* the pair works, but it is a judgement exercised at every site, and the wrapped-phrase constraint above is the standing evidence for what that costs. Applying it, this plan got Task 11's Step 3 wrong: that step asserts both directions at once and the rule had no answer for it. Publishing both anchors always is mechanical, subsumes both directions, and cannot be misapplied. The lifecycle rule's own asymmetry — tolerant Unfinished-work anchors so a relocated field is still found, an exact `^\s+` on Misplaced stamp because there the indentation *is* the defect — is the reasoning this pair captures without asking any later reader to re-derive it.
 
   One case is copied rather than reasoned about: a check mirroring a command the rules publish reproduces it verbatim, the ledger anchor `^- ` included, which is strict by design so indented payload cannot match it.
-- **Every check must return a different value before and after its step, and both values are stated.** A check whose before-value equals its after-value verifies nothing, however correct both numbers look — and it survives review precisely because nothing about it appears wrong. Task 11's Step 3 was exactly this: it counted a shape one task deletes and a later one restores, scoring `2` both before and after the entire plan. Where a count cannot distinguish the two states, assert something that can — a line ordering against text that does not exist until the work is done.
+- **Every check that verifies an edit must return a different value before and after its step, and both values are stated.** A check whose before-value equals its after-value verifies nothing, however correct both numbers look — and it survives review precisely because nothing about it appears wrong. Task 11's Step 3 was exactly this: it counted a shape one task deletes and a later one restores, scoring `2` both before and after the entire plan. Where a count cannot distinguish the two states, assert something that can — a line ordering against text that does not exist until the work is done.
+
+  Two kinds of check verify no edit and are therefore outside this rule: a **claim-verification** check, which tests a standing assertion in the prose rather than a change (Task 2's Step 5, which counts published commands to confirm a "four of the five" claim), and an **end-state assertion** in a task that modifies nothing (all of Task 11, whose `Files:` line reads "none unless a check fails"). To keep the exemption from becoming the per-site judgement this plan spent three passes removing elsewhere, it is claimed rather than inferred: a check is exempt only where its own step says in words that it verifies no edit, and both exempt sites do.
 
 ---
 
@@ -318,7 +320,9 @@ git commit -m "feat(working-process): retain historical ledger shapes, permit pr
 ### Task 4: The gate discriminator
 
 **Files:**
-- Modify: `plugins/working-process/rules/spec-plan-lifecycle.md:~185-195` — the paragraph under `### Gate lines` beginning "Both are written at gate time"
+- Modify: `plugins/working-process/rules/spec-plan-lifecycle.md` — the paragraph under `### Gate lines` beginning "Both are written at gate time"
+
+No line number is given, and none should be: Tasks 1–3 insert well over fifty lines above this paragraph, so any number written here is wrong by the time the task runs. The prose locator is exact on its own. This is the class round 1 reported against Task 6, applied to the one other place that carried a stale number.
 
 **Interfaces:**
 - Consumes: nothing from earlier tasks.
@@ -427,7 +431,7 @@ State prevents relitigation, not the reviewer's memory.
 
 - [ ] **Step 4: Run the check again**
 
-Expected: no output, and `grep -c 'folding' plugins/working-process/rules/spec-plan-lifecycle.md` prints at least `2` (the clause table row from Task 2 and this paragraph).
+Expected: no output, and `grep -c 'folding' plugins/working-process/rules/spec-plan-lifecycle.md` prints at least `2` (the clause table row from Task 2 and this paragraph). Its before-value is `0` — the word does not appear in the file until Task 2 writes it — so the pair discriminates.
 
 - [ ] **Step 5: Validate and commit**
 
@@ -623,13 +627,17 @@ git commit -m "feat(working-process): move workflow.md off the retired resolved 
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-rg -U -c 'any\s+developer\s+contact\s+resets\s+the\s+count' plugins/working-process/rules/workflow.md
-rg -U -c 'a\s+message\s+from\s+the\s+developer' plugins/working-process/rules/workflow.md
+w=plugins/working-process/rules/workflow.md
+rg -U -c 'any\s+developer\s+contact\s+resets\s+the\s+count' "$w"
+rg -U -c 'a\s+message\s+from\s+the\s+developer' "$w"
+rg -U -c 'refusal\s+mid-loop\s+is\s+already\s+developer\s+contact' "$w"
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: `1`, then no output. The first phrase wraps after "any" and the second wraps after "a message" once written, so both are uniformly `\s+` — the second is the instance that made the constraint unconditional.
+Expected: `1`, no output, `1`. The first phrase wraps after "any" and the second wraps after "a message" once written, so both are uniformly `\s+` — the second is the instance that made the constraint unconditional. The third finds the consumer Step 4 reconciles.
+
+**Enumerate the consumers of the term, not just the bullet.** This task redefines "developer contact" and the term is used elsewhere in the same file. Task 7 enumerates consumers of a retired *token*; this step does the same for a redefined *term*, which is the class round 2 found missing here.
 
 - [ ] **Step 3: Replace the bullet**
 
@@ -658,11 +666,29 @@ with:
   compaction.
 ```
 
-- [ ] **Step 4: Run the check again**
+- [ ] **Step 4: Reconcile the cap-refusal sentence with the new definition**
 
-Expected: the first command prints nothing, the second prints `1`. Both are stated because the replacement deletes the first phrase and introduces the second, so each command changes value and a step that asserted only one would let half the edit pass unverified.
+The file's closing paragraph says a model-cap refusal *is* developer contact. Step 3's definition says developer contact is a message from the developer, and a platform refusal is not one — so the two would ship contradicting each other. Replace:
 
-- [ ] **Step 5: Validate and commit**
+```
+refusal mid-loop is already developer contact: the drop-or-wait
+question above is never answered autonomously.
+```
+
+with:
+
+```
+refusal mid-loop forces developer contact: the drop-or-wait
+question above is never answered autonomously.
+```
+
+The behaviour is unchanged and was never in doubt — the loop cannot proceed until the developer answers the drop-or-wait question, which is a message. Only the claim changes, from the refusal *being* contact to *forcing* it, which is what the sentence always meant and what the new definition now requires it to say.
+
+- [ ] **Step 5: Run the check again**
+
+Expected: the first command prints nothing, the second prints `1`, the third prints nothing. All three are stated because each corresponds to one edit — Step 3 deletes the first phrase and introduces the second, Step 4 removes the third — and a step asserting fewer would let an edit pass unverified.
+
+- [ ] **Step 6: Validate and commit**
 
 ```bash
 claude plugin validate . && claude plugin validate plugins/working-process
@@ -804,10 +830,12 @@ These expectations describe the repo as this plan was written, and the process's
 - [ ] **Step 2: Confirm no banned term returned**
 
 ```bash
-grep -rn --include='*.md' 'ledger entry' plugins/ docs/domain/ | grep -v '_Avoid_'
+rg -U -n 'ledger\s+entry' plugins/ docs/domain/ | grep -v '_Avoid_'
 ```
 
 Expected: no output.
+
+`ledger entry` is a two-word prose phrase, so this sweep obeys the prose constraint like any other: `rg -U` with `\s+`, never a single-line `grep`. The point is exact: a surviving banned use that happened to wrap as `ledger` / `entry` across a line ending is invisible to a literal-space pattern, and this command's whole job is to prove no use survives. An earlier draft ran `grep -rn 'ledger entry'` here — written, and then *edited*, during the very wave whose new constraint forbids it.
 
 The `grep -v` is not slack. The glossary's **Disposition line** entry defines the ban by writing the banned phrase — `_Avoid_: finding line, ledger entry` — so an unfiltered sweep necessarily hits the one line that must keep saying it, and the check could never pass in the correct end state. Filtering the definition site is what makes the sweep assert what it means: no *use* of the banned term survives.
 
@@ -888,6 +916,39 @@ what their steps expect.
 **Known seam.** Task 2's Step 5 verifies the "four of the five" anchor claim by counting published commands. That count includes the `revises:` lookup, which is not an Unfinished-work entry — the step says so, but a future command added to either group will make the assertion wrong before the prose is. It is a check with a short shelf life, deliberately kept because the alternative is trusting the claim.
 
 ## Review rounds
+
+### 2026-09-02 — plan-adversary, fable 5, concerns (round 2, diff-scoped)
+
+- fixed — [Important] Task 11's Step 2 banned-term sweep is itself in the wrapped-phrase class: `grep -rn 'ledger entry'` searches a two-word prose phrase with a literal space, so a surviving banned use wrapping as `ledger` / `entry` reads as clean — and the wave *edited this exact command* to add the `_Avoid_` filter without noticing its pattern; license: this plan's own prose-check constraint; the command is now `rg -U -n 'ledger\s+entry'` and the step records that the fifth instance of the class was written during the repair of the fourth
+- fixed — [Minor] the wave-born before/after constraint is falsified by the plan's own checks — Task 2's Step 5 scores `6` and `1` on both sides because it verifies a prose claim rather than an edit, Task 11 edits nothing at all, and Task 5's Step 4 stated only an after-value — so the rule as written re-introduced the per-site judgement the wave had just spent three passes removing; license: the wave's own stated test, that a rule still asking the reader to classify the site is unfinished; the constraint is scoped to checks that verify an edit, the two exempt classes are named, and the exemption is claimed in each step's own words rather than inferred; Task 5's Step 4 now states its before-value, which is `0` rather than the `1` the round estimated
+- fixed — [Minor] Task 4's `Files:` locator `spec-plan-lifecycle.md:~185-195` is stale by construction — the paragraph sits at line 178 today and lands near 255 once Tasks 1–3 insert above it — the same class round 1 reported against Task 6, repaired there and left standing here; license: round 1's finding, which defines the class; the number is gone and the step says why the prose locator is sufficient alone
+- fixed — [Minor] Task 8 redefines "developer contact" but enumerates no consumers of the redefined term, leaving `workflow.md:322` asserting that a model-cap refusal *is* developer contact, which the new definition denies; license: Task 7's own precedent of enumerating a retired token's consumers, applied to a redefined term; Task 8 gains a check for the consumer and a step reconciling it to "forces developer contact", which is what the sentence always meant and leaves the behaviour unchanged
+
+Answering the round's focusing question — where the fix wave repaired the
+instance and missed the class — the reviewer found it **inside a single
+command**: Task 11's Step 2 received round 1's `_Avoid_` filter while its
+pattern stayed a single-line literal-space prose search, violating the
+unconditional constraint the same wave had just written, in the one step
+the wave was actively editing. Its secondary instance is Task 7 against
+Task 8: the wave enumerated consumers of the retired *token* and never
+asked the same question of the *term* Task 8 redefines.
+
+The round verified the diff mechanically rather than by reading, as its
+brief required — every Replace block matched verbatim and uniquely, every
+starting-state expectation was reproduced against the tree, and the whole
+plan was applied to scratch copies with every after-check re-run. That
+simulation is what confirmed the vacuity repair in Task 11's Step 3 is
+sound, and it is the reason the round's own stop signal rules out a third
+diff-scoped pass.
+
+Its stop signal: another diff-scoped round would not repay its cost — the
+diff has been simulated to exhaustion and the leftovers were four
+one-edit fixes, each licensed by the plan's own written constraints. What
+the loop still owes is structural rather than marginal: on a plan only a
+full-document round's LGTM terminates, so the confirming full-document
+round is the right next dispatch, and it is also the only scope that can
+reach the class behind the fourth finding — consumers of a redefined term
+living outside the diff.
 
 ### 2026-09-02 — plan-adversary, fable 5, blocking (round 1, full-document)
 
