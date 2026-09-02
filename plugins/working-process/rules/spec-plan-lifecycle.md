@@ -221,6 +221,24 @@ on that round's LGTM heading: the dispatcher appends it there on the
 decline, and its presence defeats the gate's re-ask, as `, waived <date>`
 defeats the re-review offer.
 
+Ledger lines written before this merge stay as written, as the `scope`
+token's introduction already established. The shapes they use are kept
+here as described historical forms rather than deleted:
+
+    - resolved <date> — [<severity>] <claim>; landed in <section>
+    - resolved <date> (declined) — [<severity>] <claim>; <why the document stands>
+
+A reader must still parse pre-merge documents, and a fold against a
+pre-design settled line cites a date off a token the live grammar no
+longer produces. These two shapes are described, never minted: no
+session writes a new line in either form.
+
+Narrative prose between the lines of a `## Review rounds` section is
+lawful and expected. This grammar governs headings, lines, and their
+indented payload; a paragraph explaining why a wave went the way it did
+belongs there too. A lint over the section reads the anchored lines and
+ignores the prose.
+
 ### Gate lines
 
 The propagation gate, when that agent is available, writes two shapes of
