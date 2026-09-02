@@ -598,8 +598,10 @@ with:
   round without the developer. It licenses no separate fix prohibition,
   because triage already holds what the prohibition was reaching for: a
   design reshape has no citable license by construction, so it is held
-  whatever the verdict's grade.
+  whatever the verdict's grade. `concerns` is the autonomy zone.
 ```
+
+The closing sentence is retained deliberately. The spec directs only the self-fix clause removed, and the sentence stays true under the new design: `blocking` still suspends rounds, `LGTM` still ends the loop, and `concerns` remains the one verdict the loop continues under autonomously. Deleting it would be an un-specced change riding along with a specced one.
 
 - [ ] **Step 6: Run the check again**
 
@@ -628,14 +630,18 @@ git commit -m "feat(working-process): move workflow.md off the retired resolved 
 
 ```bash
 w=plugins/working-process/rules/workflow.md
-rg -U -c 'any\s+developer\s+contact\s+resets\s+the\s+count' "$w"
+rg -U -c 'counting\s+only\s+rounds\s+that\s+returned\s+a\s+verdict' "$w"
 rg -U -c 'a\s+message\s+from\s+the\s+developer' "$w"
 rg -U -c 'refusal\s+mid-loop\s+is\s+already\s+developer\s+contact' "$w"
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: `1`, no output, `1`. The first phrase wraps after "any" and the second wraps after "a message" once written, so both are uniformly `\s+` — the second is the instance that made the constraint unconditional. The third finds the consumer Step 4 reconciles.
+Expected: no output, no output, `1`.
+
+**The first pattern is not the obvious one, deliberately.** An earlier draft checked `any developer contact resets the count`, which reads like the natural anchor for this bullet — but the replacement *retains* that sentence, so the pattern scores `1` on both sides and verifies nothing. The qualifier `counting only rounds that returned a verdict` is text the replacement introduces and the original lacks, so it discriminates. This is the plan's own before/after constraint catching a check that a repair to a different finding had just made vacuous.
+
+The second phrase wraps after "a message" once written, so it is uniformly `\s+` like every prose pattern here. The third finds the consumer Step 4 reconciles.
 
 **Enumerate the consumers of the term, not just the bullet.** This task redefines "developer contact" and the term is used elsewhere in the same file. Task 7 enumerates consumers of a retired *token*; this step does the same for a redefined *term*, which is the class round 2 found missing here.
 
@@ -656,15 +662,20 @@ with:
 - Round cap: three autonomous rounds per document per field without
   developer contact, counting only rounds that returned a verdict.
   Hitting the cap escalates in one batch — what was fixed, what remains,
-  why — rather than halting silently. Developer contact is a message
-  from the developer: not a relay they read, not an escalation the
-  session sent, not an unanswered batch. The count is derived from the
-  round headings and the reset event is recorded nowhere, so the cap is
-  best-effort by construction; a session that cannot count its own
-  rounds escalates rather than assuming, since resetting to zero would
-  let a long session grant itself three fresh rounds after every
-  compaction.
+  why — rather than halting silently, and any developer contact resets
+  the count. Developer contact is a message from the developer: not a
+  relay they read, not an escalation the session sent, not an unanswered
+  batch. The count is derived from the round headings and the reset
+  event is recorded nowhere, so the cap is best-effort by construction;
+  a session that cannot count its own rounds escalates rather than
+  assuming, since resetting to zero would let a long session grant
+  itself three fresh rounds after every compaction.
 ```
+
+Two details of this replacement are not in the spec, and both are recorded here rather than left to be re-derived:
+
+- **The reset sentence is retained**, not dropped. An earlier draft let "without developer contact" imply the reset. The spec directs no deletion, and the definition this bullet adds makes the reset *more* worth stating explicitly, not less — the sentence now says precisely what event resets the count.
+- **"counting only rounds that returned a verdict" is added**, and it is derivable rather than invented: the bullet's own next sentence says the count comes from the round headings, and a round that died without a verdict mints no heading. Stating it prevents a session from counting a crashed dispatch against its own budget.
 
 - [ ] **Step 4: Reconcile the cap-refusal sentence with the new definition**
 
@@ -686,7 +697,7 @@ The behaviour is unchanged and was never in doubt — the loop cannot proceed un
 
 - [ ] **Step 5: Run the check again**
 
-Expected: the first command prints nothing, the second prints `1`, the third prints nothing. All three are stated because each corresponds to one edit — Step 3 deletes the first phrase and introduces the second, Step 4 removes the third — and a step asserting fewer would let an edit pass unverified.
+Expected: `1`, `1`, then nothing. All three are stated because each corresponds to one edit — Step 3 introduces the first two phrases, Step 4 removes the third — and a step asserting fewer would let an edit pass unverified.
 
 - [ ] **Step 6: Validate and commit**
 
@@ -704,18 +715,22 @@ git commit -m "feat(working-process): define developer contact, state the cap is
 - Modify: `plugins/working-process/rules/workflow.md` — `### Re-dispatch briefs`, after the ledger-supplies-what-changed paragraph
 
 **Interfaces:**
-- Consumes: `license:` and `ruling:` from Task 2; the relitigation branch from Task 5.
+- Consumes: `license:` and `ruling:` from Task 2; the relitigation branch and the evidence-newness base from Task 5.
 - Produces: nothing new.
+
+**The evidence-newness base is carried as a pointer, not a copy.** The spec's Changes-by-file assigns `workflow.md` "the base against which evidence counts as new", and this task delivers it by naming where the definition lives rather than restating it — Task 5 writes the full definition into `spec-plan-lifecycle.md`, which is where the spec puts the record's grammar. A duplicated definition in two rule files is the drift the spec's own file split exists to prevent, and both files already cross-reference each other this way rather than restating. A reviewer who thinks the pointer is too thin should say so: the deviation from the reviewer's suggested full sentence is recorded here deliberately, and the rationale is the thing to attack.
 
 - [ ] **Step 1: Write the failing check**
 
 ```bash
-rg -U -c 'always\s+in\s+scope\s+for\s+a\s+diff-scoped\s+round' plugins/working-process/rules/workflow.md
+w=plugins/working-process/rules/workflow.md
+rg -U -c 'always\s+in\s+scope\s+for\s+a\s+diff-scoped\s+round' "$w"
+rg -U -c 'the\s+base\s+the\s+spec-plan-lifecycle\s+rule\s+defines' "$w"
 ```
 
 - [ ] **Step 2: Run it**
 
-Expected: no output.
+Expected: no output from either. The second is what proves the evidence-newness base reached this file, which is the one thing the spec assigns here that a reader would otherwise look for in the lifecycle rule alone.
 
 - [ ] **Step 3: Add the paragraph**
 
@@ -726,12 +741,14 @@ off from the one section recording what the developer already decided.
 The ledger is therefore always in scope for a diff-scoped round as
 context, never as a review target, and what that protects is narrow:
 
-- settled lines may be re-raised only with new evidence, which routes
-  to `held` rather than to a fold. A line carrying `ruling:` is settled
-  by that clause; a historical line written before this design,
-  `resolved <date> (declined)` included, carries no authorizer clause
-  and is settled by its token alone. Both are the developer's
-  decisions, and both are protected on the same footing;
+- settled lines may be re-raised only with new evidence — new against
+  what the folded line records, the base the spec-plan-lifecycle rule
+  defines — which routes to `held` rather than to a fold. A line
+  carrying `ruling:` is settled by that clause; a historical line
+  written before this design, `resolved <date> (declined)` included,
+  carries no authorizer clause and is settled by its token alone. Both
+  are the developer's decisions, and both are protected on the same
+  footing;
 - `held` lines carry questions already put, so a round does not
   duplicate one;
 - `fixed` lines carrying `license:` get no protection at all — the
@@ -747,7 +764,7 @@ growing with the round count.
 
 - [ ] **Step 4: Run the check again**
 
-Expected: `1`.
+Expected: `1` and `1`. Both are stated because the paragraph delivers two things the spec assigns to this file — the ledger's standing place in a diff-scoped round, and the evidence-newness base — and a step asserting only the first would let the second go missing exactly as it did in this plan's first three drafts.
 
 - [ ] **Step 5: Validate and commit**
 
@@ -823,9 +840,15 @@ rg -l --no-ignore --crlf '^\s*(architect|adversary)-fallback: [a-z0-9-]+ \((degr
 rg -l --no-ignore --crlf '^\s+(grilled|architect|adversary|architect-fallback|adversary-fallback|integrity):' docs/
 ```
 
-Expected: the first returns `docs/plans/2026-07-13-rules-distribution.md`, which is a body quotation of the convention and not a frontmatter hit — confirm with `grep -n 'grilled: grilling'` on that file and check the line sits below the closing `---`. The other four return nothing.
+Expected, with two known hits:
 
-These expectations describe the repo as this plan was written, and the process's own artifacts can falsify them at execution time: a spec grilled or a round stamped between now and then is a real unfinished-work hit, not a defect in this plan. Investigate any extra hit against the document it names before continuing, exactly as Task 6's Step 6 directs — a hit here is a question about that document, never a reason to edit this one.
+- the **first** returns `docs/plans/2026-07-13-rules-distribution.md`, a body quotation of the convention rather than a frontmatter hit — confirm with `grep -n 'grilled: grilling'` on that file and check the line sits below the closing `---`;
+- the **second** returns **this plan**, whose own `adversary:` field carries a live verdict throughout the review loop. That is a true unfinished-work hit, not a false positive, and it clears when the confirming full-document round's `LGTM` is stamped — which happens before implementation, so by the time an executor reaches this step the command should return nothing. If it still returns this plan, the loop has not closed and implementation has started early;
+- the remaining three return nothing.
+
+An earlier draft of this step claimed all four of the last commands were clean "as this plan was written", which its own frontmatter falsified on the day the step was written — the plan was carrying `adversary: blocking` at the time.
+
+Beyond those, the process's own artifacts can falsify these expectations at execution time: a spec grilled or a round stamped between now and then is a real unfinished-work hit, not a defect in this plan. Investigate any extra hit against the document it names before continuing, exactly as Task 6's Step 6 directs — a hit here is a question about that document, never a reason to edit this one.
 
 - [ ] **Step 2: Confirm no banned term returned**
 
@@ -877,7 +900,9 @@ git commit -m "fix(working-process): close the propagation gate on the ledger re
 
 ## Self-review
 
-**Spec coverage.** Every section of the spec maps to a task: the states and severity omission and write-ahead to Task 1; the clauses and the authorizer rule to Task 2; historical shapes and lawful prose to Task 3; the gate discriminator to Task 4; the fold and the relitigation branch to Task 5; the Unfinished-work corrections to Task 6; the triage license sources, the tripwire and the blocking terminator — `workflow.md`'s three consumers of the retired token — to Task 7; the cap to Task 8; the diff-scoped reading scope to Task 9; wave one's line to Task 10. The glossary needs no task — the grilling already changed it. The four refusals need no task: they are decisions not to build, and Task 1's severity paragraph carries the only one with prose consequences.
+**Spec coverage.** Every section of the spec maps to a task: the states and severity omission and write-ahead to Task 1; the clauses and the authorizer rule to Task 2; historical shapes and lawful prose to Task 3; the gate discriminator to Task 4; the fold and the relitigation branch to Task 5; the Unfinished-work corrections to Task 6; the triage license sources, the tripwire and the blocking terminator — `workflow.md`'s three consumers of the retired token — to Task 7; the cap to Task 8; the diff-scoped reading scope to Task 9; wave one's line to Task 10. The glossary needs no task — the grilling already changed it.
+
+**The refusals**, which the spec's Changes-by-file lists among the `spec-plan-lifecycle.md` changes, are mapped rather than waived. Three are decisions not to build and leave no prose behind. The two with a rule-side trace are already accounted for: the no-fourth-severity refusal rides Task 1, whose severity paragraph ends "This adds no fourth severity value; the glossary's three stand"; and the hit-outstanding refusal is already shipped prose, the stated-gap paragraph under `### Gate lines` beginning "Neither shape covers a hit left outstanding", which this wave leaves untouched because wave one wrote it and nothing in this design changes it. No task is therefore missing — but the mapping is stated here rather than assumed, since "needs no task" and "is already in the file" are different claims and only the second is true of these two.
 
 **Placeholders.** None. Every step carries the literal text to write or the literal command to run.
 
@@ -916,6 +941,49 @@ what their steps expect.
 **Known seam.** Task 2's Step 5 verifies the "four of the five" anchor claim by counting published commands. That count includes the `revises:` lookup, which is not an Unfinished-work entry — the step says so, but a future command added to either group will make the assertion wrong before the prose is. It is a check with a short shelf life, deliberately kept because the alternative is trusting the claim.
 
 ## Review rounds
+
+### 2026-09-02 — plan-adversary, fable 5, concerns (round 3, full-document)
+
+- fixed — [Important] Task 9 omits the base against which evidence counts as new, which the spec's Changes-by-file assigns to `workflow.md`; the plan ships it only into `spec-plan-lifecycle.md` via Task 5, so an executor produces a `workflow.md` whose new-evidence judgment has no stated base in the file governing the round's behaviour; license: the spec, which the plan's own Global Constraint makes the winner on disagreement; the paragraph now carries the base as a pointer to the lifecycle rule's definition, a second check proves it reached the file, and the deviation from the reviewer's suggested full sentence is recorded in the task with its rationale — a duplicated definition across two rule files is the drift the spec's file split exists to prevent
+- fixed — [Minor] Task 8's replacement silently dropped the shipped sentence "any developer contact resets the count" and added the un-specced qualifier "counting only rounds that returned a verdict"; license: the spec, which directs no deletion here; the reset sentence is retained — the new definition makes stating the reset event more valuable, not less — and the qualifier is kept with its derivation recorded, since the bullet's own next sentence says the count comes from the round headings and a round that died without a verdict mints none
+- fixed — [Minor] Task 7's Step 5 deleted "`concerns` is the autonomy zone", which the spec did not direct removed and which stays true under the new design; license: the spec, which directs only the self-fix clause deleted; the sentence is retained in the replacement text and the task says why an un-specced deletion must not ride along with a specced one
+- fixed — [Minor] Task 11's Step 1 claimed four commands return nothing "as this plan was written", which the plan's own `adversary:` frontmatter falsified on the day the step was written; license: the mechanical fact, verified in-session; the step now names this plan as the second known hit, says it is a true unfinished-work hit rather than a false positive, and states when it clears — at the confirming round's LGTM, before implementation
+- fixed — [Minor] the self-review waived "the refusals", which the spec's Changes-by-file lists among the lifecycle rule's changes, without citing anything licensing the omission; license: the spec's own text plus the shipped rule; the two refusals with a rule-side trace are now mapped explicitly — no-fourth-severity rides Task 1's severity paragraph, hit-outstanding is already-shipped prose from wave one — and the self-review distinguishes "needs no task" from "is already in the file"
+
+One defect was found by the session while applying the above, and it is
+the wave's own most instructive moment. Retaining the reset sentence for
+the second finding made Task 8's first check score `1` on both sides of
+its edit — a check the repair itself rendered vacuous, in the plan whose
+constraint against exactly that was written two rounds earlier. The
+mechanical before/after comparison caught it immediately; reading would
+not have, because the pattern still looked like the natural anchor for
+the bullet. The check now keys on the qualifier the replacement
+introduces:
+
+- fixed — [Important] repairing the reset-sentence finding made Task 8's first check vacuous, since the phrase it searches is now present both before and after the edit; license: this plan's own before/after constraint; the check keys on `counting only rounds that returned a verdict` instead, which the original bullet lacks, and the step records why the obvious anchor is the wrong one
+
+Answering the round's focusing question — whether a literal execution
+leaves the two rule files saying exactly what the spec designed — the
+reviewer's answer was "almost". It diffed every prescribed block against
+the spec's sections and simulated the full task sequence: the states,
+clauses, fold, historical forms, gate discriminator, Unfinished-work
+corrections and all three retired-token consumers land as designed, and
+no stranded consumer of `resolved`, `fixed`, `held` or "developer
+contact" survives in either file. The single substantive gap was the
+evidence-newness base above; the rest were un-specced additions,
+deletions and false expectations.
+
+The round confirmed both historically recurring classes are closed,
+mechanically rather than by reading: every prose pattern is uniformly
+`\s+`-separated and reproduced its stated before-value against the tree,
+every anchored check is paired with both anchors agreeing in simulation,
+and Task 11's Step 3 ordering assertion discriminates as intended.
+
+Its stop signal: after these fixes land, another round buys little — the
+prescribed prose has now been read hard against the spec and the whole
+plan executed in simulation twice, so the remaining risk is concentrated
+in the fix wave itself, and the economical shape is a short pass over
+those edits rather than a fresh full read.
 
 ### 2026-09-02 — plan-adversary, fable 5, concerns (round 2, diff-scoped)
 
