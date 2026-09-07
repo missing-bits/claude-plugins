@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-07
 status: draft
 grilled: 2026-09-07
-architect: concerns
+architect: LGTM
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-02-ledger-as-finding-state-design.md]
 branch: feature/audit-errata
 base: develop
@@ -576,19 +576,55 @@ state it should have named lives on specs.
 
 ## Review rounds
 
+### 2026-09-07 — architect, fable 5, LGTM (round 2, diff-scoped)
+
+- fixed 2026-09-07 — [Minor] the gate line below was written as `hit dismissed` while its own `counter:` opened by affirming the audit's derivation; the grammar defines that clause as the derivation which *refutes* the hit, and the workflow rule reserves dismissal for a hit the session believes wrong — this session believed the hit right and understated, which is a fix, not a dismissal; license: those two definitions; the two lines for one hit are merged into the single `hit fixed` line the disposition always warranted, carrying the correction the dismissal had been invented to hold
+
+The reviewer re-derived the merged line's own facts rather than taking
+them: three occurrences before the token, thirty-six across the document
+today. That last number had already moved since the gate ran — which the
+line anticipates by recording a property rather than a count, and which
+is why the repair is the only one that cannot drift again.
+
+Answering the round's focusing question — whether a manifest is the right
+home for a "no consumer left behind" guarantee — the reviewer's answer is
+worth keeping as a recorded limit rather than a finding. A hand-written
+enumeration is the right place to *record* completeness and the weakest
+link in a document that otherwise insists on mechanically-derived state
+everywhere. The real backstop is downstream: the propagation gate fires
+after any multi-site edit during authoring, so the manifest is an
+authoring aid and the gate is the guarantee. That division is correct as
+it stands, and the implementation plan should not mistake the manifest
+for the proof.
+
+Its stop signal: the loop closes here. Nothing the wave opened would
+repay another round.
+
+**This close makes the document a second instance of its own subject.**
+Round 2 was diff-scoped and returned LGTM, so this spec now carries
+exactly the heading its proposed anchor matches, and the command returns
+two documents instead of one: the audit-agents spec and this one. The
+design predicted the class it belongs to before belonging to it.
+
+That is a demonstration rather than an embarrassment, and it costs
+nothing to discharge honestly. The debt is real — nobody has read this
+document whole since round 1, and three fix waves have landed since — so
+it goes to the consumption gate like any other, before the plan is
+written. What the gate must not do is treat the annotation as
+paperwork: if the integrity audit is the chosen path, its dispositions
+are applied first and the annotation follows, in the order this design
+prescribes.
+
 ### 2026-09-07 — architect, fable 5, concerns (round 1, full-document)
 
 - fixed 2026-09-07 — [Important] the retired token lives in two rule files, and the Changes-by-file list named only the lifecycle rule's; `workflow.md`'s decline-path paragraph narrates the same mechanism, sits in a subsection this design already edits for another reason, and would have shipped a split vocabulary — the very defect this design names when arguing the class and token must rename together; license: this design's own sentence that a grep saying one word while the fix writes another is worse than either name alone; the manifest now names the second site, its surrounding property-not-event wording, and why one site is easy to walk past
 - fixed 2026-09-07 — [Minor] the backfill licence asserted that an implemented spec's `integrity:` stamp is "already informational", extending a word the rule scopes to plans; license: the rule text itself, which says no such thing about specs; the parenthetical is removed rather than repaired, and the harmlessness now rests on what the rule does state — a spec's stamp is read at one gate the document has long passed, and hash staleness joins no Unfinished-work entry
 
-Two propagation gate episodes precede this round. The first, before the
-architect dispatch, returned one hit and is recorded below. The gate
-before that dispatch had no round heading to write under, so both lines
-land here, at this round's stamp, as the gate-line placement rule
-prescribes.
+A propagation gate episode precedes this round and returned one hit,
+recorded below. It had no round heading to write under, so its line lands
+here, at this round's stamp, as the gate-line placement rule prescribes.
 
-- hit fixed 2026-09-07 — the token rationale claimed the document's prose "reached for it seventeen times before the token did"; the count was taken over the whole document rather than the text before the token, where the true figure is three, and the whole-document figure had itself moved to thirty-five by the time it was checked; the claim is now a property rather than a count
-- hit dismissed 2026-09-07 — the audit reported the frozen count as unsupported at three occurrences; counter: the derivation is right and the defect is worse than reported, since the sentence was wrong on scope *and* stale on value, so the line above records both rather than the single reading the hit named
+- hit fixed 2026-09-07 — the token rationale claimed the document's prose "reached for it seventeen times before the token did"; the audit's derivation was right and the defect was worse than it reported, since the sentence was wrong on scope *and* stale on value: the count had been taken over the whole document rather than the text before the token, where the true figure is three, while the whole-document figure had itself drifted past thirty-five; the claim is now a property rather than a count, which is the only repair that cannot drift again
 
 Answering the round's focusing question — what the process would newly
 get wrong if this shipped as written — the reviewer named exactly one
