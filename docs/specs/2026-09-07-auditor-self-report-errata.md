@@ -87,8 +87,8 @@ family plus version, the audit agents report the family.
 Package A shipped a falsifiable claim, which is why it went first: **a
 clean propagation run should now return two lines rather than one.**
 
-**It holds sometimes. Two clean runs after the fix, one carrying the
-self-report and one not** — so the fix improved the behaviour without
+**It holds sometimes. Of three clean runs after the fix, one carried the
+self-report and two did not** — so the fix improved the behaviour without
 making it reliable, and the section below, which first recorded this as
 confirmed on a single observation, was written too early.
 
@@ -104,18 +104,20 @@ Two lines. The brief deliberately **did not ask for the self-report**, so
 the line came from the card alone; and it names the family without a
 version, which is the narrowing this errata also made.
 
-**A later clean run returned `CLEAN` and nothing else**, from the same
-fixed card, under a brief that likewise did not ask. So the tally across
+**Two later clean runs returned `CLEAN` and nothing else**, from the same
+fixed card, under briefs that likewise did not ask. So the tally across
 this branch is five clean runs omitting the line before the fix, then one
-carrying it and one omitting it after.
+carrying it and two omitting it after.
 
 That is worth stating precisely, because the honest reading is narrower
 than either extreme. The fix did not fail: nothing before it ever
 produced the line, and something after it did, so the card's contract is
 at least sometimes what the agent follows. But the fix did not make the
-behaviour reliable either, and a rule that fires half the time cannot be
+behaviour reliable either, and a rule that fires once in three cannot be
 the whole mechanism. Either the CLEAN clause was one cause among
-several, or compliance is simply variable at this tier.
+several, or compliance is simply variable at this tier — and the second
+reading gains weight with every run, since nothing about the three
+dispatches differed in the one respect the fix addressed.
 
 The practical consequence is unchanged and was already recorded: a
 dispatcher cannot count on the self-report arriving, so reliance on a
