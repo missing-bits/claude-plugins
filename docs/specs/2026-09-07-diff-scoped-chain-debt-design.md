@@ -114,8 +114,10 @@ performance-only defect.
 
 `discharged` is the genus word: English discharges an obligation by
 performance *or* by release and declines to say which — the same refusal
-this design makes about the reason clause. The document's own prose
-reached for it seventeen times before the token did.
+this design makes about the reason clause. It is also the verb this
+document reaches for unprompted whenever it explains the mechanism, while
+every rejected candidate appears only where the token itself is being
+argued about. The token should say what the prose already says.
 
 The noun is `debt` rather than `chain` because the objects differ, as
 this design's opening sentence already says: the chain leaves a debt. A
