@@ -74,9 +74,24 @@ every shipped occurrence of the banned term.
 ### 2. Prescribed block versus shipped file
 
 Diff every verbatim block the document dictates against the file it
-targets — the block that never landed and the shipped text a block no
-longer matches are both hits. This is the recipe-and-record class that
-cost three consecutive hand-diff rounds of the most capable model.
+targets. What counts as a hit depends on what the document claims about
+that block, so establish the claim first and check accordingly.
+
+Where the document **reports** a change already made, the block that
+never landed and the shipped text a block no longer matches are both
+hits. This is the recipe-and-record class that cost three consecutive
+hand-diff rounds of the most capable model.
+
+Where the document **prescribes** a change not yet made — a plan before
+its implementation, a design's changes-by-file promise — the target
+file's not carrying the new text is the document working as intended.
+What is checkable there is the block's anchor: the text the block says
+it replaces must exist in the target file byte-exactly, or the edit
+cannot execute. Report an anchor that does not match, one that matches
+in several places, and one an earlier task in the same document has
+already rewritten. Measured: four of sixteen non-clean results in one
+outside cycle were prescribed text reported as missing from source,
+and the rate went to zero once the two cases were told apart.
 
 ### 3. Added field, label, or state → carrier and consumer chains
 
