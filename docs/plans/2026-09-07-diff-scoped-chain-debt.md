@@ -42,6 +42,10 @@ base: develop
 **Interfaces:**
 - Produces: the class name **Chain debt** and its published command. Tasks 2, 6, 11, 12 and 13 all cite one or the other.
 
+The owner leg carries a second sentence the spec does not, and the departure is recorded here because it sits beside the text it concerns. The spec says a decline "has nothing to derive from, and there the debt correctly re-surfaces and the developer declines again" — true while it was written, when no standing decision existed. The developer ruled on 2026-09-07 that completed work is not chased, which makes the decline derivable for a document already at `status: implemented` and licenses a session to write the annotation without asking. The spec's sentence still governs every document in flight, where a decline remains a fresh decision. This is a developer ruling taken after the spec closed, so it outranks the plan's "the spec is the source" constraint rather than breaching it; the constraint bars the plan from inventing design, not the developer from deciding.
+
+The sentence lands on the **owner** leg, never on the scope leg. The spec refuses a `status` predicate in a class scope, because `process-status` states that a scope "narrows where a hit counts, never whether the file qualifies" — an owner leg says what the next move is and carries no such constraint.
+
 - [ ] **Step 1: Write the failing check**
 
 ```bash
@@ -68,7 +72,11 @@ Place it directly after the **Unfinished review-loop ledger** entry's `Owner:` l
   second entry to re-scope the default guard, for the reason the first
   one does, and carrying `-n` for the same reason.
   Owner: for a spec, the consumption gate's pair offer; for a plan, the
-  confirming full-document round.
+  confirming full-document round. On a document already at
+  `status: implemented` the debt is discharged by recorded decline
+  without any dispatch: completed work is not re-reviewed, so the
+  annotation is written citing that standing decision, and a document
+  still in flight keeps the pair offer.
 ```
 
 - [ ] **Step 4: Run the check again**
@@ -850,13 +858,9 @@ git commit -m "fix(working-process): restore the concurrency limit's reasoning a
 **Interfaces:**
 - Consumes: the token from Task 3 and the body-edit licence from Task 4.
 
-**This task cannot run without the developer's ruling.** The backfill is the decline path exercised late, not a fourth path: no audit ran, no later full-document round was dispatched, and none ever will be, since the document is `implemented` and the work it designed has shipped. What remains is exactly what the decline path is — the developer looking at a chain nobody read whole and accepting it knowingly. Writing the token without that decision would put a false claim in the record: the annotation says a debt was discharged, and on this document no reading ever happened.
+**The developer's ruling is recorded and dated 2026-09-07** — see *Developer rulings* below. The backfill is the decline path exercised late, not a fourth path: no audit ran, no later full-document round was dispatched, and none ever will be, since the document is `implemented` and the work it designed has shipped. What remains is exactly what the decline path is — the developer looking at a chain nobody read whole and accepting it knowingly. Writing the token without that decision would have put a false claim in the record, since on this document no reading ever happened; the ruling is what makes the annotation true.
 
-- [ ] **Step 1: Ask the developer for the ruling**
-
-Put the question in one message: *the audit-agents spec reached `implemented` on a chain nobody read whole; do you accept that chain now, on the record, as the decline path exercised late?* Wait for the answer. A refusal ends this task and leaves the class with one permanent hit, which Task 13 then reports rather than hides.
-
-- [ ] **Step 2: Write the failing check**
+- [ ] **Step 1: Write the failing check**
 
 ```bash
 f=docs/specs/2026-08-27-audit-agents-design.md
@@ -865,11 +869,11 @@ grep -c 'debt discharged' "$f"
 grep -c 'ruling:' "$f"
 ```
 
-- [ ] **Step 3: Run it and confirm the before-values**
+- [ ] **Step 2: Run it and confirm the before-values**
 
 Expected before: `1`, `0`, `0`.
 
-- [ ] **Step 4: Annotate the heading**
+- [ ] **Step 3: Annotate the heading**
 
 Find:
 
@@ -883,21 +887,21 @@ Replace with (substituting the ruling's actual date for `<date>`):
 ### 2026-08-27 — architect, fable 5, LGTM (round 3, diff-scoped), debt discharged <date>
 ```
 
-- [ ] **Step 5: Record the ruling in the ledger**
+- [ ] **Step 4: Record the ruling in the ledger**
 
 Append to the same round's lines, after the two existing `fixed` lines:
 
 ```markdown
-- fixed <date> — this round's diff-scoped LGTM left a chain debt that nothing recorded, and the document reached `implemented` unpaid; ruling: <date>; the developer accepted the chain on the record — the decline path exercised late, since no audit ran, no later full-document round was dispatched, and none can be — and the heading gains `, debt discharged <date>`
+- fixed <date> — this round's diff-scoped LGTM left a chain debt that nothing recorded, and the document reached `implemented` unpaid; ruling: 2026-09-07; the developer accepted the chain on the record — the decline path exercised late, since no audit ran, no later full-document round was dispatched, and none can be — and the heading gains `, debt discharged <date>`
 ```
 
-The severity bracket is omitted because the sole authorizer is `ruling:` and no reviewer graded it — both legs hold, as the ledger's own rule requires.
+The two dates differ on purpose and the ledger requires both: the leading date is when this line reached its terminal state, `ruling:` is when the decision it cites was taken. The severity bracket is omitted because the sole authorizer is `ruling:` and no reviewer graded it — both legs hold, as the ledger's own rule requires.
 
-- [ ] **Step 6: Run the check again**
+- [ ] **Step 5: Run the check again**
 
 Expected after: `0` (the bare heading is gone), `2` (heading and ledger line), `1`.
 
-- [ ] **Step 7: Confirm the class no longer reports this document**
+- [ ] **Step 6: Confirm the class no longer reports this document**
 
 ```bash
 rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/
@@ -905,7 +909,7 @@ rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/
 
 Expected before this task: two lines. Expected after: one line — `docs/specs/2026-09-07-diff-scoped-chain-debt-design.md`, which Task 12 closes.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add docs/specs/2026-08-27-audit-agents-design.md
@@ -1047,10 +1051,13 @@ Report to the developer: what the sweep found, what the gate returned, whether t
 
 ---
 
-## Open questions for the developer
+## Developer rulings
 
-Three, batched rather than asked one at a time:
+The two questions the spec put to the developer, answered 2026-09-07. Both are recorded here rather than in the spec: the spec is audited and hash-stamped, so amending it would re-arm the stamp and break Task 12's precondition for no gain. The lifecycle rule already routes them here — held spec questions are asked before the plan is written.
 
-1. **Task 11's ruling.** The audit-agents spec reached `implemented` on a chain nobody read whole. Do you accept that chain on the record now, as the decline path exercised late? Without it Task 11 does not run and the class ships with one permanent hit.
-2. **Future undischarged instances.** Does a document found in this state later get the same retroactive decline, or does each one come back to you? The design left this open deliberately.
-3. **`process-status` and the plan co-firing.** Should the skill say anything about a plan matching both Unresolved verdict and Chain debt, beyond what its matching already does? The design refuses suppression machinery; this asks only about reporting.
+1. **The live instance is backfilled.** The developer accepts the audit-agents spec's chain on the record, as the decline path exercised late. Task 11 runs and cites `ruling: 2026-09-07`.
+2. **Completed work is not chased.** A document found in this state later gets the same recorded decline without any dispatch — no audit, no confirming round. Task 1's owner leg carries this as a standing decision so a future session can cite it instead of re-asking; the paragraph under that task records how it departs from the spec's narrower sentence and why the departure is the developer's to make. A document still in flight keeps the pair offer, where a decline remains a fresh decision.
+
+One question stays open and is put again in narrower form, since reading `process-status` showed the original was aimed at the wrong surface:
+
+3. **Whether the co-firing note is guaranteed to reach the report.** On a plan matching both Unresolved verdict and Chain debt, the skill groups hits by document and reports "the owner the entry carries", so Task 2's `one debt seen from two sides` explanation rides to the report on the owner leg it already copies — but the skill's report line is one line per hit, so a long leg may arrive condensed. Guaranteeing the note would need a skill edit; leaving it means two adjacent lines whose owners both name the confirming round. The recommendation is to leave it: a skill that correlates class pairs needs extending for every future pair, and two lines naming one remedy read as one job.
