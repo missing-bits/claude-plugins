@@ -445,8 +445,12 @@ is available, offer a Project memory review — released work-state notes
 close, resolved entries sweep to the archive. After any
 review round, relay the report to the developer, then stamp the
 verdict into the document's field — this sentence and the workflow
-rule's verdict-agent dispatch subsection state the same ordering and
-are edited together. The order has one named exception, defined in that
+rule's verdict-agent dispatch subsection state the same
+relay-before-stamp ordering and are edited together when that changes.
+The subsection sequences further checks inside its own turn — the model
+self-report before the relay, the report's citations after it — which
+this sentence deliberately does not restate, so gaining one does not
+make it stale. The order has one named exception, defined in that
 subsection: a plan's diff-scoped LGTM is relayed and its round record
 written, while only the frontmatter stamp waits for the confirming
 full-document round.

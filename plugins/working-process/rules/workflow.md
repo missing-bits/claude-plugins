@@ -442,5 +442,7 @@ document again.
 
 The `## Dispatching a verdict agent` section above — its bullet list
 and every subsection under it, this one included — and the lifecycle
-rule's relay-then-stamp sentence state the same ordering and are edited
-together.
+rule's relay-then-stamp sentence state the same relay-before-stamp
+ordering and are edited together when that changes. The other checks
+this section sequences inside the dispatch turn are its own; adding one
+leaves that sentence correct.
