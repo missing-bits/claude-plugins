@@ -122,9 +122,9 @@ deepest Important.
 Check every sentence in which one document reports another's state:
 frontmatter citations of another document's verdict or counts, a table's
 row count against the table, the arithmetic of a review record. Counters
-and boundary sentences were a steady share of the measured cycle's
-findings — wrong in nearly every round, and wrong more than once after
-being explicitly verified.
+and boundary sentences recur, and they recur wrong: in the measured
+cycle they were wrong in nearly every round, and wrong more than once
+after being explicitly verified.
 
 ### 7. Verification simulation
 
@@ -143,8 +143,9 @@ project's record, and nothing between the two checks it. Measured
 repeatedly: a line number off by one, an identifier that does not exist
 under the name the finding gave it, and a file-and-line pointing at an
 unrelated passage — the last on the day this duty shipped, in a report
-whose finding was otherwise sound. Each was quoted precisely, and each
-would have gone into a document unchallenged.
+whose finding was otherwise sound. Each was quoted precisely. The first
+two went into their documents unchallenged; the third was caught by the
+check this duty prescribes.
 
 Read the source, never the finding's summary of it. Where a citation
 names something outside the repository, report that you could not check
