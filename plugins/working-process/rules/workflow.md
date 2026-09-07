@@ -47,7 +47,8 @@ disables its suggestion — never the work itself.
    confirms the auditor's two preconditions: every edit from the
    conversation is written to disk, since one unsaved decision
    manufactures a run of false defects; and the propagation gate below
-   is clean, when that agent is available. Then write the
+   has passed, leaving no confirmed hit, when that agent is available.
+   Then write the
    implementation plan with superpowers:writing-plans when available;
    plans live in `docs/plans/`.
 5. **Plan → adversary review.** Before implementing a non-trivial plan,
@@ -161,7 +162,14 @@ available:
 - At most one live round per document per field within the session;
   superseding a running round stops it when the platform offers a
   stop, otherwise the stale result is relayed as stale and never
-  stamped.
+  stamped. A parallel round from another session is accepted as
+  undetectable and stays benign: both rounds record in the body and the
+  field holds the later stamp. One consequence postdates that decision —
+  a diff-scoped LGTM certifies a chain, so an interleave punches a hole
+  no round ever read. The discharge paths are the mitigation, since an
+  audit and a full-document round each read the whole document, and a
+  heading-derived cap over-counts under interleave, which escalates
+  early.
 - When the reviewed document changed after dispatch — known only
   conversationally; an out-of-session edit is accepted as
   undetectable — the relay says so and the stamp waits for the
@@ -180,7 +188,10 @@ no single re-dispatch is offered on its own. At the session's first
 verdict dispatch, ask once whether the loop may run autonomously — yes
 / not now / not in this session — state the round cap with the
 question, and honour the answer for the rest of the Claude Code session
-without asking again. A durable preference in the developer's own
+without asking again. The same question carries a second clause wherever
+the lifecycle rule's per-round commits are available: whether the loop
+may commit the reviewed document once per round. One question, two
+answers, asked once. A durable preference in the developer's own
 instructions is respected when present. Without consent every round
 behaves as it did before: relay, stamp, and every proposal waits for
 the developer.
@@ -188,8 +199,8 @@ the developer.
 Triage decides each finding by its license, never by its grade. A
 finding is self-fixable when the session can cite the decision that
 licenses the fix — a statement in the document itself, a glossary term
-or `_Avoid_` ban, a recorded ADR, or a previously resolved `held`
-line — and the citation goes on the finding's line in the disposition
+or `_Avoid_` ban, a recorded ADR, or a line carrying `ruling:` — and
+the citation goes on the finding's line in the disposition
 ledger the spec-plan-lifecycle rule defines. Everything else is held
 for the developer, and a finding that could go either way is a
 decision. Consequences the loop states outright:
@@ -230,19 +241,40 @@ per round, and only over a decision that is genuinely theirs.
 
 ### The propagation gate
 
-When the `propagation-auditor` agent is available, a clean propagation
-audit is the precondition for the dispatches it gates: the session
+When the `propagation-auditor` agent is available, a passing propagation
+gate is the precondition for the dispatches it gates: the session
 dispatches the audit over the document, fixes its hits, and repeats
-until the audit returns no hits, so an expensive reader only ever meets
+until no confirmed hit remains, so an expensive reader only ever meets
 a mechanically consistent document. The gate fires before every
 verdict-agent dispatch, first rounds included — authoring errors exist
 before any repair; after a fix wave, before the next round; and before
 an integrity audit. A hit's fix is licensed by its own derivation — a
 recounted counter and an enumerated missed call site decide
-themselves — so hits never wait for the developer; a hit the session
-believes is wrong escalates as held, its line carrying `[hit]` in the
-severity slot, because a hit stays ungraded even when contested.
-Without the agent installed, every dispatch proceeds as it did before.
+themselves — so hits never wait for the developer.
+
+A hit the session believes is wrong is dismissed, never silently: the
+session writes the `dismissed` line the spec-plan-lifecycle rule
+defines and reports the dismissal in the next report it relays to the
+developer. A hit is a report, not a question, so it never enters the
+held batch and never spends the round's one interruption — the
+developer reads the dismissal and keeps their standing veto over it.
+The written line is what makes the gate terminate: a dismissed hit
+recurs on every re-dispatch, so a gate waiting on a hitless audit would
+wait forever, and a dismissal nobody wrote down would be re-derived
+from nothing every round. Both dispositions take the gate lines the
+spec-plan-lifecycle rule defines.
+
+Two re-dispatches bound one gate episode — the run before a single
+dispatch, never the document's lifetime, so every round gets its own
+gate. A third is not attempted. The session reports the hits still
+outstanding, with the standing of a dismissal, and holds the dispatch
+the gate was guarding: a gate that cannot come clean has not done the
+one job the expensive reader depends on. The report names what keeps
+recurring, since fixes breeding fresh hits is the failure this bound
+exists to catch. It stays a report — the developer may order the
+dispatch anyway, as they may order any step — so it never becomes a
+second question in a round that already spent its one. Without the
+agent installed, every dispatch proceeds as it did before.
 
 ### Re-dispatch briefs
 
@@ -252,41 +284,101 @@ directs the reviewer to attack the previous wave's fixes first, and
 forbids re-reviewing the rest — repair-born defects are the dominant
 late-round class, and diff-scoping also ends stale-read findings.
 
+The ledger supplies what changed. The previous round's `fixed` lines and
+their `<what changed>` clauses, together with any gate lines under the
+same heading, are the record of that wave, so the brief cites them and
+needs no snapshot, commit, or hash. Where the loop is not committing per
+round, the ledger is the only durable account of the diff; where it is,
+the commit carries the lines and the ledger still carries the intent. The
+brief cites the ledger either way.
+
+Diff-scoping forbids re-reviewing the document beyond the diff, and the
+ledger is part of the document — so without a clause the reviewer is cut
+off from the one section recording what the developer already decided.
+The ledger is therefore always in scope for a diff-scoped round as
+context, never as a review target, and what that protects is narrow:
+
+- settled lines may be re-raised only with new evidence — new against
+  what the folded line records, the base the spec-plan-lifecycle rule
+  defines — which routes to `held` rather than to a fold. A line
+  carrying `ruling:` is settled by that clause; a historical line
+  written before this design, `resolved <date> (declined)` included,
+  carries no authorizer clause and is settled by its token alone. Both
+  are the developer's decisions, and both are protected on the same
+  footing;
+- `held` lines carry questions already put, so a round does not
+  duplicate one;
+- `fixed` lines carrying `license:` get no protection at all — the
+  previous round's are the diff and are named as the first thing to
+  attack, and older ones are simply unprotected, since a reviewer told
+  not to re-raise a fix would lose the property diff-scoping was
+  adopted for.
+
+The reviewer learns what it may not reopen, never what it may not find.
+Naming the section rather than copying its lines keeps the brief from
+growing with the round count.
+
 Every brief states the loop's terminators outright — the cap and the
 all-Minor signal below — rather than improvising them late, and asks
-the reviewer for its own stop signal: when the round's remaining
-findings are all Minor wording residue, say so and judge whether
-another round earns its cost. That judgment concerns the next round's
-marginal value, never whether the document is good enough, and it
-informs the developer's decision rather than replacing it. Where the
-ledger records a deviation from a reviewer's suggestion, the brief
-invites refutation of the recorded rationale — a rationale is evidence
-to attack, never a defence to protect.
+the reviewer for its own stop signal: judge whether another round earns
+its cost, and say what the round's leftovers are worth. The ask stands
+every round, whatever grades the findings carry — a round can leave one
+Important behind and still not repay a re-read. That judgment concerns
+the next round's marginal value, never whether the document is good
+enough, and it informs the developer's decision rather than replacing
+it. The signal is recorded where a later session can cite it: one line
+under the heading of the round that gave it, in the shape the
+spec-plan-lifecycle rule defines. A signal surviving only in a relay
+dies with the next compaction, and practice has needed it twice — once
+to justify overriding one, once to close a loop on one. Where the ledger
+records a deviation from a reviewer's suggestion,
+the brief invites refutation of the recorded rationale — a rationale is
+evidence to attack, never a defence to protect.
 
 ### Terminators
 
 - `LGTM` ends the loop — on a plan, only a full-document round's LGTM
   does.
-- `blocking` suspends autonomy entirely: relay, stamp, stop. A blocking
-  round licenses no self-fixes, because reshaping a design the reviewer
-  judged broken as a whole is design work and re-enters through the
-  design conversation. `concerns` is the autonomy zone.
+- `blocking` suspends autonomy entirely: relay, stamp, stop — no further
+  round without the developer. It licenses no separate fix prohibition,
+  because triage already holds what the prohibition was reaching for: a
+  design reshape has no citable license by construction, so it is held
+  whatever the verdict's grade. `concerns` is the autonomy zone.
 - Round cap: three autonomous rounds per document per field without
-  developer contact. Hitting the cap escalates in one batch — what was
-  fixed, what remains, why — rather than halting silently, and any
-  developer contact resets the count.
+  developer contact, counting only rounds that returned a verdict.
+  Hitting the cap escalates in one batch — what was fixed, what remains,
+  why — rather than halting silently, and any developer contact resets
+  the count. Developer contact is a message from the developer: not a
+  relay they read, not an escalation the session sent, not an unanswered
+  batch. The count is derived from the round headings and the reset
+  event is recorded nowhere, so the cap is best-effort by construction;
+  a session that cannot count its own rounds escalates rather than
+  assuming, since resetting to zero would let a long session grant
+  itself three fresh rounds after every compaction. A plan's confirming
+  full-document round counts like any other: the count folds round
+  headings, and excluding one kind would mean classifying them — a
+  second fragile derivation in the one place the rules already concede
+  the cap is best-effort. A plan whose loop spent its three rounds
+  therefore escalates once before its confirming round, which is the
+  most expensive shape a round takes and the one a cap guarding spend
+  should guard first.
 - All-Minor signal: two consecutive rounds whose findings are all Minor
-  end the unattended run. Fix the residue, annotate
-  `concerns (resolved <date>)`, and escalate with an offer of a fresh
-  round instead of dispatching one.
-- Oscillation tripwire: a finding re-raised against a `fixed` line is
-  never re-fixed autonomously. Two readings of one license are a
-  contested reading, so it escalates as held, the flip named.
+  end the unattended run. Triage the round as always — by license, never
+  by grade — and escalate with an offer of a fresh round instead of
+  dispatching one. The escalation is a question, so the loop stays open
+  until the developer answers it: the resolution annotation the
+  spec-plan-lifecycle rule defines records their close, and no session
+  writes it without their answer.
+- Oscillation tripwire: a finding re-raised against a line carrying
+  `license:` is never re-fixed autonomously. Two readings of one license
+  are a contested reading, so it escalates as held, the flip named. A
+  re-raise against a line carrying `ruling:` is the relitigation case
+  instead, and the spec-plan-lifecycle rule owns it.
 
 The cap guards spend and the signal guards sense; both escalate, and
 neither is a wall. Relay stays the developer's standing veto — every
 report reaches them before the session acts on it — and a model-cap
-refusal mid-loop is already developer contact: the drop-or-wait
+refusal mid-loop forces developer contact: the drop-or-wait
 question above is never answered autonomously.
 
 ### What a diff-scoped LGTM certifies
@@ -300,20 +392,34 @@ For a spec, the consumption gate before plan-writing offers the pair as
 one question — an integrity audit or a confirming full-document round —
 and never an offer followed by a re-offer of the option just declined.
 When the `integrity-auditor` agent is absent the offer carries the
-confirming round alone. Declining is the developer accepting the chain
-explicitly, and the acceptance is recorded rather than remembered: the
-dispatcher appends `, chain accepted <date>` to the diff-scoped LGTM
-heading, and that annotation defeats the gate's re-ask.
+confirming round alone. The two arms cost differently and the offer says
+so: an audit returns material for the dispatcher to dispose of and
+leaves the verdict alone, while a confirming round on a spec is a new
+loop's first round, since the spec's LGTM already closed its loop — it
+mints its own verdict and stamps it, so a `concerns` there flips the
+field back while plan-writing waits. The confirming-round arm therefore
+blocks plan-writing; the audit arm does not, and plan-writing follows
+its dispositions.
+
+Declining is the developer discharging the chain debt by release rather
+than by performance, and the discharge is recorded rather than
+remembered: the dispatcher appends `, debt discharged <date>` to the
+diff-scoped LGTM heading, in the shape the spec-plan-lifecycle rule
+defines, and that annotation defeats the gate's re-ask. The other two
+paths write the same token.
 
 For a plan the loop never terminates on a diff-scoped LGTM: one
 full-document confirming round follows, and the confirming round's
-verdict is the one stamped. That carries the single named exception to
-the relay-then-stamp order above — a plan's diff-scoped LGTM is relayed
-and its round record written, and only the frontmatter stamp waits for
-the confirming round. Recovery therefore reads the ledger rather than
-the stamp: a plan whose latest round heading is a diff-scoped LGTM that
-no later full-document round follows is re-offered its confirming round
-at the document's next touch, whatever the frontmatter says.
+verdict is the one stamped. That round runs under the loop's standing
+consent like any other — the rules mandate it, so it is no decision of
+the developer's and spends none of the round's one interruption. It
+carries the single named exception to the relay-then-stamp order above —
+a plan's diff-scoped LGTM is relayed and its round record written, and
+only the frontmatter stamp waits for the confirming round. Recovery
+therefore reads the ledger rather than the stamp: a plan whose latest
+round heading is a diff-scoped LGTM that no later full-document round
+follows is re-offered its confirming round at the document's next touch,
+whatever the frontmatter says.
 
 Scoping never spans a close. An annotation close ends the loop, and a
 later round on the same document opens a new one, reading the whole

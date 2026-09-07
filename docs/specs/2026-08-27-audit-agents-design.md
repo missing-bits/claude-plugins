@@ -302,7 +302,8 @@ rather than enumerate them.
 - fixed — [Minor] the recomputation owner was named only for the spec target while a plan may carry the stamp; license: this spec's own permitted-target sentence plus the sibling spec's no-gated-audit clause; scoped to spec-gate semantics, a plan's stamp informational and stale silently
 - fixed — [Minor] "It joins no Unfinished-work list entry" contradicted the Misplaced-stamp detecting entry four lines later; license: the two sentences themselves; scoped to "Staleness joins no Unfinished-work list entry"
 
-### 2026-08-27 — architect, fable 5, LGTM (round 3, diff-scoped)
+### 2026-08-27 — architect, fable 5, LGTM (round 3, diff-scoped), debt discharged 2026-09-07
 
 - fixed — [Minor] the propagation comparison target named an absolute family where the mirrored mechanism compares dispatched against prescribed; license: the glossary's Tier entry (a rung resolves at dispatch time); the sentence now mirrors the integrity wording
 - fixed — [Minor] the propagation-auditor's self-report duty lived only under the integrity-auditor heading; license: this spec's own tier-verification paragraph defining the duty for both auditors; the propagation Output paragraph now points at it
+- fixed 2026-09-07 — this round's diff-scoped LGTM left a chain debt that nothing recorded, and the document reached `implemented` unpaid; ruling: 2026-09-07; the developer accepted the chain on the record — the decline path exercised late, since no audit ran, no later full-document round was dispatched, and none can be — and the heading gains `, debt discharged 2026-09-07`

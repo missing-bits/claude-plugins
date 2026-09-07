@@ -1,3 +1,8 @@
+---
+paths:
+  - "plugins/**"
+---
+
 # Standards plugins — rule tags and severity
 
 Binding for every Standards plugin in this repo (`salesforce-standards`,

@@ -126,7 +126,10 @@ adoption as the developer's own.
 The grading value a review finding carries: `critical | important |
 minor`, fixed per rule in its rule tag and read off by the reviewer —
 never judged per finding wherever a tag exists; a Candidate gap, having
-no tag, is graded by the Authoring rubric. The collective noun is
+no tag, is graded by the Authoring rubric. The value is canonical as a
+word and its casing follows the syntax it sits in — lower case as a rule
+tag's field value (`severity: minor`), capitalized in the ledger's
+bracket slot (`[Minor]`). The collective noun is
 "severity level" — never "tier", which stays reserved for the
 model-capability ladder.
 _Avoid_: severity tier
@@ -210,6 +213,21 @@ refusal. Marked by the `(chosen <date>)` token in the `*-fallback`
 field; carries the same re-review offer as a degraded verdict.
 _Avoid_: voluntary degradation
 
+**Adjudication**:
+The developer's close of a `blocking` verdict without a fresh round,
+written `blocking (adjudicated <date>)` in the document's frontmatter.
+Closes a round; the finding-level counterpart is a Ruling.
+_Avoid_: developer override, manual close
+
+**Ruling**:
+The developer's authorization of one finding's disposition, written as
+the `ruling: <date>` clause on that finding's ledger line — dated fresh,
+or carrying an earlier ruling's date where the line folds a re-raise
+against it. On a fold against a line written before the clause existed,
+the date on that line's own terminal token is the earlier ruling. Closes
+a finding; the round-level counterpart is an Adjudication.
+_Avoid_: developer decision (as the name), developer fix
+
 **Fallback**:
 The model that actually produced a degraded or chosen verdict, standing
 in for the prescribed tier; named (as a family alias) in the value of
@@ -230,8 +248,11 @@ _Avoid_: sub-tier record
 **Consumption gate**:
 The workflow step at which a document's review verdict is about to be
 relied on as the basis of further work — plan-writing for a spec,
-implementation for a plan. Where re-review offers on fallback-recorded
-verdicts fire.
+implementation for a plan. Four things fire or come due there: the
+re-review offer on a fallback-recorded verdict, the integrity audit
+offered when a spec's body hash no longer matches its stamp, the pair
+question a diff-scoped chain earns, and the chain debt itself. Nothing
+orders them against each other yet.
 _Avoid_: usage point
 
 **Unfinished-work list**:
@@ -240,8 +261,9 @@ class of unfinished process work — class name, grep command, the owner
 of the next move, and optionally the entry's own match scope — and the
 single definition site for which classes exist. A class that accepts
 the default scope costs one edit in the rule and none in the consumers
-that run it; a class that publishes its own scope costs a consumer edit
-too, and the ledger class is the first. A command's output is hits to
+that run it. Publishing a scope of its own cost a consumer edit once, to
+teach the consumers section scopes at all; every class publishing one
+since trades on that lesson for free. A command's output is hits to
 confirm against the entry's scope — the frontmatter block by default —
 never Findings.
 _Avoid_: anchor list, debt list
@@ -278,18 +300,88 @@ An agent whose report ends in no verdict and stamps nothing: it checks a
 document and returns material for the dispatcher's disposition — hits
 (`propagation-auditor`, the mechanical pass) or defects-with-quotes and
 ranked questions (`integrity-auditor`, the judgment pass). Dispatched as
-a gate before expensive work — a clean audit is a precondition, never a
-judgment on the design. The third dispatch category beside Verdict agent
+a gate before expensive work: the precondition is a disposed audit —
+every hit fixed or dismissed, every defect applied or declined — never
+an empty one, and never a judgment on the design. The third dispatch category beside Verdict agent
 and Consultation: an audit agent adopts no persona and its output is
 never a Contribution.
 _Avoid_: sweep agent, verifier
 
 **Hit**:
 The unit a mechanical check returns — an Unfinished-work list command's
-match or a propagation-auditor detection: located, binary, confirmed or
-dismissed by the dispatcher, never graded. Graded problems are Findings
-and belong to review rounds.
+match or a propagation-auditor detection: located, binary, never graded.
+Graded problems are Findings and belong to review rounds. The two kinds
+part company over disposition: a propagation-auditor hit is confirmed or
+dismissed by the dispatcher and the outcome is written as a gate line,
+while an Unfinished-work hit has no dismissal at all — its only
+disposition is ceasing to match, when the state the command anchors is
+rewritten or annotated closed.
 _Avoid_: mechanical finding
+
+**Disposition ledger**:
+The record a review loop keeps inside the reviewed document, under one
+`## Review rounds` section: what each round found and what became of it.
+It carries the loop's durable state — the session, the reviewer and the
+developer are all volatile. Where the loop commits per round, git
+carries which lines each round changed and the ledger keeps what no diff
+shows: the intent and the authorizer. Per-finding and per-hit
+state is written into it, and so is one obligation the consumption gate
+owns, the chain debt, because no folding derives it; loop-level state is
+derived from the round headings and stored nowhere. The name comes from the terminal states
+that dominate it in practice; a leading token names a state, terminal or
+not.
+_Avoid_: review log, findings table, round log
+
+**Round heading**:
+The record of one dispatch, opening a round's block in the
+disposition ledger: date, agent, model self-report, verdict, ordinal and
+scope. Those dispatch-time fields are immutable — they say what one
+reviewer was given and returned — while a later event about that round
+appends after the heading's closing parenthesis, never inside it. The
+loop's derived state — round count, the all-Minor signal, the
+diff-scoped chain — is read by folding these.
+_Avoid_: round title, round record (for the heading alone)
+
+**Disposition line**:
+One line of the disposition ledger carrying the state of one Finding, or
+of one change the developer directed mid-round, which is not a Finding
+and carries no severity: its leading token is that state, its clauses
+the payload. The unit the ledger's state machine acts on.
+_Avoid_: finding line, ledger entry
+
+**Gate line**:
+One line of the disposition ledger carrying the state of one Hit,
+written by the propagation gate. It shares the container with
+disposition lines and nothing else — its own leading token, no severity,
+no license.
+_Avoid_: hit line, audit line
+
+**Chain debt**:
+The obligation a diff-scoped LGTM leaves: the document was approved with
+no whole-document read at the end, so somebody must still take
+responsibility for the part no round re-read — or explicitly decline to.
+The consumption gate owns it, not the loop, which owes nothing further
+once it terminates. Discharged three ways: an integrity audit, any later
+full-document round whatever its verdict, or the developer's recorded
+decline — of the gate's pair offer, or, where the document is already
+implemented and the gate never fired, of the question that offer would
+have put. Recorded as `, debt discharged <date>`
+appended to that LGTM's round heading, and the record says only that it
+happened and when, never how or how well. Distinct from the diff-scoped
+chain itself, the round-one-plus-reviewed-waves structure the LGTM
+certifies.
+_Avoid_: chain accepted, chain closed, unclosed chain
+
+**Document branch**:
+The local branch a review loop's per-round commits live on, named
+`<topic>.docs` — git refuses a ref nested under an existing branch, so a
+suffix rather than a path segment. It carries the whole authoring phase,
+a spec's rounds and its plan's alike, and the topic branch takes it at
+the implementation-ready gate by fast-forward or by squash, the project's
+choice. It survives that merge rather than closing with it, so the ref
+marks where authoring ended and loop churn stays off any published
+branch until somebody pushes it.
+_Avoid_: docs branch, review branch, scratch branch
 
 **Verdict agent**:
 An agent whose report ends in a verdict the dispatcher stamps into the
