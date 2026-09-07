@@ -4,6 +4,7 @@ date: 2026-09-07
 status: draft
 grilled: 2026-09-07
 architect: LGTM
+integrity: 2026-09-07 (sha: 4a838b2)
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-02-ledger-as-finding-state-design.md]
 branch: feature/audit-errata
 base: develop
@@ -311,6 +312,24 @@ repeat that mistake rather than end it.
 `, debt discharged <date>` on its round-3 heading, with a ruling recorded in
 its own ledger.
 
+**That backfill is the decline path, exercised late — not a fourth
+one.** The distinction matters, because the three paths above claim to
+be exhaustive and a worked example that quietly adds a fourth would
+break the rule on its first use. Nothing else fits: no audit ran, no
+later full-document round was dispatched, and none ever will be, since
+the document is `implemented` and the work it designed has shipped. What
+remains is exactly what the decline path is — the developer looking at a
+chain nobody read whole and accepting it knowingly. The gate that should
+have asked never fired; the developer answers its question anyway, years
+late in process terms, and the `ruling:` records who decided rather than
+naming a new mechanism.
+
+Writing the token without that reasoning would put a false claim in the
+record. The annotation says a debt was discharged, and on this document
+no reading ever happened — so the decline is the only honest discharge
+available, and it must be a decision the developer actually takes rather
+than a tidying-up the implementation performs on their behalf.
+
 That is a body edit on an `implemented` document, which the lifecycle
 rule forbids: "amended only in frontmatter, never in the body". The
 package licenses this one class of exception in a sentence — a ledger
@@ -474,8 +493,10 @@ debt-flavoured class would.
   three-path `, debt discharged <date>`; the `integrity:` bullet's
   annotation-before-hash ordering; the Unresolved verdict owner leg's
   plan exception and its note on the deliberate co-firing; the three
-  census sentences rewritten count-free; and the one-sentence licence for
-  a ledger annotation on an `implemented` document.
+  census sentences rewritten count-free; the stop-signal line's shape,
+  which is ledger grammar and belongs beside the other line shapes rather
+  than with the instruction that writes it; and the one-sentence licence
+  for a ledger annotation on an `implemented` document.
 - `plugins/working-process/rules/workflow.md` — the confirming round's
   authority (counts against the cap, autonomous under consent) in
   `### Terminators` and `### What a diff-scoped LGTM certifies`; **the
@@ -484,8 +505,9 @@ debt-flavoured class would.
   `, debt discharged <date>`, and "the developer accepting the chain …
   the acceptance is recorded" becomes the three-path framing, since that
   wording is the property-not-event reading this design rejects; the
-  stop-signal record in `### Re-dispatch briefs`; the restored
-  concurrency reasoning and its one new consequence.
+  instruction to record a stop signal, in `### Re-dispatch briefs` beside
+  the ask that produces it; the restored concurrency reasoning and its
+  one new consequence.
 
   The retired token lives in **two** files, and this is the second. The
   lifecycle rule's occurrence is the definition site and the obvious one;
@@ -546,15 +568,79 @@ learns whether the gate settled anything, and the live instance is what
 that silence costs: two of the three paths left no mark, the gate never
 fired, and the document reached `implemented` with nobody able to tell.
 
-So the correction is narrower than superseding a decision. The design's
+So the correction is narrower than superseding a decision. The first
 `revises:` pointer records a departure in one respect: a spec's
 diff-scoped LGTM does carry a standing obligation *until the gate is
-recorded as settled*, where the ancestor treated the gate's existence as
-settlement enough.
+recorded as settled*, where the autonomous-loop design treated the gate's
+existence as settlement enough.
 
-Wave two's recorded seam is corrected differently — not wrong that a gap
-exists, wrong about which gap. Its premise about plans fails, and the
-state it should have named lives on specs.
+**The second pointer, at
+`./2026-09-02-ledger-as-finding-state-design.md`, records a different
+kind of departure and is easy to miss because that document is right
+about everything except the one thing it names.** Its open seams say: "A
+plan's owed confirming round has no Unfinished-work entry … no command
+matches it, so `process-status` reports clean while a confirming round is
+owed." Both halves of that are wrong on plans, for the reason "What
+measurement established" sets out — the withheld stamp leaves a verdict
+the Unresolved-verdict command matches, and no grep-clean field can
+co-occur with a diff-scoped LGTM heading under the live grammar. What
+survives is the gap's existence, relocated: it lives on specs, where the
+stamp is not withheld, and it is about a gate's offer rather than an owed
+round.
+
+That is a departure worth the pointer rather than a correction worth a
+footnote, because a reader building on wave two's seam would look for the
+missing anchor on the wrong document kind and find the design already
+sound there.
+
+## What the integrity audit settled
+
+The audit at this document's consumption gate returned two defects, both
+fixed above, and six ranked implementer questions. Four are answered
+here, because the answers were derivable from the rules and leaving them
+to the plan would invite the plan to invent them.
+
+**The confirming-round arm blocks plan-writing; the audit arm does not.**
+Workflow step 4 reads sequentially — the offer fires, "Then write the
+implementation plan" — and a round that can flip `LGTM` to `concerns`
+must resolve before anything is built on the verdict. The audit arm is
+different in kind: it returns material for disposition rather than a
+verdict, so plan-writing follows its dispositions rather than waiting on
+a second opinion about them. This is the price asymmetry the design
+already names, stated as sequencing rather than as cost.
+
+**The stop-signal line gets a shape, because every other ledger element
+has one.** The ledger gives an exact template to disposition lines, to
+the severity-free variant, and to both gate lines; a rider that
+specifies placement and intent but no form would be the only element a
+lint could not read. It takes the leading token `signal`, no severity,
+and no authorizer:
+
+    - signal <date> — <what the reviewer judged the next round worth>
+
+It joins no anchor. A stop signal owes nobody a next move — it informs a
+decision the developer makes — so it is closed the moment it is written,
+like a gate line.
+
+**The Unresolved-verdict owner leg's exact wording belongs to the plan,
+not here.** The design fixes what the leg must stop licensing and why;
+the sentence that replaces it is prose the plan prescribes and a `grep`
+verifies, like every other rule edit in the manifest. The one constraint
+this design does impose on that wording: it states the plan exception
+without a count, so a later document kind cannot make it stale.
+
+**Each new `workflow.md` fact lands in one subsection, not both.** The
+cap statement joins the `Round cap` bullet in `### Terminators`, which
+is where the count is defined; the autonomy statement joins
+`### What a diff-scoped LGTM certifies`, which is where the confirming
+round is introduced. Restating either in both places would create the
+two-homes-for-one-fact defect this design refuses elsewhere.
+
+Two questions remain the developer's and are put to them rather than
+answered: whether a future undischarged instance gets the same
+retroactive decline as the live one, and whether `process-status` should
+say anything about the deliberate co-firing on plans beyond what its
+matching already does.
 
 ## Open seams
 
@@ -577,6 +663,27 @@ state it should have named lives on specs.
 ## Review rounds
 
 ### 2026-09-07 — architect, fable 5, LGTM (round 2, diff-scoped)
+
+An integrity audit ran at the consumption gate after this round, on the
+most capable tier and a fresh context, with coverage 638 of 638 lines. It
+returned two defects and six ranked implementer questions, all disposed
+before the plan was written:
+
+- fixed 2026-09-07 — [Important] the design claims three discharge paths are exhaustive — "all three write the same token … in every case" — while its own live-instance backfill discharged by a developer ruling, which is none of them; license: the exhaustiveness sentence itself, which a worked example may not quietly contradict; the backfill is now derived as the decline path exercised late, with the reasoning that nothing else fits and that writing the token without it would put a false claim in the record
+- fixed 2026-09-07 — [Important] `revises:` names two documents and the supersedes section discussed one, leaving a reader unable to tell what this design departs from in the wave-two spec or whether the pointer was stale; license: the lifecycle rule's definition of `revises:` as a claim about the named document; the section now records the second departure — wave two's seam is wrong on plans in both halves, and the gap it should have named lives on specs
+- fixed 2026-09-07 — four of the six implementer questions are answered in a new section rather than left for the plan to invent: that the confirming-round arm blocks plan-writing while the audit arm does not, that the stop-signal line takes a shape like every other ledger element, that the owner leg's exact wording is the plan's to prescribe, and that each new `workflow.md` fact lands in one subsection rather than both; license: the rules those answers derive from, cited at each answer
+- fixed 2026-09-07 — the stop-signal rider was assigned wholly to `workflow.md`, but its line shape is ledger grammar; license: the ledger's own custody of every other line shape; the manifest now splits the rider, shape to the lifecycle rule and the instruction to write it beside the ask that produces it
+
+Two questions are the developer's and were put to them rather than
+answered: whether a future undischarged instance gets the same
+retroactive decline, and whether `process-status` should say anything
+about the deliberate co-firing on plans.
+
+The audit is itself one of the three discharge paths, so this document's
+own chain debt is discharged by this episode — but the token it would
+carry does not exist yet, since these rules are what this design
+proposes. The annotation lands when the implementation lands, and the
+class the plan ships will find this document until it does.
 
 - fixed 2026-09-07 — [Minor] the gate line below was written as `hit dismissed` while its own `counter:` opened by affirming the audit's derivation; the grammar defines that clause as the derivation which *refutes* the hit, and the workflow rule reserves dismissal for a hit the session believes wrong — this session believed the hit right and understated, which is a fix, not a dismissal; license: those two definitions; the two lines for one hit are merged into the single `hit fixed` line the disposition always warranted, carrying the correction the dismissal had been invented to hold
 
