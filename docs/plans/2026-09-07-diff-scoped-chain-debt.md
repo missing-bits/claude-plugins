@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-07
 status: draft
-adversary: blocking
+adversary: concerns
 spec: ../specs/2026-09-07-diff-scoped-chain-debt-design.md
 branch: feature/audit-errata
 base: develop
@@ -90,7 +90,13 @@ Expected after: `6`, `6`, `1`, `1`. Each pair must be equal; a divergence in the
 rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/
 ```
 
-Expected: **four** lines. Two are the live instances — one in `docs/specs/2026-08-27-audit-agents-design.md`, one in `docs/specs/2026-09-07-diff-scoped-chain-debt-design.md`. The other two come from this plan itself: Tasks 11 and 12 quote a round heading verbatim at column 0 inside a fenced block, and the command matches a line, not a document. Line numbers are not asserted — they move as the documents change.
+Expected: **four lines, plus one** if this plan's own ledger already holds a diff-scoped `LGTM` heading that nothing has annotated.
+
+The fixed four are two live instances — one in `docs/specs/2026-08-27-audit-agents-design.md`, one in `docs/specs/2026-09-07-diff-scoped-chain-debt-design.md` — and two from this plan itself, where Tasks 11 and 12 quote a round heading verbatim at column 0 inside a fenced block, because the command matches a line, not a document.
+
+The contingent fifth is this plan's own review loop reaching its terminating shape: a plan's loop ends on a diff-scoped `LGTM` followed by a confirming full-document round, and the rules that would annotate that heading are what this plan ships. So between the loop closing and Task 3 landing, the heading sits unannotated. Task 13 Step 4 owns it and explains why it is a real hit discharged there rather than noise — unlike the two quoted blocks, it sits inside a genuine `## Review rounds` section and the scope leg does not reject it.
+
+Line numbers are not asserted — they move as the documents change.
 
 The plan's own two lines are output the class rejects, not hits it reports. The scope leg confines a hit to a `## Review rounds` section, and these sit under `### Task` headings; the default guard exists for exactly this reason, in the lifecycle rule's own words — a document quoting the convention describes it rather than instantiating it. So this step confirms two things at once: the rule ships a command that runs, and the scope leg earns its keep on the first document that tests it.
 
@@ -930,7 +936,7 @@ Expected after: `0` (the bare heading is gone), `2` (heading and ledger line), `
 rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/
 ```
 
-Expected before this task: four lines. Expected after: three — the annotated heading drops out, leaving `docs/specs/2026-09-07-diff-scoped-chain-debt-design.md`, which Task 12 closes, and this plan's own two quoted blocks, which the class's scope leg rejects.
+Expected: one line fewer than Task 1 Step 5 returned — four dropping to three, or five dropping to four where this plan's own unannotated LGTM heading is present, which that step explains. The annotated heading drops out, leaving `docs/specs/2026-09-07-diff-scoped-chain-debt-design.md`, which Task 12 closes, plus this plan's own two quoted blocks, which the scope leg rejects, plus that contingent heading if it exists.
 
 - [ ] **Step 7: Commit**
 
@@ -1006,9 +1012,11 @@ Expected: the hash in the field equals the recomputed hash. The stamp covers the
 rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/
 ```
 
-Expected before this task: three lines. Expected after: **two** — this plan's own quoted blocks in Tasks 11 and 12, which sit outside any `## Review rounds` section and which the class's scope leg therefore rejects.
+Expected: one line fewer than Task 11 Step 6 returned — three dropping to **two**, or four dropping to three where this plan's own unannotated LGTM heading is present. The two that always remain are this plan's quoted blocks in Tasks 11 and 12, which sit outside any `## Review rounds` section and which the scope leg therefore rejects.
 
 Both live instances are now discharged, so the class ships with no permanent **hit**. It does not ship with no permanent command *output*, and the difference is the whole point of the scope leg: a command returns lines, and confirmation turns a line into a hit. An earlier draft of this step claimed no permanent hit by asserting no output, which conflated the two.
+
+This plan's own contingent heading is a real hit rather than rejected output, and it is not this task's to close — Task 13 Step 4 discharges it under the derivation licence, after every rule edit has landed.
 
 - [ ] **Step 8: Commit**
 
@@ -1060,7 +1068,11 @@ Run each `rg` command the `## Unfinished-work list` section publishes, exactly a
 
 Two classes need a word, because this plan is itself a document the sweep reads.
 
-**Chain debt on this plan.** A plan's loop terminates on a diff-scoped LGTM followed by a confirming full-document round, so by the time this task runs, this plan's own `## Review rounds` section may hold a diff-scoped LGTM heading. That is a real hit, not noise, and it is **discharged here rather than held**: a later full-document heading is on the page, and Task 3's own text says the annotation's derivation licenses a later session to write it. Annotate the heading, citing the confirming round. The two lines Tasks 11 and 12 quote inside fenced blocks are a different matter and stay — they sit outside any `## Review rounds` section and the scope leg rejects them.
+**Chain debt on this plan.** A plan's loop terminates on a diff-scoped LGTM followed by a confirming full-document round, so by the time this task runs, this plan's own `## Review rounds` section may hold a diff-scoped LGTM heading. That is a real hit, not noise, and it is **discharged here rather than held**: a later full-document heading is on the page, and Task 3's own text says the annotation's derivation licenses a later session to write it.
+
+Append the bare `, debt discharged <date>` token to that heading, and nothing else. The confirming round's heading is what licenses the write, so it belongs in the session's derivation — never inside the token, which Task 3 rules "carries a date and nothing else" precisely so one fact gets no second home.
+
+The two lines Tasks 11 and 12 quote inside fenced blocks are a different matter and stay — they sit outside any `## Review rounds` section and the scope leg rejects them.
 
 **Unresolved verdict on this plan.** A `blocking` or `concerns` round closed by annotation rather than by a fresh round leaves the field matching until the annotation lands. Read the field, and if a round's disposition is still open, that is unfinished work the developer owns rather than something this task closes.
 
@@ -1096,6 +1108,28 @@ The questions the spec put to the developer, all answered 2026-09-07. They are r
 3. **`process-status` stays untouched.** The original question was aimed at the wrong surface: the skill groups hits by document and reports "the owner the entry carries", so Task 2's `one debt seen from two sides` explanation already rides to the report on the owner leg the skill copies. Whether a long leg arrives whole or condensed does not matter, because two adjacent lines whose owners both name the confirming round read as one job. The developer ruled on 2026-09-07 to leave the skill alone, so the spec's `No process-status edit at all` refusal now covers reporting as well as scope, and a skill that correlates class pairs — which would need extending for every future pair — is refused rather than deferred.
 
 ## Review rounds
+
+### 2026-09-07 — plan-adversary, fable 5, concerns (round 2, diff-scoped)
+
+- fixed 2026-09-07 — [Important] fix 1's restated counts are right for today's tree and wrong for the tree the plan predicts at execution time: this plan's own loop terminates on a diff-scoped LGTM, that heading lands inside a real `## Review rounds` section where the scope leg does not reject it, and the rules that would annotate it ship during this very plan — so the three steps state absolutes that Task 13 Step 4 already contradicts in words; license: the plan's own constraint that a check must state the value it returns, plus Task 13 Step 4's written prediction of this exact ledger state, which makes the correction a recomputation rather than a decision; the three steps now state a fixed base plus one contingent line, each pointing at Task 13 Step 4 for why that line is a real hit discharged there
+- fixed 2026-09-07 — [Minor] fix 5's "annotate the heading, citing the confirming round" reads as licensing a path clause inside the token, which Task 3's shipped grammar forbids — the token "carries a date and nothing else" precisely so one fact gets no second home; license: that sentence of Task 3; the instruction now names the bare token and puts the confirming round's heading where it belongs, in the session's derivation rather than in the annotation
+
+The reviewer ran every published before-value against the live tree and
+reports them all verifying, which is the property round 1 found missing.
+It also declined to refute the recorded deviation on fix 1: truncating
+the `Find:` blocks would trade executability for a quiet grep and hide
+the case the scope leg exists for.
+
+- signal 2026-09-07 — a dedicated round 3 would not repay itself: the Important's repair is one contingency sentence restated in three steps, self-licensed and verifiable by inspection, and the confirming full-document round this plan is owed regardless can absorb that check
+
+Answering the round's focusing question — whether the fix wave repaired
+the habit or only its six instances — the answer narrowed rather than
+flipped. Simulation now happens: every restated value verifies against
+the live tree, which round 1's did not. But it was run against the
+authoring-time tree while the plan itself describes the execution-time
+state that breaks three of those counts. So the failure moved from
+"never ran the command" to "ran it at the wrong timepoint", and forward
+simulation is the half still owed.
 
 ### 2026-09-07 — plan-adversary, fable 5, blocking (round 1, full-document)
 
