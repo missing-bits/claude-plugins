@@ -3,6 +3,7 @@ ticket: none
 date: 2026-09-07
 status: draft
 grilled: 2026-09-07
+architect: concerns
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-02-ledger-as-finding-state-design.md]
 branch: feature/audit-errata
 base: develop
@@ -313,11 +314,19 @@ its own ledger.
 That is a body edit on an `implemented` document, which the lifecycle
 rule forbids: "amended only in frontmatter, never in the body". The
 package licenses this one class of exception in a sentence — a ledger
-annotation is a process record rather than a design amendment — and notes
-that it re-arms any `integrity:` stamp, which after `implemented` is
-already informational. Wave one set the precedent by normalizing its own
-bare `dismissed` line, argued individually and traced in the document's
-ledger.
+annotation is a process record rather than a design amendment. Wave one
+set the precedent by normalizing its own bare `dismissed` line, argued
+individually and traced in the document's ledger.
+
+An earlier draft added that the annotation re-arms an `integrity:` stamp
+"which after `implemented` is already informational". The rule scopes
+that word to plans and says nothing about an implemented spec, so the
+parenthetical asserted an extension the cited text does not make. It is
+gone rather than repaired: the licence stands on the process-record
+distinction alone, and the re-arming is harmless for a reason the rule
+does state — a spec's stamp is read at exactly one gate, before
+plan-writing, which an implemented spec has long passed, and hash
+staleness joins no Unfinished-work entry.
 
 Without the backfill the class ships with a permanent hit, and hits on
 this list carry no durable disposition — there is no `hit dismissed` for
@@ -469,9 +478,23 @@ debt-flavoured class would.
   a ledger annotation on an `implemented` document.
 - `plugins/working-process/rules/workflow.md` — the confirming round's
   authority (counts against the cap, autonomous under consent) in
-  `### Terminators` and `### What a diff-scoped LGTM certifies`; the
+  `### Terminators` and `### What a diff-scoped LGTM certifies`; **the
+  decline-path paragraph in that same subsection rewritten off the
+  retired token** — `, chain accepted <date>` becomes
+  `, debt discharged <date>`, and "the developer accepting the chain …
+  the acceptance is recorded" becomes the three-path framing, since that
+  wording is the property-not-event reading this design rejects; the
   stop-signal record in `### Re-dispatch briefs`; the restored
   concurrency reasoning and its one new consequence.
+
+  The retired token lives in **two** files, and this is the second. The
+  lifecycle rule's occurrence is the definition site and the obvious one;
+  this one narrates the same mechanism independently, sits in a
+  subsection this design already edits for a different reason, and would
+  survive a literal reading of an earlier draft of this list. Leaving it
+  would ship the exact defect this design names elsewhere — a grep saying
+  one word while the fix writes another — so both move together or
+  neither does.
 - `docs/domain/glossary.md` — **already done**, applied inline by the
   grilling session: the new **Chain debt** entry, plus corrections to
   **Round heading**, **Disposition ledger**, **Consumption gate**,
@@ -550,3 +573,30 @@ state it should have named lives on specs.
   absence of `full-document`" and would call the same heading diff-scoped.
   The command and the recovery clause diverge on historical documents.
 - **The deferred grammar lint** now has one more anchored line to check.
+
+## Review rounds
+
+### 2026-09-07 — architect, fable 5, concerns (round 1, full-document)
+
+- fixed 2026-09-07 — [Important] the retired token lives in two rule files, and the Changes-by-file list named only the lifecycle rule's; `workflow.md`'s decline-path paragraph narrates the same mechanism, sits in a subsection this design already edits for another reason, and would have shipped a split vocabulary — the very defect this design names when arguing the class and token must rename together; license: this design's own sentence that a grep saying one word while the fix writes another is worse than either name alone; the manifest now names the second site, its surrounding property-not-event wording, and why one site is easy to walk past
+- fixed 2026-09-07 — [Minor] the backfill licence asserted that an implemented spec's `integrity:` stamp is "already informational", extending a word the rule scopes to plans; license: the rule text itself, which says no such thing about specs; the parenthetical is removed rather than repaired, and the harmlessness now rests on what the rule does state — a spec's stamp is read at one gate the document has long passed, and hash staleness joins no Unfinished-work entry
+
+Two propagation gate episodes precede this round. The first, before the
+architect dispatch, returned one hit and is recorded below. The gate
+before that dispatch had no round heading to write under, so both lines
+land here, at this round's stamp, as the gate-line placement rule
+prescribes.
+
+- hit fixed 2026-09-07 — the token rationale claimed the document's prose "reached for it seventeen times before the token did"; the count was taken over the whole document rather than the text before the token, where the true figure is three, and the whole-document figure had itself moved to thirty-five by the time it was checked; the claim is now a property rather than a count
+- hit dismissed 2026-09-07 — the audit reported the frozen count as unsupported at three occurrences; counter: the derivation is right and the defect is worse than reported, since the sentence was wrong on scope *and* stale on value, so the line above records both rather than the single reading the hit named
+
+Answering the round's focusing question — what the process would newly
+get wrong if this shipped as written — the reviewer named exactly one
+thing, and it was the Important above: today no token is written
+anywhere, so no contradiction between the two rule files is possible; a
+literal reading of the old manifest would have created one.
+
+Its stop signal: no further full-document round. The two findings are
+narrow, textually located, and touch neither the vehicle, the token
+semantics, nor the derivations — the shape a short diff-scoped round
+against these two fixes would close cleanly.
