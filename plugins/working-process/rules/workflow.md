@@ -141,9 +141,13 @@ available:
   progress visible in the session's task list.
 - On the completion notification, in one turn and in this order:
   verify the agent's model self-report (the comparison the lifecycle
-  rule defines), relay the report to the developer, then stamp the
+  rule defines), relay the report to the developer, check every
+  citation the report supplies against what it names, then stamp the
   verdict (`LGTM` | `concerns` | `blocking`) into the reviewed
-  document's `architect:` / `adversary:` frontmatter field. The order
+  document's `architect:` / `adversary:` frontmatter field. The
+  citation check follows the relay rather than preceding it, because a
+  wrong citation in conversation costs a correction while a wrong one
+  in the record outlives the loop. The order
   has one named exception, defined under *What a diff-scoped LGTM
   certifies* below: a plan's diff-scoped LGTM.
 - The relay carries the verdict, the model self-report, and every
