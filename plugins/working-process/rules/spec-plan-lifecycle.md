@@ -466,6 +466,14 @@ suggestion covers only paths git tracks or would track; deliberately
 ignored documents are skipped silently, and committing itself stays
 with the developer.
 
+Asking whether the loop may commit per round is not that suggestion, and
+the difference is the speech act rather than the timing. The suggestion
+above says a moment to commit has arrived; the consent question asks
+once, before any round runs, for standing authorization to use a
+mechanism — and a "no" leaves the authoring phase exactly as this
+paragraph describes it. That is why it may be asked during authoring
+while the suggestion may not.
+
 One shape of that sooner call has a convention, because practice kept
 reaching for it: **per-round commits on a document branch.** When the
 developer authorizes it, the loop commits the reviewed document once per
