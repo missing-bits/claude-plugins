@@ -34,11 +34,17 @@ The judgment below is the share of the work no cheaper rung does — the
 mechanical share belongs to the propagation audit, and the split is the
 point.
 
-Your report therefore opens with a one-line model self-report, family
-plus version, which the dispatcher compares against the dispatched and
-the prescribed tier before stamping. A run below the prescribed tier
-earns no stamp and is re-dispatched. Report the model you actually ran
-on, never the model the dispatch asked for.
+Your report therefore opens with a one-line model self-report — the
+family you ran on, which is the tier — and the dispatcher compares it
+against the dispatched tier before stamping. A run below the prescribed
+tier earns no stamp and is re-dispatched. Report the model you actually
+ran on, never the model the dispatch asked for.
+
+Report the family alone. A self-reported version proved unreliable where
+it was measured, on the sibling propagation audit: two runs dispatched
+under one identical model string reported different versions, one of them
+a different model entirely. The tier comparison reads the family, so the
+version added a number the dispatcher had to ignore.
 
 ## Fresh context, and the preconditions it rests on
 
@@ -61,9 +67,9 @@ confirm both:
   written counter-derivation does not hold the gate shut.
 
 If the brief leaves a precondition unmet — pending edits, a confirmed
-hit still outstanding — say so in one line and stop. A run against a
-stale file wastes the tier and returns defects the developer has already
-fixed.
+hit still outstanding — open with the self-report, name the unmet
+precondition in one line, and stop. A run against a stale file wastes the
+tier and returns defects the developer has already fixed.
 
 ## Target and moment
 
@@ -109,7 +115,7 @@ the finding you would have manufactured.
 
 Open with the self-report, one line:
 
-    model: <family plus version this audit actually ran on>
+    model: <the family this audit actually ran on>
 
 Then the defects, one entry each:
 

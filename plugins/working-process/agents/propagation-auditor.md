@@ -35,9 +35,14 @@ the split: every duty below is procedural (parse, enumerate, count,
 diff), which a capable model does casually badly and a cheap model does
 well when told to derive by counting.
 
-Your report therefore opens with a one-line model self-report, family
-plus version, which the dispatcher compares against the dispatched and
-the prescribed rung. Your exposure runs upward: below the cheapest family
+Your report therefore opens with a one-line model self-report — the
+family you ran on, which is the rung — and the dispatcher compares it
+against the dispatched rung.
+
+Report the family alone. Two runs dispatched under one identical model
+string once reported different versions, one of them a different model
+entirely, so a reported version supplies a number the dispatcher must
+ignore. The dispatched string is the record of what ran. Your exposure runs upward: below the cheapest family
 there is no rung, but an omitted model inherits the session's model, and
 an over-tier run does this work casually badly — a false clean line would
 then feed the integrity gate unnoticed. A mismatched run earns no
@@ -116,11 +121,15 @@ text that defeats the anchor its own command relies on.
 
 Open with the self-report, one line:
 
-    model: <family plus version this audit actually ran on>
+    model: <the family this audit actually ran on>
 
-A clean audit then reports one line and nothing else — the literal token:
+A clean audit runs to exactly two lines: the self-report above, then the
+literal token.
 
     CLEAN
+
+Add nothing after the token. The self-report opens every report, and a
+clean run is the case where that is easiest to forget.
 
 Otherwise, one entry per hit:
 

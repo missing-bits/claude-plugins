@@ -154,9 +154,10 @@ dispatch, and reviews never dispatch on the cheapest available family.
 A dispatch refused on the dispatched model's cap offers a one-family
 drop (once) or waiting for the reset; a verdict produced below the
 prescribed tier gets a fallback record and a re-review offer — grammar
-and lifecycle in the spec-plan-lifecycle rule. Agents self-report the
+and lifecycle in the spec-plan-lifecycle rule. Verdict agents self-report the
 model they ran on (family plus version) so the dispatcher can verify
-before stamping.
+before stamping; the two audit agents report the family alone, which is
+the rung their comparison reads.
 
 An audit is not a review, and that floor governs reviews alone: the
 `propagation-auditor` dispatches on the cheapest available family,
