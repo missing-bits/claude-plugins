@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-09-07
 status: draft
+grilled: 2026-09-07
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-02-ledger-as-finding-state-design.md]
 branch: feature/audit-errata
 base: develop
@@ -152,6 +153,20 @@ dispatcher writes it in every case:
   confirming round returning `concerns` has paid the debt and left the
   loop running; without this clause its heading would sit bare and the
   anchor would fire forever.
+
+**The gate's two arms cost differently, and the offer should say so.** An
+integrity audit returns material for the dispatcher to dispose of and
+leaves the verdict alone. A confirming round on a *spec* does something
+larger: a spec's LGTM already ended its loop, and "scoping never spans a
+close", so that round is a new loop's first round. It mints its own
+verdict and stamps it — and a `concerns` there flips the field back from
+`LGTM` while plan-writing is underway. That is the mechanism working
+rather than failing, since finding a real problem before anything is
+built on the spec is the whole point, but a developer choosing at the
+gate is choosing between two very different prices and should be told
+which is which. On a plan the question does not arise: there the
+confirming round belongs to the same live loop, because a plan's
+diff-scoped LGTM never terminated it.
 
 A full-document round reads the whole document, so it annotates **every**
 unannotated diff-scoped LGTM heading above it, not only the one it
@@ -381,10 +396,43 @@ and the redundancy mattered, because it is precisely the genus reading
 that lets one word stay honest on three paths. The sentence now ends at
 "discharged".
 
-## The glossary entry this needs
+## What the grilling changed in the glossary
 
-`docs/domain/glossary.md` has no entry for either the chain or its debt.
-The term is minted here and the grilling session lands it:
+The grilling session found six defects, all in `docs/domain/glossary.md`,
+and applied them inline. Four were pre-existing — this design only
+brought them into contact with something that tested them.
+
+**Two canonical sentences forbade what this design does.** The Round
+heading was defined as "the immutable record of one dispatch", and this
+annotation appends to it; the Disposition ledger declared that it carries
+per-finding and per-hit state while "loop-level state is derived from the
+round headings and stored nowhere", and this annotation stores something
+that is neither. Both are now qualified rather than waived: a heading's
+*dispatch-time fields* are immutable and a later event appends after the
+closing parenthesis, and the ledger carries one obligation the
+consumption gate owns — the chain debt — because no folding derives it.
+The shipped `, chain accepted <date>` broke both sentences already; it
+had simply never been written, so nothing tested them.
+
+**Consumption gate named one of the four things it owns**, the re-review
+offer, omitting the integrity audit, the pair question, and now the chain
+debt. It enumerates all four, and says outright that nothing orders them
+against each other yet.
+
+**Hit promised a disposition half of its instances lack.** It read
+"confirmed or dismissed by the dispatcher" across both kinds, but only a
+propagation-auditor hit has shapes to record that in. An Unfinished-work
+hit has no dismissal at all — its only disposition is ceasing to match.
+The entry now parts the two, which is also the reason the live instance
+needs a backfill rather than a recorded dismissal.
+
+**Unfinished-work list asserted a cost this design disproved.** It said a
+class publishing its own scope "costs a consumer edit too". Verified
+against `process-status`: the consumer already reads section scopes
+generically, so the cost was one-time, spent on the first such class. The
+sentence now says that, count-free.
+
+And the term itself, previously absent for both the chain and its debt:
 
 > **Chain debt**:
 > The obligation a diff-scoped LGTM leaves — the document was approved
@@ -422,8 +470,11 @@ debt-flavoured class would.
   `### Terminators` and `### What a diff-scoped LGTM certifies`; the
   stop-signal record in `### Re-dispatch briefs`; the restored
   concurrency reasoning and its one new consequence.
-- `docs/domain/glossary.md` — the **Chain debt** entry above, landed by
-  the grilling session.
+- `docs/domain/glossary.md` — **already done**, applied inline by the
+  grilling session: the new **Chain debt** entry, plus corrections to
+  **Round heading**, **Disposition ledger**, **Consumption gate**,
+  **Hit** and **Unfinished-work list**. The section above says what each
+  changed and why. No implementation task covers these.
 - `docs/specs/2026-08-27-audit-agents-design.md` — the live instance's
   backfill: the annotation on its round-3 heading plus the ruling in its
   own ledger.

@@ -248,8 +248,11 @@ _Avoid_: sub-tier record
 **Consumption gate**:
 The workflow step at which a document's review verdict is about to be
 relied on as the basis of further work — plan-writing for a spec,
-implementation for a plan. Where re-review offers on fallback-recorded
-verdicts fire.
+implementation for a plan. Four things fire or come due there: the
+re-review offer on a fallback-recorded verdict, the integrity audit
+offered when a spec's body hash no longer matches its stamp, the pair
+question a diff-scoped chain earns, and the chain debt itself. Nothing
+orders them against each other yet.
 _Avoid_: usage point
 
 **Unfinished-work list**:
@@ -258,8 +261,9 @@ class of unfinished process work — class name, grep command, the owner
 of the next move, and optionally the entry's own match scope — and the
 single definition site for which classes exist. A class that accepts
 the default scope costs one edit in the rule and none in the consumers
-that run it; a class that publishes its own scope costs a consumer edit
-too, and the ledger class is the first. A command's output is hits to
+that run it. Publishing a scope of its own cost a consumer edit once, to
+teach the consumers section scopes at all; every class publishing one
+since trades on that lesson for free. A command's output is hits to
 confirm against the entry's scope — the frontmatter block by default —
 never Findings.
 _Avoid_: anchor list, debt list
@@ -305,9 +309,13 @@ _Avoid_: sweep agent, verifier
 
 **Hit**:
 The unit a mechanical check returns — an Unfinished-work list command's
-match or a propagation-auditor detection: located, binary, confirmed or
-dismissed by the dispatcher, never graded. Graded problems are Findings
-and belong to review rounds.
+match or a propagation-auditor detection: located, binary, never graded.
+Graded problems are Findings and belong to review rounds. The two kinds
+part company over disposition: a propagation-auditor hit is confirmed or
+dismissed by the dispatcher and the outcome is written as a gate line,
+while an Unfinished-work hit has no dismissal at all — its only
+disposition is ceasing to match, when the state the command anchors is
+rewritten or annotated closed.
 _Avoid_: mechanical finding
 
 **Disposition ledger**:
@@ -316,16 +324,20 @@ The record a review loop keeps inside the reviewed document, under one
 It carries the loop's durable state, and nothing else does — the
 session, the reviewer and the developer are all volatile, and these
 documents stay uncommitted through the rounds. Per-finding and per-hit
-state is written into it; loop-level state is derived from the round
-headings and stored nowhere. The name comes from the terminal states
+state is written into it, and so is one obligation the consumption gate
+owns, the chain debt, because no folding derives it; loop-level state is
+derived from the round headings and stored nowhere. The name comes from the terminal states
 that dominate it in practice; a leading token names a state, terminal or
 not.
 _Avoid_: review log, findings table, round log
 
 **Round heading**:
-The immutable record of one dispatch, opening a round's block in the
+The record of one dispatch, opening a round's block in the
 disposition ledger: date, agent, model self-report, verdict, ordinal and
-scope. The loop's derived state — round count, the all-Minor signal, the
+scope. Those dispatch-time fields are immutable — they say what one
+reviewer was given and returned — while a later event about that round
+appends after the heading's closing parenthesis, never inside it. The
+loop's derived state — round count, the all-Minor signal, the
 diff-scoped chain — is read by folding these.
 _Avoid_: round title, round record (for the heading alone)
 
@@ -342,6 +354,20 @@ written by the propagation gate. It shares the container with
 disposition lines and nothing else — its own leading token, no severity,
 no license.
 _Avoid_: hit line, audit line
+
+**Chain debt**:
+The obligation a diff-scoped LGTM leaves: the document was approved with
+no whole-document read at the end, so somebody must still take
+responsibility for the part no round re-read — or explicitly decline to.
+The consumption gate owns it, not the loop, which owes nothing further
+once it terminates. Discharged three ways: an integrity audit, any later
+full-document round whatever its verdict, or the developer's recorded
+decline of the gate's pair offer. Recorded as `, debt discharged <date>`
+appended to that LGTM's round heading, and the record says only that it
+happened and when, never how or how well. Distinct from the diff-scoped
+chain itself, the round-one-plus-reviewed-waves structure the LGTM
+certifies.
+_Avoid_: chain accepted, chain closed, unclosed chain
 
 **Verdict agent**:
 An agent whose report ends in a verdict the dispatcher stamps into the
