@@ -79,7 +79,8 @@ base: master        # optional: branch the topic branch was cut from
   frontmatter's closing `---`, so writing the stamp never invalidates what
   it stamps. Where the audit also discharges a chain debt, the annotation
   is written before the hash is recomputed: the annotation lands inside
-  the hashed body, so a stamp written first is stale the moment it lands. Stamper and gate run one command, so the comparison can never
+  the hashed body, so a stamp written first is stale the moment it lands.
+  Stamper and gate run one command, so the comparison can never
   mismatch on convention:
   `sed '1,/^---$/d' <file> | shasum | cut -c1-7`
   — `shasum` rather than `sha1sum` because stock macOS ships only the
