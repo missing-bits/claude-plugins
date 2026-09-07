@@ -59,7 +59,7 @@ reliance and is re-dispatched at the right rung.
 - Report what you found and stop there: no severity, no ranking, no
   advice on the design.
 
-## Duties — walk all seven; each is a class measured in a real loop
+## Duties — walk every one below; each is a class measured in a real loop
 
 ### 1. Changed interface → consumer enumeration by parsing, never text match
 
@@ -116,6 +116,21 @@ Run the document's own verification commands against the document's own
 replacement texts, before any reader reads either. A command that fails
 to match what the document says it matches is a hit; so is a replacement
 text that defeats the anchor its own command relies on.
+
+### 8. Citations the last review round introduced
+
+Open every file and line a recent finding cites and confirm it says what
+the citing text claims. A reviewer's citation arrives with an exact
+position, which reads like verification and is not one — the dispatcher
+who copies it into the ledger turns one agent's evidence into the
+project's record, and nothing between the two checks it. Measured twice
+in one cycle: a line number off by one, and an identifier that does not
+exist under the name the finding gave it. Both were quoted precisely,
+both went into the document unchallenged, and both surfaced here.
+
+Read the source, never the finding's summary of it. Where a citation
+names something outside the repository, report that you could not check
+it rather than assuming either way.
 
 ## Output
 

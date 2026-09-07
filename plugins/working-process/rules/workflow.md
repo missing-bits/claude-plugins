@@ -149,6 +149,17 @@ available:
 - The relay carries the verdict, the model self-report, and every
   finding in substance — condense narrative prose, never drop a
   finding or its severity.
+- A citation the report supplies — a file and line, an identifier, a
+  count — is checked against what it names before it is written into
+  the document or acted on by a fix. A precise citation reads like
+  verification and is not one, and the dispatcher who copies it into
+  the ledger launders a reviewer's evidence into the project's record.
+  The check is cheap and its absence is measured: one cycle relayed a
+  line number off by one and an identifier that did not exist, both
+  quoted with exact positions, both caught later by a propagation
+  audit rather than at the relay. This is the citation's analogue of
+  the model self-report comparison above — the same duty, on the other
+  thing a report asserts about the world.
 - The stamp — the field, any fallback record, and the round record
   the lifecycle rule defines — lands as one edit, body record first
   where edit granularity forces separate writes, and goes to the
