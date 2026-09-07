@@ -82,14 +82,19 @@ The README's generic "Agents self-report" became false the moment the
 auditors narrowed, so it now names both cases: verdict agents report
 family plus version, the audit agents report the family.
 
-## The prediction, and its confirmation
+## The prediction, and what testing it actually showed
 
 Package A shipped a falsifiable claim, which is why it went first: **a
 clean propagation run should now return two lines rather than one.**
 
-**Confirmed 2026-09-07.** The first gate dispatched after the fix — a
-propagation audit over this errata's own change set, which the Process
-section below records as previously ungated — returned:
+**It holds sometimes. Two clean runs after the fix, one carrying the
+self-report and one not** — so the fix improved the behaviour without
+making it reliable, and the section below, which first recorded this as
+confirmed on a single observation, was written too early.
+
+The first gate dispatched after the fix — a propagation audit over this
+errata's own change set, which the Process section below records as
+previously ungated — returned:
 
     model: haiku
 
@@ -97,22 +102,32 @@ section below records as previously ungated — returned:
 
 Two lines. The brief deliberately **did not ask for the self-report**, so
 the line came from the card alone; and it names the family without a
-version, which is the narrowing this errata also made. One observation
-confirms both halves.
+version, which is the narrowing this errata also made.
 
-The contrast is the evidence: five dispatches before the fix, every one
-clean, every one omitting the self-report, several of them asking for it
-in the brief emphatically. One dispatch after the fix, clean, self-report
-present, brief silent. Emphasis never moved it; the card did.
+**A later clean run returned `CLEAN` and nothing else**, from the same
+fixed card, under a brief that likewise did not ask. So the tally across
+this branch is five clean runs omitting the line before the fix, then one
+carrying it and one omitting it after.
 
-One confound remains stated rather than hidden. This branch still has no
+That is worth stating precisely, because the honest reading is narrower
+than either extreme. The fix did not fail: nothing before it ever
+produced the line, and something after it did, so the card's contract is
+at least sometimes what the agent follows. But the fix did not make the
+behaviour reliable either, and a rule that fires half the time cannot be
+the whole mechanism. Either the CLEAN clause was one cause among
+several, or compliance is simply variable at this tier.
+
+The practical consequence is unchanged and was already recorded: a
+dispatcher cannot count on the self-report arriving, so reliance on a
+propagation gate rests on the derivation below — the prescribed rung is
+the cheapest family, so a silent substitution could only run the audit
+above tier, which does not invalidate a structural CLEAN.
+
+Two confounds remain stated rather than hidden. This branch still has no
 non-CLEAN propagation run, so "clean" and "omitted" never varied
-independently before the fix — the pre-fix correlation was perfect and
-unisolated, and the post-fix run is a single observation. The mechanism
-is now the best-supported explanation rather than a proven one.
-`integrity-auditor` has no clean path and was never implicated; its
-unmet-precondition path, fixed here as the same class, remains
-unmeasured.
+independently, and the sample after the fix is two runs. `integrity-auditor`
+has no clean path and was never implicated; its unmet-precondition path,
+fixed here as the same class, remains unmeasured.
 
 ## Process
 
