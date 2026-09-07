@@ -270,6 +270,17 @@ indented payload; a paragraph explaining why a wave went the way it did
 belongs there too. A lint over the section reads the anchored lines and
 ignores the prose.
 
+A reviewer's stop signal takes a line of its own, under the heading of
+the round that gave it:
+
+    - signal <date> — <what the reviewer judged the next round worth>
+
+It carries the leading token `signal`, no severity — a judgment about
+the next round's marginal value is not a finding — and no authorizer,
+since nobody licensed it. It joins no anchor: a stop signal owes nobody
+a next move, so it is closed the moment it is written, as a gate line
+is. The workflow rule owns the ask that produces it.
+
 ### Gate lines
 
 The propagation gate, when that agent is available, writes two shapes of
