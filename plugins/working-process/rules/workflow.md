@@ -338,7 +338,14 @@ evidence to attack, never a defence to protect.
   event is recorded nowhere, so the cap is best-effort by construction;
   a session that cannot count its own rounds escalates rather than
   assuming, since resetting to zero would let a long session grant
-  itself three fresh rounds after every compaction.
+  itself three fresh rounds after every compaction. A plan's confirming
+  full-document round counts like any other: the count folds round
+  headings, and excluding one kind would mean classifying them — a
+  second fragile derivation in the one place the rules already concede
+  the cap is best-effort. A plan whose loop spent its three rounds
+  therefore escalates once before its confirming round, which is the
+  most expensive shape a round takes and the one a cap guarding spend
+  should guard first.
 - All-Minor signal: two consecutive rounds whose findings are all Minor
   end the unattended run. Triage the round as always — by license, never
   by grade — and escalate with an offer of a fresh round instead of
