@@ -14,7 +14,7 @@ base: develop
 
 **Goal:** Give the review loop a durable record that a diff-scoped LGTM's chain debt was discharged — a sixth Unfinished-work class that surfaces the debt, a three-path `, debt discharged <date>` annotation that closes it, and the four rule corrections the new class exposes.
 
-**Architecture:** Two rule files change and two specs gain a ledger annotation. `spec-plan-lifecycle.md` owns the record — the new class, the annotation's grammar, the ordering against the `integrity:` hash, the Unresolved-verdict owner leg, the stop-signal line shape, and three census sentences rewritten count-free. `workflow.md` owns the loop's behaviour — the gate's pair offer, the confirming round's authority, the instruction to record a stop signal, and the restored concurrency reasoning. The split follows the two rules' existing division of labour; no sentence moves between them.
+**Architecture:** Two rule files change, the glossary gains one clause, and two specs gain a ledger annotation. `spec-plan-lifecycle.md` owns the record — the new class, the annotation's grammar, the ordering against the `integrity:` hash, the Unresolved-verdict owner leg, the stop-signal line shape, and three census sentences rewritten count-free. `workflow.md` owns the loop's behaviour — the gate's pair offer, the confirming round's authority, the instruction to record a stop signal, and the restored concurrency reasoning. The split follows the two rules' existing division of labour; no sentence moves between them.
 
 **Tech Stack:** Markdown rule files distributed as a Rules payload; `rg` and `grep` commands published inside the rules are the enforcement mechanism; `claude plugin validate` is the structural check.
 
@@ -31,7 +31,7 @@ base: develop
 - **A check that searches for prose uses `rg -U` and puts `\s+` between *every* pair of words in the pattern; a check that searches for an anchored structural pattern uses `grep`.** These files wrap prose at about 72 characters, so a searched phrase may straddle a line ending and a single-line `grep` then returns 0 where the phrase is plainly present. The constraint is unconditional rather than applied where a wrap looks likely: where the wrap falls is not something a reader reliably predicts, and a uniformly `\s+` pattern is correct whether or not it wraps, so no judgement is exercised and no instance can be missed. An anchored pattern like `^- \*\*Chain debt\*\*` or `^    - signal <date>` cannot straddle by construction, so single-line matching is correct there.
 - **`rg -c` prints nothing and exits 1 when its pattern does not match** — it never prints `0`. A step asserting absence with `rg` therefore expects *no output*; only `grep -c`, which does print `0`, is given a numeric zero expectation.
 - **An anchored check on an indented block publishes *both* anchors — exact and tolerant — and asserts their equality.** Never one alone, and never a per-site decision about which. The exact anchor (`^    ` for a grammar block, `^- ` for a list entry) proves the prescribed text is well-formed at the indent the step prescribes; the tolerant anchor (`^\s*`) proves no variant survives anywhere else. Each alone has a blind spot that reads as success: the exact one passes while a leftover sits at another indent, the tolerant one passes while the prescribed block is mis-indented. Equality of the two counts is the assertion, and a divergence localizes which half failed. One case is copied rather than reasoned about: a check mirroring a command the rules publish reproduces it verbatim.
-- **Every check that verifies an edit must return a different value before and after its step, and both values are stated.** A check whose before-value equals its after-value verifies nothing, however correct both numbers look — and it survives review precisely because nothing about it appears wrong. A check that verifies no edit is exempt only where its own step says so in words; Task 13 is the sole exempt task here, and its `Files:` line says it modifies nothing.
+- **Every check that verifies an edit must return a different value before and after its step, and both values are stated.** A check whose before-value equals its after-value verifies nothing, however correct both numbers look — and it survives review precisely because nothing about it appears wrong. A check that asserts an **invariant** rather than verifying an edit is exempt, and the exemption is claimed in words on the step rather than inferred by a later reader: Task 9's paired anchors stay at zero to prove a shape was cited rather than copied, Task 11's placeholder guard stays at zero to prove no `<date>` survived, and every check in Task 13 reports an end state. Each says so where it stands.
 
 ---
 
@@ -46,6 +46,10 @@ base: develop
 The owner leg carries a second sentence the spec does not, and the departure is recorded here because it sits beside the text it concerns. The spec says a decline "has nothing to derive from, and there the debt correctly re-surfaces and the developer declines again" — true while it was written, when no standing decision existed. The developer ruled on 2026-09-07 that completed work is not chased, which makes the decline derivable for a document already at `status: implemented` and licenses a session to write the annotation without asking. The spec's sentence still governs every document in flight, where a decline remains a fresh decision. This is a developer ruling taken after the spec closed, so it outranks the plan's "the spec is the source" constraint rather than breaching it; the constraint bars the plan from inventing design, not the developer from deciding.
 
 The sentence lands on the **owner** leg, never on the scope leg. The spec refuses a `status` predicate in a class scope, because `process-status` states that a scope "narrows where a hit counts, never whether the file qualifies" — an owner leg says what the next move is and carries no such constraint.
+
+The scope leg carries one addition too, smaller and licensed differently: `and carrying -n for the same reason`. The spec's block ends at "for the reason the first one does", but the command the spec itself prescribes carries `-n`, and the sibling entry already explains why — confirming section membership needs line positions. So the clause states what the spec's own command implies rather than adding a decision. It is recorded here because the task's other addition is, and an undocumented departure beside a documented one reads as an oversight.
+
+This task also touches `docs/domain/glossary.md`, which the spec's Changes-by-file section says no implementation task covers. That sentence scopes the six changes the grilling session applied inline; developer ruling 2 postdates it and opens a seventh, recorded in Step 8.
 
 - [ ] **Step 1: Write the failing check**
 
@@ -110,10 +114,40 @@ claude plugin validate . && claude plugin validate plugins/working-process
 
 Expected: both pass.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 7: Widen the glossary's third discharge path**
+
+The entry enumerates that path as "the developer's recorded decline of the gate's pair offer". On an implemented document the gate never fired, so there is no pair offer to decline — yet ruling 2 licenses exactly that discharge, and the owner leg now ships it. The enumeration must cover what the rule permits.
+
+Find:
+
+```markdown
+full-document round whatever its verdict, or the developer's recorded
+decline of the gate's pair offer. Recorded as `, debt discharged <date>`
+```
+
+Replace with:
+
+```markdown
+full-document round whatever its verdict, or the developer's recorded
+decline — of the gate's pair offer, or, where the document is already
+implemented and the gate never fired, of the question that offer would
+have put. Recorded as `, debt discharged <date>`
+```
+
+- [ ] **Step 8: Verify the glossary edit**
 
 ```bash
-git add plugins/working-process/rules/spec-plan-lifecycle.md
+g=docs/domain/glossary.md
+rg -Uc "decline\s+of\s+the\s+gate's\s+pair\s+offer\." "$g"
+rg -Uc 'the\s+gate\s+never\s+fired' "$g"
+```
+
+Expected before: `1`, then no output. Expected after: no output, then `1`.
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add plugins/working-process/rules/spec-plan-lifecycle.md docs/domain/glossary.md
 git commit -m "feat(working-process): add the Chain debt Unfinished-work class"
 ```
 
@@ -787,7 +821,7 @@ records a deviation from a reviewer's suggestion,
 
 - [ ] **Step 4: Run the check again**
 
-Expected after: `1`, then `0` and `0` — unchanged, proving the shape was cited rather than copied.
+Expected after: `1`, then `0` and `0` — unchanged. **These two assert an invariant rather than verify an edit**, which is what exempts them from the before-and-after rule: they prove the shape stayed in the lifecycle rule and was cited here rather than copied.
 
 - [ ] **Step 5: Validate**
 
@@ -886,6 +920,8 @@ git commit -m "fix(working-process): restore the concurrency limit's reasoning a
 **Interfaces:**
 - Consumes: the token from Task 3 and the body-edit licence from Task 4.
 
+**The token's date is the discharge event's date, everywhere in this plan.** The spec rules that the annotation "names an event — this heading's debt was discharged on that date", so the date answers *when the discharge happened*, never when the edit was typed. On this document the discharge is the developer's decline, so the token reads `, debt discharged 2026-09-07` whatever day implementation lands. Task 12 resolves it the same way against its audit, and Task 13's contingent annotation against its confirming round. A ledger line's own leading date is a different date under a different rule — the ledger's — and the two are distinguished in Step 4.
+
 **The developer's ruling is recorded and dated 2026-09-07** — see *Developer rulings* below. The backfill is the decline path exercised late, not a fourth path: no audit ran, no later full-document round was dispatched, and none ever will be, since the document is `implemented` and the work it designed has shipped. What remains is exactly what the decline path is — the developer looking at a chain nobody read whole and accepting it knowingly. Writing the token without that decision would have put a false claim in the record, since on this document no reading ever happened; the ruling is what makes the annotation true.
 
 - [ ] **Step 1: Write the failing check**
@@ -910,25 +946,27 @@ Find:
 ### 2026-08-27 — architect, fable 5, LGTM (round 3, diff-scoped)
 ```
 
-Replace with (substituting the ruling's actual date for `<date>`):
+Replace with:
 
 ```markdown
-### 2026-08-27 — architect, fable 5, LGTM (round 3, diff-scoped), debt discharged <date>
+### 2026-08-27 — architect, fable 5, LGTM (round 3, diff-scoped), debt discharged 2026-09-07
 ```
+
+The date is the ruling's, not the implementation's, for the reason this task's preamble gives.
 
 - [ ] **Step 4: Record the ruling in the ledger**
 
-Append to the same round's lines, after the two existing `fixed` lines, **substituting the implementation date for both occurrences of `<date>`** — the same substitution Step 3 makes, and the literal placeholder must not survive:
+Append to the same round's lines, after the two existing `fixed` lines. **Two dates appear and they are not the same date.** The leading `<date>` is the implementation date — when this line reached its terminal state, under the ledger's rule. The date inside the quoted token is `2026-09-07`, because it quotes what Step 3 wrote on the heading and the token records the discharge event. No literal `<date>` may survive:
 
 ```markdown
-- fixed <date> — this round's diff-scoped LGTM left a chain debt that nothing recorded, and the document reached `implemented` unpaid; ruling: 2026-09-07; the developer accepted the chain on the record — the decline path exercised late, since no audit ran, no later full-document round was dispatched, and none can be — and the heading gains `, debt discharged <date>`
+- fixed <date> — this round's diff-scoped LGTM left a chain debt that nothing recorded, and the document reached `implemented` unpaid; ruling: 2026-09-07; the developer accepted the chain on the record — the decline path exercised late, since no audit ran, no later full-document round was dispatched, and none can be — and the heading gains `, debt discharged 2026-09-07`
 ```
 
-The two dates differ on purpose and the ledger requires both: the leading date is when this line reached its terminal state, `ruling:` is when the decision it cites was taken. The severity bracket is omitted because the sole authorizer is `ruling:` and no reviewer graded it — both legs hold, as the ledger's own rule requires.
+Three dates therefore sit on this one line, each under its own rule: the leading date is the ledger's, `ruling:` is when the developer decided, and the quoted token's is the discharge event's. The ledger requires the first two even where they coincide. The severity bracket is omitted because the sole authorizer is `ruling:` and no reviewer graded it — both legs hold, as the ledger's own rule requires.
 
 - [ ] **Step 5: Run the check again**
 
-Expected after: `0` (the bare heading is gone), `2` (heading and ledger line), `1`, and `0` — the last is the one that distinguishes a correct edit from a placeholder left in place. Without it every other value here is identical whether the dates were substituted or not, which is the fault the plan's own constraint on before-and-after values names.
+Expected after: `0` (the bare heading is gone), `2` (heading and ledger line), `1`, and `0`. The last stays `0` before and after, and **asserts an invariant rather than verifying an edit** — no literal `<date>` may exist in this document at any point. It is the only value here that distinguishes a correct edit from a placeholder left in place; without it every other number is identical whether the dates were substituted or not.
 
 - [ ] **Step 6: Confirm the class no longer reports this document**
 
@@ -1030,9 +1068,11 @@ git commit -m "docs: annotate this spec's discharged chain debt and re-stamp its
 ### Task 13: End-state sweep
 
 **Files:**
-- none unless a check fails
+- Modify, conditionally: `docs/plans/2026-09-07-diff-scoped-chain-debt.md` — Step 4's annotation, where this plan's own ledger holds an unannotated diff-scoped LGTM heading
+- Modify, conditionally: whatever document Step 6's gate reports a hit against — the fix plus its gate line
+- Otherwise none
 
-This task modifies nothing, so the before-and-after constraint does not apply to it: every check below is an end-state assertion, and the exemption is claimed here in words rather than inferred. Its purpose is to catch what a hand-written manifest cannot guarantee. The propagation gate is the real backstop, and Step 6 is where it runs.
+**Every check in this task asserts an end state rather than verifying an edit**, which is the exemption the before-and-after constraint requires be claimed in words. The two writes above are conditional repairs the checks discover, not edits any check verifies. The task's purpose is to catch what a hand-written manifest cannot guarantee: the propagation gate is the real backstop, and Step 6 is where it runs.
 
 - [ ] **Step 1: The retired token survives nowhere in shipped content**
 
@@ -1066,11 +1106,13 @@ Expected: `6`, `6`, and no output.
 
 Run each `rg` command the `## Unfinished-work list` section publishes, exactly as written, from the repo root. Expected: each exits without a usage error. Hits are read against each entry's scope, and the whole sweep should report no unfinished work — no `grilled: grilling`, no open or held ledger line, no pending re-review, and no misplaced stamp.
 
-Two classes need a word, because this plan is itself a document the sweep reads.
+One known line is rejected output rather than a hit, and is named here so an executor is not left deciding whether the sweep failed: the Grilling-pending command returns `docs/plans/2026-07-13-rules-distribution.md`, where `grilled: grilling` appears in the body as part of a quoted frontmatter example. The default guard rejects it — a document quoting the convention describes it rather than instantiating it — exactly as Task 12 Step 7 predicts its own rejected output.
+
+Two classes need a word beyond that, because this plan is itself a document the sweep reads.
 
 **Chain debt on this plan.** A plan's loop terminates on a diff-scoped LGTM followed by a confirming full-document round, so by the time this task runs, this plan's own `## Review rounds` section may hold a diff-scoped LGTM heading. That is a real hit, not noise, and it is **discharged here rather than held**: a later full-document heading is on the page, and Task 3's own text says the annotation's derivation licenses a later session to write it.
 
-Append the bare `, debt discharged <date>` token to that heading, and nothing else. The confirming round's heading is what licenses the write, so it belongs in the session's derivation — never inside the token, which Task 3 rules "carries a date and nothing else" precisely so one fact gets no second home.
+Append the bare `, debt discharged <date>` token to that heading, and nothing else, `<date>` being the confirming round's date — the discharge event's, by the rule Task 11's preamble states once for the whole plan. The confirming round's heading is what licenses the write, so it belongs in the session's derivation — never inside the token, which Task 3 rules "carries a date and nothing else" precisely so one fact gets no second home.
 
 The two lines Tasks 11 and 12 quote inside fenced blocks are a different matter and stay — they sit outside any `## Review rounds` section and the scope leg rejects them.
 
@@ -1094,6 +1136,15 @@ Dispatch the `propagation-auditor` agent on the cheapest available family, named
 
 Report to the developer: what the sweep found, what the gate returned, whether the `propagation-auditor` reported its model, and any hit still outstanding.
 
+Commit first, if Step 4 or Step 6 wrote anything. Those writes are process artifacts and ride along with the work's commits rather than being left dirty:
+
+```bash
+git add -A docs/
+git commit -m "docs: discharge this plan's own chain debt and close the gate's hits"
+```
+
+Where neither step wrote, there is nothing to commit and this step is skipped.
+
 Report one thing more, which no earlier step covers: **the installed rule copies under `.claude/rules/working-process/` now drift.** They are a consumer of every sentence this plan rewrote — both carry the retired token today — and no task edits them, because a Rules payload is distributed by the `sync-rules` engine rather than by hand. Offer that run. The drift hook is the designed backstop, which is why this is a hand-back line rather than a task; leaving it unsaid would let the session's own rules stay a version behind the ones it just shipped. A missing self-report is expected rather than anomalous — the prescribed rung is already the cheapest family, so a silent substitution could only run the audit above tier, which does not invalidate a structural CLEAN. Then offer the plan-adversary round: `status` moves to `approved` on the developer's word, not this task's.
 
 ---
@@ -1108,6 +1159,37 @@ The questions the spec put to the developer, all answered 2026-09-07. They are r
 3. **`process-status` stays untouched.** The original question was aimed at the wrong surface: the skill groups hits by document and reports "the owner the entry carries", so Task 2's `one debt seen from two sides` explanation already rides to the report on the owner leg the skill copies. Whether a long leg arrives whole or condensed does not matter, because two adjacent lines whose owners both name the confirming round read as one job. The developer ruled on 2026-09-07 to leave the skill alone, so the spec's `No process-status edit at all` refusal now covers reporting as well as scope, and a skill that correlates class pairs — which would need extending for every future pair — is refused rather than deferred.
 
 ## Review rounds
+
+### 2026-09-07 — plan-adversary, fable 5, concerns (round 3, full-document)
+
+The confirming round the loop owed. It simulated all thirteen tasks in
+order against the live payload files: every `Find:` block matches
+byte-exactly and uniquely **at its execution moment**, none broken by an
+earlier task's edit to the same file; every stated before-value and
+after-value verifies, end-state counts included; the counting chain
+resolves; Task 12's hash precondition holds. The recorded deviation on
+Task 1 Step 5 survived attack — Tasks 11 and 12 need those headings
+byte-exact as Edit anchors, so truncating them would trade a quiet grep
+for two broken edits.
+
+- fixed 2026-09-07 — [Important] Task 11's two substitution instructions contradict each other, so the token's date is unresolved: Step 3 writes the ruling's date into the heading while Step 4 orders the implementation date for both occurrences and calls it the same substitution, and every published check passes with either date written; license: the spec's ruling that the token "names an event — this heading's debt was discharged on that date", plus the ledger's own rule that a terminal line's leading date is when the line reached that state; the token's date is now stated once as the discharge event's date, Step 4 distinguishes the leading date from the quoted token's date, and Task 13's contingent annotation carries the same rule
+- fixed 2026-09-07 — [Minor] Task 13 can write two documents — Step 4's contingent annotation and Step 6's gate lines — while its `Files:` line says it modifies nothing, which is also the line the before-and-after exemption rests on, and no step commits them; license: the process-artifacts rule that artifact updates ride along with their work's commits and are never left dirty; the `Files:` line now names both conditional writes, the exemption is re-anchored to the checks rather than to the task, and a conditional commit step closes them
+- fixed 2026-09-07 — [Minor] the before-and-after constraint claims Task 13 is the sole exempt task while Tasks 9 and 11 both carry deliberate invariant guards that score the same value before and after; license: the constraint's own requirement that an exemption be claimed in words rather than inferred, which both guards already do; the constraint now exempts any check whose step declares it asserts an invariant, and the "sole exempt task" claim is gone
+- fixed 2026-09-07 — [Minor] Task 1's scope leg adds ", and carrying `-n` for the same reason", which the spec's prescribed block does not contain, recorded nowhere — unlike the owner-leg addition the same task documents at length; license: the spec's own prescribed command, which carries `-n`, and the sibling entry that explains why; the addition is now recorded beside the owner-leg departure it sits next to
+- fixed 2026-09-07 — [Minor] the glossary's Chain debt entry enumerates the third discharge path as "the developer's recorded decline of the gate's pair offer", which no longer covers the instance developer ruling 2 licenses — an implemented document where the gate never fired and so offered no pair to decline; license: ruling 2 itself, plus the spec's own reasoning for the live instance that the gate which should have asked never fired; Task 1 gains a glossary step, and the departure from the spec's "no implementation task covers these" is recorded there
+- fixed 2026-09-07 — [Minor] Task 13 Step 4 predicts a hit-clean sweep without predicting its known rejected output: the Grilling-pending command returns one line today, a body quote of the frontmatter example in `docs/plans/2026-07-13-rules-distribution.md`; license: Task 12 Step 7's own practice of naming rejected output so an executor is not left deciding whether the sweep failed; the step now names that line and why the default guard rejects it
+
+- signal 2026-09-07 — another round would not repay itself: the Important is a two-sentence repair plus one date rule stated once, the five Minors are one-sentence touches, and this round performed the whole-document read the loop owed, so nothing unread remains for a round 4 to certify; the leftovers are worth a fix wave and the developer's eyes on the date rule, not a re-read
+
+Answering the round's focusing question — whether the pattern the first
+two rounds found still holds — it narrowed again and did not close. Both
+halves earlier rounds attacked are now sound, forward simulation
+included, which was round 2's leftover. The residue moved one layer out
+from wherever the last round pointed: date semantics *inside* the one
+ledger line, the sweep commands Task 13 orders but the plan never ran,
+and the plan's own exemption clause, which its own tasks contradict.
+Three rounds, three addresses, one habit — the discipline holds wherever
+a previous round looked and slips in the adjacent cell.
 
 ### 2026-09-07 — plan-adversary, fable 5, concerns (round 2, diff-scoped)
 
