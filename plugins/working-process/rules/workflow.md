@@ -267,6 +267,15 @@ an integrity audit. A hit's fix is licensed by its own derivation — a
 recounted counter and an enumerated missed call site decide
 themselves — so hits never wait for the developer.
 
+An audit report's body governs, never its closing token. Where a report
+lists located hits and also carries `CLEAN`, the hits are the report and
+the gate has not passed. Measured twice in six runs of one day on the
+cheapest family, the second under a brief that ruled the combination out
+in as many words — so emphasis on the writing side is spent, and the
+guard belongs to the dispatcher who reads. The same reading governs any
+report an agent returns: what it found is in the entries, and the
+framing around them is not a verdict to act on.
+
 A hit the session believes is wrong is dismissed, never silently: the
 session writes the `dismissed` line the spec-plan-lifecycle rule
 defines and reports the dismissal in the next report it relays to the
