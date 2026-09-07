@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-07
-status: approved
+status: implemented
 adversary: concerns (resolved 2026-09-07)
 spec: ../specs/2026-09-07-diff-scoped-chain-debt-design.md
 branch: feature/audit-errata

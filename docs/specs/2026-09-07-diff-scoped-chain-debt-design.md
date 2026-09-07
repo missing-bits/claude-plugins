@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-07
-status: draft
+status: implemented
 grilled: 2026-09-07
 architect: LGTM
 integrity: 2026-09-07 (sha: b98e782)
