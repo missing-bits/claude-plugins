@@ -212,11 +212,11 @@ their condition holds.
 
 Every terminal line carries exactly one authorizer.
 
-Payload costs nothing structurally. Four of the five Unfinished-work
-commands anchor a frontmatter field and are held to the frontmatter
-block by the list's default scope guard, so no body line reaches them at
-all; the fifth is this ledger's own, anchored on `^- `, which an indented
-continuation does not match. Payload under a line is therefore invisible
+Payload costs nothing structurally. An Unfinished-work command under the
+list's default scope guard is held to the frontmatter block, so no body
+line reaches it at all; an entry publishing its own scope anchors a
+leading disposition token or a round heading, and an indented
+continuation matches neither. Payload under a line is therefore invisible
 to every published command, and where it runs long it belongs in
 indented sub-bullets rather than in a longer line.
 
@@ -362,7 +362,7 @@ matching line sits inside the document's frontmatter block — between the
 later pair — because a document quoting this convention in its body
 describes it rather than instantiating it. That guard is the default. An
 entry re-scopes it only by publishing its own match scope as a fourth
-leg, and the review-loop entry below is the one that does.
+leg, and the entries below that do so say it there.
 
 - **Grilling pending** — a session's outcomes are recorded and not yet
   applied.
@@ -422,10 +422,12 @@ match, and that defeat is the recorded closed state. The leading
 anchors are tolerant on purpose, so a relocated field is still found.
 The Misplaced stamp command anchors `^\s+` instead, because there the
 indentation is the defect it looks for rather than an accident to
-tolerate. Those anchors all sit on a frontmatter field; the review-loop
-entry anchors a leading disposition token instead, so there the close is
-a rewrite — `open` or `held` becomes `fixed <date>` or
-`declined <date>`, and the anchor stops matching.
+tolerate. Those anchors sit on a frontmatter field wherever the default
+guard holds. An entry publishing its own scope anchors a body line
+instead — a leading disposition token or a round heading — and there the
+close is a rewrite or an appended annotation: `open` or `held` becomes
+`fixed <date>` or `declined <date>`, and a discharged chain debt gains
+`, debt discharged <date>`. Either way the anchor stops matching.
 
 ## Lifecycle offers
 
