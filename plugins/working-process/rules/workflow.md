@@ -162,7 +162,14 @@ available:
 - At most one live round per document per field within the session;
   superseding a running round stops it when the platform offers a
   stop, otherwise the stale result is relayed as stale and never
-  stamped.
+  stamped. A parallel round from another session is accepted as
+  undetectable and stays benign: both rounds record in the body and the
+  field holds the later stamp. One consequence postdates that decision —
+  a diff-scoped LGTM certifies a chain, so an interleave punches a hole
+  no round ever read. The discharge paths are the mitigation, since an
+  audit and a full-document round each read the whole document, and a
+  heading-derived cap over-counts under interleave, which escalates
+  early.
 - When the reviewed document changed after dispatch — known only
   conversationally; an out-of-session edit is accepted as
   undetectable — the relay says so and the stamp waits for the
