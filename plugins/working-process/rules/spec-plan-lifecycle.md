@@ -499,6 +499,13 @@ such note asks at the gate. Either way the document branch survives the
 merge, which keeps loop churn off any published branch until somebody
 pushes it and leaves the surviving ref marking where authoring ended.
 
+Both halves of "local" are worth knowing before relying on it. Churn
+stays private, and the history dies with the working copy: a teammate
+cannot see it, and a lost machine takes it. That is still more than the
+alternative, where the same rounds live only in a transcript, but it
+means "return the document to the state round three read" is a promise
+about one clone rather than about the repository.
+
 What per-round commits never do is replace the ledger. Git says which
 lines changed; the ledger says with what intent and on whose license,
 and a diff carries neither "narrowed the claim" nor a cited ADR. A
