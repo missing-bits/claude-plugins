@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-09-07
 status: draft
+adversary: blocking
 spec: ../specs/2026-09-07-diff-scoped-chain-debt-design.md
 branch: feature/audit-errata
 base: develop
@@ -89,7 +90,11 @@ Expected after: `6`, `6`, `1`, `1`. Each pair must be equal; a divergence in the
 rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/
 ```
 
-Expected: exactly two lines, one from `docs/specs/2026-08-27-audit-agents-design.md` and one from `docs/specs/2026-09-07-diff-scoped-chain-debt-design.md`. Line numbers are not asserted — they move as the documents change, and asserting them would make this check fail for a reason it does not test. The command is copied into the rule verbatim, so this step proves the rule ships a command that runs.
+Expected: **four** lines. Two are the live instances — one in `docs/specs/2026-08-27-audit-agents-design.md`, one in `docs/specs/2026-09-07-diff-scoped-chain-debt-design.md`. The other two come from this plan itself: Tasks 11 and 12 quote a round heading verbatim at column 0 inside a fenced block, and the command matches a line, not a document. Line numbers are not asserted — they move as the documents change.
+
+The plan's own two lines are output the class rejects, not hits it reports. The scope leg confines a hit to a `## Review rounds` section, and these sit under `### Task` headings; the default guard exists for exactly this reason, in the lifecycle rule's own words — a document quoting the convention describes it rather than instantiating it. So this step confirms two things at once: the rule ships a command that runs, and the scope leg earns its keep on the first document that tests it.
+
+Round 1 offered truncating the two `Find:` blocks so they stop matching, and that is declined here. The blocks must stay byte-exact to be executable, and a plan that mangled its own quotations to keep a grep quiet would be hiding the case the scope leg was written for. Restating the expected values is the repair; demonstrating the guard is the bonus.
 
 - [ ] **Step 6: Validate**
 
@@ -186,15 +191,15 @@ git commit -m "fix(working-process): the Unresolved-verdict owner leg no longer 
 
 ```bash
 f=plugins/working-process/rules/spec-plan-lifecycle.md
-grep -c 'chain accepted' "$f"
-grep -c 'debt discharged' "$f"
+rg -Uc 'chain\s+accepted' "$f"
+rg -Uc 'debt\s+discharged' "$f"
 grep -c '^    ### <date> — architect, <model>, LGTM (round 3, diff-scoped), debt discharged <date>$' "$f"
 grep -c '^\s*### <date> — architect, <model>, LGTM (round 3, diff-scoped), debt discharged <date>$' "$f"
 ```
 
 - [ ] **Step 2: Run it and confirm the before-values**
 
-Expected before: `1`, `0`, `0`, `0`. The last two must be equal.
+Expected before: `1`, no output, `0`, `0`. The two token counts run under `rg -c`, which prints nothing rather than `0` on no match; the two anchored counts run under `grep -c`, which does print `0`. The last two must be equal.
 
 - [ ] **Step 3: Replace the paragraph**
 
@@ -247,7 +252,7 @@ the debt correctly re-surfaces and the developer declines again.
 
 - [ ] **Step 4: Run the check again**
 
-Expected after: `0`, `2`, `1`, `1`. The `debt discharged` count of `2` covers the definition sentence and the heading example — the three-path paragraph says "discharge the debt" rather than repeating the token, so it does not add to the count. Tasks 4 and 6 each add one more occurrence to this file, which is why Task 13 expects `4` here rather than `2`. The last two must be equal.
+Expected after: no output, `2`, `1`, `1`. The `debt discharged` count of `2` covers the definition sentence and the heading example — the three-path paragraph says "discharge the debt" rather than repeating the token, so it does not add to the count. Tasks 4 and 6 each add one more occurrence to this file, which is why Task 13 expects `4` here rather than `2`. The last two must be equal.
 
 - [ ] **Step 5: Validate**
 
@@ -373,9 +378,19 @@ Expected before: `0`, `0`, and no output. The first two must be equal.
 
 - [ ] **Step 3: Insert the paragraph**
 
-Place it after "A lint over the section reads the anchored lines and ignores the prose." and before the `### Gate lines` heading:
+Find:
 
 ```markdown
+ignores the prose.
+
+### Gate lines
+```
+
+Replace with:
+
+```markdown
+ignores the prose.
+
 A reviewer's stop signal takes a line of its own, under the heading of
 the round that gave it:
 
@@ -386,7 +401,14 @@ the next round's marginal value is not a finding — and no authorizer,
 since nobody licensed it. It joins no anchor: a stop signal owes nobody
 a next move, so it is closed the moment it is written, as a gate line
 is. The workflow rule owns the ask that produces it.
+
+### Gate lines
 ```
+
+The `Find:` block spans the sentence's real line break and carries the
+`### Gate lines` heading along, so the `Replace with:` block restores
+that heading at the end. Quoting the sentence on one line would match
+nothing: the file wraps it after "and".
 
 - [ ] **Step 4: Run the check again**
 
@@ -540,8 +562,8 @@ This is the second and last site of the retired token. It narrates the same mech
 
 ```bash
 f=plugins/working-process/rules/workflow.md
-grep -c 'chain accepted' "$f"
-grep -c 'debt discharged' "$f"
+rg -Uc 'chain\s+accepted' "$f"
+rg -Uc 'debt\s+discharged' "$f"
 rg -Uc 'the\s+acceptance\s+is\s+recorded\s+rather\s+than\s+remembered' "$f"
 rg -Uc 'The\s+confirming-round\s+arm\s+therefore\s+blocks\s+plan-writing' "$f"
 rg -Uc 'runs\s+under\s+the\s+loop.s\s+standing\s+consent' "$f"
@@ -549,7 +571,7 @@ rg -Uc 'runs\s+under\s+the\s+loop.s\s+standing\s+consent' "$f"
 
 - [ ] **Step 2: Run it and confirm the before-values**
 
-Expected before: `1`, `0`, `1`, then no output twice.
+Expected before: `1`, then no output, then `1`, then no output twice. Both token counts run under `rg -c`, so the absent one prints nothing rather than `0`.
 
 - [ ] **Step 3: Replace both paragraphs**
 
@@ -615,12 +637,12 @@ whatever the frontmatter says.
 
 - [ ] **Step 4: Run the check again**
 
-Expected after: `0`, `1`, no output, `1`, `1`.
+Expected after: no output, `1`, no output, `1`, `1`.
 
 - [ ] **Step 5: Confirm the retired token is gone from the whole repo's rule payload**
 
 ```bash
-rg -n --no-ignore 'chain accepted' plugins/
+rg -Un --no-ignore 'chain\s+accepted' plugins/
 ```
 
 Expected: no output. Before this task the lifecycle rule's occurrence was already removed by Task 3, so this step's before-value is one line (`workflow.md`) and its after-value is none.
@@ -865,13 +887,14 @@ git commit -m "fix(working-process): restore the concurrency limit's reasoning a
 ```bash
 f=docs/specs/2026-08-27-audit-agents-design.md
 grep -c '^### 2026-08-27 — architect, fable 5, LGTM (round 3, diff-scoped)$' "$f"
-grep -c 'debt discharged' "$f"
+rg -Uc 'debt\s+discharged' "$f"
 grep -c 'ruling:' "$f"
+grep -c '<date>' "$f"
 ```
 
 - [ ] **Step 2: Run it and confirm the before-values**
 
-Expected before: `1`, `0`, `0`.
+Expected before: `1`, no output (`rg -c` prints nothing on no match), `0`, `0`.
 
 - [ ] **Step 3: Annotate the heading**
 
@@ -889,7 +912,7 @@ Replace with (substituting the ruling's actual date for `<date>`):
 
 - [ ] **Step 4: Record the ruling in the ledger**
 
-Append to the same round's lines, after the two existing `fixed` lines:
+Append to the same round's lines, after the two existing `fixed` lines, **substituting the implementation date for both occurrences of `<date>`** — the same substitution Step 3 makes, and the literal placeholder must not survive:
 
 ```markdown
 - fixed <date> — this round's diff-scoped LGTM left a chain debt that nothing recorded, and the document reached `implemented` unpaid; ruling: 2026-09-07; the developer accepted the chain on the record — the decline path exercised late, since no audit ran, no later full-document round was dispatched, and none can be — and the heading gains `, debt discharged <date>`
@@ -899,7 +922,7 @@ The two dates differ on purpose and the ledger requires both: the leading date i
 
 - [ ] **Step 5: Run the check again**
 
-Expected after: `0` (the bare heading is gone), `2` (heading and ledger line), `1`.
+Expected after: `0` (the bare heading is gone), `2` (heading and ledger line), `1`, and `0` — the last is the one that distinguishes a correct edit from a placeholder left in place. Without it every other value here is identical whether the dates were substituted or not, which is the fault the plan's own constraint on before-and-after values names.
 
 - [ ] **Step 6: Confirm the class no longer reports this document**
 
@@ -907,7 +930,7 @@ Expected after: `0` (the bare heading is gone), `2` (heading and ledger line), `
 rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/
 ```
 
-Expected before this task: two lines. Expected after: one line — `docs/specs/2026-09-07-diff-scoped-chain-debt-design.md`, which Task 12 closes.
+Expected before this task: four lines. Expected after: three — the annotated heading drops out, leaving `docs/specs/2026-09-07-diff-scoped-chain-debt-design.md`, which Task 12 closes, and this plan's own two quoted blocks, which the class's scope leg rejects.
 
 - [ ] **Step 7: Commit**
 
@@ -983,7 +1006,9 @@ Expected: the hash in the field equals the recomputed hash. The stamp covers the
 rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/
 ```
 
-Expected before this task: one line. Expected after: no output. Both live instances are now discharged, and the class ships without a permanent hit.
+Expected before this task: three lines. Expected after: **two** — this plan's own quoted blocks in Tasks 11 and 12, which sit outside any `## Review rounds` section and which the class's scope leg therefore rejects.
+
+Both live instances are now discharged, so the class ships with no permanent **hit**. It does not ship with no permanent command *output*, and the difference is the whole point of the scope leg: a command returns lines, and confirmation turns a line into a hit. An earlier draft of this step claimed no permanent hit by asserting no output, which conflated the two.
 
 - [ ] **Step 8: Commit**
 
@@ -1004,7 +1029,7 @@ This task modifies nothing, so the before-and-after constraint does not apply to
 - [ ] **Step 1: The retired token survives nowhere in shipped content**
 
 ```bash
-rg -n --no-ignore 'chain accepted' plugins/ docs/domain/
+rg -Un --no-ignore 'chain\s+accepted' plugins/ docs/domain/
 ```
 
 Expected: one line — `docs/domain/glossary.md`, the `_Avoid_` ban that names it. Design documents under `docs/specs/` and `docs/plans/` keep their historical occurrences and are out of scope: an archived document records what it recorded.
@@ -1012,8 +1037,8 @@ Expected: one line — `docs/domain/glossary.md`, the `_Avoid_` ban that names i
 - [ ] **Step 2: The new token appears in both rule files**
 
 ```bash
-grep -c 'debt discharged' plugins/working-process/rules/spec-plan-lifecycle.md
-grep -c 'debt discharged' plugins/working-process/rules/workflow.md
+rg -Uc 'debt\s+discharged' plugins/working-process/rules/spec-plan-lifecycle.md
+rg -Uc 'debt\s+discharged' plugins/working-process/rules/workflow.md
 ```
 
 Expected: `4` and `1`. The lifecycle rule's four are Task 3's definition sentence and heading example, Task 4's body-edit exception, and Task 6's anchor rewrite. A zero on either side means one of the two rule files was missed — the split-vocabulary failure the design names.
@@ -1031,7 +1056,15 @@ Expected: `6`, `6`, and no output.
 
 - [ ] **Step 4: Every published command in the list runs**
 
-Run each `rg` command the `## Unfinished-work list` section publishes, exactly as written, from the repo root. Expected: each exits without a usage error. Hits are read against each entry's scope, and the whole sweep should report no unfinished work — no `grilled: grilling`, no unresolved verdict, no open or held ledger line, no pending re-review, no misplaced stamp, and no chain debt. A hit that survives is reported to the developer rather than fixed here.
+Run each `rg` command the `## Unfinished-work list` section publishes, exactly as written, from the repo root. Expected: each exits without a usage error. Hits are read against each entry's scope, and the whole sweep should report no unfinished work — no `grilled: grilling`, no open or held ledger line, no pending re-review, and no misplaced stamp.
+
+Two classes need a word, because this plan is itself a document the sweep reads.
+
+**Chain debt on this plan.** A plan's loop terminates on a diff-scoped LGTM followed by a confirming full-document round, so by the time this task runs, this plan's own `## Review rounds` section may hold a diff-scoped LGTM heading. That is a real hit, not noise, and it is **discharged here rather than held**: a later full-document heading is on the page, and Task 3's own text says the annotation's derivation licenses a later session to write it. Annotate the heading, citing the confirming round. The two lines Tasks 11 and 12 quote inside fenced blocks are a different matter and stay — they sit outside any `## Review rounds` section and the scope leg rejects them.
+
+**Unresolved verdict on this plan.** A `blocking` or `concerns` round closed by annotation rather than by a fresh round leaves the field matching until the annotation lands. Read the field, and if a round's disposition is still open, that is unfinished work the developer owns rather than something this task closes.
+
+Any other hit that survives is reported to the developer rather than fixed here.
 
 - [ ] **Step 5: Validate the plugin**
 
@@ -1047,7 +1080,9 @@ Dispatch the `propagation-auditor` agent on the cheapest available family, named
 
 - [ ] **Step 7: Report and hand back**
 
-Report to the developer: what the sweep found, what the gate returned, whether the `propagation-auditor` reported its model, and any hit still outstanding. A missing self-report is expected rather than anomalous — the prescribed rung is already the cheapest family, so a silent substitution could only run the audit above tier, which does not invalidate a structural CLEAN. Then offer the plan-adversary round: `status` moves to `approved` on the developer's word, not this task's.
+Report to the developer: what the sweep found, what the gate returned, whether the `propagation-auditor` reported its model, and any hit still outstanding.
+
+Report one thing more, which no earlier step covers: **the installed rule copies under `.claude/rules/working-process/` now drift.** They are a consumer of every sentence this plan rewrote — both carry the retired token today — and no task edits them, because a Rules payload is distributed by the `sync-rules` engine rather than by hand. Offer that run. The drift hook is the designed backstop, which is why this is a hand-back line rather than a task; leaving it unsaid would let the session's own rules stay a version behind the ones it just shipped. A missing self-report is expected rather than anomalous — the prescribed rung is already the cheapest family, so a silent substitution could only run the audit above tier, which does not invalidate a structural CLEAN. Then offer the plan-adversary round: `status` moves to `approved` on the developer's word, not this task's.
 
 ---
 
@@ -1059,3 +1094,33 @@ The questions the spec put to the developer, all answered 2026-09-07. They are r
 2. **Completed work is not chased.** A document found in this state later gets the same recorded decline without any dispatch — no audit, no confirming round. Task 1's owner leg carries this as a standing decision so a future session can cite it instead of re-asking; the paragraph under that task records how it departs from the spec's narrower sentence and why the departure is the developer's to make. A document still in flight keeps the pair offer, where a decline remains a fresh decision.
 
 3. **`process-status` stays untouched.** The original question was aimed at the wrong surface: the skill groups hits by document and reports "the owner the entry carries", so Task 2's `one debt seen from two sides` explanation already rides to the report on the owner leg the skill copies. Whether a long leg arrives whole or condensed does not matter, because two adjacent lines whose owners both name the confirming round read as one job. The developer ruled on 2026-09-07 to leave the skill alone, so the spec's `No process-status edit at all` refusal now covers reporting as well as scope, and a skill that correlates class pairs — which would need extending for every future pair — is refused rather than deferred.
+
+## Review rounds
+
+### 2026-09-07 — plan-adversary, fable 5, blocking (round 1, full-document)
+
+- fixed 2026-09-07 — [Important] three verification steps publish false expected values, because the plan's own `Find:` blocks instantiate the anchor they verify: the published Chain-debt command returns four lines today, not two; license: the plan's own constraint that a check must return a stated value, plus the recomputation itself, which a recounted counter licenses; the three steps now state four, four-to-three and three-to-two, and each says why the plan's own two lines are output the scope leg rejects rather than hits; deviation: Task 1 Step 5, where the reviewer's alternative of truncating the `Find:` blocks is declined and the reason stated beside the text it concerns
+- fixed 2026-09-07 — [Important] Task 11's ledger block carries literal `<date>` placeholders with no substitution instruction, and every check in the task passes with them left in; license: the plan's own constraint that a check whose value cannot distinguish the two states verifies nothing, plus the substitution instruction Step 3 already carries, whose absence in Step 4 was the asymmetry; Step 4 now demands the substitution for both occurrences and Step 1 gains `grep -c '<date>'`, expected `0` after, which is the one value a surviving placeholder changes
+- fixed 2026-09-07 — [Minor] Task 5's placement anchor quotes a sentence that straddles a line wrap in the target file, so a single-line search for it returns nothing; license: the plan's own unconditional rule about wrapped prose, which the one task shipping no `Find:` block had escaped; Task 5 now carries a `Find:`/`Replace with:` pair anchored on the real line break plus the `### Gate lines` heading, verified unique and byte-exact
+- fixed 2026-09-07 — [Minor] the token counts use single-line `grep -c`, against the plan's own unconditional rule that a prose search puts `\s+` between every pair of words; license: that constraint, which renounces exactly the reasoning that made these harmless — that every occurrence happens to be pinned inside a prescribed block; all seven sites now run `rg -Uc 'debt\s+discharged'` and `rg -Uc 'chain\s+accepted'`, and the four expectation lines they feed are restated for `rg -c` printing nothing where `grep -c` printed `0`
+- fixed 2026-09-07 — [Minor] Task 13's expected-clean sweep can trip on this plan's own ledger once its loop closes on a diff-scoped LGTM, and the plan neither predicts the hit nor says which instruction wins; license: Task 3's own text that the annotation's derivation licenses a later session to write it, which settles the conflict without a new decision; Step 4 now names both self-referential classes, discharges the chain-debt hit under that derivation, and separates it from the two quoted blocks the scope leg rejects
+- fixed 2026-09-07 — [Minor] the installed rule copies under `.claude/rules/working-process/` consume every changed sentence and no task names them; license: the plan's own consumer-enumeration duty, plus the sync-rules engine owning every Rules-payload write, which is why the repair is a hand-back offer and not a task that edits them; Task 13 Step 7 now reports the drift and offers the run
+
+The reviewer's stop signal is recorded below in the line shape Task 5
+ships. Writing it before that task lands dogfoods the shape rather than
+minting an undefined one: the live grammar does not yet admit the line,
+so until it does this record doubles as narrative prose, which the
+section already permits.
+
+- signal 2026-09-07 — one short diff-scoped round over the two Important fixes earns its cost, since the first fix touches `Find:` blocks three tasks depend on; a fresh full-document round would not repay itself, and the four Minors touch neither the design, the token, nor the derivations
+
+Answering the round's focusing question — whether the plan avoided
+mistaking the manifest for the proof or merely wrote the warning down —
+the reviewer split the verdict, and the split is worth keeping. The
+edit-site half held: every `Find:` block byte-matches its target, both
+retired-token sites are covered, and Task 13 dispatches the propagation
+gate with a derive-your-own-scope brief. The check half did not: the
+four-line output behind the first Important was observable at authoring
+time by running the plan's own flagship command over two documents the
+plan itself edits. So the manifest is not mistaken for the proof — the
+expected check outputs are.
