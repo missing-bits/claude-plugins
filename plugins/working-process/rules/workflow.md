@@ -272,9 +272,14 @@ lists located hits and also carries `CLEAN`, the hits are the report and
 the gate has not passed. Measured twice in six runs of one day on the
 cheapest family, the second under a brief that ruled the combination out
 in as many words — so emphasis on the writing side is spent, and the
-guard belongs to the dispatcher who reads. The same reading governs any
-report an agent returns: what it found is in the entries, and the
-framing around them is not a verdict to act on.
+guard belongs to the dispatcher who reads.
+
+The reading generalises to the integrity audit's report and stops
+there: an audit agent returns material and no verdict, so what it found
+is in the entries and the framing around them decides nothing. A
+verdict agent is the opposite case — there the verdict is the report's
+point, and the dispatcher stamps it once the checks the dispatch
+sequence above prescribes have run.
 
 A hit the session believes is wrong is dismissed, never silently: the
 session writes the `dismissed` line the spec-plan-lifecycle rule
