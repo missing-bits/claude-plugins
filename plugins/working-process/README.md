@@ -52,8 +52,10 @@ verdict dispatch and the integrity audit itself.
   as a task notification and is stamped after relay.
 - **`propagation-auditor` agent** — the mechanical audit of a spec or
   plan: it parses every changed interface to enumerate its consumers,
-  diffs every prescribed block against the file it targets, re-derives
-  every counter, and runs the document's own verification commands. Its
+  diffs every prescribed block against the file it targets — a landed
+  change against what shipped, a promised one against the anchor its
+  edit needs — re-derives every counter, and runs the document's own
+  verification commands. Its
   unit is the hit: located, binary, and carrying the derivation that
   produced it; a clean audit reports the single line `CLEAN`. It grades
   nothing, ends in no verdict, and stamps nothing. Dispatched in the
