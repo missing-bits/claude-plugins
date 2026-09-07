@@ -34,7 +34,10 @@ base: master        # optional: branch the topic branch was cut from
   diffing it against those surfaces first — the document is the archive,
   not the specification of what stands today. It is amended only in
   frontmatter, never in the body: a verdict certifies the body it was
-  given, and an `integrity:` hash covers exactly that text.
+  given, and an `integrity:` hash covers exactly that text. One class of
+  body edit is excepted: a ledger annotation recording a process event,
+  such as `, debt discharged <date>`, is a process record rather than a
+  design amendment.
 - `revises:` names the documents a newer one departs from — written on
   the newer document, pointing back, and never on the older one, which
   stays as its stamps left it. It records supersession, not lineage: a
@@ -74,7 +77,10 @@ base: master        # optional: branch the topic branch was cut from
   `integrity: <ISO date> (sha: <short-hash>)`, the date for the reader and
   the hash for the check. The hash covers the text below the
   frontmatter's closing `---`, so writing the stamp never invalidates what
-  it stamps. Stamper and gate run one command, so the comparison can never
+  it stamps. Where the audit also discharges a chain debt, the annotation
+  is written before the hash is recomputed: the hash covers the
+  `## Review rounds` section, so a stamp written first is stale the moment
+  the annotation lands. Stamper and gate run one command, so the comparison can never
   mismatch on convention:
   `sed '1,/^---$/d' <file> | shasum | cut -c1-7`
   — `shasum` rather than `sha1sum` because stock macOS ships only the
