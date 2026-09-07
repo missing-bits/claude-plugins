@@ -214,12 +214,37 @@ continuation does not match. Payload under a line is therefore invisible
 to every published command, and where it runs long it belongs in
 indented sub-bullets rather than in a longer line.
 
-One annotation extends those shapes, and nothing else does. A spec whose
-developer accepts a
-diff-scoped chain at the consumption gate gains `, chain accepted <date>`
-on that round's LGTM heading: the dispatcher appends it there on the
-decline, and its presence defeats the gate's re-ask, as `, waived <date>`
-defeats the re-review offer.
+One annotation extends those shapes, and nothing else does. A
+diff-scoped `LGTM` heading gains `, debt discharged <date>` once the
+chain debt it carries is discharged, and its presence defeats the
+consumption gate's re-ask, as `, waived <date>` defeats the re-review
+offer:
+
+    ### <date> — architect, <model>, LGTM (round 3, diff-scoped), debt discharged <date>
+
+The token goes after the closing parenthesis rather than inside it. A
+parenthesised token qualifies a value — `concerns (resolved <date>)`
+changes what the verdict means — while a comma-appended token adds a
+later event to a finished record, and this annotation is written later,
+by a different actor, about a different event.
+
+Three paths discharge the debt, all three write the same token, and the
+dispatcher writes it in every case: the developer declining the gate's
+pair offer, written in the decline turn before the work that decline
+licenses begins; an integrity audit, written once its dispositions are
+applied and before the `integrity:` stamp; and any later full-document
+round, at its stamping turn, whatever its verdict — the debt is
+discharged by the reading, not by the grade. A full-document round reads
+the whole document, so it annotates every unannotated diff-scoped `LGTM`
+heading above it rather than only the one it follows.
+
+The token carries a date and nothing else. Each path leaves its own
+trace — an `integrity:` stamp, a later full-document heading, or
+neither — and no consumer reads the path, so recording it would give one
+fact a second home. Where a session discharges the debt and dies before
+annotating, the annotation's own derivation licenses a later session to
+write it; only the decline path has nothing to derive from, and there
+the debt correctly re-surfaces and the developer declines again.
 
 Ledger lines written before this merge stay as written, as the `scope`
 token's introduction already established. The shapes they use are kept
