@@ -466,5 +466,36 @@ suggestion covers only paths git tracks or would track; deliberately
 ignored documents are skipped silently, and committing itself stays
 with the developer.
 
+One shape of that sooner call has a convention, because practice kept
+reaching for it: **per-round commits on a document branch.** When the
+developer authorizes it, the loop commits the reviewed document once per
+round, as the round's last act. That boundary matches the ledger's own
+unit — a round mutates the document several times (the stamp, the
+triage, the fix wave, any gate episodes), and one commit after the wave
+records what the round found together with what the session did about
+it.
+
+The commits go to a local branch named `<topic>.docs`, never to the
+topic branch itself. Git refuses a ref nested under an existing branch,
+so `feature/<issue>-<name>/docs` cannot exist while its parent does; the
+suffix takes a dot because the branch convention already spends hyphens
+on name parts, where `-docs` would read as a topic about documenting.
+
+The loop runs on that branch for the whole authoring phase — the spec's
+rounds and the plan's alike — and the topic branch takes it at the
+implementation-ready gate: by fast-forward where the history is wanted
+whole, by squash where it is not. That choice belongs to the project
+rather than the session, so a `CLAUDE.md` note — at the repo root or
+beside the documents — records it where it binds, and a session with no
+such note asks at the gate. Either way the document branch survives the
+merge, which keeps loop churn off any published branch until somebody
+pushes it and leaves the surviving ref marking where authoring ended.
+
+What per-round commits never do is replace the ledger. Git says which
+lines changed; the ledger says with what intent and on whose license,
+and a diff carries neither "narrowed the claim" nor a cited ADR. A
+`<what changed>` clause may thin to a sentence where the commit carries
+the detail; it does not go.
+
 Ticket value format, sourcing order, and backfill live in the
 ticket-frontmatter rule.

@@ -321,9 +321,10 @@ _Avoid_: mechanical finding
 **Disposition ledger**:
 The record a review loop keeps inside the reviewed document, under one
 `## Review rounds` section: what each round found and what became of it.
-It carries the loop's durable state, and nothing else does — the
-session, the reviewer and the developer are all volatile, and these
-documents stay uncommitted through the rounds. Per-finding and per-hit
+It carries the loop's durable state — the session, the reviewer and the
+developer are all volatile. Where the loop commits per round, git
+carries which lines each round changed and the ledger keeps what no diff
+shows: the intent and the authorizer. Per-finding and per-hit
 state is written into it, and so is one obligation the consumption gate
 owns, the chain debt, because no folding derives it; loop-level state is
 derived from the round headings and stored nowhere. The name comes from the terminal states
@@ -370,6 +371,17 @@ happened and when, never how or how well. Distinct from the diff-scoped
 chain itself, the round-one-plus-reviewed-waves structure the LGTM
 certifies.
 _Avoid_: chain accepted, chain closed, unclosed chain
+
+**Document branch**:
+The local branch a review loop's per-round commits live on, named
+`<topic>.docs` — git refuses a ref nested under an existing branch, so a
+suffix rather than a path segment. It carries the whole authoring phase,
+a spec's rounds and its plan's alike, and the topic branch takes it at
+the implementation-ready gate by fast-forward or by squash, the project's
+choice. It survives that merge rather than closing with it, so the ref
+marks where authoring ended and loop churn stays off any published
+branch until somebody pushes it.
+_Avoid_: docs branch, review branch, scratch branch
 
 **Verdict agent**:
 An agent whose report ends in a verdict the dispatcher stamps into the

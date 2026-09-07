@@ -188,7 +188,10 @@ no single re-dispatch is offered on its own. At the session's first
 verdict dispatch, ask once whether the loop may run autonomously — yes
 / not now / not in this session — state the round cap with the
 question, and honour the answer for the rest of the Claude Code session
-without asking again. A durable preference in the developer's own
+without asking again. The same question carries a second clause wherever
+the lifecycle rule's per-round commits are available: whether the loop
+may commit the reviewed document once per round. One question, two
+answers, asked once. A durable preference in the developer's own
 instructions is respected when present. Without consent every round
 behaves as it did before: relay, stamp, and every proposal waits for
 the developer.
@@ -284,9 +287,10 @@ late-round class, and diff-scoping also ends stale-read findings.
 The ledger supplies what changed. The previous round's `fixed` lines and
 their `<what changed>` clauses, together with any gate lines under the
 same heading, are the record of that wave, so the brief cites them and
-needs no snapshot, commit, or hash — these documents stay uncommitted
-through the rounds, and the ledger is the only durable account of the
-diff.
+needs no snapshot, commit, or hash. Where the loop is not committing per
+round, the ledger is the only durable account of the diff; where it is,
+the commit carries the lines and the ledger still carries the intent. The
+brief cites the ledger either way.
 
 Diff-scoping forbids re-reviewing the document beyond the diff, and the
 ledger is part of the document — so without a clause the reviewer is cut
