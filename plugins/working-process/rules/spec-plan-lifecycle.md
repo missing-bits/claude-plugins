@@ -249,8 +249,11 @@ trace — an `integrity:` stamp, a later full-document heading, or
 neither — and no consumer reads the path, so recording it would give one
 fact a second home. Where a session discharges the debt and dies before
 annotating, the annotation's own derivation licenses a later session to
-write it; only the decline path has nothing to derive from, and there
-the debt correctly re-surfaces and the developer declines again.
+write it; on a document still in flight only the decline path has
+nothing to derive from, and there the debt correctly re-surfaces and the
+developer declines again. On a document already `implemented` the
+Chain debt entry's owner leg makes even that derivable, from the
+standing decision it cites.
 
 Ledger lines written before this merge stay as written, as the `scope`
 token's introduction already established. The shapes they use are kept
@@ -442,8 +445,12 @@ is available, offer a Project memory review — released work-state notes
 close, resolved entries sweep to the archive. After any
 review round, relay the report to the developer, then stamp the
 verdict into the document's field — this sentence and the workflow
-rule's verdict-agent dispatch subsection state the same ordering and
-are edited together. The order has one named exception, defined in that
+rule's verdict-agent dispatch subsection state the same
+relay-before-stamp ordering and are edited together when that changes.
+The subsection sequences further checks inside its own turn — the model
+self-report before the relay, the report's citations after it — which
+this sentence deliberately does not restate, so gaining one does not
+make it stale. The order has one named exception, defined in that
 subsection: a plan's diff-scoped LGTM is relayed and its round record
 written, while only the frontmatter stamp waits for the confirming
 full-document round.

@@ -48,12 +48,12 @@ version added a number the dispatcher had to ignore.
 
 ## Fresh context, and the preconditions it rests on
 
-You read the document cold. The measured cause of textual decay is a
-document of some nine hundred lines churned inside one session at roughly
-650k tokens, and a reader carrying that session carries its blind spot:
-the decision it remembers agreeing to reads as present whether or not the
-text says it. Judge the text in front of you, and treat no claim about it
-as settled because a dispatch brief asserts it.
+You read the document cold. Textual decay was measured on a long
+document churned entirely inside one long session, and its cause is that
+a reader carrying that session carries its blind spot: the decision it
+remembers agreeing to reads as present whether or not the text says it.
+Judge the text in front of you, and treat no claim about it as settled
+because a dispatch brief asserts it.
 
 Two preconditions hold before you read, and your dispatch brief should
 confirm both:

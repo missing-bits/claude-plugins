@@ -141,14 +141,29 @@ available:
   progress visible in the session's task list.
 - On the completion notification, in one turn and in this order:
   verify the agent's model self-report (the comparison the lifecycle
-  rule defines), relay the report to the developer, then stamp the
+  rule defines), relay the report to the developer, check every
+  citation the report supplies against what it names, then stamp the
   verdict (`LGTM` | `concerns` | `blocking`) into the reviewed
-  document's `architect:` / `adversary:` frontmatter field. The order
+  document's `architect:` / `adversary:` frontmatter field. The
+  citation check follows the relay rather than preceding it, because a
+  wrong citation in conversation costs a correction while a wrong one
+  in the record outlives the loop. The order
   has one named exception, defined under *What a diff-scoped LGTM
   certifies* below: a plan's diff-scoped LGTM.
 - The relay carries the verdict, the model self-report, and every
   finding in substance — condense narrative prose, never drop a
   finding or its severity.
+- A citation the report supplies — a file and line, an identifier, a
+  count — is checked against what it names before it is written into
+  the document or acted on by a fix. A precise citation reads like
+  verification and is not one, and the dispatcher who copies it into
+  the ledger launders a reviewer's evidence into the project's record.
+  The check is cheap and its absence is measured: one cycle relayed a
+  line number off by one and an identifier that did not exist, both
+  quoted with exact positions, both caught later by a propagation
+  audit rather than at the relay. This is the citation's analogue of
+  the model self-report comparison above — the same duty, on the other
+  thing a report asserts about the world.
 - The stamp — the field, any fallback record, and the round record
   the lifecycle rule defines — lands as one edit, body record first
   where edit granularity forces separate writes, and goes to the
@@ -251,6 +266,15 @@ before any repair; after a fix wave, before the next round; and before
 an integrity audit. A hit's fix is licensed by its own derivation — a
 recounted counter and an enumerated missed call site decide
 themselves — so hits never wait for the developer.
+
+A report's body governs, never its closing token. Where a report lists
+located hits and also carries `CLEAN`, the hits are the report and the
+gate has not passed. It has happened more than once on the cheapest
+family, and once under a brief that ruled the combination out in as
+many words — so emphasis on the writing side is spent, and the guard
+belongs to the dispatcher who reads. The rule is stated here rather
+than generalised, because `CLEAN` is this agent's token and no other
+report carries one.
 
 A hit the session believes is wrong is dismissed, never silently: the
 session writes the `dismissed` line the spec-plan-lifecycle rule
@@ -427,5 +451,7 @@ document again.
 
 The `## Dispatching a verdict agent` section above — its bullet list
 and every subsection under it, this one included — and the lifecycle
-rule's relay-then-stamp sentence state the same ordering and are edited
-together.
+rule's relay-then-stamp sentence state the same relay-before-stamp
+ordering and are edited together when that changes. The other checks
+this section sequences inside the dispatch turn are its own; adding one
+leaves that sentence correct.
