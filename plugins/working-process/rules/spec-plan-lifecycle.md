@@ -330,7 +330,12 @@ leg, and the review-loop entry below is the one that does.
   and nothing closed it.
   `rg -l --no-ignore --crlf '^\s*(architect|adversary): (blocking|concerns)$' docs/`
   Owner: a fresh round at the prescribed tier, or the resolution
-  annotation above.
+  annotation above — except on a plan whose latest round heading is a
+  diff-scoped `LGTM`, where the confirming full-document round closes
+  the verdict and the annotation may not, since a plan's loop never
+  terminates on that heading. Such a plan matches Chain debt as well:
+  one debt seen from two sides, both extinguished by that round, and the
+  duplicate is deliberate.
 - **Unfinished review-loop ledger** — a disposition line nobody closed:
   an `open` line whose remediation never ran, or a `held` line whose
   question still waits.
