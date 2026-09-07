@@ -65,8 +65,9 @@ reliance and is re-dispatched at the right rung.
 
 For every interface the document changes — a signature, a name, a
 heading, an anchor, a field — enumerate its consumers by parsing the
-structure that defines them. Measured: a text match missed 2 of 11 call
-sites of a changed signature; an argument-counting parse missed zero.
+structure that defines them. Measured: a text match missed call sites of
+a changed signature that a parse counting arguments found — the
+structure names a consumer where the text does not.
 Here: a renamed rule section, skill, agent, or anchor reaches every
 cross-reference to it, and a newly minted glossary `_Avoid_` ban reaches
 every shipped occurrence of the banned term.
@@ -79,8 +80,8 @@ that block, so establish the claim first and check accordingly.
 
 Where the document **reports** a change already made, the block that
 never landed and the shipped text a block no longer matches are both
-hits. This is the recipe-and-record class that cost three consecutive
-hand-diff rounds of the most capable model.
+hits. This is the recipe-and-record class that spent consecutive rounds
+of the most capable model on hand-diffing what a parse settles.
 
 Where the document **prescribes** a change not yet made — a plan before
 its implementation, a design's changes-by-file promise — the target
@@ -89,9 +90,9 @@ What is checkable there is the block's anchor: the text the block says
 it replaces must exist in the target file byte-exactly, or the edit
 cannot execute. Report an anchor that does not match, one that matches
 in several places, and one an earlier task in the same document has
-already rewritten. Measured: four of sixteen non-clean results in one
-outside cycle were prescribed text reported as missing from source,
-and the rate went to zero once the two cases were told apart.
+already rewritten. Measured in an outside cycle: prescribed text
+reported as missing from source was a recurring false positive, and the
+class vanished once the two cases were told apart.
 
 ### 3. Added field, label, or state → carrier and consumer chains
 
@@ -113,17 +114,17 @@ claims.
 Diff the names one document uses against the names its sources define. A
 name the plan uses that the spec never defines is a spec gap, not a plan
 error — the invention is the symptom, and report it as the gap it is.
-Measured: one such gap survived nine rounds as the cycle's deepest
-Important.
+Measured: one such gap survived round after round as the cycle's
+deepest Important.
 
 ### 6. Boundary sentences
 
 Check every sentence in which one document reports another's state:
 frontmatter citations of another document's verdict or counts, a table's
-row count against the table, the arithmetic of a review record. Roughly
-one finding in ten in the measured cycle was a counter or a boundary
-sentence — wrong in nearly every round, twice wrong after being
-explicitly verified.
+row count against the table, the arithmetic of a review record. Counters
+and boundary sentences were a steady share of the measured cycle's
+findings — wrong in nearly every round, and wrong more than once after
+being explicitly verified.
 
 ### 7. Verification simulation
 
@@ -138,10 +139,12 @@ Open every file and line a recent finding cites and confirm it says what
 the citing text claims. A reviewer's citation arrives with an exact
 position, which reads like verification and is not one — the dispatcher
 who copies it into the ledger turns one agent's evidence into the
-project's record, and nothing between the two checks it. Measured twice
-in one cycle: a line number off by one, and an identifier that does not
-exist under the name the finding gave it. Both were quoted precisely,
-both went into the document unchallenged, and both surfaced here.
+project's record, and nothing between the two checks it. Measured
+repeatedly: a line number off by one, an identifier that does not exist
+under the name the finding gave it, and a file-and-line pointing at an
+unrelated passage — the last on the day this duty shipped, in a report
+whose finding was otherwise sound. Each was quoted precisely, and each
+would have gone into a document unchallenged.
 
 Read the source, never the finding's summary of it. Where a citation
 names something outside the repository, report that you could not check
