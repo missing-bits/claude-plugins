@@ -369,20 +369,34 @@ For a spec, the consumption gate before plan-writing offers the pair as
 one question — an integrity audit or a confirming full-document round —
 and never an offer followed by a re-offer of the option just declined.
 When the `integrity-auditor` agent is absent the offer carries the
-confirming round alone. Declining is the developer accepting the chain
-explicitly, and the acceptance is recorded rather than remembered: the
-dispatcher appends `, chain accepted <date>` to the diff-scoped LGTM
-heading, and that annotation defeats the gate's re-ask.
+confirming round alone. The two arms cost differently and the offer says
+so: an audit returns material for the dispatcher to dispose of and
+leaves the verdict alone, while a confirming round on a spec is a new
+loop's first round, since the spec's LGTM already closed its loop — it
+mints its own verdict and stamps it, so a `concerns` there flips the
+field back while plan-writing waits. The confirming-round arm therefore
+blocks plan-writing; the audit arm does not, and plan-writing follows
+its dispositions.
+
+Declining is the developer discharging the chain debt by release rather
+than by performance, and the discharge is recorded rather than
+remembered: the dispatcher appends `, debt discharged <date>` to the
+diff-scoped LGTM heading, in the shape the spec-plan-lifecycle rule
+defines, and that annotation defeats the gate's re-ask. The other two
+paths write the same token.
 
 For a plan the loop never terminates on a diff-scoped LGTM: one
 full-document confirming round follows, and the confirming round's
-verdict is the one stamped. That carries the single named exception to
-the relay-then-stamp order above — a plan's diff-scoped LGTM is relayed
-and its round record written, and only the frontmatter stamp waits for
-the confirming round. Recovery therefore reads the ledger rather than
-the stamp: a plan whose latest round heading is a diff-scoped LGTM that
-no later full-document round follows is re-offered its confirming round
-at the document's next touch, whatever the frontmatter says.
+verdict is the one stamped. That round runs under the loop's standing
+consent like any other — the rules mandate it, so it is no decision of
+the developer's and spends none of the round's one interruption. It
+carries the single named exception to the relay-then-stamp order above —
+a plan's diff-scoped LGTM is relayed and its round record written, and
+only the frontmatter stamp waits for the confirming round. Recovery
+therefore reads the ledger rather than the stamp: a plan whose latest
+round heading is a diff-scoped LGTM that no later full-document round
+follows is re-offered its confirming round at the document's next touch,
+whatever the frontmatter says.
 
 Scoping never spans a close. An annotation close ends the loop, and a
 later round on the same document opens a new one, reading the whole
