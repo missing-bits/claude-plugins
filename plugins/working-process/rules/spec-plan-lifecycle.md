@@ -342,6 +342,18 @@ leg, and the review-loop entry below is the one that does.
   which is why this command carries `-n` where the others carry `-l`.
   Owner: an `open` line belongs to the document's next touch, which
   re-offers the remediation; a `held` line belongs to the developer.
+- **Chain debt** — a diff-scoped `LGTM` heading carrying no record that
+  what it owed was discharged.
+  `rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/`
+  Scope: a hit counts only inside a `## Review rounds` section — the
+  second entry to re-scope the default guard, for the reason the first
+  one does, and carrying `-n` for the same reason.
+  Owner: for a spec, the consumption gate's pair offer; for a plan, the
+  confirming full-document round. On a document already at
+  `status: implemented` the debt is discharged by recorded decline
+  without any dispatch: completed work is not re-reviewed, so the
+  annotation is written citing that standing decision, and a document
+  still in flight keeps the pair offer.
 - **Pending re-review** — a verdict produced below the prescribed tier,
   neither refreshed nor waived.
   `rg -l --no-ignore --crlf '^\s*(architect|adversary)-fallback: [a-z0-9-]+ \((degraded|chosen) [0-9-]+\)$' docs/`
