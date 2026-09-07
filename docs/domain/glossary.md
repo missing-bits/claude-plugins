@@ -365,11 +365,10 @@ once it terminates. Discharged three ways: an integrity audit, any later
 full-document round whatever its verdict, or the developer's recorded
 decline — of the gate's pair offer, or, where the document is already
 implemented and the gate never fired, of the question that offer would
-have put. Recorded as `, debt discharged <date>`
-appended to that LGTM's round heading, and the record says only that it
-happened and when, never how or how well. Distinct from the diff-scoped
-chain itself, the round-one-plus-reviewed-waves structure the LGTM
-certifies.
+have put. Recorded as `, debt discharged <date>` appended to that LGTM's
+round heading, and the record says only that it happened and when, never
+how or how well. Distinct from the diff-scoped chain itself, the
+round-one-plus-reviewed-waves structure the LGTM certifies.
 _Avoid_: chain accepted, chain closed, unclosed chain
 
 **Document branch**:
