@@ -315,7 +315,12 @@ every round, whatever grades the findings carry — a round can leave one
 Important behind and still not repay a re-read. That judgment concerns
 the next round's marginal value, never whether the document is good
 enough, and it informs the developer's decision rather than replacing
-it. Where the ledger records a deviation from a reviewer's suggestion,
+it. The signal is recorded where a later session can cite it: one line
+under the heading of the round that gave it, in the shape the
+spec-plan-lifecycle rule defines. A signal surviving only in a relay
+dies with the next compaction, and practice has needed it twice — once
+to justify overriding one, once to close a loop on one. Where the ledger
+records a deviation from a reviewer's suggestion,
 the brief invites refutation of the recorded rationale — a rationale is
 evidence to attack, never a defence to protect.
 
