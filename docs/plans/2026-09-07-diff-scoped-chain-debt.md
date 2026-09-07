@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-07
 status: draft
-adversary: concerns
+adversary: concerns (resolved 2026-09-07)
 spec: ../specs/2026-09-07-diff-scoped-chain-debt-design.md
 branch: feature/audit-errata
 base: develop
@@ -1190,6 +1190,20 @@ ledger line, the sweep commands Task 13 orders but the plan never ran,
 and the plan's own exemption clause, which its own tasks contradict.
 Three rounds, three addresses, one habit — the discipline holds wherever
 a previous round looked and slips in the adjacent cell.
+
+**The loop closes here, by the developer's decision of 2026-09-07.** All
+six of this round's findings were fixed under the licenses their ledger
+lines cite, leaving nothing open or held, and the reviewer's stop signal
+judged a fourth round unable to repay itself: this round performed the
+whole-document read the loop owed, so no unread text remains for another
+round to certify, and what it left behind was six one-sentence repairs.
+A plan's loop terminates only on a full-document `LGTM`, which this
+round did not give, so the close is the resolution annotation rather
+than a terminator — `concerns (resolved 2026-09-07)`, this paragraph
+being the body note the lifecycle rule requires.
+
+Scoping never spans a close: any later round on this plan opens a new
+loop and reads the whole document again.
 
 ### 2026-09-07 — plan-adversary, fable 5, concerns (round 2, diff-scoped)
 
