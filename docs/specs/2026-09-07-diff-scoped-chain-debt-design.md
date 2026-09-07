@@ -4,7 +4,7 @@ date: 2026-09-07
 status: draft
 grilled: 2026-09-07
 architect: LGTM
-integrity: 2026-09-07 (sha: 4a838b2)
+integrity: 2026-09-07 (sha: b98e782)
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-02-ledger-as-finding-state-design.md]
 branch: feature/audit-errata
 base: develop
@@ -662,7 +662,7 @@ matching already does.
 
 ## Review rounds
 
-### 2026-09-07 — architect, fable 5, LGTM (round 2, diff-scoped)
+### 2026-09-07 — architect, fable 5, LGTM (round 2, diff-scoped), debt discharged 2026-09-07
 
 An integrity audit ran at the consumption gate after this round, on the
 most capable tier and a fresh context, with coverage 638 of 638 lines. It
