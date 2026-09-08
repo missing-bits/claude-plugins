@@ -1,6 +1,8 @@
 ---
+ticket: none
 date: 2026-09-08
 status: draft
+grilled: 2026-09-08
 branch: feature/trigger-frameworks
 base: develop
 ---
@@ -71,25 +73,28 @@ them.
 |---|---|---|
 | `salesforce-triggers` (new skill) | framework-agnostic rules; the resolution protocol; the `framework-id` → path table; the questions a framework document answers; fingerprints; the vendor-exclusion scope; `reference/choosing-a-framework.md` | trigger or handler code; bypass API names; the name of the dispatching class |
 | `reference/framework-base-class.md`, `-metadata.md`, `-none.md` | dispatch shape; where the handler reads context; bypass and recursion API with its error semantics; test-isolation idiom; gotchas; framework-specific rules; two example units | layers below the handler; bulkification; test-class structure |
-| `salesforce-apex` | naming, layers, bulkification, governor limits, sharing, error handling; the four framework-independent example units | the trigger section, reduced to a layer-table row pointing at the hub |
+| `salesforce-apex` | naming, layers, bulkification, governor limits, sharing, error handling; the four framework-independent example units | the trigger section, reduced to a layer-table row pointing at `salesforce-triggers` |
 | `salesforce-apex-testing` | test structure, factory, assertions, mocks | how to disable a handler in a test |
 | `salesforce-code-review`, `salesforce-code-reviewer` | a resolution step before grading `.trigger` and `*TriggerHandler*.cls` | asking the developer — a background agent cannot |
 | `/salesforce-review` | resolution before dispatch, passed in the prompt | — |
-| `rules/salesforce-toolchain.md` | a routing line for the hub; the documented declaration key | the declaration itself, which belongs to the project |
+| `rules/salesforce-toolchain.md` | a routing line for `salesforce-triggers`; the documented declaration key | the declaration itself, which belongs to the project |
 
-The hub must reach a session on its own `description:`, because
-`salesforce-standards` declares no dependencies and installs without
-`working-process`, whose `sync-rules` skill is the only carrier for the
-rules payload. The toolchain rule strengthens routing; it never gates it.
-For the same reason `CLAUDE.md` is the declaration's primary home: it
-needs no plugin.
+`salesforce-triggers` must reach a session on its own `description:`,
+because `salesforce-standards` declares no dependencies and supports a
+Standalone install, where the Rules engine that carries its payload is
+absent. The toolchain rule strengthens routing; it never gates it. For
+the same reason `CLAUDE.md` is the declaration's primary home: it needs
+no plugin. The review surface survives a Standalone install unchanged,
+because the inline fallback in `salesforce-code-review` already defines
+both slots this design writes to — a Summary carrying out-of-scope files
+and a `## Project` section.
 
 ### Descriptions stay disjoint
 
 `salesforce-apex` currently advertises "lightweight layering (one trigger
 handler per object, service, selector, domain)", which would compete with
-the hub for a question about triggers. Its description drops the trigger
-clause. The hub's description reads:
+`salesforce-triggers` for a question about triggers. Its description drops
+the trigger clause. The new skill's description reads:
 
 > Use when writing or reviewing Apex triggers — one trigger per object,
 > what belongs in the trigger body, resolving which trigger framework the
@@ -101,7 +106,7 @@ This honours the constraint the plugin set itself in
 `2026-07-20-salesforce-standards-design.md`: "Descriptions written
 disjointly (no two skills compete for the same trigger)."
 
-## Hub rules
+## Framework-independent rules
 
 Rule ids carry the `trigger-` prefix; framework documents use
 `trigger-base-class-`, `trigger-metadata-` and `trigger-none-`. A finding
@@ -159,7 +164,20 @@ a declaration resolves the project.
 
 (id: `trigger-framework-declared`; severity: minor; source: this standard)
 
-Bulkification stays with `salesforce-apex`. The hub cites
+Sub-rules:
+
+- two declaration homes cover one path with different values (id:
+  `trigger-framework-declared.ambiguous`; severity: important)
+
+The group default grades an absent declaration, which announces itself:
+resolution falls through to inference or to a question, and the reader
+sees it happen. A collision hides instead. The project has declared
+twice, so the letter of the rule is met while nothing can be resolved
+from it, and framework rules quietly go ungraded — a review that loses
+half its scope without saying why. The two are mutually exclusive: a path
+has no declaration or it has competing ones.
+
+Bulkification stays with `salesforce-apex`. `salesforce-triggers` cites
 `apex-bulkification` and `apex-bulkification.loop-on-trigger-path` and
 carries no severity word of its own.
 
@@ -184,7 +202,7 @@ one base-class framework and silences automation under another. Names
 alone cannot tell a reviewer which.
 
 Framework-specific rules are optional. A document that carries none is
-graded by hub rules alone, and the report says so. The tag grammar does
+graded by the framework-independent rules alone, and the report says so. The tag grammar does
 not become a public contract in this release, so a document from outside
 this plugin is not graded on its framework rules at all.
 
@@ -203,19 +221,45 @@ trigger-framework: acme-dispatcher; skill: acme-plugin:acme-triggers
 ```
 
 Homes: the repository's `CLAUDE.md`, a directory's `CLAUDE.md`, a local
-copy of `salesforce-toolchain.md`, or a project rule. A grep does not
-distinguish them, so the design does not either.
+copy of `salesforce-toolchain.md`, or a project rule. A grep finds them
+all; what separates them is scope.
+
+Every declaration carries one, and the two kinds are shaped differently.
+A `CLAUDE.md` scopes itself by **position** — the subtree of the
+directory holding it. A rule scopes itself by **glob**: its `paths:`
+patterns, or the whole repository when it declares none. A rule always
+sits at the repository root whatever its glob says, so position tells
+nothing about how narrow it is.
+
+The most specific scope covering a trigger file wins, and specificity is
+only ever claimed between two subtrees, where one strictly contains the
+other. A glob is never ranked against a subtree or against another glob:
+comparing them invents an answer the project never stated. Two
+declarations of unequal shape therefore have no winner, which the next
+section turns into behaviour rather than a tie-break.
 
 ### Steps
 
-Resolution runs per trigger file, walking up from the file to the nearest
-declaration.
+Resolution runs per trigger file. Step (a) collects every declaration
+whose scope covers that file — walking up the directory tree for
+`CLAUDE.md` homes and reading `paths:` for rules — and then applies the
+specificity rule above.
 
 | Step | Action |
 |---|---|
 | (a) | grep the candidate files for `trigger-framework:` — an explicit read, never a wait for context |
 | (b) | fingerprint the project's own code, skipping vendor directories |
 | (c) | ask the developer, with `reference/choosing-a-framework.md` |
+
+**Who repairs what.** Step (c) and the collision between declarations of
+unequal shape both need a person, so both belong to an interactive
+session. A background agent asks nothing: it enforces the rules it can
+resolve and reports whatever it cannot. A session, in turn, does not
+settle such an ambiguity in conversation — an answer there dies at the
+next compaction while the ambiguity returns every session. It settles it
+in the project, by rescoping or removing one of the competing homes until
+the declaration surface states one framework per path and says so
+unambiguously. The fix is an edit, not an answer.
 
 Step (a) reads rather than waits because a `CLAUDE.md` in a subdirectory
 loads lazily: Claude Code "discovers `CLAUDE.md` [...] in subdirectories
@@ -268,7 +312,7 @@ Trigger framework: base-class — declared in force-app/billing/triggers/CLAUDE.
 The source reads `declared <file>`, `inferred <evidence>` or `asked`. Any
 source other than `declared` ends with an offer to write the declaration:
 a line in a conversation dies at the next compaction, a declaration
-survives it. The hub never remembers a resolution; after compaction it
+survives it. `salesforce-triggers` never remembers a resolution; after compaction it
 reads the files again.
 
 ### Failure modes
@@ -278,26 +322,32 @@ reads the files again.
 | No declaration, fingerprint matches | infer, cite the file and pattern, offer to write the declaration |
 | No declaration, no fingerprint | go to (c), saying no pattern matched in N triggers and asking whether the project is frameworkless or on a framework this plugin does not know |
 | No triggers at all | go to (c) |
-| Two declarations disagree | the nearer one wins, the disagreement is always stated, and the session offers to reconcile them |
-| The declared document is missing | say so and grade by hub rules; never substitute another framework's document, since guidance for the wrong framework writes code that does not compile |
+| Two subtree-scoped declarations disagree | the inner one wins, and the disagreement is always stated — never resolved silently |
+| Declarations of unequal shape both cover the file — a rule and a `CLAUDE.md` | no winner: name every file that declares, then work out with the developer which home survives and write that change. Picking one silently would answer a question only the project can, and answering it in conversation would leave the collision to recur next session |
+| The declared document is missing | say so and grade by the framework-independent rules; never substitute another framework's document, since guidance for the wrong framework writes code that does not compile |
 | A homegrown framework with no document | offer to write one, describing their code rather than a pattern from the internet — the "dispatcher, handler, helper" division has no primary source |
 
 ## Review surface
 
 `salesforce-code-review` gains a step: for `.trigger` and
-`*TriggerHandler*.cls`, load the hub, resolve through (a) and (b), then
+`*TriggerHandler*.cls`, load `salesforce-triggers`, resolve through (a) and (b), then
 load the framework document by path or name.
 
-Step (c) does not exist for a background agent, so `/salesforce-review`
-resolves before dispatch and passes the record in the prompt, as it
-already passes the directory mode. The agent verifies the record against
-the declaration, which costs nothing.
+A background agent enforces standards and asks nothing.
+`/salesforce-review` therefore resolves before dispatch and passes the
+record in the prompt, as it already passes the directory mode; the agent
+verifies the record against the declaration, which costs nothing.
+Dispatched any other way, it grades what the framework-independent rules
+cover and reports the rest as unresolved — choosing a framework for the
+project is as far outside its job as asking for one.
 
-When resolution fails, the run grades hub rules, skips framework rules
+When resolution fails, the run grades the framework-independent rules, skips framework rules
 rather than guessing them, notes `trigger framework: unresolved —
 framework-specific rules not graded` among the Summary's out-of-scope
-notes, and reports `trigger-framework-declared` in the `## Project`
-section. Both slots already exist in the review-report contract.
+notes, and reports the declaration rule in the `## Project` section —
+`trigger-framework-declared` where nothing declares the path,
+`trigger-framework-declared.ambiguous` where competing homes do. Both
+slots already exist in the review-report contract.
 
 ## Changes to shipped content
 
@@ -306,9 +356,10 @@ breaks a citation:
 
 1. "One trigger per object" leaves `apex-layering` for
    `trigger-one-per-object`.
-2. `<Object>TriggerHandler` leaves `apex-naming`. The hub names only
-   `<Object>Trigger`.
-3. `apex-bulkification` and its sub-rule stay put, cited by the hub.
+2. `<Object>TriggerHandler` leaves `apex-naming`. `salesforce-triggers`
+   names only `<Object>Trigger`.
+3. `apex-bulkification` and its sub-rule stay put, cited by
+   `salesforce-triggers`.
 
 The frameworkless document adopts a dispatch shape that keeps
 `trigger-body-delegates` true:
@@ -320,7 +371,7 @@ trigger OrderTrigger on Order (before insert, before update, after update) {
 ```
 
 The handler switches on `System.TriggerOperation`. This fixes the defect
-named above, makes the hub rule true for all three frameworks, and gives
+named above, makes the rule true for all three frameworks, and gives
 the frameworkless handler what the frameworks already have: a dispatch
 entry point callable from a test without DML.
 
@@ -367,7 +418,7 @@ skill buys routing this design does not want and identity cost it pays
 forever; the system designer held that skills with
 `disable-model-invocation: true` cost no listing and unify loading.
 Verification settled it: such a skill's description does stay out of
-context, but the hub reads shipped and project-local documents by path in
+context, but `salesforce-triggers` reads shipped and project-local documents by path in
 either shape, so uniformity was not the deciding gain. Slash-command
 invocation was, and nobody wanted it.
 
@@ -391,11 +442,16 @@ Two further deviations:
 - **The tag grammar as a public contract.** A document from another plugin
   is not graded on framework rules, so the grammar stays internal and
   `plugin-versioning` gains no new breaking surface.
+- **Generality across the Standards family.** `python-standards` commits
+  to one toolchain outright, so resolving between frameworks has a single
+  instance today and stays local to this plugin. Should a second
+  Standards plugin ever need it, the pattern is a candidate for the
+  family rule ticket #14 defines, not something this spec anticipates.
 - **Enforcement.** No hook ships. `PreToolUse` could deny a write to a
   `.trigger` file with no declaration in scope, and `InstructionsLoaded`
   could not help at all, having no decision control. The consequence is
   recorded rather than hidden: a session that writes a trigger without
-  loading the hub meets no obstacle, and review catches the miss
+  loading `salesforce-triggers` meets no obstacle, and review catches the miss
   afterwards through `trigger-framework-declared`.
 
 ## Open questions
