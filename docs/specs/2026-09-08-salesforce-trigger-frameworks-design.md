@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-08
 status: draft
 grilled: 2026-09-08
-architect: blocking
+architect: concerns
 branch: feature/trigger-frameworks
 base: develop
 ---
@@ -183,8 +183,8 @@ sees it happen. The sub-rule grades every case the protocol cannot
 rank — a glob-scoped rule against a subtree-scoped `CLAUDE.md`, two rules
 whose `paths:` differ, and `CLAUDE.md` beside `.claude/CLAUDE.md` in one
 directory, whose subtrees are equal so neither contains the other.
-Declarations that agree never reach the rule: identical values collapse
-before ranking. All of these hide: the project has declared twice,
+Declarations that agree never reach the rule: ranking counts distinct
+values, and agreement is not a collision. All of these hide: the project has declared twice,
 so the letter of the rule is met while nothing can be resolved from it,
 and framework rules quietly go ungraded.
 
@@ -281,12 +281,20 @@ handlers — a metadata-driven action is instantiated by name and
 than leaving it to a reader.
 
 `Framework types:` names what the framework itself owns — a copied base
-class, a dispatcher — and is empty for frameworkless. Those types are
-read to recognise a framework, graded by no framework rule, and exempt
-from `trigger-context-below-handler`, which says so itself. Without the
-field, a base-class project's own copy of `TriggerHandler.cls` reads
-`Trigger.*`, matches no signature and sits under no vendor path, and the
-rule fires on the framework.
+class, a dispatcher. An absent field and an empty one say the same thing,
+as they do for `vendor-paths:`, and that is the frameworkless answer; a
+document omitting the field still has a signature, and only a malformed
+`Signature:` block fails the grammar. The field is also the only place
+those names are written: a Fingerprint answer that has to read inside a
+framework's own class points at a type from here rather than repeating
+it.
+
+What the field buys is one exemption, which is why a document may leave
+it out. Its types are read to recognise a framework, graded by no
+framework rule, and exempt from `trigger-context-below-handler`, which
+says so itself. Without them, a base-class project's own copy of
+`TriggerHandler.cls` reads `Trigger.*`, matches no signature and sits
+under no vendor path, and the rule fires on the framework.
 
 Framework-specific rules are optional. A document that carries none is
 graded by the framework-independent rules alone, and the report says so. The tag grammar does
@@ -355,7 +363,9 @@ vendor-paths: force-app/nebula, force-app/vendor
 ```
 
 One key at the start of a line, one declaration per home, one value per
-key. A shipped id carrying a locator is a contradiction: the shipped
+key. The value is everything after the key, locator included: two homes
+naming one framework through different documents disagree, and ranking
+treats them as it treats any two values. A shipped id carrying a locator is a contradiction: the shipped
 document is used and the locator reported. An id absent from the table
 carrying no locator is the homegrown-without-a-document case below. Two
 `trigger-framework:` lines in one home make that home unreadable, which
@@ -428,17 +438,19 @@ against a per-package override — for nothing. A rule always sits at the
 repository root whatever its glob says, so position tells nothing about
 how narrow it is.
 
-Ranking runs in three moves. First, **identical values collapse**: a root
-`CLAUDE.md` and a repository-wide rule naming the same framework are one
-declaration however many files carry it, and the record names them all. A
-project writes that redundancy without thinking, and grading it would be
-grading agreement. Second, one value left means resolved. Third, more than
-one value means the winner is the declaration whose scope is strictly
-contained in the scope of **every** declaration carrying a different
-value — subtree within subtree by path prefix, and never a pair involving
-a glob, since comparing a glob to anything invents an answer the project
-never stated. That one sentence settles a chain of three candidates
-without a case of its own.
+Ranking runs in three moves, and every declaration keeps its own scope
+through all of them. First, count the **distinct values**: a root
+`CLAUDE.md` and a repository-wide rule naming the same framework agree,
+and the record names both. A project writes that redundancy without
+thinking, and grading agreement is not grading a defect. Second, one
+distinct value means resolved. Third, more than one means the winner is
+the declaration whose scope is strictly contained in the scope of
+**every** declaration carrying a different value — subtree within subtree
+by path prefix, and never a pair involving a glob, since comparing a glob
+to anything invents an answer the project never stated. Because nothing
+is merged, a repository-wide default against a nearer override still has
+two scopes to compare, and a chain of three candidates settles without a
+case of its own.
 
 No such declaration means no winner, which the next section turns into
 behaviour rather than a tie-break. Two members of that set are worth
@@ -469,11 +481,15 @@ produced.
 
 | Step | Action |
 |---|---|
-| (0) | read `vendor-paths:` from the root homes and subtract it, with the directories outside `packageDirectories`, from the files the run covers — what remains is the grading universe every later step works over |
+| (0) | read `vendor-paths:` from the root homes and subtract it, with the directories outside `packageDirectories`, from the repository's Apex files — what remains is the grading universe every later step works over, whether the caller is a review run or a session about to write a trigger |
 | (a) | grep the covering homes for `trigger-framework:` and rank them — an explicit read, never a wait for context |
-| (b) | fingerprint the grading universe, reading a framework's own types outside it where a document's Fingerprint answer names one |
+| (b) | fingerprint the grading universe, reading a framework's own types outside it where the Fingerprint answer points at one of the types `Framework types:` names |
 | (c) | ask the developer, with `reference/choosing-a-framework.md` |
 | (d) | select the resolved framework's handlers from the grading universe by its signature, closed over `extends` |
+
+Steps (0) through (c) serve both surfaces. Step (d) belongs to the review
+surface alone: a session about to write a trigger needs the resolved
+document, not an enumeration of the project's handlers.
 
 Vendor code is never graded and never fingerprinted, and it is still
 **read** where recognition needs it. Those two verbs get two answers on
@@ -559,7 +575,9 @@ The last two lines exist because an agent that cannot ask must at least
 say which filter and which selector it applied. Without them, "no
 framework findings" and "framework rules not graded" read identically.
 Each degrades in place — `none declared`, or the reason no handler set was
-selected. The source reads `declared <file>`, `inferred <evidence>` or
+selected — and the `Handlers:` line appears only where step (d) ran,
+which is the review surface; an authoring session's record stops at the
+document. The source reads `declared <file>`, `inferred <evidence>` or
 `asked`. Any source other than `declared` ends with an offer to write the
 declaration:
 a line in a conversation dies at the next compaction, a declaration
@@ -589,10 +607,12 @@ reads the files again.
 
 `salesforce-code-review` gains a step: for `.trigger` files — the one
 artefact every framework has — load `salesforce-triggers` and run the
-protocol's steps in order, (0) through (b), then load the framework
-document by path or name and take step (d), selecting the project's
-handler classes by the signature its Dispatch answer gives out of the
-Apex classes the run already covers. Which classes the
+protocol's steps in order, (0) through (b), then load each resolved
+framework's document by path or name and take step (d), selecting that
+framework's handler classes out of the grading universe by the signature
+its Dispatch answer gives. Resolution runs per file throughout, so a
+monorepo running two frameworks loads two documents and grades every
+class under the framework resolved for its own path. Which classes the
 framework rules grade is resolved, never hardcoded, because only the
 framework knows what makes a class one of its handlers.
 
@@ -727,7 +747,9 @@ adopted, three of them as choices rather than repairs:
 One proposal is declined. The designer would couple the signature grammar
 to the tag grammar, publishing neither before the other. A foreign
 document cannot write a conforming signature without the grammar, so
-withholding it would leave the open class unreachable — the reasoning
+withholding it would leave every foreign document's handlers
+unselectable, and with them the one framework-independent rule needing a
+handler set — the reasoning
 sits beside the clause it concerns, under "What a framework document
 answers".
 
@@ -736,8 +758,10 @@ answers".
 - **Migration between frameworks.** Deferred, with it the rule that would
   grade a new file against a declared target.
 - **The tag grammar as a public contract.** A document from another plugin
-  is not graded on framework rules, so the grammar stays internal and
-  `plugin-versioning` gains no new breaking surface.
+  is not graded on framework rules, so that grammar stays internal. The
+  signature grammar does go public, so it is a convention others rely on
+  in the sense `plugin-versioning` defines: a change to `header:`,
+  `member:` or `Framework types:` takes the bump that rule prescribes.
 - **Generality across the Standards family.** `python-standards` commits
   to one toolchain outright, so resolving between frameworks has a single
   instance today and stays local to this plugin. Should a second
@@ -791,3 +815,15 @@ answers".
 - fixed 2026-09-08 — [Minor] The homes set is called exact while one member is defined by ownership, which a grep cannot see; license: the glossary defines a Rules payload as installed beside a manifest, which makes ownership mechanical; the member is now "a rule file outside a directory carrying a Rules-engine manifest"
 - fixed 2026-09-08 — this wave left two sentences carrying the old "unequal shape" boundary, in the specificity paragraph and in "Who repairs what"; license: the same sentence that licensed the sub-rule's repair; both now read "the protocol cannot rank". No reviewer graded this and no gate detected it — the session's own sweep found it, so the line carries no severity and is not a gate line
 - signal 2026-09-08 — a diff-scoped round 3 over these repairs earns its cost, since each Important fix reshapes a mechanism and that is the class breeding the next round's defects; a full-document re-read now would read text about to change, so the chain debt is better discharged by the integrity audit at the consumption gate, and the three Minor leftovers belong in round 3's diff rather than a round of their own
+
+### 2026-09-08 — architect, fable 5.1, concerns (round 3, diff-scoped)
+
+- held — [Important] The managed-package base-class case falls between two clauses of the same wave: `extends acme.TriggerHandler` satisfies both the namespace-prefix allowance in the signature grammar and the parent-absent row that makes an unreadable parent a non-handler, and the discriminator separating the two base-class frameworks is unreadable in a managed package, so even a selected handler cannot be graded on question 3; question: keep the namespace-prefix allowance and scope the parent-absent rule to closure candidates only, or drop the allowance and route a managed-package framework to the unshipped-framework row?; options: (a) drop the allowance — one clause deleted plus a routing sentence, and the reviewer's stop signal says round 4 would not repay its cost; (b) keep it, scope the parent-absent rule to closure, and have the base-class document state how the fork is identified when its source is unreadable — this touches that document's contract and earns one more diff-scoped round; the session recommends (b), since a direct signature match and a closure candidate are different things and reading the parent-absent rule as scoped to closure costs nothing, while dropping the allowance closes the door on a framework packaged for reuse across orgs
+- fixed 2026-09-08 — [Minor] "Identical values collapse" is written as merging declarations, so move three has no scope to rank and the three-candidate chain the same paragraph claims to settle has none for the merged value; the value compared is also never said to include the locator; license: the same paragraph claims to settle a chain of three candidates, which the finding shows it cannot; move one now counts distinct values while every declaration keeps its scope, nothing is merged, and the declaration grammar states that the value is everything after the key, locator included
+- fixed 2026-09-08 — [Minor] `Framework types:` is mandatory in form while its empty value already means none, and a document omitting it loses its whole signature — against the sibling key, where an absent and an empty value say the same thing; license: the `vendor-paths:` paragraph already states that an absent key and an empty one say the same thing; the field is now optional on that footing, only a malformed `Signature:` block fails the grammar, and the paragraph says what the field buys — one exemption — so a foreign author knows when to write it
+- fixed 2026-09-08 — [Minor] The signature grammar is published while Out of scope still says the grammar stays internal and `plugin-versioning` gains no new breaking surface, which that rule counts as a convention others rely on; "unreachable" also overstates what withholding it would cost; license: `.claude/rules/plugin-versioning.md:46-47` grades a breaking change to a convention others rely on; Out of scope now scopes its claim to the tag grammar and names the signature grammar as a published convention the bump rule covers, and "unreachable" became the concrete cost — every foreign document's handlers unselectable, and with them the one rule needing a handler set
+- fixed 2026-09-08 — [Minor] Step (0), step (d) and the resolution record are defined in review-run vocabulary although the protocol runs at authoring time too, where there is no run and no handler set is needed; license: the resolution record is written "before the first trigger edit", which is the authoring surface the document already serves; step (0) now subtracts from the repository's Apex files for either caller, a sentence assigns steps (0) to (c) to both surfaces and step (d) to the review surface alone, and the `Handlers:` line appears only where step (d) ran
+- fixed 2026-09-08 — [Minor] One type name is carried by `Framework types:` and by the Fingerprint answer for two consumers, against the one-mechanism-one-shape discipline the same wave introduced; license: the `Three mechanisms, three shapes` subsection, written in the same wave, forbids exactly this; `Framework types:` is now the only place those names are written and step (b) points at a type from that field rather than naming one of its own
+- fixed 2026-09-08 — the F2 repair left the `.ambiguous` prose saying "identical values collapse before ranking", which the same wave had replaced with counting distinct values and merging nothing; license: the sentence the repair itself wrote; the prose now says ranking counts distinct values and agreement is not a collision. The session's own sweep found it — no reviewer graded it and no gate ran over it
+- fixed 2026-09-08 — the review-surface paragraph still read "out of the Apex classes the run already covers" and named one framework document, lagging the per-file resolution this wave had already adopted; license: the Steps section states that resolution runs per file and the deviations section records the decision; the paragraph now selects out of the grading universe, loads each resolved framework's document, and says that a monorepo running two frameworks grades every class under the framework resolved for its own path. The reviewer noted the lag in one line without grading it and left it to the integrity audit; the propagation gate returned CLEAN over it
+- signal 2026-09-08 — the stop signal is conditional on the held finding: under option (a) round 4 does not repay its cost, the Minor leftovers being self-fixable and the noted lag already owed to the integrity audit at the consumption gate; under option (b) one diff-scoped round over the base-class document's contract earns its cost, that being a reshaped mechanism again. The Minor leftovers are worth a single fix wave, not a round of their own
