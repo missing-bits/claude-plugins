@@ -73,7 +73,7 @@ them.
 | Part | Owns | Deliberately excludes |
 |---|---|---|
 | `salesforce-triggers` (new skill) | framework-agnostic rules; the resolution protocol; the `framework-id` → path table; the questions a framework document answers; fingerprints; the vendor-exclusion scope; `reference/choosing-a-framework.md` | trigger or handler code; bypass API names; the name of the dispatching class |
-| `reference/framework-base-class.md`, `-metadata-driven.md`, `-frameworkless.md` | dispatch shape; where the handler reads context; bypass and recursion API with its error semantics; test-isolation idiom; gotchas; framework-specific rules; two example units | layers below the handler; bulkification; test-class structure |
+| `reference/framework-base-class.md`, `-metadata-driven.md`, `-frameworkless.md` | dispatch shape; the handler signature and the framework's own types; where the handler reads context; bypass and recursion API with its error semantics; test-isolation idiom; gotchas; framework-specific rules; two example units | layers below the handler; bulkification; test-class structure |
 | `salesforce-apex` | naming, layers, bulkification, governor limits, sharing, error handling; the four framework-independent example units | the trigger section, reduced to a layer-table row pointing at `salesforce-triggers` |
 | `salesforce-apex-testing` | test structure, factory, assertions, mocks | how to disable a handler in a test |
 | `salesforce-code-review`, `salesforce-code-reviewer` | a resolution step before grading `.trigger`, then handler selection by the signature the resolved framework document supplies | asking the developer — a background agent cannot |
@@ -146,7 +146,10 @@ Guide, "Document Your Apex Code")
 
 **Context stops at the handler.** Nothing below the handler reads
 `Trigger.*`; context descends as parameters, which keeps the logic
-testable without DML.
+testable without DML. The types a framework document lists as its own are
+exempt: a base class reading `Trigger.*` is the framework doing its job.
+This rule alone among the framework-independent ones needs a handler set,
+so it goes ungraded wherever no signature supplies one.
 
 (id: `trigger-context-below-handler`; severity: important; source: this
 standard)
@@ -170,17 +173,18 @@ a declaration resolves the project.
 
 Sub-rules:
 
-- two declarations cover one path and neither is a subtree strictly
-  containing the other, so neither wins (id:
+- two declarations cover one path with different values and neither is a
+  subtree strictly containing the other, so neither wins (id:
   `trigger-framework-declared.ambiguous`; severity: important)
 
 The group default grades an absent declaration, which announces itself:
 resolution falls through to inference or to a question, and the reader
 sees it happen. The sub-rule grades every case the protocol cannot
-rank — a glob-scoped rule against a subtree-scoped `CLAUDE.md`, and
-equally two glob-scoped rules, one of them scoped to the whole repository
-by declaring no `paths:` at all. That second pairing is the likelier one
-wherever a project keeps its declaration in rules. Both hide: the project has declared twice,
+rank — a glob-scoped rule against a subtree-scoped `CLAUDE.md`, two rules
+whose `paths:` differ, and `CLAUDE.md` beside `.claude/CLAUDE.md` in one
+directory, whose subtrees are equal so neither contains the other.
+Declarations that agree never reach the rule: identical values collapse
+before ranking. All of these hide: the project has declared twice,
 so the letter of the rule is met while nothing can be resolved from it,
 and framework rules quietly go ungraded.
 
@@ -203,7 +207,9 @@ answer is stated to the developer, never filled from another framework.
 
 1. **Dispatch** — the trigger body and the handler shape, as two files
    calling the same lower-layer methods the shipped example uses, plus the
-   **signature** that makes a class one of this framework's handlers.
+   **signature** that makes a class one of this framework's handlers and
+   the framework's **own types**, which are neither handlers nor layers
+   below one.
 2. **Context access** — where the handler reads `Trigger.*`.
 3. **Bypass and recursion** — the API names *and* what happens when a
    limit is exceeded.
@@ -229,17 +235,71 @@ class called `LegacyAccountHandler` that implements
 `TriggerAction.BeforeInsert` is a handler, and any name-matching pattern
 misses it silently.
 
-The signature is a content pattern, the same mechanism the Fingerprints
-table below already uses to recognise a framework: `implements
-TriggerAction.` for metadata-driven, `extends TriggerHandler` for
-base-class, the `handle(System.TriggerOperation` entry point for
-frameworkless. A framework document may add a filename glob as a hint,
-never as the test.
+A signature and a fingerprint share a technique — a pattern matched
+against source text — and nothing else. A fingerprint reads the whole
+project, one match anywhere is enough, and it yields a label. A signature
+reads one class, matches in a named place, and yields membership. Calling
+them one mechanism is what let two rounds hand each of them the other's
+domain.
+
+The answer is a block under a fixed heading, in one grammar, so a session
+loading a document written elsewhere can tell whether the contract is met
+— the base-class answer, in full:
+
+```
+Signature:
+  header: extends TriggerHandler
+Framework types: TriggerHandler
+```
+
+`header:` matches the type's declaration header — from the `class` keyword
+to the opening brace — which keeps a comment, a string or a javadoc
+mention from counting. `implements TriggerAction.` there — the
+metadata-driven answer — matches every one of that framework's
+interfaces, a class implementing several, and a class implementing
+something else besides. `member:` matches a method declaration line inside
+the type, which is where the frameworkless answer,
+`handle(System.TriggerOperation`, belongs and where a header match would
+never look. Matching ignores case, because Apex does, and an optional
+namespace prefix is allowed before every type name, because a framework
+delivered as a managed package appears in project code as `extends
+acme.TriggerHandler`. A document may add a filename glob as a hint, never
+as the test.
+
+The handler set is the smallest fixed point of the classes matching the
+signature together with the classes whose header `extends` a type already
+in the set. Without that closure, `OrderHandler extends
+BaseTriggerHandler` — an org's own layer over the framework's — matches
+no pattern and goes ungraded. The closure reads parents from the
+repository even where a parent lies outside a diff-scoped run, so a full
+run and a diff-scoped run select the same handlers; a parent under a
+vendor path is read to recognise it and never graded; a parent absent
+from the repository makes the class a non-handler, named in the Summary
+with the parent that could not be read. Only top-level types are
+handlers — a metadata-driven action is instantiated by name and
+`Outer.Inner` is addressable, so that document names the deviation rather
+than leaving it to a reader.
+
+`Framework types:` names what the framework itself owns — a copied base
+class, a dispatcher — and is empty for frameworkless. Those types are
+read to recognise a framework, graded by no framework rule, and exempt
+from `trigger-context-below-handler`, which says so itself. Without the
+field, a base-class project's own copy of `TriggerHandler.cls` reads
+`Trigger.*`, matches no signature and sits under no vendor path, and the
+rule fires on the framework.
 
 Framework-specific rules are optional. A document that carries none is
 graded by the framework-independent rules alone, and the report says so. The tag grammar does
 not become a public contract in this release, so a document from outside
 this plugin is not graded on its framework rules at all.
+
+The signature grammar is public regardless — a deviation from the second
+consultation, which proposed publishing it together with the tag grammar
+and never separately. A document from another plugin must write its
+signature in that grammar or its handlers cannot be selected, and
+selection buys such a document `trigger-context-below-handler` alone. A
+small return, and the grammar has to be published for even that, so the
+two grammars move on their own schedules.
 
 ## Resolution protocol
 
@@ -260,6 +320,27 @@ declaration carries a `doc-path:` or a `skill:` locator, and the table
 never grows to accommodate one — that is the open class working as
 intended.
 
+### Three mechanisms, three shapes
+
+The protocol reads three things from outside itself, and they are not one
+mechanism. A **signature** selects over a class's content and comes from
+the framework document. A **declaration** resolves over a path, comes from
+the project in several places, and carries a scope. **`vendor-paths:`**
+filters over a path, comes from one place, and carries no scope at all.
+Two review rounds caught this design handing one of them another's rules
+by default — a filter given a scope, a resolver read as content, a
+selector scoped to the run — so each is specified separately below and
+none inherits from a neighbour.
+
+Each specification answers the same five questions, and answering four of
+them is what bred the defects: where the thing is declared and in what
+grammar; what it applies over and where in the order; what it returns,
+including the value that means *unresolved*; who consumes that value and
+in what words; and what makes a document carrying it conformant, tested
+when the document loads. One constraint crosses all three: every test
+reduces to a grep or a prefix comparison, never to parsing. A monorepo
+holds thousands of Apex classes and the reader is a model with file tools.
+
 ### The declaration
 
 One line, one key:
@@ -270,8 +351,15 @@ trigger-framework: metadata-driven
 trigger-framework: frameworkless
 trigger-framework: acme-dispatcher; doc-path: docs/acme-triggers.md
 trigger-framework: acme-dispatcher; skill: acme-plugin:acme-triggers
-vendor-paths: force-app/nebula/**, force-app/vendor/**
+vendor-paths: force-app/nebula, force-app/vendor
 ```
+
+One key at the start of a line, one declaration per home, one value per
+key. A shipped id carrying a locator is a contradiction: the shipped
+document is used and the locator reported. An id absent from the table
+carrying no locator is the homegrown-without-a-document case below. Two
+`trigger-framework:` lines in one home make that home unreadable, which
+is reported with the file rather than resolved by picking a line.
 
 `vendor-paths:` is the second key of the surface, and the only other thing
 the protocol reads from the project. It lists what belongs to a package
@@ -280,22 +368,40 @@ package installed unlocked and without a namespace, vendored as source,
 sits in a package directory carrying no platform signal that marks it
 foreign, so no amount of reading `sfdx-project.json` recovers it.
 
-Unlike the framework key, it resolves in exactly one place: **the
-repository root**, in whichever root home the project already uses, with
-globs relative to the root. It gets no scope rule of its own and needs
-none. What counts as somebody else's code is a fact about the repository
-rather than about a path inside it, and a single home also settles by
-construction what nearest-wins would get backwards — an inner declaration
-narrowing an exclusion would re-include a vendor directory, which is the
-opposite of what an exclusion is for. A monorepo lists every vendor path
-at the root and loses nothing but locality.
+Unlike the framework key, it resolves at **the repository root** alone.
+What counts as somebody else's code is a fact about the repository rather
+than about a path inside it, and a scope rule would get an exclusion
+backwards — an inner declaration narrowing it would re-include the vendor
+directory it was written to remove.
+
+Its value is a list of **directory prefixes** relative to the root, not
+globs: a file is vendor when its path equals an entry or begins with that
+entry and a slash. That is the shape `packageDirectories` already uses,
+so the two exclusion layers compose in one arithmetic of prefixes; it
+leaves no glob dialect to name and no question of whether an entry matches
+a file or a directory; and it reduces the test to a prefix comparison
+rather than a match an agent can get wrong. Nothing re-includes, so an
+entry is a declaration to make narrowly.
+
+Every root home carries the key — both root `CLAUDE.md` files and every
+rule file outside a payload directory, whatever its `paths:`, since this
+key has no scope for a glob to narrow — and several homes **union**,
+which needs no order because exclusion is monotonic. An absent key and an
+empty one say the same thing: nothing is vendor. An entry matching
+nothing on disk earns a note, the only signal an agent can give for a
+typo. An entry outside every package directory is redundant and passes in
+silence, the first layer having excluded it already. A monorepo lists
+every vendor path at the root and loses nothing but locality.
 
 Homes, and the exact set a grep reads: `CLAUDE.md` and
 `.claude/CLAUDE.md` at the repository root or in any directory above the
 trigger file, plus any rule file under `.claude/rules/` that sits outside
 a directory carrying a Rules-engine manifest — the manifest is what marks
 a directory as an installed payload, so ownership becomes something a
-grep can see.
+grep can see. The protocol greps these files rather than waiting for the
+platform to load them, which also settles a question the platform
+documents nowhere: whether a nested `.claude/CLAUDE.md` is discovered at
+all.
 
 Three things are deliberately not homes. A declaration belongs to the
 project, so a personal rule under `~/.claude/rules/` never carries one —
@@ -311,32 +417,70 @@ hand-added line or freezes the rule at the version that carried it, and
 its `paths:` already covers `**/*.trigger` repo-wide — the same scope as
 the root `CLAUDE.md`, which would manufacture a collision by construction.
 
-Every declaration carries one, and the two kinds are shaped differently.
-A `CLAUDE.md` scopes itself by **position** — the subtree of the
-directory holding it. A rule scopes itself by **glob**: its `paths:`
-patterns, or the whole repository when it declares none. A rule always
-sits at the repository root whatever its glob says, so position tells
-nothing about how narrow it is.
+Every declaration carries one, and the kinds are shaped differently. A
+`CLAUDE.md` scopes itself by **position** — the subtree of the directory
+holding it, and for `.claude/CLAUDE.md` the subtree of the directory
+holding `.claude/`. A rule declaring `paths:` scopes itself by **glob**;
+a rule declaring none scopes the whole repository, which is the root
+subtree and ranks as one. Reading that rule as an unrankable glob would
+cost the design its commonest comparison — a repository-wide default
+against a per-package override — for nothing. A rule always sits at the
+repository root whatever its glob says, so position tells nothing about
+how narrow it is.
 
-The most specific scope covering a trigger file wins, and specificity is
-only ever claimed between two subtrees, where one strictly contains the
-other. A glob is never ranked against a subtree or against another glob:
-comparing them invents an answer the project never stated. Any two
-declarations the protocol cannot rank therefore have no winner, which the
-next section turns into behaviour rather than a tie-break.
+Ranking runs in three moves. First, **identical values collapse**: a root
+`CLAUDE.md` and a repository-wide rule naming the same framework are one
+declaration however many files carry it, and the record names them all. A
+project writes that redundancy without thinking, and grading it would be
+grading agreement. Second, one value left means resolved. Third, more than
+one value means the winner is the declaration whose scope is strictly
+contained in the scope of **every** declaration carrying a different
+value — subtree within subtree by path prefix, and never a pair involving
+a glob, since comparing a glob to anything invents an answer the project
+never stated. That one sentence settles a chain of three candidates
+without a case of its own.
+
+No such declaration means no winner, which the next section turns into
+behaviour rather than a tie-break. Two members of that set are worth
+naming, because both look resolvable and are not. `CLAUDE.md` and
+`.claude/CLAUDE.md` in one directory carry the same subtree, so neither
+contains the other — and the platform documents nothing about what
+happens when both exist, so a protocol picking one would claim knowledge
+nobody has. Two rules with differing `paths:` are the same case for the
+same reason.
+
+Where a glob's coverage cannot be settled, the pattern counts as
+covering. The platform names no dialect for `paths:`, so the protocol
+applies the matching the platform applies and leans on `**`, `*`,
+`{a,b}` and root-relative paths alone. A declaration that covers and
+cannot be ranked is loud; one dropped from the set is silent.
 
 ### Steps
 
-Resolution runs per trigger file. Step (a) collects every declaration
-whose scope covers that file — walking up the directory tree for
-`CLAUDE.md` homes and reading `paths:` for rules — and then applies the
-specificity rule above.
+Resolution runs per file. For a trigger file it decides which framework's
+rules grade that trigger; for a handler class it decides the same, from
+the declarations covering the class's own path. Step (a) collects every
+declaration whose scope covers the file — walking up the directory tree
+for `CLAUDE.md` homes and reading `paths:` for rules — and then ranks
+them as above.
+
+The order is itself a contract: each step consumes what the one before it
+produced.
 
 | Step | Action |
 |---|---|
-| (a) | grep the candidate files for `trigger-framework:`, and the root homes for `vendor-paths:` — an explicit read, never a wait for context |
-| (b) | fingerprint the project's own code, skipping vendor directories |
+| (0) | read `vendor-paths:` from the root homes and subtract it, with the directories outside `packageDirectories`, from the files the run covers — what remains is the grading universe every later step works over |
+| (a) | grep the covering homes for `trigger-framework:` and rank them — an explicit read, never a wait for context |
+| (b) | fingerprint the grading universe, reading a framework's own types outside it where a document's Fingerprint answer names one |
 | (c) | ask the developer, with `reference/choosing-a-framework.md` |
+| (d) | select the resolved framework's handlers from the grading universe by its signature, closed over `extends` |
+
+Vendor code is never graded and never fingerprinted, and it is still
+**read** where recognition needs it. Those two verbs get two answers on
+purpose: the discriminator separating the two base-class frameworks is a
+method name inside `TriggerHandler.cls`, which a project vendoring the
+framework as source puts under `vendor-paths:` — so a step forbidden to
+read there could not tell the two frameworks apart.
 
 **Who repairs what.** Step (c) and the collision between declarations the
 protocol cannot rank both need a person, so both belong to an interactive
@@ -395,19 +539,29 @@ the project's, and its own triggers on its own objects are not the
 project's to review. Reviews already exclude this material —
 `salesforce-code-review/SKILL.md` states "never review third-party
 libraries" — so the exclusion needs a scope, not a rule, and
-`vendor-paths:` is where that scope is stated.
+`vendor-paths:` is where that scope is stated. It excludes material from
+grading and from fingerprinting, never from reading: the Steps table above
+states where recognition reaches into a vendor path and why it must.
 
 ### The resolution record
 
-One line, before the first trigger edit, carrying three fields — the
-framework, the source, and the document loaded:
+Three lines, before the first trigger edit. The first carries the
+framework, the source and the document loaded; the other two carry what
+the filter and the selector actually did:
 
 ```
 Trigger framework: base-class — declared in force-app/billing/triggers/CLAUDE.md — loading framework-base-class.md
+Vendor paths: 2 entries from CLAUDE.md
+Handlers: 7 selected by the signature in framework-base-class.md
 ```
 
-The source reads `declared <file>`, `inferred <evidence>` or `asked`. Any
-source other than `declared` ends with an offer to write the declaration:
+The last two lines exist because an agent that cannot ask must at least
+say which filter and which selector it applied. Without them, "no
+framework findings" and "framework rules not graded" read identically.
+Each degrades in place — `none declared`, or the reason no handler set was
+selected. The source reads `declared <file>`, `inferred <evidence>` or
+`asked`. Any source other than `declared` ends with an offer to write the
+declaration:
 a line in a conversation dies at the next compaction, a declaration
 survives it. `salesforce-triggers` never remembers a resolution; after compaction it
 reads the files again.
@@ -421,18 +575,24 @@ reads the files again.
 | No triggers at all | go to (c) |
 | A fingerprint matches a framework this plugin ships nothing for — fflib, TDTM, a dispatcher | the id is sound and only the document is missing, so take the homegrown row below: offer to write a project document, never substitute another framework's |
 | Two subtree-scoped declarations disagree | the inner one wins, and the disagreement is always stated — never resolved silently |
-| Two declarations cover the file and neither is a subtree containing the other — a rule against a `CLAUDE.md`, or two rules | no winner: name every file that declares, then work out with the developer which home survives and write that change. Picking one silently would answer a question only the project can, and answering it in conversation would leave the collision to recur next session |
-| The resolved document answers question 1 without a signature | grade the framework-independent rules, skip the framework rules, and say so in the Summary — a document that cannot say what its handlers are cannot have them graded, and guessing a signature would repeat the mistake a filename pattern already made |
+| Two declarations cover the file with different values and neither is a subtree containing the other — a glob-scoped rule against a `CLAUDE.md`, two rules whose `paths:` differ, or `CLAUDE.md` beside `.claude/CLAUDE.md` in one directory | no winner: name every file that declares, then work out with the developer which home survives and write that change. Picking one silently would answer a question only the project can, and answering it in conversation would leave the collision to recur next session |
+| The resolved document answers question 1 without a signature, or with one that does not fit the grammar | skip the framework rules **and** `trigger-context-below-handler`, the one framework-independent rule needing a handler set; grade the rest and name the document in the Summary — a document that cannot say what its handlers are cannot have them graded, and guessing a signature would repeat the mistake a filename pattern already made |
+| A class matches two frameworks' signatures | grade it under the framework resolved for its own path, which is step (a) over the class rather than over a trigger; where that path resolves to one framework and the class still matches another's signature, grade it under the resolved one and name the other in the Summary |
+| A class's `extends` parent is not in the repository | treat the class as a non-handler and name it in the Summary with the parent that could not be read — a managed-package parent is unreadable by construction, and assuming membership would grade a class no rule was written for |
+| A home carries two `trigger-framework:` lines, or a shipped id with a locator | the home resolves nothing and is named; a shipped id keeps its shipped document and the stray locator is reported |
+| `vendor-paths:` is absent and a directory is plainly third-party | grade it as the project's, since nothing declares otherwise, and note the directory with its evidence in the Summary — a note rather than a finding, because no rule requires the key |
+| A `vendor-paths:` entry matches nothing on disk | note it; nothing distinguishes a typo from a directory yet to be added, and a typo silently excludes nothing |
 | The declared document is missing | say so and grade by the framework-independent rules; never substitute another framework's document, since guidance for the wrong framework writes code that does not compile |
 | A homegrown framework with no document | offer to write one, describing their code rather than a pattern from the internet — the "dispatcher, handler, helper" division has no primary source |
 
 ## Review surface
 
 `salesforce-code-review` gains a step: for `.trigger` files — the one
-artefact every framework has — load `salesforce-triggers`, resolve through
-(a) and (b), then load the framework document by path or name and select
-the project's handler classes by the signature its Dispatch answer gives,
-out of the Apex classes the run already covers. Which classes the
+artefact every framework has — load `salesforce-triggers` and run the
+protocol's steps in order, (0) through (b), then load the framework
+document by path or name and take step (d), selecting the project's
+handler classes by the signature its Dispatch answer gives out of the
+Apex classes the run already covers. Which classes the
 framework rules grade is resolved, never hardcoded, because only the
 framework knows what makes a class one of its handlers.
 
@@ -450,7 +610,10 @@ framework-specific rules not graded` among the Summary's out-of-scope
 notes, and reports the declaration rule in the `## Project` section —
 `trigger-framework-declared` where nothing declares the path,
 `trigger-framework-declared.ambiguous` where two the protocol cannot rank
-do. Both slots already exist in the review-report contract.
+do. Both slots already exist in the review-report contract. Where
+resolution succeeds and the document supplies no signature, the same note
+names `trigger-context-below-handler` beside the framework rules, that
+rule needing a handler set too.
 
 ## Changes to shipped content
 
@@ -503,6 +666,10 @@ judge them:
   TLS verification disabled after the HTML pages returned 403.
 - Well-Architected quotations come from two consistent extractions of the
   same page rather than a byte-exact fetch.
+- Apex's case-insensitivity, which the signature grammar relies on, is
+  uncited. The language reference pages return 403 and the PDF was not
+  extracted for it, so the claim rests on expert knowledge — as sound as
+  it is unverified here.
 
 One provenance note matters for the rule that carries the most weight. The
 phrase "one trigger per object" appears nowhere in the 825-page Apex
@@ -538,6 +705,32 @@ Two further deviations:
   sample code now separates them. The decision stands on the
   metadata-driven case, where the handler is the framework's own class.
 
+A second consultation, on the three mechanisms above, followed two
+blocking rounds that diagnosed one repeated failure. Its proposals are
+adopted, three of them as choices rather than repairs:
+
+- **`vendor-paths:` carries directory prefixes, not globs.** Prefixes
+  compose with `packageDirectories` in one arithmetic and leave no dialect
+  to name. The cost is that `**/nebula` cannot be written; a monorepo pays
+  it by listing paths at the root, which this design already accepted.
+- **A handler class is graded under the framework resolved for its own
+  path.** The designer named this the developer's call, against grading by
+  whichever signature matches anywhere in the run. Resolving per path is
+  the generalisation round one already made for trigger files, and the
+  alternative ungrades every class in a monorepo running two frameworks.
+- **An undeclared vendor directory earns a note, not a rule.** A minor
+  rule was the alternative, an analogue of `trigger-framework-declared`.
+  The note is the narrower change and keeps clear of the ruling that this
+  scope is declared and never inferred; the rule is an open question
+  below.
+
+One proposal is declined. The designer would couple the signature grammar
+to the tag grammar, publishing neither before the other. A foreign
+document cannot write a conforming signature without the grammar, so
+withholding it would leave the open class unreachable — the reasoning
+sits beside the clause it concerns, under "What a framework document
+answers".
+
 ## Out of scope
 
 - **Migration between frameworks.** Deferred, with it the rule that would
@@ -563,6 +756,10 @@ Two further deviations:
   branch `feature/trigger-frameworks`, without the issue number the
   repository convention prescribes. A ticket may still be opened before
   the pull request.
+- **Whether an undeclared vendor directory should be graded.** Today it
+  earns a note in the Summary. A minor rule — the analogue of
+  `trigger-framework-declared` — would grade it, and the only argument
+  against is that inference would then produce a finding. Undecided.
 - **How many consumers run a framework other than frameworkless.**
   Unknown, and no longer load-bearing: the question tested the
   proportionality of shipping four skills, and this design ships one skill
