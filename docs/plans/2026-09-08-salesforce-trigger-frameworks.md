@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-08
 status: draft
-adversary: blocking
+adversary: concerns
 spec: ../specs/2026-09-08-salesforce-trigger-frameworks-design.md
 branch: feature/trigger-frameworks
 base: develop
@@ -43,7 +43,7 @@ Recorded here and beside the text they concern, so a reviewer trips over the rea
 1. **The metadata-driven signature reads `header: TriggerAction.`, not `header: implements TriggerAction.`** The spec's example says `implements TriggerAction.` "matches … a class implementing something else besides", which holds only when the framework interface comes first: `implements Queueable, TriggerAction.BeforeInsert` does not contain that substring. The spec's own constraint — every test reduces to a grep — decides it. The shorter pattern matches every header naming a `TriggerAction.*` interface wherever it sits. Task 5 carries the sentence.
 2. **One citation of the renamed file lives outside `salesforce-apex`.** The spec says "nothing outside the skill cites the filename"; `salesforce-apex-testing/reference/test-patterns.cls:4` does. Task 7 updates it, and the spec's sentence is reported as a spec defect rather than silently outrun — the plan corrects the file, not the claim.
 3. **Context methods are overridden `public override`**, the form the fork's README shows, where the base class declares them `protected virtual`. Both compile; the spec prescribes neither.
-4. **A `Framework types:` entry leaves the handler set even where its header matches the signature.** The spec says such types are "graded by no framework rule" and, separately, that "a class matching the signature is a handler on that match alone", without ordering the two. The plan orders them — the exemption wins — because `MetadataTriggerHandler` implements the framework's own seven interfaces and would otherwise be graded as an action wherever the framework is vendored as source outside `vendor-paths:`. The first spec sentence licenses the order; the spec's silence on it is reported. Task 1 carries the sentence and Task 5 names the instance.
+4. **A `Framework types:` entry leaves the handler set even where its header matches the signature.** The spec says such types are "graded by no framework rule" and, separately, that "a class matching the signature is a handler on that match alone", without ordering the two. The plan orders them — the exemption wins — because every framework-owned class implementing the framework's own context interfaces would otherwise be graded as an action wherever the framework is vendored as source outside `vendor-paths:`; the metadata-driven framework ships two such classes, `MetadataTriggerHandler` and `TriggerActionFlow` (`TriggerActionFlow.cls:24`), and the second has a `Trigger_Action__mdt` record only where a Flow action is registered. The first spec sentence licenses the order; the spec's silence on it is reported. Task 1 carries the sentence in both the `Framework types:` bullet and the handler-set definition, and Task 5 names the instances.
 5. **The hub does not say "as a minor rule".** The spec's Naming rule reads "each shipped document carries that name as a rule of its own, at minor severity"; a shipped surface restating a grade outside the tag is what `.claude/rules/standards-rule-tags.md` forbids, so the hub says "as a rule of its own" and the three documents' tags carry the grade. Not a spec defect — the tag rule binds plugin content, not design documents — but the phrase does not travel.
 
 ## File structure
@@ -61,12 +61,13 @@ Modified:
 - `plugins/salesforce-standards/skills/salesforce-apex/SKILL.md` — description, intro, naming table, layers table, example pointer.
 - `plugins/salesforce-standards/skills/salesforce-apex/reference/trigger-handler.md` → renamed `order-layers.md`, two sections removed.
 - `plugins/salesforce-standards/skills/salesforce-apex/reference/bulkification.md:5` and `plugins/salesforce-standards/skills/salesforce-apex-testing/reference/test-patterns.cls:4` — the filename citation.
+- `plugins/salesforce-standards/skills/salesforce-apex-testing/SKILL.md:12` — the layering sentence, which routed the handler to `salesforce-apex`.
 - `plugins/salesforce-standards/skills/salesforce-code-review/SKILL.md` — Procedure step 2 gains the resolution step.
 - `plugins/salesforce-standards/commands/salesforce-review.md` — a resolution step before dispatch.
 - `plugins/salesforce-standards/rules/salesforce-toolchain.md` — routing line and the two keys.
 - `plugins/salesforce-standards/README.md`, `plugins/salesforce-standards/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `README.md` — the identity surfaces, in one commit.
 
-Unchanged on purpose: `agents/salesforce-code-reviewer.md` (the skill owns the step; the card's "step 5" reference is why Task 8 adds to step 2 rather than renumbering). `skills/salesforce-apex-testing/SKILL.md` changes one sentence only, in Task 7: its layering pointer still routes the handler to `salesforce-apex`.
+Unchanged on purpose: `agents/salesforce-code-reviewer.md` (the skill owns the step; the card's "step 5" reference is why Task 8 adds to step 2 rather than renumbering).
 
 ---
 
@@ -286,11 +287,12 @@ label. A signature reads one class, matches in a named place, and
 yields membership.
 
 **The handler set** is the smallest fixed point of the classes matching
-the signature together with the classes whose header `extends` a type
-already in the set — so `OrderHandler extends BaseTriggerHandler`, an
-org's own layer over the framework's, is graded. A class matching the
-signature is a handler on that match alone. The parent rules govern
-**closure candidates** only — a class matching no signature whose header
+the signature, less the types `Framework types:` names, together with
+the classes whose header `extends` a type already in the set — so
+`OrderHandler extends BaseTriggerHandler`, an org's own layer over the
+framework's, is graded. A class matching the signature is a handler on
+that match alone unless `Framework types:` names it. The parent rules
+govern **closure candidates** only — a class matching no signature whose header
 carries `extends`:
 
 - the parent is read from the repository even where it lies outside a
@@ -750,13 +752,13 @@ Pre-existing non-conforming names stay; the convention binds new code.
 (id: `trigger-frameworkless-dispatching-class`; severity: minor;
 source: this standard)
 
-**One entry point.** The trigger's single call is the handler's static
-`handle` method taking `System.TriggerOperation` and the records. A
-trigger calling a per-context method instead — `handleBeforeInsert`,
-with or without a branch around it — leaves its handler outside the
-signature, where no framework rule reaches it. The rule is graded on
-the trigger for that reason: the class it would grade cannot be
-selected.
+**One entry point.** Every call in the trigger body is a handler's
+static `handle` method taking `System.TriggerOperation` and the
+records — several handlers, several such calls. A call to a per-context
+method instead — `handleBeforeInsert`, with or without a branch around
+it — leaves that handler outside the signature, where no framework rule
+reaches it. The rule is graded on the trigger for that reason: the
+class it would grade cannot be selected.
 
 (id: `trigger-frameworkless-entry-point`; severity: important; source:
 this standard)
@@ -781,10 +783,12 @@ source: this standard)
   objects disables each handler it must silence.
 - The shape this plugin shipped before `salesforce-triggers` existed —
   static `handleBeforeInsert` methods and a trigger branching on
-  `Trigger.isBefore` — now earns `trigger-body-delegates` on the
-  trigger and matches no signature. The fix is mechanical: keep the
-  methods, add one `handle` entry point that switches on the operation
-  and calls them, and make the trigger call it.
+  `Trigger.isBefore` — now earns two findings on the trigger,
+  `trigger-body-delegates` and, once the project resolves as
+  `frameworkless`, `trigger-frameworkless-entry-point`, and its handler
+  matches no signature. One fix clears all three: keep the methods, add
+  one `handle` entry point that switches on the operation and calls
+  them, and make the trigger call it.
 ````
 
 - [ ] **Step 2: Check the file's shape**
@@ -1135,7 +1139,7 @@ setting record; a record enables exactly the contexts it fills.
 ```
 Signature:
   header: TriggerAction.
-Framework types: TriggerBase, MetadataTriggerHandler, TriggerAction, FinalizerHandler
+Framework types: TriggerBase, MetadataTriggerHandler, TriggerAction, TriggerActionFlow, FinalizerHandler
 ```
 
 The pattern is `TriggerAction.` rather than `implements TriggerAction.`
@@ -1143,9 +1147,12 @@ on purpose: a class declared `implements Queueable,
 TriggerAction.BeforeInsert` names the framework interface second, and a
 header test is a substring match. Any header naming a `TriggerAction.*`
 interface, wherever it sits in the `implements` list, selects the
-class. `MetadataTriggerHandler` itself matches — it implements all
-seven context interfaces — and sits under `Framework types:`, which
-removes it from the handler set. The framework types appear in the
+class. Two framework classes match it themselves —
+`MetadataTriggerHandler` and `TriggerActionFlow`, each implementing all
+seven context interfaces — and both sit under `Framework types:`, which
+removes them from the handler set; `TriggerActionFlowChangeEvent
+extends TriggerActionFlow` is then a closure candidate whose parent is
+not in the set, and stays out too. The framework types appear in the
 repository only where the framework arrives as source; listing them
 costs nothing where it does not.
 
@@ -1984,13 +1991,22 @@ Expected: three lines — `reference/framework-base-class.md`, `reference/framew
 
 - [ ] **Step 9: Report**
 
-State the end state to the developer: ten commits on `feature/trigger-frameworks`, every check above at its expected value, the spec notes this plan surfaced (Deviations 1, 2, 4 and 5) for the spec's ledger, and one item for the release PR's notes — a project on the frameworkless shape this plugin shipped before now earns `trigger-body-delegates` per trigger until it adds the `handle` entry point (the Gotcha in `framework-frameworkless.md` names the fix). Do not move the plan's `status`; the developer flips it.
+State the end state to the developer: ten commits on `feature/trigger-frameworks`, every check above at its expected value, the spec notes this plan surfaced (Deviations 1, 2, 4 and 5) for the spec's ledger, and one item for the release PR's notes — a project on the frameworkless shape this plugin shipped before now earns `trigger-body-delegates` and `trigger-frameworkless-entry-point` per trigger until it adds the `handle` entry point (the Gotcha in `framework-frameworkless.md` names the fix). Do not move the plan's `status`; the developer flips it.
 
 ## Developer rulings
 
 None yet. Rulings taken during execution are recorded here, one line each, dated.
 
 ## Review rounds
+
+### 2026-09-08 — plan-adversary, fable 5.1, concerns (round 2, diff-scoped)
+
+- fixed 2026-09-08 — [Important] The round-one fix named one instance of the class it repaired while the framework ships a second top-level class matching `header: TriggerAction.` — `TriggerActionFlow`, implementing all seven context interfaces at `TriggerActionFlow.cls:24` (the report cited `:23`), with a `Trigger_Action__mdt` record only where a Flow action is registered — so `action-registered` still fired on the framework vendored as source; license: Deviation 4's own reason, which the finding shows was incomplete rather than wrong; `TriggerActionFlow` joins `Framework types:`, Task 5 and Deviation 4 name the class of instance and both instances, and `TriggerActionFlowChangeEvent extends TriggerActionFlow` is named as a closure candidate that stays out
+- fixed 2026-09-08 — [Minor] The handler-set definition still stated the pre-fix rule — "a handler on that match alone", unqualified — so the ordering lived only in the bullet above it (the report cited line 280; the bullet ends there); license: the round-one fix's own sentence; the definition now subtracts the `Framework types:` names in the fixed point and qualifies the match-alone sentence
+- fixed 2026-09-08 — [Minor] `trigger-frameworkless-entry-point` said "the trigger's single call", colliding with the hub's `trigger-one-per-object` prose that several handler calls in one file are correct; license: that prose; the rule now grades every call's shape, not their number
+- fixed 2026-09-08 — [Minor] The migration Gotcha and Task 11 Step 9 named one finding where the rewritten `entry-point` rule fires a second on the same trigger — two fixes from one wave describing one trigger, unreconciled; license: the rule's own text; both now name both ids and say one fix clears all three signals
+- fixed 2026-09-08 — [Minor] The File-structure section kept `salesforce-apex-testing/SKILL.md` under "Unchanged on purpose" with a clause reading as a post-edit state opposite to what Task 7 writes; license: Task 7 Step 7; the file is in the Modified list with its line, and the clause is gone
+- signal 2026-09-08 — another diff-scoped round does not repay its cost: the Important is a one-token list edit plus two sentences and its class is now bounded by the framework's class listing rather than by memory, and the four Minors are wording; the leftovers are worth one fix wave, then the confirming full-document round the rules mandate, where a re-introduced contradiction between the grammar bullet and the handler-set definition would surface. Not an all-Minor round
 
 ### 2026-09-08 — plan-adversary, fable 5.1, blocking (round 1, full-document)
 
