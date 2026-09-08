@@ -140,7 +140,7 @@ Two triggers whose declared contexts overlap fire in an order the
 platform leaves undefined, so the same code yields different results
 between runs. Disjoint contexts carry no ordering risk today, yet they
 split an object's automation across files and sit one context
-declaration away from the critical case.
+declaration away from the case the group default grades.
 
 ### The trigger body delegates
 
@@ -2011,6 +2011,7 @@ One line each, dated. Rulings taken during execution join the list.
 
 - 2026-09-08 — A resolution record whose source is `asked` or `inferred`, passed in the review dispatch prompt, stands where no declaration covers the path; the run grades framework rules by it and still reports `trigger-framework-declared` in `## Project`.
 - 2026-09-08 — The frameworkless signature stays `member: handle(System.TriggerOperation` as the spec prescribes; the document carries a Gotcha that the entry point is written verbatim, rather than the pattern widening to `member: TriggerOperation`.
+- 2026-09-08 — Task 1's prose under `.disjoint-contexts` no longer reads "the critical case", which the Task 1 reviewer flagged as a grade restated outside a tag; it reads "the case the group default grades". The spec's Framework-independent rules carry the original phrase and are reported, not edited.
 
 ## Review rounds
 
