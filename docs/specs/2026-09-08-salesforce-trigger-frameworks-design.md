@@ -4,7 +4,7 @@ date: 2026-09-08
 status: draft
 grilled: 2026-09-08
 architect: LGTM
-integrity: 2026-09-08 (sha: 366b99f)
+integrity: 2026-09-08 (sha: 715798b)
 branch: feature/trigger-frameworks
 base: develop
 ---
@@ -610,6 +610,16 @@ the session can say it out loud, and they are products or families rather
 than approaches. A label becomes an id only when something declares it,
 and then it is the project's word, not this table's.
 
+The TDTM row ships unverified, and says so here rather than hiding it. In
+a subscriber repository `TDTM_Config_API.run(` may sit inside NPSP's
+packaged triggers rather than the project's own code, in which case the
+subscriber-side signal is `extends npsp.TDTM_Runnable` instead; nobody has
+checked either against a real NPSP org. Being wrong costs little and costs
+it in one direction: TDTM is a recognition label rather than a shipped id,
+so a miss drops to step (c), where the session asks — never a confident
+wrong answer. The packaged triggers also sit under a vendor path, outside
+the universe step (b) reads.
+
 The metadata-driven fingerprint keys on Custom Metadata records and the
 trigger body, never on the framework's classes: the records sit in the
 repository whether the framework arrives as an unlocked package or as
@@ -900,12 +910,6 @@ answers".
   branch `feature/trigger-frameworks`, without the issue number the
   repository convention prescribes. A ticket may still be opened before
   the pull request.
-- **Whether the TDTM fingerprint keys on the subscriber's own code.**
-  The row is `TDTM_Config_API.run(`. Round 5 noted, without grading it,
-  that in a subscriber repository this call sits inside NPSP's packaged
-  triggers rather than the project's code, and that the subscriber-side
-  signal is more likely `extends npsp.TDTM_Runnable`. The row predates the
-  namespace allowance and nobody has verified it against an NPSP org.
 - **Whether an undeclared vendor directory should be graded.** Today it
   earns a note in the Summary. A minor rule — the analogue of
   `trigger-framework-declared` — would grade it, and the only argument
@@ -978,5 +982,6 @@ answers".
 - fixed 2026-09-08 — integrity audit: "every test reduces to a grep or a prefix comparison" is broken by the glob coverage test, which the document itself calls unsettleable on an unnamed dialect; license: the document's own glob fallback; the constraint now names three mechanical tests and says the glob is the weakest, which is why an unsettleable pattern counts as covering
 - fixed 2026-09-08 — integrity audit: the deviations section says the second consultation's proposals are adopted and two paragraphs later declines one; license: the declining paragraph; the sentence now reads "adopted but one"
 - fixed 2026-09-08 — integrity audit: "Two citations carry weaker provenance" introduces three bullets, the third being an uncited claim rather than a weak citation; license: the list itself; the sentence now reads three provenance notes, two weak citations and one claim carrying no citation. Four propagation gates re-derived counters over this sentence and none caught it
+- fixed 2026-09-08 — integrity audit's sixteenth question, its only blocker: whether the unverified TDTM fingerprint row ships as it stands; ruling: 2026-09-08; the row ships and the Fingerprints section now carries the caveat where the row lives — the exposure is one-directional, TDTM being a recognition label rather than a shipped id, so a miss drops to step (c) and asks instead of answering wrongly, and NPSP's packaged triggers sit under a vendor path outside the universe step (b) reads
 - fixed 2026-09-08 — integrity audit, sixteen ranked implementer questions: fourteen are answered in the spec — where the key sits and what a grep must not match, how a `doc-path:` and a `skill:` locator are followed, what the record carries beyond the simplest case, what triggers the review step, the header grammar's edges and the inner-class deviation's honest end, the dispatching class keeping a rule in each shipped document, the universe where `sfdx-project.json` is absent, what `choosing-a-framework.md` covers, both keys in the toolchain rule and the reviewer agent's card being unchanged, and the review-report Summary slot these notes take (`review-reports.md:117-118`). One is a design call the session took and named: the four remaining example units stay in one file, renamed `order-layers.md`, because the old name would promise a trigger and a handler the file no longer carries. One remains the developer's — whether the unverified TDTM fingerprint row ships as it stands — and it was already the open question the audit ranked as its only blocker
 - signal 2026-09-08 — a further round buys nothing: all three leftovers are lexical or clarifying, each licensed by the document itself, and fit one fix wave without a round. This LGTM is diff-scoped, so the whole-document debt belongs to the integrity audit at the consumption gate, or to a confirming full-document round should the developer take that arm of the pair, never to another diff-scoped round
