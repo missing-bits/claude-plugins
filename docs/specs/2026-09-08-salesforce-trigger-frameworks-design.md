@@ -224,6 +224,18 @@ Question 3 earns its place: `setMaxLoopCount(1)` is a correct guard under
 one base-class framework and silences automation under another. Names
 alone cannot tell a reviewer which.
 
+For the base-class document, question 3 carries one duty more, because
+the two frameworks answer it differently and the discriminator can be
+unreadable — it is a method name inside `TriggerHandler.cls`, and a
+managed package hides it. That document says what else tells them apart,
+a namespace or a version, and what happens when nothing does: the rules
+keyed to error semantics go ungraded, the Summary says which and why, and
+no reviewer guesses, while the framework's other rules grade normally,
+the project's own handlers being readable whatever carries their parent.
+An authoring session has no Summary to write in, so it states both
+semantics and says the installed package decides which holds — the
+difference being whether `setMaxLoopCount(1)` guards or silences.
+
 Question 1 carries a signature rather than a filename pattern, and the
 distinction is the whole point. A review run already covers every Apex
 class — `salesforce-code-review/SKILL.md` lists "Apex: `*.cls`,
@@ -273,19 +285,29 @@ in the set. Without that closure, `OrderHandler extends
 BaseTriggerHandler` — an org's own layer over the framework's — matches
 no pattern and goes ungraded. The boundary between the two is worth
 one sentence: a class matching the signature is a handler on that match
-alone, and the parent rules below govern closure candidates — the classes
-matching nothing that reach the set only through a parent. Otherwise
+alone, and the parent rules below govern **closure candidates** — a class
+matching no pattern whose header carries `extends`. Otherwise
 `OrderHandler extends acme.TriggerHandler`, a framework delivered as a
 managed package, would be admitted by the namespace prefix and rejected
 by the same paragraph.
+
+The candidate is defined by what its header carries, never by what it
+might turn out to be: the second reading is circular, and a rule that
+fires on every unreadable parent would report most of a repository. Most
+classes extending something the repository does not hold extend a
+platform type, `extends Exception` first — the shipped example's own
+`OrderProcessingException` does
+(`salesforce-apex/reference/trigger-handler.md:177`). Unreadable parents
+are therefore reported in aggregate: one Summary line naming the distinct
+parents with a count each. Nothing about the line is graded, and a
+namespace-qualified parent is the one worth a second look.
 
 The closure reads parents from the repository even where a parent lies
 outside a diff-scoped run, so a full run and a diff-scoped run select the
 same handlers; a parent under a vendor path is read to recognise it and
 never graded; a parent absent from the repository leaves a closure
-candidate a non-handler, named in the Summary with the parent that could
-not be read. Only top-level types are
-handlers — a metadata-driven action is instantiated by name and
+candidate a non-handler, counted on that one Summary line. Only top-level
+types are handlers — a metadata-driven action is instantiated by name and
 `Outer.Inner` is addressable, so that document names the deviation rather
 than leaving it to a reader.
 
@@ -536,6 +558,13 @@ directory, which is exactly when resolution runs.
 | dispatcher | `TriggerDispatcher.Run(`, or a handler implementing an interface with `IsDisabled()` |
 | frameworkless | no pattern is not a fingerprint — go to step (c) |
 
+Every pattern tolerates an optional namespace prefix before a type name,
+for the fingerprint's own reason rather than the signature's: a
+fingerprint exists to recognise, and a framework delivered as a package
+is exactly the case a literal `extends TriggerHandler` would miss,
+sending a project that plainly has a framework to the question that asks
+whether it has one.
+
 Only the first three rows carry shipped ids. `fflib`, `TDTM` and
 `dispatcher` are recognition labels: they name what the pattern found so
 the session can say it out loud, and they are products or families rather
@@ -553,14 +582,9 @@ discriminator is the method name inside `TriggerHandler.cls`:
 `incrementCheckLoopCount` silences an exceeded loop count,
 `addToLoopCount` throws.
 
-That file is unreadable where the framework arrives as a managed package,
-so the base-class document owes a second answer: what else tells the two
-apart — a namespace, a version — and what a reviewer does when nothing
-does. The answer is the discipline every other mechanism here takes. The
-rules keyed to error semantics go ungraded, the Summary says which and
-why, and no reviewer guesses; the framework's other rules grade normally,
-the project's own handlers being readable whatever carries their
-parent.
+That file is unreadable where the framework arrives as a managed package.
+What the base-class document owes then is stated with question 3 above,
+beside the rest of that document's error-semantics duty.
 
 ### Exclusions
 
@@ -615,7 +639,7 @@ reads the files again.
 | Two declarations cover the file with different values and neither is a subtree containing the other — a glob-scoped rule against a `CLAUDE.md`, two rules whose `paths:` differ, or `CLAUDE.md` beside `.claude/CLAUDE.md` in one directory | no winner: name every file that declares, then work out with the developer which home survives and write that change. Picking one silently would answer a question only the project can, and answering it in conversation would leave the collision to recur next session |
 | The resolved document answers question 1 without a signature, or with one that does not fit the grammar | skip the framework rules **and** `trigger-context-below-handler`, the one framework-independent rule needing a handler set; grade the rest and name the document in the Summary — a document that cannot say what its handlers are cannot have them graded, and guessing a signature would repeat the mistake a filename pattern already made |
 | A class matches two frameworks' signatures | grade it under the framework resolved for its own path, which is step (a) over the class rather than over a trigger; where that path resolves to one framework and the class still matches another's signature, grade it under the resolved one and name the other in the Summary |
-| A closure candidate's `extends` parent is not in the repository | treat the class as a non-handler and name it in the Summary with the parent that could not be read — a managed-package parent is unreadable by construction, and assuming membership would grade a class no rule was written for. A class matching the signature itself is unaffected, parent or no parent |
+| A closure candidate's `extends` parent is not in the repository | treat the class as a non-handler and count it on the Summary's one line of distinct unreadable parents — a managed-package parent is unreadable by construction, assuming membership would grade a class no rule was written for, and naming each class individually would bury the signal under every custom exception. A class matching the signature itself is unaffected, parent or no parent |
 | The base-class framework arrives as a managed package, so `TriggerHandler.cls` cannot be read | select handlers as usual, the signature matching the project's own classes, and grade every rule except those keyed to error semantics, naming in the Summary that the discriminator was unreadable — a guess between silencing and throwing is the one guess that turns a correct bypass into silenced automation |
 | A home carries two `trigger-framework:` lines, or a shipped id with a locator | the home resolves nothing and is named; a shipped id keeps its shipped document and the stray locator is reported |
 | `vendor-paths:` is absent and a directory is plainly third-party | grade it as the project's, since nothing declares otherwise, and note the directory with its evidence in the Summary — a note rather than a finding, because no rule requires the key |
@@ -848,3 +872,11 @@ answers".
 - fixed 2026-09-08 — the review-surface paragraph still read "out of the Apex classes the run already covers" and named one framework document, lagging the per-file resolution this wave had already adopted; license: the Steps section states that resolution runs per file and the deviations section records the decision; the paragraph now selects out of the grading universe, loads each resolved framework's document, and says that a monorepo running two frameworks grades every class under the framework resolved for its own path. The reviewer noted the lag in one line without grading it and left it to the integrity audit; the propagation gate returned CLEAN over it
 - hit dismissed 2026-09-08 — round one's `hit fixed` line says the parts table row now reads "`.trigger` plus the handler glob the resolved framework document supplies", while the row reads "handler selection by the signature the resolved framework document supplies"; counter: the ledger is chronological, and round two's own `fixed` line records replacing that glob with a signature and demoting the glob to an optional hint — a round-one line describing the round-one state is correct history, and the gate's brief was at fault for asking whether every historical line matches the current text
 - signal 2026-09-08 — the stop signal is conditional on the held finding: under option (a) round 4 does not repay its cost, the Minor leftovers being self-fixable and the noted lag already owed to the integrity audit at the consumption gate; under option (b) one diff-scoped round over the base-class document's contract earns its cost, that being a reshaped mechanism again. The Minor leftovers are worth a single fix wave, not a round of their own
+
+### 2026-09-08 — architect, fable 5.1, concerns (round 4, diff-scoped)
+
+- fixed 2026-09-08 — [Important] The closure-candidate boundary makes the parent-absent row either unreachable or universal: a class whose parent cannot be read cannot be shown to reach the set, so the row never fires; read loosely, every `extends` of an absent type qualifies, and the shipped example's own `OrderProcessingException extends Exception` puts every conforming project in the Summary on every run; license: the mechanism discipline requires every test to reduce to a grep, which a definition by what a class might become does not, and the shipped example at `salesforce-apex/reference/trigger-handler.md:177` proves the loose reading's cost; a candidate is now defined by what its header carries — matches no pattern, header carries `extends` — and unreadable parents are reported in aggregate on one ungraded Summary line of distinct parents with counts. The reviewer's sharper alternative, naming parents by namespace prefix, was declined: it would rest on an unverified claim about Apex name resolution, and the aggregate line needs none
+- fixed 2026-09-08 — [Minor] The namespace-prefix allowance lives only in the signature paragraph, so the literal base-class fingerprint misses `extends acme.TriggerHandler` and an undeclared managed-package project falls to step (c), which asks whether it is frameworkless or on an unknown framework when neither is true; license: the same section calls a fingerprint tolerant and gives recognition as its job; every fingerprint pattern now tolerates an optional namespace prefix, stated on the fingerprint's own grounds rather than borrowed from the signature
+- fixed 2026-09-08 — [Minor] The discriminator's second answer is written in review vocabulary only, leaving the authoring surface — which loads the same document before the first trigger edit — with no instruction; this is the class round 3 fixed elsewhere; license: round 3's own fix for this class, recorded under that round's heading; the paragraph now says an authoring session has no Summary to write in, so it states both semantics and says the installed package decides which holds
+- fixed 2026-09-08 — [Minor] The base-class document's owed answer sits under the Fingerprints subsection instead of the section that enumerates what a framework document answers, so an author reading that document's interface misses it; license: that section's stated job is what a framework document answers, and its fifth item is already scoped to the documents this plugin ships; the duty moved beside question 3 and Fingerprints keeps a pointer
+- signal 2026-09-08 — a round 5 over these fixes does not repay its cost: none of the four reshapes a mechanism, each being a definition tightened or a clause added and checkable by the session against the cited lines, and the whole-document debt is already routed to the integrity audit at the consumption gate. One conditional: taking the reviewer's shape (ii) for the Important finding — naming parents by namespace prefix — would give the document an unverified language claim, which deserves a provenance note rather than a round. The leftovers are worth one fix wave, then the gate
