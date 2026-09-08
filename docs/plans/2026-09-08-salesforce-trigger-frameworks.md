@@ -43,8 +43,9 @@ Recorded here and beside the text they concern, so a reviewer trips over the rea
 1. **The metadata-driven signature reads `header: TriggerAction.`, not `header: implements TriggerAction.`** The spec's example says `implements TriggerAction.` "matches … a class implementing something else besides", which holds only when the framework interface comes first: `implements Queueable, TriggerAction.BeforeInsert` does not contain that substring. The spec's own constraint — every test reduces to a grep — decides it. The shorter pattern matches every header naming a `TriggerAction.*` interface wherever it sits. Task 5 carries the sentence.
 2. **One citation of the renamed file lives outside `salesforce-apex`.** The spec says "nothing outside the skill cites the filename"; `salesforce-apex-testing/reference/test-patterns.cls:4` does. Task 7 updates it, and the spec's sentence is reported as a spec defect rather than silently outrun — the plan corrects the file, not the claim.
 3. **Context methods are overridden `public override`**, the form the fork's README shows, where the base class declares them `protected virtual`. Both compile; the spec prescribes neither.
-4. **A `Framework types:` entry leaves the handler set even where its header matches the signature.** The spec says such types are "graded by no framework rule" and, separately, that "a class matching the signature is a handler on that match alone", without ordering the two. The plan orders them — the exemption wins — because every framework-owned class implementing the framework's own context interfaces would otherwise be graded as an action wherever the framework is vendored as source outside `vendor-paths:`; the metadata-driven framework ships two such classes, `MetadataTriggerHandler` and `TriggerActionFlow` (`TriggerActionFlow.cls:24`), and the second has a `Trigger_Action__mdt` record only where a Flow action is registered. The first spec sentence licenses the order; the spec's silence on it is reported. Task 1 carries the sentence in both the `Framework types:` bullet and the handler-set definition, and Task 5 names the instances.
+4. **A `Framework types:` entry leaves the handler set even where its header matches the signature.** The spec says such types are "graded by no framework rule" and, separately, that "a class matching the signature is a handler on that match alone", without ordering the two. The plan orders them — the exemption wins — because every framework-owned class implementing the framework's own context interfaces would otherwise be graded as an action wherever the framework is vendored as source outside `vendor-paths:`; the metadata-driven framework ships two such classes, `MetadataTriggerHandler` and `TriggerActionFlow` (`TriggerActionFlow.cls:23`), and the second has a `Trigger_Action__mdt` record only where a Flow action is registered. The first spec sentence licenses the order; the spec's silence on it is reported. Task 1 carries the sentence in both the `Framework types:` bullet and the handler-set definition, and Task 5 names the instances.
 5. **The hub does not say "as a minor rule".** The spec's Naming rule reads "each shipped document carries that name as a rule of its own, at minor severity"; a shipped surface restating a grade outside the tag is what `.claude/rules/standards-rule-tags.md` forbids, so the hub says "as a rule of its own" and the three documents' tags carry the grade. Not a spec defect — the tag rule binds plugin content, not design documents — but the phrase does not travel.
+6. **The fork's silent stop is placed where the source puts it.** The spec's Evidence section says the commented-out `throw` "sits commented out beside the line `// Do not throw an exception…`". In the fork's source the comment sits in `run()` and the commented `throw` inside `incrementCheckLoopCount()`, and the `System.debug` there fires only with `showDebug` on, which defaults to `false` — so by default nothing is logged at all. Task 4's table says so; the spec's sentence is reported as a provenance correction for its ledger.
 
 ## File structure
 
@@ -731,7 +732,7 @@ trigger context:
 ```apex
 List<Order> orders = new List<Order>{ new Order(Status = null) };
 OrderTriggerHandler.handle(System.TriggerOperation.BEFORE_INSERT, orders, null);
-System.assertEquals('Draft', orders[0].Status);
+Assert.areEqual('Draft', orders[0].Status);
 ```
 
 To disable the handler in a test of other code that inserts orders,
@@ -900,9 +901,10 @@ framework, graded by no rule here, and exempt from
 
 ## Context access
 
-The base class reads `Trigger.isExecuting` and `Trigger.operationType`
-in `run()` to pick the context method — which is why it is a framework
-type. The handler reads `Trigger.new` and `Trigger.oldMap` once, in its
+The base class reads `Trigger.isExecuting` and the context flags in
+`run()` to pick the context method — `Trigger.operationType` in the
+fork, `Trigger.isBefore`, `Trigger.isInsert` and their siblings in the
+original — which is why it is a framework type. The handler reads `Trigger.new` and `Trigger.oldMap` once, in its
 constructor, into typed fields; the context methods and everything
 below them read nothing from `Trigger.*`.
 
@@ -932,7 +934,7 @@ products part, and the difference sits in one private method of
 | Product | Method | Behaviour |
 |---|---|---|
 | original | `addToLoopCount()` | throws `TriggerHandlerException('Maximum loop count of N reached in <handler>')`, and the DML fails |
-| fork | `incrementCheckLoopCount()` | returns without running the handler; a `System.debug` line is the only trace, and the `throw` sits commented out beside `// Do not throw an exception if we exceed the loop count - just stop executing` |
+| fork | `incrementCheckLoopCount()` | returns without running the handler; the `throw` sits commented out inside that method, and the `System.debug` line fires only with `showDebug` on — by default nothing is logged |
 
 So `setMaxLoopCount(1)` is a recursion guard under the original and
 silences automation under the fork. The discriminator is read from
@@ -1199,7 +1201,7 @@ method with records built in memory, no DML and no metadata read:
 ```apex
 List<Order> orders = new List<Order>{ new Order(Status = null) };
 new OrderTriggerHandler().beforeInsert(orders);
-System.assertEquals('Draft', orders[0].Status);
+Assert.areEqual('Draft', orders[0].Status);
 ```
 
 To disable the handler in a test of other code that inserts orders,
@@ -1487,7 +1489,7 @@ Find the two rows:
 Replace with one row:
 
 ```
-| Trigger and handler | Dispatch: hand the trigger context to the layers below — the shape, one trigger per object and the project's framework are `salesforce-triggers`'s | SOQL, DML, business logic itself |
+| Trigger and handler | Dispatch: hand the trigger context to the layers below — the shape, one trigger per object and the project's framework are `salesforce-triggers`'s | SOQL, DML, business logic in the handler; the trigger body is `trigger-body-delegates`'s to grade |
 ```
 
 Delete the bullet:
@@ -1625,7 +1627,7 @@ grep -c 'salesforce-triggers' "$s"
 grep -c '^[0-9]\. ' "$s"
 grep -c 'salesforce-triggers' "$c"
 grep -c '^[0-9]\. ' "$c"
-grep -c 'from step 2' "$c"
+grep -c 'decision from step 2' "$c"
 grep -c 'step 5' plugins/salesforce-standards/agents/salesforce-code-reviewer.md
 ```
 
@@ -1661,8 +1663,9 @@ Replace with:
    framework resolved for its own path. Step (c) is never taken here —
    a background agent asks nothing — and neither is the offer to write
    a declaration. A resolution record carried in the dispatch prompt is
-   verified against the declarations on disk; on a mismatch the files
-   are the authority. When resolution fails, grade the
+   verified against the declarations on disk; where they disagree, the
+   run reports the mismatch and grades by the declaration, the files
+   being the authority. When resolution fails, grade the
    framework-independent rules, skip framework rules rather than guess
    them, note `trigger framework: unresolved — framework-specific rules
    not graded` among the Summary's out-of-scope notes, and report
@@ -1690,7 +1693,7 @@ Find the line beginning `2. Pre-dispatch first-create check` and insert before i
    to write the declaration before dispatching.
 ```
 
-Then renumber: the former step 2 becomes `3.`, 3 becomes `4.`, 4 becomes `5.`, 5 becomes `6.`; and in the new step 4 (the dispatch step) change `the directory-mode decision from step 2` to `the directory-mode decision from step 3`.
+Then renumber: the former step 2 becomes `3.`, 3 becomes `4.`, 4 becomes `5.`, 5 becomes `6.`; and in the new step 4 (the dispatch step) change `the directory-mode decision from step 2` to `the resolution record from step 2, and the directory-mode decision from step 3` — the step enumerates what the prompt carries, and the record is now one of those things.
 
 - [ ] **Step 4: Measure after**
 
@@ -1701,8 +1704,8 @@ grep -c 'salesforce-triggers' "$s"
 grep -c '^[0-9]\. ' "$s"
 grep -c 'salesforce-triggers' "$c"
 grep -c '^[0-9]\. ' "$c"
-grep -c 'from step 2' "$c"
-grep -c 'from step 3' "$c"
+grep -c 'decision from step 2' "$c"
+grep -c 'record from step 2, and the directory-mode decision from step 3' "$c"
 grep -c 'step 5' plugins/salesforce-standards/agents/salesforce-code-reviewer.md
 tr -s '[:space:]' ' ' < "$s" | grep -o 'trigger framework: unresolved' | wc -l
 ```
@@ -1765,13 +1768,15 @@ Then append after the paragraph's last line (`available, the toolchain facts abo
 
 ```
 The project's trigger framework and its vendor code are declared in
-the project, never in this rule: a line carrying the `trigger-framework:`
-key and one carrying the `vendor-paths:` key, in the body of the root
-`CLAUDE.md`, of a trigger directory's `CLAUDE.md`, or of a project rule
-outside this payload — one framework per path, vendor prefixes at the
-root. When the `salesforce-triggers` skill is available it reads both
-keys and says how they rank; when it is not, the lines still record the
-choice for the reader.
+the project, never in this rule. A line carrying the `trigger-framework:`
+key sits in the body of the root `CLAUDE.md`, of a trigger directory's
+`CLAUDE.md`, or of a project rule outside this payload — one framework
+per path. A line carrying the `vendor-paths:` key sits in a root home
+alone — the root `CLAUDE.md` files or a project rule — as directory
+prefixes; a copy in a subdirectory is not read. When the
+`salesforce-triggers` skill is available it reads both keys and says how
+they rank; when it is not, the lines still record the choice for the
+reader.
 ```
 
 - [ ] **Step 3: Measure after**
@@ -1991,13 +1996,27 @@ Expected: three lines — `reference/framework-base-class.md`, `reference/framew
 
 - [ ] **Step 9: Report**
 
-State the end state to the developer: ten commits on `feature/trigger-frameworks`, every check above at its expected value, the spec notes this plan surfaced (Deviations 1, 2, 4 and 5) for the spec's ledger, and one item for the release PR's notes — a project on the frameworkless shape this plugin shipped before now earns `trigger-body-delegates` and `trigger-frameworkless-entry-point` per trigger until it adds the `handle` entry point (the Gotcha in `framework-frameworkless.md` names the fix). Do not move the plan's `status`; the developer flips it.
+State the end state to the developer: ten commits on `feature/trigger-frameworks`, every check above at its expected value, the spec notes this plan surfaced (Deviations 1, 2, 4, 5 and 6) for the spec's ledger, and one item for the release PR's notes — a project on the frameworkless shape this plugin shipped before now earns `trigger-body-delegates` and `trigger-frameworkless-entry-point` per trigger until it adds the `handle` entry point (the Gotcha in `framework-frameworkless.md` names the fix). Do not move the plan's `status`; the developer flips it.
 
 ## Developer rulings
 
 None yet. Rulings taken during execution are recorded here, one line each, dated.
 
 ## Review rounds
+
+### 2026-09-08 — plan-adversary, fable 5.1, concerns (round 3, full-document)
+
+- fixed 2026-09-08 — [Important] Both new test-isolation blocks asserted with legacy `System.assertEquals`, which the sibling skill grades in new tests while the reference file the plan tells the author to imitate uses `Assert.areEqual`; license: `salesforce-apex-testing/SKILL.md:86-87` (`apex-test-assertions.legacy-assert`) and `reference/test-patterns.cls:50`; both lines now read `Assert.areEqual`
+- fixed 2026-09-08 — [Minor] The review skill's record-verification sentence dropped the spec's duty to report a mismatch; license: spec, "The resolution record", "reports the mismatch and grades by the declaration, the files being the authority"; the sentence now carries both halves. The finding's second half is held below
+- held 2026-09-08 — [Minor] What a record whose source is `asked` or `inferred` means to the review run when no declaration covers the path — the developer may decline the offer to declare, and the spec never says whether such a record stands or the run reports the framework unresolved; the session reads the spec's "Dispatched any other way it resolves for itself" as implying a passed record stands, and puts the reading to the developer rather than writing it
+- fixed 2026-09-08 — [Minor] The toolchain rule's paragraph named a trigger directory's `CLAUDE.md` and a project rule as homes for the `vendor-paths:` line too, while the hub reads that key at the root alone; license: the hub's own `vendor-paths:` section and the spec's ruling that the key resolves at the repository root; the paragraph now gives each key its own homes
+- fixed 2026-09-08 — [Minor] The command's renumbered dispatch step still enumerated the prompt's contents without the resolution record the new step 2 adds — the same defect one cell below the edit; license: the spec's review-surface paragraph, which passes the record in the prompt; the enumeration now names it, and Task 8's two checks read the new phrase
+- fixed 2026-09-08 — [Minor] The merged layers row kept a gradeable trigger-body clause in `apex-layering`, so a trigger body with SOQL earned two findings from two skills; license: `.claude/rules/standards-rule-tags.md`, "Cross-skill mentions of a rule cite the owning rule id and defer to it"; the Never-does cell now scopes to the handler and defers the body to `trigger-body-delegates` by id
+- held 2026-09-08 — [Minor] `member: handle(System.TriggerOperation` silently unselects a handler written `handle(TriggerOperation …)`, a compile-identical form; the spec prescribes the pattern (question 1's frameworkless example), so widening it to `member: TriggerOperation` on Deviation 1's own grounds is the developer's call against adding a Gotcha that says the entry point is written `System.TriggerOperation` verbatim; the session recommends the Gotcha, which conforms to the spec
+- fixed 2026-09-08 — [Minor] Deviation 4 cited `TriggerActionFlow.cls:24`, off by one: the header sits on line 23, which round two's report cited correctly, and the session's own citation check — a fetch summarised by a small model — reported 24 and rewrote a correct citation into a wrong one; license: the fetched source, now in the session's scratchpad, line 23; the citation reads `:23` again, and the round-two ledger line's parenthesis stands as the record of the slip
+- fixed 2026-09-08 — [Minor] Task 4's fork row placed the commented-out `throw` beside the `// Do not throw…` comment, where the source puts the comment in `run()` and the `throw` inside `incrementCheckLoopCount()`, and called a `System.debug` the only trace where it fires only with `showDebug` on, default `false`; license: the fork's source (`TriggerHandler.cls:125`, `:636-646`, `:71`); the row now says so, and Deviation 6 reports the spec's matching sentence as a provenance correction
+- fixed 2026-09-08 — [Minor] Task 4's Context-access paragraph said the base class reads `Trigger.operationType`, true of the fork alone — the original picks the context from `Trigger.isBefore`, `Trigger.isInsert` and their siblings and never reads `operationType`; license: both sources; the paragraph names both forms
+- signal 2026-09-08 — another round does not repay its cost as diff-scoped: the Important was a two-token edit licensed by a sibling skill's tag, six Minors are lexical and each checkable against its cited line, and two Minors are decisions the spec did not take and belong to the developer. If a round follows the developer's answers it is full-document only — a diff-scoped LGTM on a plan renews the confirming debt rather than discharging it. The class this round hunted, the same defect one cell from the previous fix, appeared three times and once in reverse (a fix wave rewrote a correct citation into a wrong one); the round-two risk — a re-introduced contradiction between the grammar bullet and the handler-set definition — did not return
 
 ### 2026-09-08 — plan-adversary, fable 5.1, concerns (round 2, diff-scoped)
 
