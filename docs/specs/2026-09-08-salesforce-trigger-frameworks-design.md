@@ -691,8 +691,9 @@ rule needing a handler set too.
 
 ## Changes to shipped content
 
-Three rules change owner, and the spec names each because a moved id
-breaks a citation:
+Three shipped rules are touched, and the spec names each because a moved
+id breaks a citation — one changes owner, one keeps its id and loses a
+name from its scope, one stays put and is cited from the new skill:
 
 1. "One trigger per object" leaves `apex-layering` for
    `trigger-one-per-object`.
@@ -902,4 +903,5 @@ answers".
 - fixed 2026-09-08 — [Minor] The closure-candidate definition reads "matching no pattern" where the test is the signature; "pattern" is the Fingerprints table's column name, and the spec itself states that conflating signature with fingerprint cost two rounds; license: that statement, in the paragraph separating a signature from a fingerprint; the definition now reads "matching no signature"
 - fixed 2026-09-08 — [Minor] The namespace clause names one prefix form, `ns.` before a class name, while the metadata-driven row's tokens are Custom Metadata API names, which a package prefixes `ns__`; a literal reading of the clause recognises half of that fingerprint and sends the project to step (c); license: the clause's own stated reason is that a fingerprint exists to recognise, which half a match defeats; the clause now gives the form per token kind, `ns.` before a class and `ns__` before an object or Custom Metadata API name. The `ns__` form is the reviewer's expert knowledge, uncited like the case-insensitivity claim the Evidence section already flags
 - fixed 2026-09-08 — [Minor] The recorded rationale for declining the namespace-prefix test calls its premise unverified, where the premise is false for a repository that is a partial view of the org — an unqualified absent parent can be the project's own base class, which that test would skip silently and the aggregate line names outright; license: the session's own decision in that paragraph, which the reviewer strengthened rather than contested; the rationale now names the partial-view case instead of calling the premise unverified, which closes a door "unverified" left open
+- hit fixed 2026-09-08 — "Three rules change owner" over-claims for two of its three items: `apex-naming` keeps its id in `salesforce-apex` and only loses `<Object>TriggerHandler` from its scope, and `apex-bulkification` explicitly stays put; the sentence now says three shipped rules are touched and names what happens to each. The defect predates every wave of this loop and survived five architect rounds and four gate episodes
 - signal 2026-09-08 — a further round buys nothing: all three leftovers are lexical or clarifying, each licensed by the document itself, and fit one fix wave without a round. This LGTM is diff-scoped, so the whole-document debt belongs to the integrity audit at the consumption gate, or to a confirming full-document round should the developer take that arm of the pair, never to another diff-scoped round
