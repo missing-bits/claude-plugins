@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-08
 status: draft
 grilled: 2026-09-08
-architect: concerns
+architect: LGTM
 branch: feature/trigger-frameworks
 base: develop
 ---
@@ -286,7 +286,7 @@ BaseTriggerHandler` — an org's own layer over the framework's — matches
 no pattern and goes ungraded. The boundary between the two is worth
 one sentence: a class matching the signature is a handler on that match
 alone, and the parent rules below govern **closure candidates** — a class
-matching no pattern whose header carries `extends`. Otherwise
+matching no signature whose header carries `extends`. Otherwise
 `OrderHandler extends acme.TriggerHandler`, a framework delivered as a
 managed package, would be admitted by the namespace prefix and rejected
 by the same paragraph.
@@ -302,9 +302,12 @@ are therefore reported in aggregate: one Summary line naming the distinct
 parents with a count each. Nothing about the line is graded, and a
 namespace-qualified parent is the one worth a second look — as a reading
 hint, never as the test. Making it the test was the sharper alternative
-and was declined: it would rest on an unverified claim about how Apex
-resolves an unqualified type name absent from the repository, and the
-aggregate line rests on no claim at all.
+and was declined: it assumes an unqualified parent absent from the
+repository is a platform type, which fails wherever the repository is a
+partial view of the org — unretrieved unpackaged metadata, or a
+neighbouring package in the org's own namespace, where the prefix is
+optional. There the absent parent is the project's own base class, which
+that test would skip in silence and the aggregate line names outright.
 
 The closure reads parents from the repository even where a parent lies
 outside a diff-scoped run, so a full run and a diff-scoped run select the
@@ -562,12 +565,15 @@ directory, which is exactly when resolution runs.
 | dispatcher | `TriggerDispatcher.Run(`, or a handler implementing an interface with `IsDisabled()` |
 | frameworkless | no pattern is not a fingerprint — go to step (c) |
 
-Every pattern tolerates an optional namespace prefix before a type name,
-for the fingerprint's own reason rather than the signature's: a
-fingerprint exists to recognise, and a framework delivered as a package
-is exactly the case a literal `extends TriggerHandler` would miss,
-sending a project that plainly has a framework to the question that asks
-whether it has one.
+Every pattern tolerates an optional namespace prefix, in the form the
+token's kind takes: `ns.` before a class name, `ns__` before an object or
+Custom Metadata API name. One form would recognise half of the
+metadata-driven row, whose tokens are Custom Metadata API names rather
+than classes. The allowance is made for the fingerprint's own reason
+rather than the signature's: a fingerprint exists to recognise, and a
+framework delivered as a package is exactly the case a literal
+`extends TriggerHandler` would miss, sending a project that plainly has a
+framework to the question asking whether it has one.
 
 Only the first three rows carry shipped ids. `fflib`, `TDTM` and
 `dispatcher` are recognition labels: they name what the pattern found so
@@ -828,6 +834,12 @@ answers".
   branch `feature/trigger-frameworks`, without the issue number the
   repository convention prescribes. A ticket may still be opened before
   the pull request.
+- **Whether the TDTM fingerprint keys on the subscriber's own code.**
+  The row is `TDTM_Config_API.run(`. Round 5 noted, without grading it,
+  that in a subscriber repository this call sits inside NPSP's packaged
+  triggers rather than the project's code, and that the subscriber-side
+  signal is more likely `extends npsp.TDTM_Runnable`. The row predates the
+  namespace allowance and nobody has verified it against an NPSP org.
 - **Whether an undeclared vendor directory should be graded.** Today it
   earns a note in the Summary. A minor rule — the analogue of
   `trigger-framework-declared` — would grade it, and the only argument
@@ -884,3 +896,10 @@ answers".
 - fixed 2026-09-08 — [Minor] The discriminator's second answer is written in review vocabulary only, leaving the authoring surface — which loads the same document before the first trigger edit — with no instruction; this is the class round 3 fixed elsewhere; license: round 3's own fix for this class, recorded under that round's heading; the paragraph now says an authoring session has no Summary to write in, so it states both semantics and says the installed package decides which holds
 - fixed 2026-09-08 — [Minor] The base-class document's owed answer sits under the Fingerprints subsection instead of the section that enumerates what a framework document answers, so an author reading that document's interface misses it; license: that section's stated job is what a framework document answers, and its fifth item is already scoped to the documents this plugin ships; the duty moved beside question 3 and Fingerprints keeps a pointer
 - signal 2026-09-08 — a round 5 over these fixes does not repay its cost: none of the four reshapes a mechanism, each being a definition tightened or a clause added and checkable by the session against the cited lines, and the whole-document debt is already routed to the integrity audit at the consumption gate. One conditional: taking the reviewer's shape (ii) for the Important finding — naming parents by namespace prefix — would give the document an unverified language claim, which deserves a provenance note rather than a round. The leftovers are worth one fix wave, then the gate
+
+### 2026-09-08 — architect, fable 5.1, LGTM (round 5, diff-scoped)
+
+- fixed 2026-09-08 — [Minor] The closure-candidate definition reads "matching no pattern" where the test is the signature; "pattern" is the Fingerprints table's column name, and the spec itself states that conflating signature with fingerprint cost two rounds; license: that statement, in the paragraph separating a signature from a fingerprint; the definition now reads "matching no signature"
+- fixed 2026-09-08 — [Minor] The namespace clause names one prefix form, `ns.` before a class name, while the metadata-driven row's tokens are Custom Metadata API names, which a package prefixes `ns__`; a literal reading of the clause recognises half of that fingerprint and sends the project to step (c); license: the clause's own stated reason is that a fingerprint exists to recognise, which half a match defeats; the clause now gives the form per token kind, `ns.` before a class and `ns__` before an object or Custom Metadata API name. The `ns__` form is the reviewer's expert knowledge, uncited like the case-insensitivity claim the Evidence section already flags
+- fixed 2026-09-08 — [Minor] The recorded rationale for declining the namespace-prefix test calls its premise unverified, where the premise is false for a repository that is a partial view of the org — an unqualified absent parent can be the project's own base class, which that test would skip silently and the aggregate line names outright; license: the session's own decision in that paragraph, which the reviewer strengthened rather than contested; the rationale now names the partial-view case instead of calling the premise unverified, which closes a door "unverified" left open
+- signal 2026-09-08 — a further round buys nothing: all three leftovers are lexical or clarifying, each licensed by the document itself, and fit one fix wave without a round. This LGTM is diff-scoped, so the whole-document debt belongs to the integrity audit at the consumption gate, or to a confirming full-document round should the developer take that arm of the pair, never to another diff-scoped round
