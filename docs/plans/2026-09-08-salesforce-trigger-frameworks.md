@@ -782,6 +782,10 @@ source: this standard)
   a context the trigger does not declare.
 - The `disabled` flag is per handler class. A test that inserts several
   objects disables each handler it must silence.
+- The entry point is written `handle(System.TriggerOperation …)`
+  verbatim. The signature is a substring test, so
+  `handle(TriggerOperation …)` — identical to the compiler — matches no
+  signature and leaves the class unselected.
 - The shape this plugin shipped before `salesforce-triggers` existed —
   static `handleBeforeInsert` methods and a trigger branching on
   `Trigger.isBefore` — now earns two findings on the trigger,
@@ -1665,7 +1669,10 @@ Replace with:
    a declaration. A resolution record carried in the dispatch prompt is
    verified against the declarations on disk; where they disagree, the
    run reports the mismatch and grades by the declaration, the files
-   being the authority. When resolution fails, grade the
+   being the authority. A record whose source is `asked` or `inferred`
+   stands where no declaration covers the path — step (c) already ran
+   in the session that dispatched — and `trigger-framework-declared`
+   still lands in `## Project`. When resolution fails, grade the
    framework-independent rules, skip framework rules rather than guess
    them, note `trigger framework: unresolved — framework-specific rules
    not graded` among the Summary's out-of-scope notes, and report
@@ -2000,7 +2007,10 @@ State the end state to the developer: ten commits on `feature/trigger-frameworks
 
 ## Developer rulings
 
-None yet. Rulings taken during execution are recorded here, one line each, dated.
+One line each, dated. Rulings taken during execution join the list.
+
+- 2026-09-08 — A resolution record whose source is `asked` or `inferred`, passed in the review dispatch prompt, stands where no declaration covers the path; the run grades framework rules by it and still reports `trigger-framework-declared` in `## Project`.
+- 2026-09-08 — The frameworkless signature stays `member: handle(System.TriggerOperation` as the spec prescribes; the document carries a Gotcha that the entry point is written verbatim, rather than the pattern widening to `member: TriggerOperation`.
 
 ## Review rounds
 
@@ -2008,11 +2018,11 @@ None yet. Rulings taken during execution are recorded here, one line each, dated
 
 - fixed 2026-09-08 — [Important] Both new test-isolation blocks asserted with legacy `System.assertEquals`, which the sibling skill grades in new tests while the reference file the plan tells the author to imitate uses `Assert.areEqual`; license: `salesforce-apex-testing/SKILL.md:86-87` (`apex-test-assertions.legacy-assert`) and `reference/test-patterns.cls:50`; both lines now read `Assert.areEqual`
 - fixed 2026-09-08 — [Minor] The review skill's record-verification sentence dropped the spec's duty to report a mismatch; license: spec, "The resolution record", "reports the mismatch and grades by the declaration, the files being the authority"; the sentence now carries both halves. The finding's second half is held below
-- held 2026-09-08 — [Minor] What a record whose source is `asked` or `inferred` means to the review run when no declaration covers the path — the developer may decline the offer to declare, and the spec never says whether such a record stands or the run reports the framework unresolved; the session reads the spec's "Dispatched any other way it resolves for itself" as implying a passed record stands, and puts the reading to the developer rather than writing it
+- fixed 2026-09-08 — [Minor] What a record whose source is `asked` or `inferred` means to the review run when no declaration covers the path — the developer may decline the offer to declare, and the spec never says whether such a record stands or the run reports the framework unresolved; ruling: 2026-09-08 — the record stands, step (c) having run in the session that dispatched, and the declaration finding still lands in `## Project`; Task 8's paragraph now says so
 - fixed 2026-09-08 — [Minor] The toolchain rule's paragraph named a trigger directory's `CLAUDE.md` and a project rule as homes for the `vendor-paths:` line too, while the hub reads that key at the root alone; license: the hub's own `vendor-paths:` section and the spec's ruling that the key resolves at the repository root; the paragraph now gives each key its own homes
 - fixed 2026-09-08 — [Minor] The command's renumbered dispatch step still enumerated the prompt's contents without the resolution record the new step 2 adds — the same defect one cell below the edit; license: the spec's review-surface paragraph, which passes the record in the prompt; the enumeration now names it, and Task 8's two checks read the new phrase
 - fixed 2026-09-08 — [Minor] The merged layers row kept a gradeable trigger-body clause in `apex-layering`, so a trigger body with SOQL earned two findings from two skills; license: `.claude/rules/standards-rule-tags.md`, "Cross-skill mentions of a rule cite the owning rule id and defer to it"; the Never-does cell now scopes to the handler and defers the body to `trigger-body-delegates` by id
-- held 2026-09-08 — [Minor] `member: handle(System.TriggerOperation` silently unselects a handler written `handle(TriggerOperation …)`, a compile-identical form; the spec prescribes the pattern (question 1's frameworkless example), so widening it to `member: TriggerOperation` on Deviation 1's own grounds is the developer's call against adding a Gotcha that says the entry point is written `System.TriggerOperation` verbatim; the session recommends the Gotcha, which conforms to the spec
+- fixed 2026-09-08 — [Minor] `member: handle(System.TriggerOperation` silently unselects a handler written `handle(TriggerOperation …)`, a compile-identical form; the spec prescribes the pattern (question 1's frameworkless example), so widening it was the developer's call against a Gotcha; ruling: 2026-09-08 — the pattern stays as the spec prescribes, and `framework-frameworkless.md` gains a Gotcha saying the entry point is written `System.TriggerOperation` verbatim because the signature is a substring test
 - fixed 2026-09-08 — [Minor] Deviation 4 cited `TriggerActionFlow.cls:24`, off by one: the header sits on line 23, which round two's report cited correctly, and the session's own citation check — a fetch summarised by a small model — reported 24 and rewrote a correct citation into a wrong one; license: the fetched source, now in the session's scratchpad, line 23; the citation reads `:23` again, and the round-two ledger line's parenthesis stands as the record of the slip
 - fixed 2026-09-08 — [Minor] Task 4's fork row placed the commented-out `throw` beside the `// Do not throw…` comment, where the source puts the comment in `run()` and the `throw` inside `incrementCheckLoopCount()`, and called a `System.debug` the only trace where it fires only with `showDebug` on, default `false`; license: the fork's source (`TriggerHandler.cls:125`, `:636-646`, `:71`); the row now says so, and Deviation 6 reports the spec's matching sentence as a provenance correction
 - fixed 2026-09-08 — [Minor] Task 4's Context-access paragraph said the base class reads `Trigger.operationType`, true of the fork alone — the original picks the context from `Trigger.isBefore`, `Trigger.isInsert` and their siblings and never reads `operationType`; license: both sources; the paragraph names both forms
