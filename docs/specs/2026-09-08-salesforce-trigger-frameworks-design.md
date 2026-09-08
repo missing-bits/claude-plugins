@@ -4,6 +4,7 @@ date: 2026-09-08
 status: draft
 grilled: 2026-09-08
 architect: LGTM
+integrity: 2026-09-08 (sha: 366b99f)
 branch: feature/trigger-frameworks
 base: develop
 ---
@@ -62,8 +63,10 @@ them.
 - **The declaration lives in the project**, keyed so a grep finds it.
 - **Per-framework guidance ships as `reference/` documents**, not as
   separate skills.
-- **Resolution is per trigger file.** The search walks up from the file to
-  the nearest declaration.
+- **Resolution is per file.** Every declaration whose scope covers the
+  file is collected and ranked. The nearest does not simply win: a rule
+  scopes by glob rather than by position, and unrankable declarations have
+  no winner at all.
 - **The migration case is deferred.** The first release serves one
   framework per path plus vendor exclusions.
 - **No enforcement hook.** The protocol is advisory.
@@ -72,13 +75,14 @@ them.
 
 | Part | Owns | Deliberately excludes |
 |---|---|---|
-| `salesforce-triggers` (new skill) | framework-agnostic rules; the resolution protocol; the `framework-id` → path table; the questions a framework document answers; fingerprints; the vendor-exclusion scope; `reference/choosing-a-framework.md` | trigger or handler code; bypass API names; the name of the dispatching class |
-| `reference/framework-base-class.md`, `-metadata-driven.md`, `-frameworkless.md` | dispatch shape; the handler signature and the framework's own types; where the handler reads context; bypass and recursion API with its error semantics; test-isolation idiom; gotchas; framework-specific rules; two example units | layers below the handler; bulkification; test-class structure |
+| `salesforce-triggers` (new skill) | framework-agnostic rules; the resolution protocol; the `framework-id` → path table; the questions a framework document answers; the fingerprint table, whose shipped rows come from the documents' fifth answer; the vendor-exclusion scope; `reference/choosing-a-framework.md` | trigger or handler code; bypass API names; the name of the dispatching class |
+| `reference/framework-base-class.md`, `-metadata-driven.md`, `-frameworkless.md` | dispatch shape; the handler signature and the framework's own types; its fingerprint row; where the handler reads context; bypass and recursion API with its error semantics; test-isolation idiom; gotchas; framework-specific rules; two example units | layers below the handler; bulkification; test-class structure |
 | `salesforce-apex` | naming, layers, bulkification, governor limits, sharing, error handling; the four framework-independent example units | the trigger section, reduced to a layer-table row pointing at `salesforce-triggers` |
 | `salesforce-apex-testing` | test structure, factory, assertions, mocks | how to disable a handler in a test |
-| `salesforce-code-review`, `salesforce-code-reviewer` | a resolution step before grading `.trigger`, then handler selection by the signature the resolved framework document supplies | asking the developer — a background agent cannot |
+| `salesforce-code-review` | a resolution step before grading Apex, then handler selection by the signature the resolved framework document supplies | asking the developer — a background agent cannot |
+| `salesforce-code-reviewer` | nothing — the skill owns the step, so the agent's card is unchanged | — |
 | `/salesforce-review` | resolution before dispatch, passed in the prompt | — |
-| `rules/salesforce-toolchain.md` | a routing line for `salesforce-triggers`; the documented declaration key | the declaration itself, which belongs to the project |
+| `rules/salesforce-toolchain.md` | a routing line for `salesforce-triggers`; both documented declaration keys | the declaration itself, which belongs to the project |
 
 `salesforce-triggers` must reach a session on its own `description:`,
 because `salesforce-standards` declares no dependencies and supports a
@@ -160,7 +164,10 @@ handler dispatched on `Trigger.operationType`, where the trigger reads it.
 
 **Naming.** A trigger is named `<Object>Trigger`. Pre-existing
 non-conforming names stay; the convention binds new code. The dispatching
-class is named by the framework document, not here.
+class is named by the framework document, not here — and each shipped
+document carries that name as a rule of its own, at minor severity and
+with the same stance on pre-existing names, so the convention leaves this
+skill without leaving the standard.
 
 (id: `trigger-naming`; severity: minor; source: this standard)
 
@@ -216,9 +223,10 @@ answer is stated to the developer, never filled from another framework.
    limit is exceeded.
 4. **Test isolation** — how to call the handler without DML, and how to
    disable it in a test.
-5. **Fingerprint** — what identifies this framework in code. Required for
-   the documents shipped here, since step (b) of the protocol depends on
-   it.
+5. **Fingerprint** — what identifies this framework in code, and so the
+   row this document contributes to the skill's table. Every shipped
+   document answers; the frameworkless answer is that nothing identifies
+   it, which is why step (b) falls through to (c) rather than matching.
 
 Question 3 earns its place: `setMaxLoopCount(1)` is a correct guard under
 one base-class framework and silences automation under another. Names
@@ -273,7 +281,11 @@ interfaces, a class implementing several, and a class implementing
 something else besides. `member:` matches a method declaration line inside
 the type, which is where the frameworkless answer,
 `handle(System.TriggerOperation`, belongs and where a header match would
-never look. Matching ignores case, because Apex does, and an optional
+never look. A header runs from the `class` or `interface` keyword to the
+opening brace however the line breaks fall, so a header split over lines
+is still one header, and the modifiers before that keyword — `abstract`,
+`virtual`, `global` — sit outside the match and never have to be
+enumerated. Matching ignores case, because Apex does, and an optional
 namespace prefix is allowed before every type name, because a framework
 delivered as a managed package appears in project code as `extends
 acme.TriggerHandler`. A document may add a filename glob as a hint, never
@@ -316,7 +328,9 @@ never graded; a parent absent from the repository leaves a closure
 candidate a non-handler, counted on that one Summary line. Only top-level
 types are handlers — a metadata-driven action is instantiated by name and
 `Outer.Inner` is addressable, so that document names the deviation rather
-than leaving it to a reader.
+than leaving it to a reader. Naming it is all it does: the grammar has no
+key for an exception, so such an action goes ungraded and the document
+says so, which is the honest end of a rule that reduces to a grep.
 
 `Framework types:` names what the framework itself owns — a copied base
 class, a dispatcher. An absent field and an empty one say the same thing,
@@ -366,6 +380,15 @@ declaration carries a `doc-path:` or a `skill:` locator, and the table
 never grows to accommodate one — that is the open class working as
 intended.
 
+A `doc-path:` is read as a file, relative to the repository root. A
+`skill:` is invoked by its `plugin:skill` name, which is how the platform
+addresses a skill and needs no path the project would have to know; a
+skill whose plugin is not installed takes the missing-document row below,
+since a locator naming nothing and a path naming nothing fail the same
+way. This is not the slash-command invocation the design rejected: that
+question was whether *our* per-framework guidance should be skills, and
+loading a skill the project points at is a different act.
+
 ### Three mechanisms, three shapes
 
 The protocol reads three things from outside itself, and they are not one
@@ -384,7 +407,10 @@ grammar; what it applies over and where in the order; what it returns,
 including the value that means *unresolved*; who consumes that value and
 in what words; and what makes a document carrying it conformant, tested
 when the document loads. One constraint crosses all three: every test
-reduces to a grep or a prefix comparison, never to parsing. A monorepo
+reduces to a grep, a prefix comparison or a glob match, never to parsing.
+The glob is the weakest of the three, the platform naming no dialect for
+it, which is why a pattern whose coverage cannot be settled counts as
+covering rather than being evaluated harder. A monorepo
 holds thousands of Apex classes and the reader is a model with file tools.
 
 ### The declaration
@@ -400,8 +426,11 @@ trigger-framework: acme-dispatcher; skill: acme-plugin:acme-triggers
 vendor-paths: force-app/nebula, force-app/vendor
 ```
 
-One key at the start of a line, one declaration per home, one value per
-key. The value is everything after the key, locator included: two homes
+The key sits in the file's body, at the start of a line — not in a rule's
+frontmatter, whose keys belong to the platform's schema — and a line
+inside a fenced code block does not count, which is what lets this spec
+quote the key without declaring one. One declaration per home, one value
+per key. The value is everything after the key, locator included: two homes
 naming one framework through different documents disagree, and ranking
 treats them as it treats any two values. A shipped id carrying a locator
 is a contradiction: the shipped document is used and the locator
@@ -523,7 +552,7 @@ produced.
 | (0) | read `vendor-paths:` from the root homes and subtract it, with the directories outside `packageDirectories`, from the repository's Apex files — what remains is the grading universe every later step works over, whether the caller is a review run or a session about to write a trigger |
 | (a) | grep the covering homes for `trigger-framework:` and rank them — an explicit read, never a wait for context |
 | (b) | fingerprint the grading universe, reading a framework's own types outside it where the Fingerprint answer points at one of the types `Framework types:` names |
-| (c) | ask the developer, with `reference/choosing-a-framework.md` |
+| (c) | ask the developer, with `reference/choosing-a-framework.md` — the case for and against each of the three shipped approaches, plus a fourth entry sending a recognition label or an unknown framework to the homegrown-document path rather than to a comparison this plugin cannot write |
 | (d) | select the resolved framework's handlers from the grading universe by its signature, closed over `extends` |
 
 Steps (0) through (c) serve both surfaces. Step (d) belongs to the review
@@ -600,7 +629,10 @@ beside the rest of that document's error-semantics duty.
 
 Two layers, not one: directories outside `packageDirectories`, and the
 paths `vendor-paths:` declares. The first is read from
-`sfdx-project.json`; the second must be declared, because a package
+`sfdx-project.json`, and contributes nothing where that file is absent —
+a repository in metadata-API format has no package directories, so its
+universe is every Apex file the run covers minus `vendor-paths:`; the
+second must be declared, because a package
 installed unlocked and without a namespace and vendored as source sits in
 a package directory with nothing marking it foreign. A logging package
 distributed that way puts its classes in the org's own namespace beside
@@ -614,15 +646,29 @@ states where recognition reaches into a vendor path and why it must.
 
 ### The resolution record
 
-Three lines, before the first trigger edit. The first carries the
+Up to three lines, before the first trigger edit. The first carries the
 framework, the source and the document loaded; the other two carry what
-the filter and the selector actually did:
+the filter and the selector actually did, and the third belongs to the
+review surface alone:
 
 ```
 Trigger framework: base-class — declared in force-app/billing/triggers/CLAUDE.md — loading framework-base-class.md
 Vendor paths: 2 entries from CLAUDE.md
 Handlers: 7 selected by the signature in framework-base-class.md
 ```
+
+The first line's source names every file that declares, not one: where
+homes agree it lists them all, and where a nearer declaration beat a
+repository-wide default it names both with the winner first, since the
+disagreement is always stated. Resolution being per file, a monorepo
+yields one record per resolved framework with the paths it covers, and
+that is what `/salesforce-review` passes in the prompt; an agent finding
+the record and the declaration disagree reports the mismatch and grades
+by the declaration, the files being the authority. Where the resolved
+framework's document turns on a discriminator its own question 3 names —
+the base-class case — the variant is read when the document loads and
+named on this first line, because it decides which of two error semantics
+that document's rules carry.
 
 The last two lines exist because an agent that cannot ask must at least
 say which filter and which selector it applied. Without them, "no
@@ -644,7 +690,7 @@ reads the files again.
 | No declaration, fingerprint matches | infer, cite the file and pattern, offer to write the declaration |
 | No declaration, no fingerprint | go to (c), saying no pattern matched in N triggers and asking whether the project is frameworkless or on a framework this plugin does not know |
 | No triggers at all | go to (c) |
-| A fingerprint matches a framework this plugin ships nothing for — fflib, TDTM, a dispatcher | the id is sound and only the document is missing, so take the homegrown row below: offer to write a project document, never substitute another framework's |
+| A fingerprint matches a framework this plugin ships nothing for — fflib, TDTM, a dispatcher | the label is sound and only the document is missing, so take the homegrown row below: offer to write a project document, never substitute another framework's |
 | Two subtree-scoped declarations disagree | the inner one wins, and the disagreement is always stated — never resolved silently |
 | Two declarations cover the file with different values and neither is a subtree containing the other — a glob-scoped rule against a `CLAUDE.md`, two rules whose `paths:` differ, or `CLAUDE.md` beside `.claude/CLAUDE.md` in one directory | no winner: name every file that declares, then work out with the developer which home survives and write that change. Picking one silently would answer a question only the project can, and answering it in conversation would leave the collision to recur next session |
 | The resolved document answers question 1 without a signature, or with one that does not fit the grammar | skip the framework rules **and** `trigger-context-below-handler`, the one framework-independent rule needing a handler set; grade the rest and name the document in the Summary — a document that cannot say what its handlers are cannot have them graded, and guessing a signature would repeat the mistake a filename pattern already made |
@@ -659,8 +705,11 @@ reads the files again.
 
 ## Review surface
 
-`salesforce-code-review` gains a step: for `.trigger` files — the one
-artefact every framework has — load `salesforce-triggers` and run the
+`salesforce-code-review` gains a step, triggered by any Apex file in the
+run — not a `.trigger` alone, since framework rules grade handler classes
+and a change touching only those needs the same resolution. A `.trigger`
+is merely the one artefact every framework has. The step loads
+`salesforce-triggers` and runs the
 protocol's steps in order, (0) through (b), then load each resolved
 framework's document by path or name and take step (d), selecting that
 framework's handler classes out of the grading universe by the signature
@@ -670,13 +719,17 @@ class under the framework resolved for its own path. Which classes the
 framework rules grade is resolved, never hardcoded, because only the
 framework knows what makes a class one of its handlers.
 
-A background agent enforces standards and asks nothing.
-`/salesforce-review` therefore resolves before dispatch and passes the
-record in the prompt, as it already passes the directory mode; the agent
-verifies the record against the declaration, which costs nothing.
-Dispatched any other way, it grades what the framework-independent rules
-cover and reports the rest as unresolved — choosing a framework for the
-project is as far outside its job as asking for one.
+A background agent enforces standards and asks nothing, which bounds the
+protocol rather than the agent. Steps (0), (a) and (b) are mechanical
+reads it performs like any other; step (c) is the one it cannot take, and
+so is the offer to write a declaration that follows an inference.
+`/salesforce-review` resolves before dispatch and passes the record in
+the prompt, as it already passes the directory mode, which spares the
+agent that work and lets it verify the record against the declaration for
+nothing. Dispatched any other way it resolves for itself, and where
+resolution would need step (c) it reports the framework as unresolved —
+choosing a framework for the project is as far outside its job as asking
+for one.
 
 When resolution fails, the run grades the framework-independent rules, skips framework rules
 rather than guessing them, notes `trigger framework: unresolved —
@@ -684,7 +737,11 @@ framework-specific rules not graded` among the Summary's out-of-scope
 notes, and reports the declaration rule in the `## Project` section —
 `trigger-framework-declared` where nothing declares the path,
 `trigger-framework-declared.ambiguous` where two the protocol cannot rank
-do. Both slots already exist in the review-report contract. Where
+do. Both slots already exist in the review-report contract, whose Summary is
+"outcome, out-of-scope notes, and (for a rerun) the prior findings'
+disposition" (`review-reports.md:117-118`) — so every note this design
+adds, the aggregated unreadable parents and the two `vendor-paths:` notes
+included, is an out-of-scope note rather than a new kind of content. Where
 resolution succeeds and the document supplies no signature, the same note
 names `trigger-context-below-handler` beside the framework rules, that
 rule needing a handler set too.
@@ -723,6 +780,13 @@ document carries `OrderTrigger` and `OrderTriggerHandler` and calls the
 same lower-layer methods, so the three examples are demonstrably one
 scenario.
 
+Those four units stay in one file, and the file is renamed —
+`order-layers.md` — because `trigger-handler.md` would name a trigger and
+a handler it no longer carries, which is the kind of thing this standard
+exists to stop. The skill's pointer moves with it and nothing outside the
+skill cites the filename; this spec's own citation of the old name
+predates the rename and is left as the evidence it was.
+
 ## Evidence and its limits
 
 Framework behaviour was read from source, not from documentation. Two
@@ -734,8 +798,9 @@ findings correct the documentation:
   line `// Do not throw an exception if we exceed the loop count - just
   stop executing`.
 
-Two citations carry weaker provenance, recorded so a later reader can
-judge them:
+Three provenance notes are recorded so a later reader can judge them —
+two citations weaker than the rest, and one claim carrying no citation at
+all:
 
 - Apex Developer Guide quotations come from the official PDF, fetched with
   TLS verification disabled after the HTML pages returned 403.
@@ -782,7 +847,7 @@ Two further deviations:
 
 A second consultation, on the three mechanisms above, followed two
 blocking rounds that diagnosed one repeated failure. Its proposals are
-adopted, three of them as choices rather than repairs:
+adopted but one, three of them as choices rather than repairs:
 
 - **`vendor-paths:` carries directory prefixes, not globs.** Prefixes
   compose with `packageDirectories` in one arithmetic and leave no dialect
@@ -898,10 +963,20 @@ answers".
 - fixed 2026-09-08 — [Minor] The base-class document's owed answer sits under the Fingerprints subsection instead of the section that enumerates what a framework document answers, so an author reading that document's interface misses it; license: that section's stated job is what a framework document answers, and its fifth item is already scoped to the documents this plugin ships; the duty moved beside question 3 and Fingerprints keeps a pointer
 - signal 2026-09-08 — a round 5 over these fixes does not repay its cost: none of the four reshapes a mechanism, each being a definition tightened or a clause added and checkable by the session against the cited lines, and the whole-document debt is already routed to the integrity audit at the consumption gate. One conditional: taking the reviewer's shape (ii) for the Important finding — naming parents by namespace prefix — would give the document an unverified language claim, which deserves a provenance note rather than a round. The leftovers are worth one fix wave, then the gate
 
-### 2026-09-08 — architect, fable 5.1, LGTM (round 5, diff-scoped)
+### 2026-09-08 — architect, fable 5.1, LGTM (round 5, diff-scoped), debt discharged 2026-09-08
 
 - fixed 2026-09-08 — [Minor] The closure-candidate definition reads "matching no pattern" where the test is the signature; "pattern" is the Fingerprints table's column name, and the spec itself states that conflating signature with fingerprint cost two rounds; license: that statement, in the paragraph separating a signature from a fingerprint; the definition now reads "matching no signature"
 - fixed 2026-09-08 — [Minor] The namespace clause names one prefix form, `ns.` before a class name, while the metadata-driven row's tokens are Custom Metadata API names, which a package prefixes `ns__`; a literal reading of the clause recognises half of that fingerprint and sends the project to step (c); license: the clause's own stated reason is that a fingerprint exists to recognise, which half a match defeats; the clause now gives the form per token kind, `ns.` before a class and `ns__` before an object or Custom Metadata API name. The `ns__` form is the reviewer's expert knowledge, uncited like the case-insensitivity claim the Evidence section already flags
 - fixed 2026-09-08 — [Minor] The recorded rationale for declining the namespace-prefix test calls its premise unverified, where the premise is false for a repository that is a partial view of the org — an unqualified absent parent can be the project's own base class, which that test would skip silently and the aggregate line names outright; license: the session's own decision in that paragraph, which the reviewer strengthened rather than contested; the rationale now names the partial-view case instead of calling the premise unverified, which closes a door "unverified" left open
 - hit fixed 2026-09-08 — "Three rules change owner" over-claims for two of its three items: `apex-naming` keeps its id in `salesforce-apex` and only loses `<Object>TriggerHandler` from its scope, and `apex-bulkification` explicitly stays put; the sentence now says three shipped rules are touched and names what happens to each. The defect predates every wave of this loop and survived five architect rounds and four gate episodes
+- fixed 2026-09-08 — integrity audit: question 5 is required of every shipped document while the frameworkless row states that no pattern is a fingerprint, so one of the three shipped documents has nothing to answer with; license: that row; question 5 now says the frameworkless answer is that nothing identifies it, which is why step (b) falls through
+- fixed 2026-09-08 — integrity audit: the parts table gives fingerprints to the skill and omits them from what a framework document owns, while question 5 and step (b) make them the document's answer; license: both statements stand and only their division was missing; the skill owns the table and the document contributes its row, and both table rows now say so
+- fixed 2026-09-08 — integrity audit: a background agent is told to run steps (0) through (b), which includes inference, and also that choosing a framework is outside its job, while a bare dispatch was said to report everything unresolved; license: "a background agent enforces standards and asks nothing", which bounds the protocol rather than the agent; the paragraph now says (0), (a) and (b) are mechanical reads it performs, and step (c) plus the offer to write a declaration are what it cannot take
+- fixed 2026-09-08 — integrity audit: a failure row calls `fflib`, `TDTM` and `dispatcher` ids where the Fingerprints paragraph states a label becomes an id only when something declares it; license: that paragraph; the row now reads "the label is sound"
+- fixed 2026-09-08 — integrity audit: the resolution record opens as three lines written before the first trigger edit while the same section says an authoring session's record stops at the document; license: the later sentence, written in round 3's wave; the record now reads "up to three lines" with the third belonging to the review surface alone
+- fixed 2026-09-08 — integrity audit: a Settled decision still reads "the search walks up from the file to the nearest declaration", superseded by collect-and-rank, where the nearest does not simply win and a glob-scoped rule is not ranked at all; license: the ranking section and the rulings recorded for it; the decision now states collect-and-rank and says the nearest does not simply win. The line survived five architect rounds because no diff ever touched it
+- fixed 2026-09-08 — integrity audit: "every test reduces to a grep or a prefix comparison" is broken by the glob coverage test, which the document itself calls unsettleable on an unnamed dialect; license: the document's own glob fallback; the constraint now names three mechanical tests and says the glob is the weakest, which is why an unsettleable pattern counts as covering
+- fixed 2026-09-08 — integrity audit: the deviations section says the second consultation's proposals are adopted and two paragraphs later declines one; license: the declining paragraph; the sentence now reads "adopted but one"
+- fixed 2026-09-08 — integrity audit: "Two citations carry weaker provenance" introduces three bullets, the third being an uncited claim rather than a weak citation; license: the list itself; the sentence now reads three provenance notes, two weak citations and one claim carrying no citation. Four propagation gates re-derived counters over this sentence and none caught it
+- fixed 2026-09-08 — integrity audit, sixteen ranked implementer questions: fourteen are answered in the spec — where the key sits and what a grep must not match, how a `doc-path:` and a `skill:` locator are followed, what the record carries beyond the simplest case, what triggers the review step, the header grammar's edges and the inner-class deviation's honest end, the dispatching class keeping a rule in each shipped document, the universe where `sfdx-project.json` is absent, what `choosing-a-framework.md` covers, both keys in the toolchain rule and the reviewer agent's card being unchanged, and the review-report Summary slot these notes take (`review-reports.md:117-118`). One is a design call the session took and named: the four remaining example units stay in one file, renamed `order-layers.md`, because the old name would promise a trigger and a handler the file no longer carries. One remains the developer's — whether the unverified TDTM fingerprint row ships as it stands — and it was already the open question the audit ranked as its only blocker
 - signal 2026-09-08 — a further round buys nothing: all three leftovers are lexical or clarifying, each licensed by the document itself, and fit one fix wave without a round. This LGTM is diff-scoped, so the whole-document debt belongs to the integrity audit at the consumption gate, or to a confirming full-document round should the developer take that arm of the pair, never to another diff-scoped round
