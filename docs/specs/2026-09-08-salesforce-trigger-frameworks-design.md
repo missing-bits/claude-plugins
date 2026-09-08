@@ -184,8 +184,9 @@ rank — a glob-scoped rule against a subtree-scoped `CLAUDE.md`, two rules
 whose `paths:` differ, and `CLAUDE.md` beside `.claude/CLAUDE.md` in one
 directory, whose subtrees are equal so neither contains the other.
 Declarations that agree never reach the rule: ranking counts distinct
-values, and agreement is not a collision. All of these hide: the project has declared twice,
-so the letter of the rule is met while nothing can be resolved from it,
+values, and agreement is not a collision. All of these hide: the project
+has declared twice, so the letter of the rule is met while nothing can be
+resolved from it,
 and framework rules quietly go ungraded.
 
 A root default with a nearer override is **not** this finding. Two
@@ -270,12 +271,20 @@ The handler set is the smallest fixed point of the classes matching the
 signature together with the classes whose header `extends` a type already
 in the set. Without that closure, `OrderHandler extends
 BaseTriggerHandler` — an org's own layer over the framework's — matches
-no pattern and goes ungraded. The closure reads parents from the
-repository even where a parent lies outside a diff-scoped run, so a full
-run and a diff-scoped run select the same handlers; a parent under a
-vendor path is read to recognise it and never graded; a parent absent
-from the repository makes the class a non-handler, named in the Summary
-with the parent that could not be read. Only top-level types are
+no pattern and goes ungraded. The boundary between the two is worth
+one sentence: a class matching the signature is a handler on that match
+alone, and the parent rules below govern closure candidates — the classes
+matching nothing that reach the set only through a parent. Otherwise
+`OrderHandler extends acme.TriggerHandler`, a framework delivered as a
+managed package, would be admitted by the namespace prefix and rejected
+by the same paragraph.
+
+The closure reads parents from the repository even where a parent lies
+outside a diff-scoped run, so a full run and a diff-scoped run select the
+same handlers; a parent under a vendor path is read to recognise it and
+never graded; a parent absent from the repository leaves a closure
+candidate a non-handler, named in the Summary with the parent that could
+not be read. Only top-level types are
 handlers — a metadata-driven action is instantiated by name and
 `Outer.Inner` is addressable, so that document names the deviation rather
 than leaving it to a reader.
@@ -365,8 +374,9 @@ vendor-paths: force-app/nebula, force-app/vendor
 One key at the start of a line, one declaration per home, one value per
 key. The value is everything after the key, locator included: two homes
 naming one framework through different documents disagree, and ranking
-treats them as it treats any two values. A shipped id carrying a locator is a contradiction: the shipped
-document is used and the locator reported. An id absent from the table
+treats them as it treats any two values. A shipped id carrying a locator
+is a contradiction: the shipped document is used and the locator
+reported. An id absent from the table
 carrying no locator is the homegrown-without-a-document case below. Two
 `trigger-framework:` lines in one home make that home unreadable, which
 is reported with the file rather than resolved by picking a line.
@@ -543,6 +553,15 @@ discriminator is the method name inside `TriggerHandler.cls`:
 `incrementCheckLoopCount` silences an exceeded loop count,
 `addToLoopCount` throws.
 
+That file is unreadable where the framework arrives as a managed package,
+so the base-class document owes a second answer: what else tells the two
+apart — a namespace, a version — and what a reviewer does when nothing
+does. The answer is the discipline every other mechanism here takes. The
+rules keyed to error semantics go ungraded, the Summary says which and
+why, and no reviewer guesses; the framework's other rules grade normally,
+the project's own handlers being readable whatever carries their
+parent.
+
 ### Exclusions
 
 Two layers, not one: directories outside `packageDirectories`, and the
@@ -596,7 +615,8 @@ reads the files again.
 | Two declarations cover the file with different values and neither is a subtree containing the other — a glob-scoped rule against a `CLAUDE.md`, two rules whose `paths:` differ, or `CLAUDE.md` beside `.claude/CLAUDE.md` in one directory | no winner: name every file that declares, then work out with the developer which home survives and write that change. Picking one silently would answer a question only the project can, and answering it in conversation would leave the collision to recur next session |
 | The resolved document answers question 1 without a signature, or with one that does not fit the grammar | skip the framework rules **and** `trigger-context-below-handler`, the one framework-independent rule needing a handler set; grade the rest and name the document in the Summary — a document that cannot say what its handlers are cannot have them graded, and guessing a signature would repeat the mistake a filename pattern already made |
 | A class matches two frameworks' signatures | grade it under the framework resolved for its own path, which is step (a) over the class rather than over a trigger; where that path resolves to one framework and the class still matches another's signature, grade it under the resolved one and name the other in the Summary |
-| A class's `extends` parent is not in the repository | treat the class as a non-handler and name it in the Summary with the parent that could not be read — a managed-package parent is unreadable by construction, and assuming membership would grade a class no rule was written for |
+| A closure candidate's `extends` parent is not in the repository | treat the class as a non-handler and name it in the Summary with the parent that could not be read — a managed-package parent is unreadable by construction, and assuming membership would grade a class no rule was written for. A class matching the signature itself is unaffected, parent or no parent |
+| The base-class framework arrives as a managed package, so `TriggerHandler.cls` cannot be read | select handlers as usual, the signature matching the project's own classes, and grade every rule except those keyed to error semantics, naming in the Summary that the discriminator was unreadable — a guess between silencing and throwing is the one guess that turns a correct bypass into silenced automation |
 | A home carries two `trigger-framework:` lines, or a shipped id with a locator | the home resolves nothing and is named; a shipped id keeps its shipped document and the stray locator is reported |
 | `vendor-paths:` is absent and a directory is plainly third-party | grade it as the project's, since nothing declares otherwise, and note the directory with its evidence in the Summary — a note rather than a finding, because no rule requires the key |
 | A `vendor-paths:` entry matches nothing on disk | note it; nothing distinguishes a typo from a directory yet to be added, and a typo silently excludes nothing |
@@ -818,7 +838,7 @@ answers".
 
 ### 2026-09-08 — architect, fable 5.1, concerns (round 3, diff-scoped)
 
-- held — [Important] The managed-package base-class case falls between two clauses of the same wave: `extends acme.TriggerHandler` satisfies both the namespace-prefix allowance in the signature grammar and the parent-absent row that makes an unreadable parent a non-handler, and the discriminator separating the two base-class frameworks is unreadable in a managed package, so even a selected handler cannot be graded on question 3; question: keep the namespace-prefix allowance and scope the parent-absent rule to closure candidates only, or drop the allowance and route a managed-package framework to the unshipped-framework row?; options: (a) drop the allowance — one clause deleted plus a routing sentence, and the reviewer's stop signal says round 4 would not repay its cost; (b) keep it, scope the parent-absent rule to closure, and have the base-class document state how the fork is identified when its source is unreadable — this touches that document's contract and earns one more diff-scoped round; the session recommends (b), since a direct signature match and a closure candidate are different things and reading the parent-absent rule as scoped to closure costs nothing, while dropping the allowance closes the door on a framework packaged for reuse across orgs
+- fixed 2026-09-08 — [Important] The managed-package base-class case falls between two clauses of the same wave: `extends acme.TriggerHandler` satisfies both the namespace-prefix allowance in the signature grammar and the parent-absent row that makes an unreadable parent a non-handler, and the discriminator separating the two base-class frameworks is unreadable in a managed package, so even a selected handler cannot be graded on question 3; ruling: 2026-09-08; the allowance stands and the parent rules were scoped to closure candidates, a class matching the signature being a handler on that match alone; the base-class document now owes a second answer for an unreadable source, and the rules keyed to error semantics go ungraded with the Summary saying why rather than a reviewer guessing between silencing and throwing
 - fixed 2026-09-08 — [Minor] "Identical values collapse" is written as merging declarations, so move three has no scope to rank and the three-candidate chain the same paragraph claims to settle has none for the merged value; the value compared is also never said to include the locator; license: the same paragraph claims to settle a chain of three candidates, which the finding shows it cannot; move one now counts distinct values while every declaration keeps its scope, nothing is merged, and the declaration grammar states that the value is everything after the key, locator included
 - fixed 2026-09-08 — [Minor] `Framework types:` is mandatory in form while its empty value already means none, and a document omitting it loses its whole signature — against the sibling key, where an absent and an empty value say the same thing; license: the `vendor-paths:` paragraph already states that an absent key and an empty one say the same thing; the field is now optional on that footing, only a malformed `Signature:` block fails the grammar, and the paragraph says what the field buys — one exemption — so a foreign author knows when to write it
 - fixed 2026-09-08 — [Minor] The signature grammar is published while Out of scope still says the grammar stays internal and `plugin-versioning` gains no new breaking surface, which that rule counts as a convention others rely on; "unreachable" also overstates what withholding it would cost; license: `.claude/rules/plugin-versioning.md:46-47` grades a breaking change to a convention others rely on; Out of scope now scopes its claim to the tag grammar and names the signature grammar as a published convention the bump rule covers, and "unreachable" became the concrete cost — every foreign document's handlers unselectable, and with them the one rule needing a handler set
