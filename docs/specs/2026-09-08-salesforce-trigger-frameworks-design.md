@@ -76,7 +76,7 @@ them.
 | `reference/framework-base-class.md`, `-metadata-driven.md`, `-frameworkless.md` | dispatch shape; where the handler reads context; bypass and recursion API with its error semantics; test-isolation idiom; gotchas; framework-specific rules; two example units | layers below the handler; bulkification; test-class structure |
 | `salesforce-apex` | naming, layers, bulkification, governor limits, sharing, error handling; the four framework-independent example units | the trigger section, reduced to a layer-table row pointing at `salesforce-triggers` |
 | `salesforce-apex-testing` | test structure, factory, assertions, mocks | how to disable a handler in a test |
-| `salesforce-code-review`, `salesforce-code-reviewer` | a resolution step before grading `.trigger`, then the handler glob the resolved framework document supplies | asking the developer — a background agent cannot |
+| `salesforce-code-review`, `salesforce-code-reviewer` | a resolution step before grading `.trigger`, then handler selection by the signature the resolved framework document supplies | asking the developer — a background agent cannot |
 | `/salesforce-review` | resolution before dispatch, passed in the prompt | — |
 | `rules/salesforce-toolchain.md` | a routing line for `salesforce-triggers`; the documented declaration key | the declaration itself, which belongs to the project |
 
@@ -116,9 +116,11 @@ citation names the skill, so ids never collide across framework documents.
 
 **One trigger per object.** An object has one `.trigger` file. Several
 handler calls inside that file are correct, in the order they must run;
-the violation is a second trigger file, never a second line. Scope: the
-directories listed in `packageDirectories`, excluding triggers on objects
-a vendor package owns.
+the violation is a second trigger file, never a second line. Scope: triggers under the
+directories listed in `packageDirectories` and outside `vendor-paths:` —
+the same two layers the Exclusions section reads, stated by path rather
+than by which package owns an object, since a vendor's trigger on a
+standard object belongs to nobody by ownership and to the vendor by path.
 
 (id: `trigger-one-per-object`; severity: critical; kind: defect; source:
 Salesforce Well-Architected, record-triggered decision guide; Apex
@@ -168,14 +170,17 @@ a declaration resolves the project.
 
 Sub-rules:
 
-- two declarations of unequal shape cover one path, so neither wins (id:
+- two declarations cover one path and neither is a subtree strictly
+  containing the other, so neither wins (id:
   `trigger-framework-declared.ambiguous`; severity: important)
 
 The group default grades an absent declaration, which announces itself:
 resolution falls through to inference or to a question, and the reader
-sees it happen. The sub-rule grades the one case the protocol cannot
-resolve — a glob-scoped rule and a subtree-scoped `CLAUDE.md` both
-covering the same path. That case hides: the project has declared twice,
+sees it happen. The sub-rule grades every case the protocol cannot
+rank — a glob-scoped rule against a subtree-scoped `CLAUDE.md`, and
+equally two glob-scoped rules, one of them scoped to the whole repository
+by declaring no `paths:` at all. That second pairing is the likelier one
+wherever a project keeps its declaration in rules. Both hide: the project has declared twice,
 so the letter of the rule is met while nothing can be resolved from it,
 and framework rules quietly go ungraded.
 
@@ -198,7 +203,7 @@ answer is stated to the developer, never filled from another framework.
 
 1. **Dispatch** — the trigger body and the handler shape, as two files
    calling the same lower-layer methods the shipped example uses, plus the
-   glob matching this framework's handler classes.
+   **signature** that makes a class one of this framework's handlers.
 2. **Context access** — where the handler reads `Trigger.*`.
 3. **Bypass and recursion** — the API names *and* what happens when a
    limit is exceeded.
@@ -212,13 +217,24 @@ Question 3 earns its place: `setMaxLoopCount(1)` is a correct guard under
 one base-class framework and silences automation under another. Names
 alone cannot tell a reviewer which.
 
-Question 1 carries a glob for the same reason `salesforce-triggers` names
-no dispatching class: handler naming belongs to the framework. A
-metadata-driven project's action classes are named `TA_<Object>_<Purpose>`
-and implement `TriggerAction.*`, so they match no `*TriggerHandler*`
-pattern — a review scoped by that pattern would grade the framework's own
-`MetadataTriggerHandler`, which the vendor exclusion skips, and miss every
-class the project wrote.
+Question 1 carries a signature rather than a filename pattern, and the
+distinction is the whole point. A review run already covers every Apex
+class — `salesforce-code-review/SKILL.md` lists "Apex: `*.cls`,
+`*.trigger`" — so nothing about handlers is a question of scope. What the
+answer decides is which of those classes the framework's rules grade, and
+no framework imposes a name on them: a metadata-driven project wires an
+action through a free-text metadata field and an interface, and this
+standard's own `trigger-naming` rule leaves pre-existing names alone. A
+class called `LegacyAccountHandler` that implements
+`TriggerAction.BeforeInsert` is a handler, and any name-matching pattern
+misses it silently.
+
+The signature is a content pattern, the same mechanism the Fingerprints
+table below already uses to recognise a framework: `implements
+TriggerAction.` for metadata-driven, `extends TriggerHandler` for
+base-class, the `handle(System.TriggerOperation` entry point for
+frameworkless. A framework document may add a filename glob as a hint,
+never as the test.
 
 Framework-specific rules are optional. A document that carries none is
 graded by the framework-independent rules alone, and the report says so. The tag grammar does
@@ -227,10 +243,11 @@ this plugin is not graded on its framework rules at all.
 
 ## Resolution protocol
 
-One framework id names each framework everywhere it appears — declaration
-value, fingerprint row, document filename, rule prefix. The ids name an
-**approach**, never a product, which is why two base-class frameworks share
-one document and one prefix. `salesforce-triggers` owns the table:
+One framework id names each shipped framework everywhere it appears —
+declaration value, fingerprint row, document filename, rule prefix. A
+shipped id names an **approach**, never a product, which is why two
+base-class frameworks share one document and one prefix.
+`salesforce-triggers` owns the table:
 
 | `framework-id` | Document | Rule prefix |
 |---|---|---|
@@ -263,13 +280,32 @@ package installed unlocked and without a namespace, vendored as source,
 sits in a package directory carrying no platform signal that marks it
 foreign, so no amount of reading `sfdx-project.json` recovers it.
 
-Homes, and the exact set a grep reads: `CLAUDE.md`, `.claude/CLAUDE.md`
-and `CLAUDE.local.md` at the repository root or in any directory above the
-trigger file, plus any rule the project itself owns under
-`.claude/rules/`. Two things are deliberately not homes. A declaration
-belongs to the project, so a personal rule under `~/.claude/rules/` never
-carries one — it would follow the developer between projects that disagree.
-And the installed `salesforce-toolchain.md` copy is not a home either: the
+Unlike the framework key, it resolves in exactly one place: **the
+repository root**, in whichever root home the project already uses, with
+globs relative to the root. It gets no scope rule of its own and needs
+none. What counts as somebody else's code is a fact about the repository
+rather than about a path inside it, and a single home also settles by
+construction what nearest-wins would get backwards — an inner declaration
+narrowing an exclusion would re-include a vendor directory, which is the
+opposite of what an exclusion is for. A monorepo lists every vendor path
+at the root and loses nothing but locality.
+
+Homes, and the exact set a grep reads: `CLAUDE.md` and
+`.claude/CLAUDE.md` at the repository root or in any directory above the
+trigger file, plus any rule file under `.claude/rules/` that sits outside
+a directory carrying a Rules-engine manifest — the manifest is what marks
+a directory as an installed payload, so ownership becomes something a
+grep can see.
+
+Three things are deliberately not homes. A declaration belongs to the
+project, so a personal rule under `~/.claude/rules/` never carries one —
+it would follow the developer between projects that disagree. Neither does
+`CLAUDE.local.md`, on the same footing and for a sharper reason: it is
+documented as personal, git-ignored preference, so declaring there would
+resolve the author's own sessions while every teammate and every CI run
+reported the declaration missing — the one reader who could fix it is the
+one reader who never sees it. And the installed `salesforce-toolchain.md`
+copy is not a home either: the
 Rules engine owns that file, so its next sync either overwrites a
 hand-added line or freezes the rule at the version that carried it, and
 its `paths:` already covers `**/*.trigger` repo-wide — the same scope as
@@ -285,9 +321,9 @@ nothing about how narrow it is.
 The most specific scope covering a trigger file wins, and specificity is
 only ever claimed between two subtrees, where one strictly contains the
 other. A glob is never ranked against a subtree or against another glob:
-comparing them invents an answer the project never stated. Two
-declarations of unequal shape therefore have no winner, which the next
-section turns into behaviour rather than a tie-break.
+comparing them invents an answer the project never stated. Any two
+declarations the protocol cannot rank therefore have no winner, which the
+next section turns into behaviour rather than a tie-break.
 
 ### Steps
 
@@ -298,12 +334,12 @@ specificity rule above.
 
 | Step | Action |
 |---|---|
-| (a) | grep the candidate files for `trigger-framework:` — an explicit read, never a wait for context |
+| (a) | grep the candidate files for `trigger-framework:`, and the root homes for `vendor-paths:` — an explicit read, never a wait for context |
 | (b) | fingerprint the project's own code, skipping vendor directories |
 | (c) | ask the developer, with `reference/choosing-a-framework.md` |
 
-**Who repairs what.** Step (c) and the collision between declarations of
-unequal shape both need a person, so both belong to an interactive
+**Who repairs what.** Step (c) and the collision between declarations the
+protocol cannot rank both need a person, so both belong to an interactive
 session. A background agent asks nothing: it enforces the rules it can
 resolve and reports whatever it cannot. A session, in turn, does not
 settle such an ambiguity in conversation — an answer there dies at the
@@ -329,6 +365,12 @@ directory, which is exactly when resolution runs.
 | TDTM | `TDTM_Config_API.run(` |
 | dispatcher | `TriggerDispatcher.Run(`, or a handler implementing an interface with `IsDisabled()` |
 | frameworkless | no pattern is not a fingerprint — go to step (c) |
+
+Only the first three rows carry shipped ids. `fflib`, `TDTM` and
+`dispatcher` are recognition labels: they name what the pattern found so
+the session can say it out loud, and they are products or families rather
+than approaches. A label becomes an id only when something declares it,
+and then it is the project's word, not this table's.
 
 The metadata-driven fingerprint keys on Custom Metadata records and the
 trigger body, never on the framework's classes: the records sit in the
@@ -379,7 +421,8 @@ reads the files again.
 | No triggers at all | go to (c) |
 | A fingerprint matches a framework this plugin ships nothing for — fflib, TDTM, a dispatcher | the id is sound and only the document is missing, so take the homegrown row below: offer to write a project document, never substitute another framework's |
 | Two subtree-scoped declarations disagree | the inner one wins, and the disagreement is always stated — never resolved silently |
-| Declarations of unequal shape both cover the file — a rule and a `CLAUDE.md` | no winner: name every file that declares, then work out with the developer which home survives and write that change. Picking one silently would answer a question only the project can, and answering it in conversation would leave the collision to recur next session |
+| Two declarations cover the file and neither is a subtree containing the other — a rule against a `CLAUDE.md`, or two rules | no winner: name every file that declares, then work out with the developer which home survives and write that change. Picking one silently would answer a question only the project can, and answering it in conversation would leave the collision to recur next session |
+| The resolved document answers question 1 without a signature | grade the framework-independent rules, skip the framework rules, and say so in the Summary — a document that cannot say what its handlers are cannot have them graded, and guessing a signature would repeat the mistake a filename pattern already made |
 | The declared document is missing | say so and grade by the framework-independent rules; never substitute another framework's document, since guidance for the wrong framework writes code that does not compile |
 | A homegrown framework with no document | offer to write one, describing their code rather than a pattern from the internet — the "dispatcher, handler, helper" division has no primary source |
 
@@ -387,10 +430,11 @@ reads the files again.
 
 `salesforce-code-review` gains a step: for `.trigger` files — the one
 artefact every framework has — load `salesforce-triggers`, resolve through
-(a) and (b), then load the framework document by path or name and take the
-handler glob from its Dispatch answer to bring the project's handler
-classes into scope. The file scope is resolved, never hardcoded, because
-only the framework knows what its handlers are called.
+(a) and (b), then load the framework document by path or name and select
+the project's handler classes by the signature its Dispatch answer gives,
+out of the Apex classes the run already covers. Which classes the
+framework rules grade is resolved, never hardcoded, because only the
+framework knows what makes a class one of its handlers.
 
 A background agent enforces standards and asks nothing.
 `/salesforce-review` therefore resolves before dispatch and passes the
@@ -405,8 +449,8 @@ rather than guessing them, notes `trigger framework: unresolved —
 framework-specific rules not graded` among the Summary's out-of-scope
 notes, and reports the declaration rule in the `## Project` section —
 `trigger-framework-declared` where nothing declares the path,
-`trigger-framework-declared.ambiguous` where two declarations of unequal
-shape do. Both slots already exist in the review-report contract.
+`trigger-framework-declared.ambiguous` where two the protocol cannot rank
+do. Both slots already exist in the review-report contract.
 
 ## Changes to shipped content
 
@@ -538,3 +582,15 @@ Two further deviations:
 - fixed 2026-09-08 — The fflib domain/handler split is dated April 2021 where the reviewer's cited commit is 2021-03-15; license: the reviewer's citation, offered as an ungraded aside; the date now reads March 2021
 - hit fixed 2026-09-08 — the parts table still scoped the review step to `.trigger` and `*TriggerHandler*.cls` after the first finding's fix removed the second pattern everywhere else; the row now reads `.trigger` plus the handler glob the resolved framework document supplies
 - signal 2026-09-08 — one diff-scoped round should close the document once the four Important findings land; a full-document re-read is warranted only if the first finding's repair moves the handler-shape question into the framework-document contract, and the Minor leftovers are worth a single fix wave rather than a round of their own
+
+### 2026-09-08 — architect, fable 5.1, blocking (round 2, diff-scoped)
+
+- fixed 2026-09-08 — [Important] The handler-glob repair swapped one naming-convention scope for another: every `.cls` is already in the run scope, so the pattern's real job is selecting which classes framework rules grade, and no framework imposes handler names — a legacy-named class implementing `TriggerAction.BeforeInsert` matches no glob and goes ungraded; license: the Fingerprints table already recognises frameworks by content pattern, the mechanism this repair was missing; question 1 now supplies a signature, the review step selects handlers by it out of the classes already covered, a glob is demoted to an optional hint, and a failure row covers a document that answers question 1 without one
+- fixed 2026-09-08 — [Important] The `.ambiguous` sub-rule grades "two declarations of unequal shape" while the ranking rule leaves two globs unrankable and equal in shape, so two project rules declaring the same path fall between the sub-rule and the group default; license: the rule's own closing sentence already states the boundary as "two the protocol cannot rank"; the sub-rule, its prose, the review section and the failure row now all read that way, and the second pairing is named outright
+- fixed 2026-09-08 — [Important] `CLAUDE.local.md` is listed as a declaration home although the same paragraph excludes personal rules because a declaration belongs to the project; declaring there resolves the author's session while every teammate and CI reports the declaration finding; license: the recorded license of the round-one fix excludes a personal file on exactly this footing; the file is no longer a home, and the paragraph says why in terms of who can see the finding
+- fixed 2026-09-08 — [Important] `vendor-paths:` borrowed the declaration surface's homes but no resolution rule: nothing states what the globs are relative to or how values combine across homes, nearest-wins is backwards for an exclusion, and no step reads the key that the critical rule's scope depends on; ruling: 2026-09-08; the key resolves at the repository root alone with root-relative globs, which removes the combination question rather than answering it, and step (a) now reads it
+- fixed 2026-09-08 — [Minor] `trigger-one-per-object` scopes by object ownership while Exclusions scopes by path, so a vendor trigger on a standard object is skipped by one and counted by the other; license: the Exclusions section, rewritten in the previous wave, already states the scope by path; the rule now reads "under `packageDirectories` and outside `vendor-paths:`"
+- fixed 2026-09-08 — [Minor] "The ids name an approach, never a product" is contradicted by the `fflib` and `TDTM` fingerprint rows, which the same wave calls sound ids; license: the id table the same paragraph introduces holds three rows, so the principle was always about shipped ids; the principle now says so, and the remaining fingerprint rows are named recognition labels
+- fixed 2026-09-08 — [Minor] The homes set is called exact while one member is defined by ownership, which a grep cannot see; license: the glossary defines a Rules payload as installed beside a manifest, which makes ownership mechanical; the member is now "a rule file outside a directory carrying a Rules-engine manifest"
+- fixed 2026-09-08 — this wave left two sentences carrying the old "unequal shape" boundary, in the specificity paragraph and in "Who repairs what"; license: the same sentence that licensed the sub-rule's repair; both now read "the protocol cannot rank". No reviewer graded this and no gate detected it — the session's own sweep found it, so the line carries no severity and is not a gate line
+- signal 2026-09-08 — a diff-scoped round 3 over these repairs earns its cost, since each Important fix reshapes a mechanism and that is the class breeding the next round's defects; a full-document re-read now would read text about to change, so the chain debt is better discharged by the integrity audit at the consumption gate, and the three Minor leftovers belong in round 3's diff rather than a round of their own
