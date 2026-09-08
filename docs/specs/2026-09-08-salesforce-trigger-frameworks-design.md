@@ -300,7 +300,11 @@ platform type, `extends Exception` first — the shipped example's own
 (`salesforce-apex/reference/trigger-handler.md:177`). Unreadable parents
 are therefore reported in aggregate: one Summary line naming the distinct
 parents with a count each. Nothing about the line is graded, and a
-namespace-qualified parent is the one worth a second look.
+namespace-qualified parent is the one worth a second look — as a reading
+hint, never as the test. Making it the test was the sharper alternative
+and was declined: it would rest on an unverified claim about how Apex
+resolves an unqualified type name absent from the repository, and the
+aggregate line rests on no claim at all.
 
 The closure reads parents from the repository even where a parent lies
 outside a diff-scoped run, so a full run and a diff-scoped run select the
