@@ -76,7 +76,7 @@ them.
 | `reference/framework-base-class.md`, `-metadata-driven.md`, `-frameworkless.md` | dispatch shape; where the handler reads context; bypass and recursion API with its error semantics; test-isolation idiom; gotchas; framework-specific rules; two example units | layers below the handler; bulkification; test-class structure |
 | `salesforce-apex` | naming, layers, bulkification, governor limits, sharing, error handling; the four framework-independent example units | the trigger section, reduced to a layer-table row pointing at `salesforce-triggers` |
 | `salesforce-apex-testing` | test structure, factory, assertions, mocks | how to disable a handler in a test |
-| `salesforce-code-review`, `salesforce-code-reviewer` | a resolution step before grading `.trigger` and `*TriggerHandler*.cls` | asking the developer — a background agent cannot |
+| `salesforce-code-review`, `salesforce-code-reviewer` | a resolution step before grading `.trigger`, then the handler glob the resolved framework document supplies | asking the developer — a background agent cannot |
 | `/salesforce-review` | resolution before dispatch, passed in the prompt | — |
 | `rules/salesforce-toolchain.md` | a routing line for `salesforce-triggers`; the documented declaration key | the declaration itself, which belongs to the project |
 
@@ -536,4 +536,5 @@ Two further deviations:
 - fixed 2026-09-08 — [Minor] A fingerprint match on fflib, TDTM or dispatcher yields an id with no shipped document, and the failure-mode table states no next step; license: that table already routes a missing document to the homegrown row; a row now sends an inferred unshipped framework there
 - fixed 2026-09-08 — [Minor] "A rule always sits at the repository root" omits user-level rules, and the `CLAUDE.md` homes omit `.claude/CLAUDE.md` and `CLAUDE.local.md`; license: the parts table already says the declaration belongs to the project, which excludes a personal rule; the homes paragraph now names the grep candidate set exactly and rules out `~/.claude/rules/`
 - fixed 2026-09-08 — The fflib domain/handler split is dated April 2021 where the reviewer's cited commit is 2021-03-15; license: the reviewer's citation, offered as an ungraded aside; the date now reads March 2021
+- hit fixed 2026-09-08 — the parts table still scoped the review step to `.trigger` and `*TriggerHandler*.cls` after the first finding's fix removed the second pattern everywhere else; the row now reads `.trigger` plus the handler glob the resolved framework document supplies
 - signal 2026-09-08 — one diff-scoped round should close the document once the four Important findings land; a full-document re-read is warranted only if the first finding's repair moves the handler-shape question into the framework-document contract, and the Minor leftovers are worth a single fix wave rather than a round of their own
