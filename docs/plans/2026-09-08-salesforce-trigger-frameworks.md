@@ -1,8 +1,8 @@
 ---
 ticket: none
 date: 2026-09-08
-status: draft
-adversary: concerns
+status: approved
+adversary: concerns (resolved 2026-09-08)
 spec: ../specs/2026-09-08-salesforce-trigger-frameworks-design.md
 branch: feature/trigger-frameworks
 base: develop
@@ -2027,6 +2027,7 @@ One line each, dated. Rulings taken during execution join the list.
 - fixed 2026-09-08 — [Minor] Task 4's fork row placed the commented-out `throw` beside the `// Do not throw…` comment, where the source puts the comment in `run()` and the `throw` inside `incrementCheckLoopCount()`, and called a `System.debug` the only trace where it fires only with `showDebug` on, default `false`; license: the fork's source (`TriggerHandler.cls:125`, `:636-646`, `:71`); the row now says so, and Deviation 6 reports the spec's matching sentence as a provenance correction
 - fixed 2026-09-08 — [Minor] Task 4's Context-access paragraph said the base class reads `Trigger.operationType`, true of the fork alone — the original picks the context from `Trigger.isBefore`, `Trigger.isInsert` and their siblings and never reads `operationType`; license: both sources; the paragraph names both forms
 - signal 2026-09-08 — another round does not repay its cost as diff-scoped: the Important was a two-token edit licensed by a sibling skill's tag, six Minors are lexical and each checkable against its cited line, and two Minors are decisions the spec did not take and belong to the developer. If a round follows the developer's answers it is full-document only — a diff-scoped LGTM on a plan renews the confirming debt rather than discharging it. The class this round hunted, the same defect one cell from the previous fix, appeared three times and once in reverse (a fix wave rewrote a correct citation into a wrong one); the round-two risk — a re-introduced contradiction between the grammar bullet and the handler-set definition — did not return
+- resolved 2026-09-08 — the developer closed the loop by annotation rather than a fourth round: every disposition above is applied, the two held items carry their rulings, the simulated end state passes every check, and the round's own signal said another read would not repay its cost. `status` moves to `approved` in the same edit
 
 ### 2026-09-08 — plan-adversary, fable 5.1, concerns (round 2, diff-scoped)
 
