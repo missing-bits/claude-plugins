@@ -46,7 +46,7 @@ Two triggers whose declared contexts overlap fire in an order the
 platform leaves undefined, so the same code yields different results
 between runs. Disjoint contexts carry no ordering risk today, yet they
 split an object's automation across files and sit one context
-declaration away from the critical case.
+declaration away from the case the group default grades.
 
 ### The trigger body delegates
 
