@@ -12,7 +12,8 @@ author's preferences on contested points.
 
 | Skill | Scope |
 |---|---|
-| `salesforce-apex` | naming, lightweight layers (trigger handler, service, selector, domain), bulkification, governor limits, sharing keywords, error handling |
+| `salesforce-apex` | naming, lightweight layers (service, selector, domain), bulkification, governor limits, sharing keywords, error handling |
+| `salesforce-triggers` | one trigger per object, the trigger body, resolving the project's trigger framework — base-class, metadata-driven, frameworkless, or one the project documents itself — and loading its guidance |
 | `salesforce-apex-testing` | test-class structure, TestDataFactory, assertions, mocking, no SeeAllData, coverage as a floor |
 | `salesforce-lwc` | component structure, JS conventions, wire vs imperative Apex, labels, events and LMS, styling, jest tests, static-resource placement stance |
 | `salesforce-flow` | naming, plan-before-build, bulk-safe patterns, fault paths, run context, one record-triggered flow per object and trigger moment, retired-automation stance |
@@ -25,6 +26,19 @@ Each skill ships `reference/` examples alongside its SKILL.md.
 **Maintenance-first**: existing Aura/Visualforce is held to the
 standards; new UI is built in LWC unless the platform forces the
 legacy technology.
+
+## Declaring the trigger framework
+
+A project declares which trigger framework governs its triggers with a
+`trigger-framework:` line in the body of a `CLAUDE.md` — the root one,
+the trigger directory's, or `.claude/CLAUDE.md` — or of a project rule,
+and lists code it did not write with a `vendor-paths:` line in a root
+home — directory prefixes, never globs. The
+`salesforce-triggers` skill reads both, ranks nested declarations,
+infers from code when nothing declares, and asks only from an
+interactive session. A framework this plugin does not ship is declared
+with a `doc-path:` or `skill:` locator pointing at the project's own
+document.
 
 ## Review stack
 

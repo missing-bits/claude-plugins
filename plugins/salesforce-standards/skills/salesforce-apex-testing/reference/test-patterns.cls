@@ -1,7 +1,7 @@
 /**
  * Worked example of the patterns in SKILL.md, testing an illustrative
  * `OrderService` / `OrderDomain` pair (the same Order fulfillment scenario
- * as salesforce-apex's reference/trigger-handler.md): activating an Order
+ * as salesforce-apex's reference/order-layers.md): activating an Order
  * inserts one fulfillment Task per Order, and an Order can only move to
  * "Activated" from "Draft" — moving to "Activated" from any other status
  * (e.g. "Cancelled") throws.
