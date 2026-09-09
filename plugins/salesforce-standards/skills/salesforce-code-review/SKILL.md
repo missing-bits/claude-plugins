@@ -75,8 +75,11 @@ provision.
    `trigger-framework-declared` (nothing declares the path) or
    `trigger-framework-declared.ambiguous` (two the protocol cannot rank)
    in `## Project`. Where resolution succeeds and the document supplies
-   no signature, the same note names `trigger-context-below-handler`
-   beside the framework rules. The skill's failure table names the
+   no signature, a separate note names the resolved document and says
+   it supplied none, so the framework rules and
+   `trigger-context-below-handler` go ungraded while the rest is
+   graded — never the unresolved note above, which would report a
+   framework that did resolve. The skill's failure table names the
    other Summary notes: unreadable `extends` parents in aggregate, the
    two `vendor-paths:` notes, an unreadable discriminator.
 3. Grade every finding by its rule tag — the tag is binding; no general

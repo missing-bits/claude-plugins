@@ -30,9 +30,10 @@ legacy technology.
 ## Declaring the trigger framework
 
 A project declares which trigger framework governs its triggers with a
-`trigger-framework:` line in the body of its root `CLAUDE.md` or of the
-trigger directory's, and lists code it did not write with a
-`vendor-paths:` line at the root — directory prefixes, never globs. The
+`trigger-framework:` line in the body of a `CLAUDE.md` — the root one,
+the trigger directory's, or `.claude/CLAUDE.md` — or of a project rule,
+and lists code it did not write with a `vendor-paths:` line in a root
+home — directory prefixes, never globs. The
 `salesforce-triggers` skill reads both, ranks nested declarations,
 infers from code when nothing declares, and asks only from an
 interactive session. A framework this plugin does not ship is declared

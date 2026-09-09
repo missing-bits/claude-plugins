@@ -70,9 +70,10 @@ framework, graded by no rule here, and exempt from
 The base class reads `Trigger.isExecuting` and the context flags in
 `run()` to pick the context method — `Trigger.operationType` in the
 fork, `Trigger.isBefore`, `Trigger.isInsert` and their siblings in the
-original — which is why it is a framework type. The handler reads `Trigger.new` and `Trigger.oldMap` once, in its
-constructor, into typed fields; the context methods and everything
-below them read nothing from `Trigger.*`.
+original — which is why it is a framework type. The handler reads
+`Trigger.new` and `Trigger.oldMap` once, in its constructor, into typed
+fields; the context methods and everything below them read nothing from
+`Trigger.*`.
 
 ## Bypass and recursion
 
