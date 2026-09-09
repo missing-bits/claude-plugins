@@ -33,10 +33,11 @@ review must never block this session.
    run scope; the agent notes out-of-domain files in the report
    Summary as out of scope and writes the one report itself
    (`mode: agent` under the installed contract). The dispatch prompt
-   carries the scope, the prior report's runid for a rerun (`rerun-of`),
-   and the resolution record from step 2, and the directory-mode decision from step 3
-   — never report-shaping instructions of its own: aggregation and
-   counting policy, layout, and severity policy belong to the contract
+   carries the scope, the prior report's runid for a rerun
+   (`rerun-of`), the resolution record from step 2, and the
+   directory-mode decision from step 3 — never report-shaping
+   instructions of its own: aggregation and counting
+   policy, layout, and severity policy belong to the contract
    and the reviewer's skill, and a whole-project scope is no exception.
 5. Tell the developer: the review is running in the background; the
    summary arrives as a task notification, not inline; progress via
