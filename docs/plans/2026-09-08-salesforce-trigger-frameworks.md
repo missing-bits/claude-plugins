@@ -908,9 +908,10 @@ framework, graded by no rule here, and exempt from
 The base class reads `Trigger.isExecuting` and the context flags in
 `run()` to pick the context method — `Trigger.operationType` in the
 fork, `Trigger.isBefore`, `Trigger.isInsert` and their siblings in the
-original — which is why it is a framework type. The handler reads `Trigger.new` and `Trigger.oldMap` once, in its
-constructor, into typed fields; the context methods and everything
-below them read nothing from `Trigger.*`.
+original — which is why it is a framework type. The handler reads
+`Trigger.new` and `Trigger.oldMap` once, in its constructor, into typed
+fields; the context methods and everything below them read nothing from
+`Trigger.*`.
 
 ## Bypass and recursion
 
@@ -1679,8 +1680,11 @@ Replace with:
    `trigger-framework-declared` (nothing declares the path) or
    `trigger-framework-declared.ambiguous` (two the protocol cannot rank)
    in `## Project`. Where resolution succeeds and the document supplies
-   no signature, the same note names `trigger-context-below-handler`
-   beside the framework rules. The skill's failure table names the
+   no signature, a separate note names the resolved document and says
+   it supplied none, so the framework rules and
+   `trigger-context-below-handler` go ungraded while the rest is
+   graded — never the unresolved note above, which would report a
+   framework that did resolve. The skill's failure table names the
    other Summary notes: unreadable `extends` parents in aggregate, the
    two `vendor-paths:` notes, an unreadable discriminator.
 ```
@@ -1878,15 +1882,18 @@ Then insert a section before `## Review stack`:
 ## Declaring the trigger framework
 
 A project declares which trigger framework governs its triggers with a
-`trigger-framework:` line in the body of its root `CLAUDE.md` or of the
-trigger directory's, and lists code it did not write with a
-`vendor-paths:` line at the root — directory prefixes, never globs. The
+`trigger-framework:` line in the body of a `CLAUDE.md` — the root one,
+the trigger directory's, or `.claude/CLAUDE.md` — or of a project rule,
+and lists code it did not write with a `vendor-paths:` line in a root
+home — directory prefixes, never globs. The
 `salesforce-triggers` skill reads both, ranks nested declarations,
 infers from code when nothing declares, and asks only from an
 interactive session. A framework this plugin does not ship is declared
 with a `doc-path:` or `skill:` locator pointing at the project's own
 document.
 ```
+
+Then add a keyword for the new skill: find `"apex", "lwc"` in the same file and replace it with `"apex", "triggers", "lwc"`.
 
 - [ ] **Step 4: Edit the catalog and the repo README**
 
@@ -2032,6 +2039,17 @@ One line each, dated. Rulings taken during execution join the list.
 - 2026-09-09 — Illustrative Apex fragments under prose headings (the frameworkless recursion-guard field, the three test-isolation snippets) stay fragments; the copy-pasteable constraint binds the blocks a file heading names. Task 3's reviewer flagged the fragments as plan-mandated; the Global Constraint now says so.
 
 ## Review rounds
+
+### 2026-09-09 — final whole-branch code review, fable 5.1 (implementation range 18a87c4..c37861e)
+
+The plan's own text carried four of the findings, so each fix landed in the shipped file and was back-ported into the block above that prescribes it.
+
+- fixed 2026-09-09 — [Important] Task 8's paragraph told a run to reuse the `trigger framework: unresolved` Summary note where the framework did resolve and only the signature was missing, so the report would contradict itself and the hub's own failure row; license: that failure row, which names the document instead; the paragraph now writes a separate note naming the resolved document and saying it supplied no signature, and says outright that the unresolved note is never the one
+- fixed 2026-09-09 — [Minor] `framework-base-class.md:73` ran 113 characters against the file's wrap, a defect this loop's round-three ledger already owed a back-port; license: the plan's own wrap constraint; the Context-access paragraph is rewrapped in Task 4's block and in the shipped file
+- fixed 2026-09-09 — [Minor] Task 10's README section narrowed the declaration homes to two where the toolchain rule and the hub allow `.claude/CLAUDE.md` and a project rule; license: the hub's homes paragraph; the section now names the wider set and puts `vendor-paths:` in a root home
+- fixed 2026-09-09 — [Minor] The plugin manifest's keyword list gained no term for the new skill; license: the marketplace-sync rule's canonical-description duty, which the keywords serve; `triggers` joins the list in Task 10's block and in the manifest
+- declined 2026-09-09 — [Minor] Step (b) fingerprints the grading universe, which holds Apex files, while the metadata-driven row keys on `Trigger_Action__mdt` and `sObject_Trigger_Setting__mdt` records — `.md-meta.xml` files the universe does not contain, so a literal reader never matches that half of the pattern; ruling: 2026-09-09; the defect is the spec's (its Steps table and Fingerprints section say the same), the plan implements the spec faithfully, and rewriting the universe here would be design work this branch has no license for — it goes to the spec's ledger as a note with the other five
+- signal 2026-09-09 — the reviewer judged the branch ready to merge after the one Important, triaged all five deferred items and the parked one as shippable, and named the release-notes item the plan already carries. No further round earns its cost: the fix wave is four prescribed replacements, each checked against its cited line, and one scoped re-review closes it
 
 ### 2026-09-08 — plan-adversary, fable 5.1, concerns (round 3, full-document)
 
