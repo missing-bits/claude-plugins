@@ -1,12 +1,14 @@
 ---
 name: salesforce-apex
-description: Use when writing or reviewing Apex backend code — naming, lightweight layering (one trigger handler per object, service, selector, domain), bulkification, governor limits, sharing keywords, and error handling. Apex unit tests belong to salesforce-apex-testing; access-model design to salesforce-security-model.
+description: Use when writing or reviewing Apex backend code — naming, lightweight layering (service, selector, domain), bulkification, governor limits, sharing keywords, and error handling. Apex triggers and their handlers belong to salesforce-triggers; Apex unit tests to salesforce-apex-testing; access-model design to salesforce-security-model.
 ---
 
 # Salesforce Apex
 
-Standards for Apex classes and triggers: naming, layering, bulk safety,
-governor limits, sharing, and error handling. Cite rules in review
+Standards for Apex classes: naming, layering, bulk safety, governor
+limits, sharing, and error handling. Triggers and their handlers — one
+trigger per object, the trigger body, the project's trigger framework —
+belong to `salesforce-triggers`. Cite rules in review
 findings as `(standard: salesforce-apex, rule: <id>)`; each rule names
 its source — the Apex Developer Guide, Salesforce Well-Architected, a
 PMD Apex rule name, or `this standard` (a recorded house decision).
@@ -25,15 +27,14 @@ mechanics.
 | Method | camelCase, verb-first | `activateFulfillment` |
 | Variable / parameter | camelCase | `activatedOrders` |
 | Constant (`static final`) | `UPPER_SNAKE_CASE` | `MAX_BATCH_SIZE` |
-| Trigger handler | `<Object>TriggerHandler` | `AccountTriggerHandler` |
 | Selector | `<Object>Selector`, methods `select*By*` | `AccountSelector.selectByIds(Set<Id>)` |
 | Custom exception | `<Domain>Exception` | `OrderProcessingException` |
 
 (id: `apex-naming`; severity: minor; source: Apex Developer Guide; PMD
 `ClassNamingConventions`, `MethodNamingConventions`,
 `FieldNamingConventions`, `FormalParameterNamingConventions`,
-`LocalVariableNamingConventions`; the handler/selector/exception
-patterns are this standard)
+`LocalVariableNamingConventions`; the selector/exception patterns are
+this standard)
 
 ## Lightweight layers
 
@@ -42,22 +43,20 @@ a naming-and-structure convention, not a library.
 
 | Layer | Owns | Never does |
 |---|---|---|
-| Trigger | One line: hands the trigger context to its handler | Any conditional or business logic |
-| Handler (`<Object>TriggerHandler`) | Routes each trigger event (before insert, after update, …) to domain and service calls | SOQL, DML, business logic itself |
+| Trigger and handler | Dispatch: hand the trigger context to the layers below — the shape, one trigger per object and the project's framework are `salesforce-triggers`'s | SOQL, DML, business logic in the handler; the trigger body is `trigger-body-delegates`'s to grade |
 | Domain (`<Object>Domain`, optional) | Per-record rules on the in-memory set: validation, defaulting, state-transition checks | SOQL, DML, callouts |
 | Service (`<Object>Service`) | Orchestration: the business transaction, DML, callouts, chaining async work | Ad-hoc SOQL (asks the selector) |
 | Selector (`<Object>Selector`) | ALL SOQL for its object — query methods only | DML, business logic |
 
-- **One handler per trigger; one trigger per object.** The trigger body
-  is a single delegating call — no `if`/`for`/field logic in the
-  `.trigger` file.
 - The Domain layer holds an object's own business rules (e.g. "an Order
   can only move from Draft to Activated, never backward"), kept
   independent of Handler/Service so those rules stay testable without
   full orchestration.
-- A complete worked example (trigger + handler + domain + selector +
-  service for one object) is in
-  [reference/trigger-handler.md](reference/trigger-handler.md).
+- The four framework-independent units for one object — domain,
+  selector, service, exception — are in
+  [reference/order-layers.md](reference/order-layers.md); the trigger
+  and handler that call them are in each `salesforce-triggers`
+  framework document.
 
 (id: `apex-layering`; severity: important; source: Salesforce
 Well-Architected; Apex Enterprise Patterns / fflib cited as

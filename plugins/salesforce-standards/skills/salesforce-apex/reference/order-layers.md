@@ -1,65 +1,21 @@
-# Trigger + handler + domain + selector + service — worked example
+# Domain + selector + service — worked example
 
-One object (standard `Order`), six compilation units, one fenced block
+One object (standard `Order`), four compilation units, one fenced block
 each — each block is valid, copy-pasteable Apex for the file named
-above it. In a real org each block is its own `.trigger`/`.cls` file
-(a `.cls` file holds exactly one top-level type).
+above it. In a real org each block is its own `.cls` file (a `.cls`
+file holds exactly one top-level type). The trigger and the handler
+that call these units depend on the project's trigger framework and
+live in the `salesforce-triggers` skill's framework documents; each of
+them calls the same methods below, so the three examples are one
+scenario.
 
 Scenario: when an Order's `Status` field moves to "Activated", create
-one fulfillment `Task` per order. The example demonstrates: one
-delegating trigger, a handler that routes but never queries or writes,
-a domain class that owns the record-level status-transition rule, a
-selector that owns all SOQL for `Order`, and a service that owns the
-DML transaction — all bulk-safe, all with an explicit sharing
-declaration, errors routed through a custom exception and a logger
-abstraction rather than swallowed or left as bare `System.debug` calls.
-
-## `OrderTrigger.trigger`
-
-A single delegating call per trigger context — no conditional or field
-logic in the trigger body itself.
-
-```apex
-trigger OrderTrigger on Order (before insert, before update, after update) {
-    if (Trigger.isBefore) {
-        if (Trigger.isInsert) {
-            OrderTriggerHandler.handleBeforeInsert(Trigger.new);
-        }
-        if (Trigger.isUpdate) {
-            OrderTriggerHandler.handleBeforeUpdate(Trigger.new, Trigger.oldMap);
-        }
-    }
-    if (Trigger.isAfter && Trigger.isUpdate) {
-        OrderTriggerHandler.handleAfterUpdate(Trigger.new, Trigger.oldMap);
-    }
-}
-```
-
-## `OrderTriggerHandler.cls`
-
-Routes trigger events to Domain and Service; no SOQL, no DML, no
-business logic of its own. `with sharing` — the default for the
-handler layer.
-
-```apex
-public with sharing class OrderTriggerHandler {
-
-    public static void handleBeforeInsert(List<Order> newOrders) {
-        OrderDomain.applyDefaults(newOrders);
-    }
-
-    public static void handleBeforeUpdate(List<Order> newOrders, Map<Id, Order> oldMap) {
-        OrderDomain.validateStatusTransitions(newOrders, oldMap);
-    }
-
-    public static void handleAfterUpdate(List<Order> newOrders, Map<Id, Order> oldMap) {
-        List<Order> activated = OrderDomain.filterNewlyActivated(newOrders, oldMap);
-        if (!activated.isEmpty()) {
-            OrderService.activateFulfillment(activated);
-        }
-    }
-}
-```
+one fulfillment `Task` per order. The example demonstrates: a domain
+class that owns the record-level status-transition rule, a selector
+that owns all SOQL for `Order`, and a service that owns the DML
+transaction — all bulk-safe, all with an explicit sharing declaration,
+errors routed through a custom exception and a logger abstraction
+rather than swallowed or left as bare `System.debug` calls.
 
 ## `OrderDomain.cls`
 

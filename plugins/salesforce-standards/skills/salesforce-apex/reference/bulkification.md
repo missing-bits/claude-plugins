@@ -2,7 +2,7 @@
 
 One pair per rule in SKILL.md's "Bulkification" and "Governor limits"
 sections. All examples use the `Order` / `Task` objects from
-[trigger-handler.md](trigger-handler.md).
+[order-layers.md](order-layers.md).
 
 ## apex-bulkification: SOQL in a loop → collection-driven query
 
