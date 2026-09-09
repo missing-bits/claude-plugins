@@ -53,6 +53,32 @@ provision.
    salesforce-lwc, salesforce-flow, salesforce-data-model,
    salesforce-security-model, salesforce-aura, salesforce-visualforce
    as the content demands.
+   Any Apex file in the run — a `.trigger` or a `.cls` alike — also
+   loads `salesforce-triggers` and runs its resolution protocol before
+   grading: steps (0) through (b), then step (d) for each resolved
+   framework, loading that framework's document by path or name and
+   selecting its handlers from the grading universe by the document's
+   signature. Resolution runs per file, so a monorepo running two
+   frameworks loads two documents and grades every class under the
+   framework resolved for its own path. Step (c) is never taken here —
+   a background agent asks nothing — and neither is the offer to write
+   a declaration. A resolution record carried in the dispatch prompt is
+   verified against the declarations on disk; where they disagree, the
+   run reports the mismatch and grades by the declaration, the files
+   being the authority. A record whose source is `asked` or `inferred`
+   stands where no declaration covers the path — step (c) already ran
+   in the session that dispatched — and `trigger-framework-declared`
+   still lands in `## Project`. When resolution fails, grade the
+   framework-independent rules, skip framework rules rather than guess
+   them, note `trigger framework: unresolved — framework-specific rules
+   not graded` among the Summary's out-of-scope notes, and report
+   `trigger-framework-declared` (nothing declares the path) or
+   `trigger-framework-declared.ambiguous` (two the protocol cannot rank)
+   in `## Project`. Where resolution succeeds and the document supplies
+   no signature, the same note names `trigger-context-below-handler`
+   beside the framework rules. The skill's failure table names the
+   other Summary notes: unreadable `extends` parents in aggregate, the
+   two `vendor-paths:` notes, an unreadable discriminator.
 3. Grade every finding by its rule tag — the tag is binding; no general
    intuition overrules it:
    - the finding matches a listed sub-rule → that sub-rule's severity;

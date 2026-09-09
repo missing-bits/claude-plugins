@@ -9,7 +9,15 @@ review must never block this session.
 1. Resolve the scope: `$ARGUMENTS` when given (named files);
    otherwise the current diff — staged plus unstaged changes, or, on
    a clean tree, the diff of the current branch against its base.
-2. Pre-dispatch first-create check, gated on the contract probe:
+2. Resolve the trigger framework when the scope holds any Apex file:
+   load `salesforce-triggers` and run its protocol, steps (0) through
+   (c) — this is the one review surface where step (c) may ask the
+   developer. Write the resolution record, one per resolved framework
+   with the paths it covers, and carry it in the dispatch prompt beside
+   the directory-mode decision; the agent verifies it against the
+   declarations on disk. Where step (c) resolved the framework, offer
+   to write the declaration before dispatching.
+3. Pre-dispatch first-create check, gated on the contract probe:
    check `<project>/.claude/rules/working-process/review-reports.md`,
    then `$HOME/.claude/rules/working-process/review-reports.md` —
    first hit wins (paths owned by the review-reports contract;
@@ -20,19 +28,19 @@ review must never block this session.
    explicit project instruction declaring the mode (signal list owned
    by the process-artifacts rule) — ask the developer now: ignored or
    tracked mode.
-3. Dispatch the `salesforce-code-reviewer` agent in the BACKGROUND
+4. Dispatch the `salesforce-code-reviewer` agent in the BACKGROUND
    with the resolved scope. Salesforce files only, per the skill's
    run scope; the agent notes out-of-domain files in the report
    Summary as out of scope and writes the one report itself
    (`mode: agent` under the installed contract). The dispatch prompt
-   carries the scope, the prior report's runid for a rerun
-   (`rerun-of`), and the directory-mode decision from step 2 — never
-   report-shaping instructions of its own: aggregation and counting
-   policy, layout, and severity policy belong to the contract and
-   the reviewer's skill, and a whole-project scope is no exception.
-4. Tell the developer: the review is running in the background; the
+   carries the scope, the prior report's runid for a rerun (`rerun-of`),
+   and the resolution record from step 2, and the directory-mode decision from step 3
+   — never report-shaping instructions of its own: aggregation and
+   counting policy, layout, and severity policy belong to the contract
+   and the reviewer's skill, and a whole-project scope is no exception.
+5. Tell the developer: the review is running in the background; the
    summary arrives as a task notification, not inline; progress via
    `/tasks`; the report will land under `docs/code-review/`.
-5. When the run's notification arrives, relay its reply to the
+6. When the run's notification arrives, relay its reply to the
    developer: report path, findings by severity, and the
    candidate-gap offers verbatim.
