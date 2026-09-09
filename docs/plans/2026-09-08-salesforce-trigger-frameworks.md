@@ -25,7 +25,7 @@ base: develop
 - **Rule ids:** `trigger-` in the hub, `trigger-base-class-`, `trigger-metadata-driven-` and `trigger-frameworkless-` in the framework documents. Findings cite `(standard: salesforce-triggers, rule: <id>)` for every one of them — a `reference/` document has no standard of its own.
 - **The declaration keys never appear at the start of a line outside a fenced code block in any shipped file.** A line starting `trigger-framework:` or `vendor-paths:` in a shipped rule or skill would be read as a declaration by the very protocol it documents. Inline mentions sit in backticks mid-sentence; examples sit in fenced blocks. Task 11 sweeps for it.
 - **Frontmatter safety:** no `description:` contains `: ` (colon-space); the two new descriptions are checked for it in Task 1 and Task 11.
-- **No version bump.** `plugins/salesforce-standards/.claude-plugin/plugin.json` stays at `0.3.1`; the release PR mints the number, and this topic does not dogfood.
+- **The version carries a dogfood prerelease.** At the branch's close the developer chose to dogfood this work, so `plugins/salesforce-standards/.claude-plugin/plugin.json` moves to `0.4.0-dev.trigger-frameworks` in a commit of its own (developer ruling, 2026-09-09). The number is the next unreleased minor rather than a suffix on `0.3.1`, because `master` carries `0.3.0`, `develop` already accumulated `0.3.1`, and the plugin cache holds a `0.3.1` directory — a prerelease of an already-present number sorts below it and delivers nothing. The discriminator is the branch short-name, this topic having no issue. Every task before the close leaves the version untouched, and the release PR strips the suffix while minting the final number.
 - **No eval files.** Neither `skill-creator` nor any agent writes `evals/trigger-evals.json` or any other eval file under the plugin — a standing decision of this repo. `skill-creator` may be used for `description:` tuning only.
 - **Apex examples are valid, copy-pasteable Apex** for the file named above them, in the style of the existing `reference/` files: four-space indent, one class per block, explicit sharing keyword. The constraint binds the blocks a `### \`<File>\`` heading names; an illustrative fragment under a prose heading — a field, a test snippet — is not a file and need not compile alone, as the shipped `bulkification.md` before/after pairs already do not (developer ruling, 2026-09-09). No compiler runs here, so every block is written once into this plan and copied verbatim into the file — a fix to a shipped block is back-ported into this plan in the same wave.
 - **Every framework document calls the same four lower-layer methods** the renamed `order-layers.md` defines: `OrderDomain.applyDefaults(List<Order>)`, `OrderDomain.validateStatusTransitions(List<Order>, Map<Id, Order>)`, `OrderDomain.filterNewlyActivated(List<Order>, Map<Id, Order>)` returning `List<Order>`, and `OrderService.activateFulfillment(List<Order>)`. Nothing else is called from a handler.
@@ -1797,11 +1797,11 @@ Then append after the paragraph's last line (`available, the toolchain facts abo
 ```
 The project's trigger framework and its vendor code are declared in
 the project, never in this rule. A line carrying the `trigger-framework:`
-key sits in the body of the root `CLAUDE.md`, of a trigger directory's
-`CLAUDE.md`, or of a project rule outside this payload — one framework
-per path. A line carrying the `vendor-paths:` key sits in a root home
-alone — the root `CLAUDE.md` files or a project rule — as directory
-prefixes; a copy in a subdirectory is not read. When the
+key sits in the body of a `CLAUDE.md` — the root one, a trigger
+directory's, or `.claude/CLAUDE.md` — or of a project rule outside this
+payload, one framework per path. A line carrying the `vendor-paths:` key
+sits in a root home alone — either root `CLAUDE.md` or a project rule —
+as directory prefixes; a copy in a subdirectory is not read. When the
 `salesforce-triggers` skill is available it reads both keys and says how
 they rank; when it is not, the lines still record the choice for the
 reader.
@@ -1815,9 +1815,10 @@ grep -c 'salesforce-triggers' "$r"
 grep -c '^trigger-framework:\|^vendor-paths:' "$r"
 grep -c '^---$' "$r"
 grep -c 'trigger-framework:' "$r"
+grep -c '\.claude/CLAUDE\.md' "$r"
 ```
 
-Expected: `2`, `0`, `2`, `1`. The key appears once, mid-line.
+Expected: `2`, `0`, `2`, `1`, `1`. The key appears once, mid-line, and the homes name `.claude/CLAUDE.md` — the hub treats it as an equal home, and the first draft of this paragraph omitted it.
 
 - [ ] **Step 4: Review the frontmatter by hand**
 
@@ -1913,7 +1914,7 @@ grep -c '^trigger-framework:\|^vendor-paths:' plugins/salesforce-standards/READM
 grep '"version"' plugins/salesforce-standards/.claude-plugin/plugin.json
 ```
 
-Expected: `0`, `1`, `2`, `9`, `.claude-plugin/marketplace.json:1` and `README.md:1`, `0`, `"version": "0.3.1",`. The `salesforce-triggers` count is two: the table row and the new section each name it once. The declaration-key count at line start is the plugin-wide invariant at `0`; the version line is an invariant too.
+Expected: `0`, `1`, `2`, `9`, `.claude-plugin/marketplace.json:1` and `README.md:1`, `0`, `"version": "0.3.1",` — this task leaves the version alone; the prerelease lands in its own commit at the branch's close. The `salesforce-triggers` count is two: the table row and the new section each name it once. The declaration-key count at line start is the plugin-wide invariant at `0`; the version line is an invariant too.
 
 - [ ] **Step 6: Validate and commit**
 
@@ -2036,6 +2037,8 @@ One line each, dated. Rulings taken during execution join the list.
 - 2026-09-08 — A resolution record whose source is `asked` or `inferred`, passed in the review dispatch prompt, stands where no declaration covers the path; the run grades framework rules by it and still reports `trigger-framework-declared` in `## Project`.
 - 2026-09-08 — The frameworkless signature stays `member: handle(System.TriggerOperation` as the spec prescribes; the document carries a Gotcha that the entry point is written verbatim, rather than the pattern widening to `member: TriggerOperation`.
 - 2026-09-08 — Task 1's prose under `.disjoint-contexts` no longer reads "the critical case", which the Task 1 reviewer flagged as a grade restated outside a tag; it reads "the case the group default grades". The spec's Framework-independent rules carry the original phrase and are reported, not edited.
+- 2026-09-09 — The toolchain rule names `.claude/CLAUDE.md` among the declaration homes before the merge, rather than leaving the narrowing as an `open` ledger line: the rule ships to projects, and the omission is the same one the README fix removed a file earlier.
+- 2026-09-09 — The branch closes by a local `--no-ff` merge into `develop`, with no push and no pull request, and the plugin version takes a dogfood prerelease — `0.4.0-dev.trigger-frameworks`, the next unreleased minor, because a suffix on `0.3.1` would sort below a number the cache already holds.
 - 2026-09-09 — Illustrative Apex fragments under prose headings (the frameworkless recursion-guard field, the three test-isolation snippets) stay fragments; the copy-pasteable constraint binds the blocks a file heading names. Task 3's reviewer flagged the fragments as plan-mandated; the Global Constraint now says so.
 
 ## Review rounds
@@ -2049,7 +2052,7 @@ The plan's own text carried four of the findings, so each fix landed in the ship
 - fixed 2026-09-09 — [Minor] Task 10's README section narrowed the declaration homes to two where the toolchain rule and the hub allow `.claude/CLAUDE.md` and a project rule; license: the hub's homes paragraph; the section now names the wider set and puts `vendor-paths:` in a root home
 - fixed 2026-09-09 — [Minor] The plugin manifest's keyword list gained no term for the new skill; license: the marketplace-sync rule's canonical-description duty, which the keywords serve; `triggers` joins the list in Task 10's block and in the manifest
 - declined 2026-09-09 — [Minor] Step (b) fingerprints the grading universe, which holds Apex files, while the metadata-driven row keys on `Trigger_Action__mdt` and `sObject_Trigger_Setting__mdt` records — `.md-meta.xml` files the universe does not contain, so a literal reader never matches that half of the pattern; ruling: 2026-09-09; the defect is the spec's (its Steps table and Fingerprints section say the same), the plan implements the spec faithfully, and rewriting the universe here would be design work this branch has no license for — it goes to the spec's ledger as a note with the other five
-- open — [Minor] `rules/salesforce-toolchain.md` states the `trigger-framework:` homes as the root `CLAUDE.md`, a trigger directory's `CLAUDE.md` or a project rule, never `.claude/CLAUDE.md`, which the hub treats as an equal home — the same narrowing the README fix above removed, one file away. Found by the fix wave's scoped re-review as an out-of-scope observation, so it neither extended that loop nor entered it; it is the adjacent-cell class this repo has now measured four times. The fix is one clause in a distributed rule and belongs to the developer's call at the branch's close
+- fixed 2026-09-09 — [Minor] `rules/salesforce-toolchain.md` stated the `trigger-framework:` homes as the root `CLAUDE.md`, a trigger directory's `CLAUDE.md` or a project rule, never `.claude/CLAUDE.md`, which the hub treats as an equal home — the same narrowing the README fix above removed, one file away. Found by the fix wave's scoped re-review as an out-of-scope observation, so it neither extended that loop nor entered it; it is the adjacent-cell class this repo has now measured four times; ruling: 2026-09-09 — fixed before the merge because the rule ships to projects; the paragraph now names the wider set in the rule and in Task 9's block, and Task 9's checks gained the anchor
 - signal 2026-09-09 — the reviewer judged the branch ready to merge after the one Important, triaged all five deferred items and the parked one as shippable, and named the release-notes item the plan already carries. No further round earns its cost: the fix wave is four prescribed replacements, each checked against its cited line, and one scoped re-review closes it
 
 ### 2026-09-08 — plan-adversary, fable 5.1, concerns (round 3, full-document)
