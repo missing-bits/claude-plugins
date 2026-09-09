@@ -1631,7 +1631,7 @@ grep -c 'salesforce-triggers' "$s"
 grep -c '^[0-9]\. ' "$s"
 grep -c 'salesforce-triggers' "$c"
 grep -c '^[0-9]\. ' "$c"
-grep -c 'decision from step 2' "$c"
+tr -s '[:space:]' ' ' < "$c" | grep -o 'decision from step 2' | wc -l
 grep -c 'step 5' plugins/salesforce-standards/agents/salesforce-code-reviewer.md
 ```
 
@@ -1700,7 +1700,24 @@ Find the line beginning `2. Pre-dispatch first-create check` and insert before i
    to write the declaration before dispatching.
 ```
 
-Then renumber: the former step 2 becomes `3.`, 3 becomes `4.`, 4 becomes `5.`, 5 becomes `6.`; and in the new step 4 (the dispatch step) change `the directory-mode decision from step 2` to `the resolution record from step 2, and the directory-mode decision from step 3` — the step enumerates what the prompt carries, and the record is now one of those things.
+Then renumber: the former step 2 becomes `3.`, 3 becomes `4.`, 4 becomes `5.`, 5 becomes `6.`; and in the new step 4 (the dispatch step) rewrite the enumeration of what the prompt carries so it names the record — the step lists those things, and the record is now one of them. The three lines
+
+```
+   carries the scope, the prior report's runid for a rerun
+   (`rerun-of`), and the directory-mode decision from step 2 — never
+   report-shaping instructions of its own: aggregation and counting
+```
+
+become
+
+```
+   carries the scope, the prior report's runid for a rerun
+   (`rerun-of`), the resolution record from step 2, and the
+   directory-mode decision from step 3 — never report-shaping
+   instructions of its own: aggregation and counting
+```
+
+The wrap moves because the sentence grew; prose wraps at about 72 characters, and reflowing a paragraph whose text changed is not a deviation.
 
 - [ ] **Step 4: Measure after**
 
@@ -1711,13 +1728,13 @@ grep -c 'salesforce-triggers' "$s"
 grep -c '^[0-9]\. ' "$s"
 grep -c 'salesforce-triggers' "$c"
 grep -c '^[0-9]\. ' "$c"
-grep -c 'decision from step 2' "$c"
-grep -c 'record from step 2, and the directory-mode decision from step 3' "$c"
+tr -s '[:space:]' ' ' < "$c" | grep -o 'decision from step 2' | wc -l
+tr -s '[:space:]' ' ' < "$c" | grep -o 'the resolution record from step 2, and the directory-mode decision from step 3' | wc -l
 grep -c 'step 5' plugins/salesforce-standards/agents/salesforce-code-reviewer.md
 tr -s '[:space:]' ' ' < "$s" | grep -o 'trigger framework: unresolved' | wc -l
 ```
 
-Expected: `1`, `6`, `1`, `6`, `0`, `1`, `1`, `1`. The skill's numbered-step count is an invariant at `6` — the addition sits inside step 2 — and the agent card's `step 5` is an invariant at `1`, which is the reason for that placement.
+Expected: `1`, `6`, `1`, `6`, `0`, `1`, `1`, `1`. The two phrase checks normalize whitespace, because both phrases wrap: a single-line `grep` over wrapped prose returns `0` where the phrase is plainly present, and reflowing the shipped text to satisfy such a check is the tail wagging the dog. The skill's numbered-step count is an invariant at `6` — the addition sits inside step 2 — and the agent card's `step 5` is an invariant at `1`, which is the reason for that placement.
 
 - [ ] **Step 5: Validate and commit**
 
