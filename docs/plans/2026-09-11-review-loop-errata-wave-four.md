@@ -405,14 +405,10 @@ substitute pass and no install nagging — the work proceeds normally.
 ## Branch naming
 
 Feature work happens on a topic branch named
-`feature/<ticket>-<short-name>`, and `feature/<short-name>` where the
-ticket is `none`. The ticket is the reference the ticket-frontmatter
-rule defines, carried plainly: a Jira key as it stands
-(`feature/ABC-123-short-name`), a same-repo GitHub or GitLab issue as
-its number without the `#` (`feature/123-short-name`). The convention
-states the shape and does not argue for it — git would accept a `#` or a
-second `/` in a ref, and two attempts at justifying their absence
-shipped claims that did not hold.
+`feature/<ticket>-<short-name>`, where `<ticket>` is the work's tracker
+reference as the ticket-frontmatter rule defines it, and
+`feature/<short-name>` where there is none. That rule owns what a ticket
+value is; this one owns only the shape of the name.
 
 The branch of a worktree created with a generated name is renamed to
 this shape before its first commit, so the branch a reader sees is the
@@ -447,11 +443,9 @@ for one unit of work — a plan inherits its spec's ticket, and artifacts
 of the same session reuse the established value. The branch naming
 convention that produces the names this order reads is the workflow
 rule's, which is where a branch is cut — before any `docs/` file of that
-work exists, and so before this rule loads. Reading a name back: a
-Jira-shaped segment is the key itself; a bare leading number is a
-GitHub or GitLab issue and becomes `"#<n>"`, quoted as the Values
-section requires; an `org/repo#123` reference is not carried by the
-convention, so it comes from the next source in the order above.
+work exists, and so before this rule loads. Where a branch name yields
+no usable reference, the order above simply falls through to its next
+source, as it does for any work whose branch carries none.
 ```
 
 - [ ] **Step 5: Verify**
@@ -1176,9 +1170,10 @@ loop here, not the cap.
 
 - fixed 2026-09-11 — [Important] the six stated wrap counts hold only under a UTF-8 locale: `awk 'length'` counts bytes under `LC_ALL=C`, and these files are full of em dashes, so the same command reports 19 for `workflow.md` against the stated 3, 57 against 36 for the lifecycle rule and 72 against 50 for the glossary — the step would then report growth on text the plan prescribes verbatim and order the rewrap it forbids, which is the failure round two repaired for a different cause; license: the measurement, run both ways at this commit; both `awk` calls are now pinned to `LC_ALL=C.UTF-8` and the step says the numbers are character counts
 - fixed 2026-09-11 — [Important] the branch convention's second justification was also false: `bash -c 'echo feature/#123-short-name'` and `zsh -fc` both print the name, and only zsh with `extendedglob` set fails, so "awkward to type unquoted in a shell" does not hold either; license: those three runs; the convention now states the shape and argues for it not at all, and says why — two attempts at a reason shipped claims that did not hold, and a naming convention does not owe one
-- held — [Important] the convention reduces "a GitHub or GitLab issue" to its number alone, while the ticket rule defines that phrase as `#123` **or** `org/repo#123`, so a cross-repo ticket lands as `feature/123-short-name` and the read-back turns it into `"#123"` — a same-repo reference to another repo's issue; question: what branch shape does a cross-repo issue take?; options: (a) it takes the `feature/<short-name>` form that `ticket: none` uses, and the ticket comes from conversation, which makes the read-back sound — the session's recommendation; (b) the branch carries a marker the reader can key on, which costs a new convention; counter: the spec's W6 names only two cases and decides neither, so picking one here would settle a convention the spec left open
+- fixed 2026-09-11 — [Important] the convention reduced "a GitHub or GitLab issue" to its number alone while the ticket rule defines that phrase as `#123` **or** `org/repo#123`, so a cross-repo ticket would land as `feature/123-short-name` and read back as a same-repo reference; license: the spec's W6, which asks for four things — the two name shapes, the rename before the first commit, and the `branch:` record — and for no encoding rule at all; the developer asked why a branch convention was deciding how to write a GitHub ticket, and the answer was that round one's F4 admitted material the spec never scoped, which then cost rounds two and three three findings between them. W6 is cut back to the spec: the shape names `<ticket>` and defers to the ticket rule for what a ticket value is, and the pointer says only that the sourcing order falls through when a branch yields no reference — which is what that order already did
 - fixed 2026-09-11 — [Minor] Task 6 step 5 still opened "Read the block back and parse it" one paragraph before "It uses no YAML parser" — a leftover of the version round two removed; license: that removal; the clause now says "compare it"
 - fixed 2026-09-11 — [Minor] Task 7 step 4 said "four of these files already carry long lines" where all six do — a counter that does not re-derive, in the step the new rule's duty 4 is about; license: the six measured counts; it now says every one
 - fixed 2026-09-11 — [Minor] checks `J` and `K`, moved into Task 1 by round one, had after values and no before values, against the Global Constraint that every step states both; license: that constraint; both `echo` lines moved into step 1 and their before values are measured and stated, `J 1` and `K 0`
 - fixed 2026-09-11 — [Minor] the branch-naming section, read alone, left no room for the `<topic>.docs` branch this very work runs on, so the plan's own `branch:` field looked like a violation of the convention it ships; license: the spec-plan-lifecycle rule, which defines that branch as a sibling of the topic branch rather than a second one; the section now says the field records the topic branch and names the document branch as the sibling it is
-- signal 2026-09-11 — a fourth round pays only as a few minutes on three sentences and one command line, and after this wave two of those three are settled; the third is the held question, which no round can answer. The residue belongs to the full-document confirming round the plan owes before its loop closes, which will read these repairs in place rather than in isolation
+- signal 2026-09-11 — a fourth round pays only as a few minutes on three sentences and one command line, and after this wave all three are settled: the third was dissolved rather than answered, by cutting the text that raised it. The residue belongs to the full-document confirming round the plan owes before its loop closes, which will read these repairs in place rather than in isolation
+- signal 2026-09-11 — a scope note the dispatcher owes the next reader: W6 grew past its spec item at round one and shrank back at round three. Three findings across three rounds were spent on text the spec never asked for, and none of them was wrong — the cost was admitting the scope, not reviewing it
