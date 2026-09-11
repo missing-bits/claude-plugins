@@ -161,9 +161,12 @@ echo "F $(n $W | grep -o 'or a confirming full-document round' | wc -l)"
 echo "G $(n $W | grep -o 'confirming round alone' | wc -l)"
 echo "H $(n $W | grep -o 'a confirming round on a spec' | wc -l)"
 echo "I $(n $W | grep -o 'The confirming-round arm' | wc -l)"
+echo "J $(n $W | grep -o 'records their close, and no session' | wc -l)"
+echo "K $(n $W | grep -o 'on a plan, once the confirming round has run' | wc -l)"
 ```
 
-Expected: `A 1`, `B 0`, `C 0`, `D 1`, `E 1`, `F 1`, `G 1`, `H 1`, `I 1`.
+Expected: `A 1`, `B 0`, `C 0`, `D 1`, `E 1`, `F 1`, `G 1`, `H 1`, `I 1`,
+`J 1`, `K 0`.
 
 If any differs, stop and report: the file is not the one this task was
 written against.
@@ -294,12 +297,7 @@ Replace with:
 
 - [ ] **Step 5: Verify**
 
-Run the Step 1 command again, with the two the qualifier moves:
-
-```bash
-echo "J $(n $W | grep -o 'records their close, and no session' | wc -l)"
-echo "K $(n $W | grep -o 'on a plan, once the confirming round has run' | wc -l)"
-```
+Run the Step 1 command again.
 
 Expected: `A 0`, `B 1`, `C 1`, `D 0`, `E 1`, `F 0`, `G 0`, `H 0`, `I 0`,
 `J 0`, `K 1`.
@@ -409,19 +407,22 @@ substitute pass and no install nagging — the work proceeds normally.
 Feature work happens on a topic branch named
 `feature/<ticket>-<short-name>`, and `feature/<short-name>` where the
 ticket is `none`. The ticket is the reference the ticket-frontmatter
-rule defines, reduced to what a branch name should carry: a Jira key as
-it stands (`feature/ABC-123-short-name`), a GitHub or GitLab issue as
-its number alone (`feature/123-short-name`). Git would accept `#` and
-`/` in a ref; the convention drops them anyway, because a `#` is awkward
-to type unquoted in a shell and a `/` adds a hierarchy level that the
-`feature/<ticket>-<short-name>` shape does not parse.
+rule defines, carried plainly: a Jira key as it stands
+(`feature/ABC-123-short-name`), a same-repo GitHub or GitLab issue as
+its number without the `#` (`feature/123-short-name`). The convention
+states the shape and does not argue for it — git would accept a `#` or a
+second `/` in a ref, and two attempts at justifying their absence
+shipped claims that did not hold.
 
 The branch of a worktree created with a generated name is renamed to
 this shape before its first commit, so the branch a reader sees is the
 branch the convention names; the worktree's own directory is a separate
 name and this convention does not govern it. The work's spec and plan
-record the result in their `branch:` field, and the ticket rule reads
-the ticket back out of it.
+record the result in their `branch:` field — the topic branch, not the
+`<topic>.docs` branch a review loop's per-round commits use, which the
+spec-plan-lifecycle rule names and which is a sibling of it rather than
+a second topic branch. The ticket rule reads the ticket back out of the
+recorded name.
 
 ## Dispatching a verdict agent
 ```
@@ -911,7 +912,7 @@ literal; the prose says "the domain directory" for exactly that reason
 `claude plugin validate` does not check `rules/` — a rule file is not a
 plugin component — so an unquoted `: ` in a scalar fails silently at
 load time and nothing in Task 7 would catch it. Read the block back and
-parse it:
+compare it:
 
 The check compares the written block against the prescribed one
 literally. It uses no YAML parser: `python3 -c 'import yaml'` fails on
@@ -1034,15 +1035,20 @@ process under them while believing this wave was installed.
 - [ ] **Step 4: Confirm the wrap width did not worsen**
 
 The constraint is "match the surrounding paragraph", not a hard column:
-four of these files already carry long lines this wave does not touch,
-and `docs/domain/glossary.md` gained one more from the wave's own
+every one of these files already carries long lines this wave does not
+touch, and `docs/domain/glossary.md` gained one more from the wave's own
 authoring before implementation began. So the check compares against
 stated counts rather than against a git baseline, which would move under
 it.
 
+Both `awk` calls are pinned to a UTF-8 locale. `length` counts bytes
+under `LC_ALL=C`, and these files are full of em dashes, so the same
+command reports 19 for `workflow.md` instead of 3 — the six stated
+numbers are character counts and only hold as such.
+
 ```bash
 while read -r f want; do
-  now=$(awk 'length > 72 && $0 !~ /^\|/' "$f" | wc -l)
+  now=$(LC_ALL=C.UTF-8 awk 'length > 72 && $0 !~ /^\|/' "$f" | wc -l)
   printf '%-58s was %-3s now %s\n' "$f" "$want" "$now"
 done <<'EOF'
 plugins/working-process/rules/workflow.md 3
@@ -1052,7 +1058,7 @@ plugins/working-process/skills/process-status/SKILL.md 3
 docs/domain/glossary.md 50
 plugins/working-process/README.md 7
 EOF
-awk 'length > 72 && $0 !~ /^\|/' plugins/working-process/rules/propagation-duties.md | wc -l
+LC_ALL=C.UTF-8 awk 'length > 72 && $0 !~ /^\|/' plugins/working-process/rules/propagation-duties.md | wc -l
 ```
 
 The loop reads its pairs rather than splitting a string: `set -- $pair`
@@ -1157,3 +1163,22 @@ including the two that needed running rather than reading.
 - fixed 2026-09-11 — [Minor] the delivery gap named "a release, or a `-dev` dogfood install" as its route while no repo text describes that install — the version convention is in the plugin-versioning rule and the procedure only in the developer's own notes; license: those two locations; the report now says where each half lives instead of naming a step nobody documented
 - hit fixed 2026-09-11 — the wrap check round two rebuilt used `for pair in "<file> <count>"` with `set -- $pair`, which relies on word splitting that zsh does not do — run on this host every file name arrived with its count appended and `awk` failed on all six, so the step would have died at the implementer's shell; the gate before this round returned `CLEAN` without running it, and the dispatcher found it by running it; the loop now reads its pairs from a heredoc, verified on this host, and the step says why
 - signal 2026-09-11 — a third round pays only as a short diff-scoped read: five Important repairs are one sentence or one command each, but two of them changed verification commands that must be run on this branch rather than read. The dispatcher ran both — the `diff` heredoc returns 0 against its own prescribed block, and the six stated wrap counts were measured at this commit — so what is left is Minor: descriptions, numbering and two wrapped lines
+
+### 2026-09-11 — plan-adversary, fable 5.1, blocking (round 3, diff-scoped)
+
+Scoped to round two's wave, as that round's stop signal asked. The
+reviewer ran both repaired commands on this host rather than reading
+them, and checked its other claims by command too. One correction to the
+brief it was given: the dispatcher told it the round cap was spent, which
+was wrong — the developer answered before each of rounds 2 and 3, so each
+reset the count. The cap has one round left; `blocking` is what stops the
+loop here, not the cap.
+
+- fixed 2026-09-11 — [Important] the six stated wrap counts hold only under a UTF-8 locale: `awk 'length'` counts bytes under `LC_ALL=C`, and these files are full of em dashes, so the same command reports 19 for `workflow.md` against the stated 3, 57 against 36 for the lifecycle rule and 72 against 50 for the glossary — the step would then report growth on text the plan prescribes verbatim and order the rewrap it forbids, which is the failure round two repaired for a different cause; license: the measurement, run both ways at this commit; both `awk` calls are now pinned to `LC_ALL=C.UTF-8` and the step says the numbers are character counts
+- fixed 2026-09-11 — [Important] the branch convention's second justification was also false: `bash -c 'echo feature/#123-short-name'` and `zsh -fc` both print the name, and only zsh with `extendedglob` set fails, so "awkward to type unquoted in a shell" does not hold either; license: those three runs; the convention now states the shape and argues for it not at all, and says why — two attempts at a reason shipped claims that did not hold, and a naming convention does not owe one
+- held — [Important] the convention reduces "a GitHub or GitLab issue" to its number alone, while the ticket rule defines that phrase as `#123` **or** `org/repo#123`, so a cross-repo ticket lands as `feature/123-short-name` and the read-back turns it into `"#123"` — a same-repo reference to another repo's issue; question: what branch shape does a cross-repo issue take?; options: (a) it takes the `feature/<short-name>` form that `ticket: none` uses, and the ticket comes from conversation, which makes the read-back sound — the session's recommendation; (b) the branch carries a marker the reader can key on, which costs a new convention; counter: the spec's W6 names only two cases and decides neither, so picking one here would settle a convention the spec left open
+- fixed 2026-09-11 — [Minor] Task 6 step 5 still opened "Read the block back and parse it" one paragraph before "It uses no YAML parser" — a leftover of the version round two removed; license: that removal; the clause now says "compare it"
+- fixed 2026-09-11 — [Minor] Task 7 step 4 said "four of these files already carry long lines" where all six do — a counter that does not re-derive, in the step the new rule's duty 4 is about; license: the six measured counts; it now says every one
+- fixed 2026-09-11 — [Minor] checks `J` and `K`, moved into Task 1 by round one, had after values and no before values, against the Global Constraint that every step states both; license: that constraint; both `echo` lines moved into step 1 and their before values are measured and stated, `J 1` and `K 0`
+- fixed 2026-09-11 — [Minor] the branch-naming section, read alone, left no room for the `<topic>.docs` branch this very work runs on, so the plan's own `branch:` field looked like a violation of the convention it ships; license: the spec-plan-lifecycle rule, which defines that branch as a sibling of the topic branch rather than a second one; the section now says the field records the topic branch and names the document branch as the sibling it is
+- signal 2026-09-11 — a fourth round pays only as a few minutes on three sentences and one command line, and after this wave two of those three are settled; the third is the held question, which no round can answer. The residue belongs to the full-document confirming round the plan owes before its loop closes, which will read these repairs in place rather than in isolation
