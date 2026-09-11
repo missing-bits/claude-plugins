@@ -159,7 +159,11 @@ sentence, the Confirming round entry) and one owed (W5).
    `concerns` heading produces no second hit and the unnarrowed sentence
    would be false for the case W1 adds. The leg also gains the
    implemented-document decline of decision 5, in the shape the Chain
-   debt leg already uses.
+   debt leg uses — with the distinction that leg never needed, since it
+   knows only `LGTM` headings: on an implemented plan a session derives
+   the `concerns` decline, while a `blocking` heading waits for the
+   developer's adjudication, which the glossary defines as their own
+   act.
 
    The same rule's *The disposition ledger* section gains two sentences:
    the latest round heading is the one carrying the highest ordinal
@@ -183,7 +187,8 @@ sentence, the Confirming round entry) and one owed (W5).
    autonomous ones. The all-Minor bullet gains a plan clause in the same
    edit: it says today that the resolution annotation records the
    developer's close, which W1 makes untrue on a plan until the
-   confirming round runs. A session executing a terminator reads that
+   confirming round runs, so the sentence gains the qualifier "on a
+   plan, once the confirming round has run". A session executing a terminator reads that
    terminator's bullet, not the section three pages down, and the cap
    bullet already carries plan-specific text, so the pointer belongs
    there.
@@ -196,9 +201,11 @@ sentence, the Confirming round entry) and one owed (W5).
    …, of the question …" loses its comma pile; the term's meaning does
    not move.
 6. **W6 — topic-branch naming.** `workflow.md` gains a short
-   `## Branch naming` section, after the numbered flow and before
-   `## Dispatching a verdict agent` — the file's only other H2, and the
-   flow's steps name no branch-creation moment to sit beside:
+   `## Branch naming` section, immediately before
+   `## Dispatching a verdict agent` — the file's only other H2, so the
+   new one closes the material that follows the numbered flow rather
+   than swallowing it, and the flow's steps name no branch-creation
+   moment to sit beside:
    `feature/<ticket>-<short-name>`,
    `feature/<short-name>` where the ticket is `none`, auto-generated
    worktree names renamed to it before the first commit, and the
@@ -264,10 +271,10 @@ Each change is checked by grep against the shipped file, whitespace
 normalized so a wrapped phrase still matches; a check states both its
 before and after value.
 
-- W1, `workflow.md`, whitespace-normalized: `grep -o 'never terminates on a diff-scoped LGTM' | wc -l` — 1 before, 0 after; `grep -o 'latest verdict round was full-document' | wc -l` — 0 before, 1 after; `grep -o 'inherits the gating of whatever ended' | wc -l` — 0 before, 1 after (round one's F1); `grep -o 'a confirming round on a spec' | wc -l` — 1 before, 0 after, and `grep -o 'confirming round alone' | wc -l` — 1 before, 0 after: the two sentences of round one's M1 that a single anchor missed (round two's F3, which enumerated all four).
+- W1, `workflow.md`, whitespace-normalized: `grep -o 'never terminates on a diff-scoped LGTM' | wc -l` — 1 before, 0 after; `grep -o 'latest verdict round was full-document' | wc -l` — 0 before, 1 after; `grep -o 'inherits the gating of whatever ended' | wc -l` — 0 before, 1 after (round one's F1); one anchor per renamed sentence, each 1 before and 0 after — `grep -o 'or a confirming full-document round'` (`:416`), `grep -o 'confirming round alone'` (`:419`), `grep -o 'a confirming round on a spec'` (`:421`), `grep -o 'The confirming-round arm'` (`:424`). Round two anchored two of the four and round three the rest, which is why each now stands on its own sentence rather than on the count.
 - W1, `spec-plan-lifecycle.md`: `grep -c 'whose latest round heading is a$' ` — the owner leg's line — 1 before, 0 after. Whitespace-normalized: `grep -o 'highest ordinal' | wc -l` — 0 before, 1 after (decision 4); `grep -o 'continue across loops' | wc -l` — 0 before, 1 after (round one's F2); `grep -o 'where that heading is an .LGTM.' | wc -l` — 0 before, 1 after (round one's F3); `grep -o 'wait for the confirming round' | wc -l` — 0 before, 1 after (decision 5).
 - W1, glossary: `grep -c '^\*\*Confirming round\*\*:' docs/domain/glossary.md` — 1 before and after, a declared invariant, the entry having landed at grilling; `tr -s '[:space:]' ' ' < docs/domain/glossary.md | grep -o 'inherits the gating' | wc -l` — 1 before and after, and `grep -o 'A plan already .implemented. owes none' | wc -l` over the same stream — 1 before and after: both declared invariants, since rounds one and two wrote those clauses into the entry rather than leaving them to the prescribed rule edits.
-- W2: over the whitespace-normalized `workflow.md`, `grep -o 'unbounded by the cap' | wc -l` — 0 before, 1 after; `grep -o 'records their close, and no session' | wc -l` — 1 before, 0 after (round two's F5: the all-Minor bullet's close sentence gains its plan clause).
+- W2: over the whitespace-normalized `workflow.md`, `grep -o 'unbounded by the cap' | wc -l` — 0 before, 1 after; `grep -o 'records their close, and no session' | wc -l` — 1 before, 0 after, paired with `grep -o 'on a plan, once the confirming round has run' | wc -l` — 0 before, 1 after: the removal and the arrival, since a removal alone proves only that the sentence moved (round three's F4).
 - W3: `tr -s '[:space:]' ' ' < plugins/working-process/rules/spec-plan-lifecycle.md | grep -o 'never stands in for the' | wc -l` — 0 before, 1 after.
 - W4: `grep -c 'Unresolved verdict and Chain debt' plugins/working-process/skills/process-status/SKILL.md` — 0 before, 1 after.
 - W5: `grep -c 'decline — of the gate' docs/domain/glossary.md` — 1 before, 0 after.
@@ -295,6 +302,9 @@ before anything was written here, and all twenty hold.
 - fixed 2026-09-11 — [Minor] "None needs a design of its own" was contradicted by the document's own content; ruling: 2026-09-11; the Problem section now says six errata and one design item, and why W1 rides here rather than in a spec of its own
 - hit fixed 2026-09-11 — the W1 glossary check stated 0 before for "inherits the gating" while the fix wave had just written that clause into the entry, so the check would have failed against a correct tree; the check is now a declared invariant at 1, like the Confirming round entry check beside it. Re-simulating all twenty before-values found no second instance
 - signal 2026-09-11 — another round earns its cost: F1 to F4 change rule
+  text the whole wave hangs on and F1 touches an entry minted at
+  grilling, so the fix wave deserves a diff-scoped read; the leftovers
+  after it are worth little, being wording and one honest cost statement
 
 ### 2026-09-11 — architect, fable 5.1, concerns (round 2, diff-scoped)
 
@@ -309,6 +319,16 @@ was written here: the four spec-arm sentences, the one H2 in
 - fixed 2026-09-11 — [Minor] the gating sentence of round one's F1 was placed in the diff-scoped-LGTM section while the terminators it names point nowhere at it, and the all-Minor bullet still says the resolution annotation records the developer's close — untrue on a plan once W1 lands; license: the cap bullet's own precedent of carrying plan-specific text, and that bullet's sentence being falsified by this wave; W2 now widens to the all-Minor bullet and says why the terminator's own bullet is where a session reads
 - fixed 2026-09-11 — [Minor] W6 prescribed a paragraph "near step 1" while its check anchored an H2, and the flow's numbered steps name no branch-creation moment; license: the file's own structure — one H2, `## Dispatching a verdict agent`; the item now prescribes a `## Branch naming` section placed after the flow and before that H2
 - signal 2026-09-11 — a third round has moderate value: the F1 repair is one clause in two places and the rest are one-line fixes, so if it runs it should be a short diff-scoped read of the F1 and F5 repairs; the leftovers after it are wording, one number and one heading
-  text the whole wave hangs on and F1 touches an entry minted at
-  grilling, so the fix wave deserves a diff-scoped read; the leftovers
-  after it are worth little, being wording and one honest cost statement
+
+### 2026-09-11 — architect, fable 5.1, concerns (round 3, diff-scoped)
+
+Scoped to round two's fix wave, as that round's stop signal asked. Every
+citation checked first, the reviewer's note on this ledger's own seam
+included.
+
+- fixed 2026-09-11 — [Important] round two's F1 repair carried the implemented-plan exception into four places but the verdict distinction into only one: the owner-leg prescription said "in the shape the Chain debt leg already uses", a shape neutral about the verdict because that leg knows only `LGTM`, so read literally it licensed a session to write `blocking (adjudicated <date>)` — the developer's own act; license: decision 5's ruling and the glossary's **Adjudication** entry; the W1 prescription now carries the distinction into the rule text a session reads instead of leaving it in the spec
+- fixed 2026-09-11 — [Minor] W6's placement phrase "after the numbered flow and before `## Dispatching a verdict agent`" spans five paragraphs, and the literal reading would pull them all under the new heading; license: the file's own structure, those paragraphs belonging to the flow rather than to branch naming; the item now says "immediately before" and says what that buys
+- fixed 2026-09-11 — [Minor] the spec-arm rename enumerated four sentences and anchored two, leaving `:416` and `:424` to survive the edit — the same partial-anchor class round two had just repaired one layer down; license: the enumeration itself; the check now carries one anchor per renamed sentence
+- fixed 2026-09-11 — [Minor] W2's check proved only the removal of the all-Minor bullet's close sentence and never named the clause replacing it, where every W1 check pairs a removal with an arrival; license: those checks' own shape; W2 now names the qualifier and the check anchors it 0 to 1
+- hit fixed 2026-09-11 — reordering the ledger at the previous commit moved only the first line of round one's multi-line `signal`, leaving its three continuation lines under round two's signal; the reviewer reported it as an integrity note rather than a finding, and the lines are back under their own
+- signal 2026-09-11 — a fourth round would not repay: what remains after this wave is a clause, a placement phrase and two anchors, none of which needs design judgment. The residue class — partial anchors and drifted ledger lines — is what an integrity audit proves with two quotes, so the chain debt is better discharged at the consumption gate by the audit arm than by another round
