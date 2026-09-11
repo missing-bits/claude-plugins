@@ -14,8 +14,9 @@ base: develop
 ## Problem
 
 Two outside cycles ran working-process 0.13.0 through 0.16.0 on real
-client work and groomed their findings against each release. Seven
-items survived 0.16.0. Three of them were decisions the developer had
+client work and groomed their findings against each release. Three
+items survived 0.16.0 from them, and this wave carries four more of this
+repo's own, seven in all. Three of the seven were decisions the developer had
 not yet taken; four were sentences nobody had written; grilling found
 two more decisions the rules had left implicit. Six are errata: they
 remove a contradiction or write down what the rules already implied.
@@ -64,16 +65,24 @@ where a ledger later cites them.
    committed, which is the default path. Something present only
    sometimes cannot replace something that must be present always. One
    sentence records it so a later session does not "tidy" the hash
-   away. `ruling: 2026-09-11`.
+   away. Alternative declined: leaving it an open question until
+   per-round commits stop being opt-in, which costs nothing now and
+   re-derives the same argument later. The third option — a sha in
+   place of the hash — was refused on construction rather than on
+   preference: the hash must work on the default path, where no sha
+   exists. `ruling: 2026-09-11`.
 3. **`process-status` reports the plan co-firing in one line derived
    from its mapping, without judging it.** The rule already calls the
    Unresolved verdict / Chain debt duplicate on a plan deliberate
    (`spec-plan-lifecycle.md`, the Unresolved verdict owner leg). The
-   report adds one line where both classes hit the same plan — one debt
-   seen from two sides, both settled through the confirming round, see
-   that owner leg — derived from two hits sharing a file, in the shape
-   the skill already uses when Misplaced stamp silences a neighbour. It does not say "deliberate": that is process
-   knowledge, and the skill's contract is to carry none. Alternative
+   report says so on one line where two confirmed hits share one
+   document, and points at the classes' own owner legs — derived from
+   the mapping, two hits in one file, in the shape the skill already
+   uses when Misplaced stamp silences a neighbour. It neither calls the
+   duplicate deliberate nor restates that it is one debt seen from two
+   sides: both are process knowledge, and the skill's contract is to
+   carry none. Round four sharpened this from a named pair of classes
+   to the shape, for the reason the ruling already gave. Alternative
    declined: silence, which leaves the explanation where the confused
    reader never looks. `ruling: 2026-09-11`.
 
@@ -138,8 +147,10 @@ one — turned out to be answered by the text that shipped:
 ## Scope
 
 Seven changes in `plugins/working-process/`, and three in
-`docs/domain/glossary.md` — two applied at grilling (the Round heading
-sentence, the Confirming round entry) and one owed (W5).
+`docs/domain/glossary.md` — two already applied and one owed (W5). The
+Round heading sentence landed at grilling; the **Confirming round**
+entry was minted there and amended by rounds one and two, so what stands
+in the file is the wave's own work, not a prescription waiting on it.
 
 1. **W1 — plan close needs a full-document round** (decision 1).
    `workflow.md`, *What a diff-scoped LGTM certifies*: the plan
@@ -155,11 +166,15 @@ sentence, the Confirming round entry) and one owed (W5).
    plan merely mid-loop between two diff-scoped rounds, where the loop
    rule prescribes a different next round: "Held set empty — dispatch
    the next round without asking, within the cap", and every later round
-   diff-scoped. The same paragraph gains the gating sentence:
-   the confirming round inherits the gating of whatever ended the
-   rounds, autonomous only where autonomy still stands, since
-   `blocking`, the round cap and the all-Minor signal each suspend it by
-   their own terminator. Four sentences in that section rename the
+   diff-scoped. The same paragraph's sentence "That round runs
+   under the loop's standing consent like any other" is replaced rather
+   than joined, since the two would contradict: the confirming round
+   inherits the gating of whatever ended the rounds, autonomous only
+   where autonomy still stands, because `blocking`, the round cap and
+   the all-Minor signal each suspend it by their own terminator. What
+   the replaced sentence also carried — that the round spends none of
+   the round's one interruption — survives for the autonomous case and
+   is stated of it. Four sentences in that section rename the
    spec's pair-offer arm from "confirming round" to "a full-document
    round" — the enumeration is `workflow.md:416`, `:419`, `:421` and
    `:424`, a snapshot of the file as it stands — so the term names one
@@ -273,9 +288,11 @@ sentence, the Confirming round entry) and one owed (W5).
   Unresolved verdict command until the round runs; the developer's only
   lever is to order the round or leave the plan open. An annotation
   written before the round would be a rule violation, and a violated
-  plan is invisible to the list the way any violation is — the recovery
-  clause in `workflow.md`, re-offer at the document's next touch, is
-  what catches it. A state-aware lint reading headings by ordinal is
+  plan is invisible to the list the way any violation is. What catches
+  it is the recovery clause as W1 rewrites it: an annotation is one of
+  the events that try to end a plan's rounds, so writing one re-offers
+  the confirming round rather than escaping it. The "next touch" reading
+  belongs to the `LGTM` heading alone. A state-aware lint reading headings by ordinal is
   where a mechanical check belongs. A plan already `implemented` is not
   this case: W1 gives it the recorded decline.
 - **The Chain debt term keeps its meaning.** It names what a diff-scoped
@@ -293,19 +310,22 @@ sentence, the Confirming round entry) and one owed (W5).
 
 ## Verification
 
-Each change is checked by grep against the shipped file, whitespace
-normalized so a wrapped phrase still matches; a check states both its
-before and after value.
+Each change is checked by grep against the shipped file. Every check
+over prose normalizes whitespace first, so a phrase still matches
+wherever the line wraps; only a check anchoring something that cannot
+wrap — a heading, a filename, a file count — is written plain, and none
+anchors a line ending. A check states both its before and after value,
+except where it declares itself an invariant and says why.
 
-- W1, `workflow.md`, whitespace-normalized: `grep -o 'never terminates on a diff-scoped LGTM' | wc -l` — 1 before, 0 after; `grep -o 'latest verdict round was full-document' | wc -l` — 0 before, 1 after; `grep -o 'inherits the gating of whatever ended' | wc -l` — 0 before, 1 after (round one's F1); `grep -o 'at the document.s next touch' | wc -l` — 1 before and after, a declared invariant: round four's F1 keeps that phrase for the `LGTM` heading and adds the other verdicts' trigger beside it rather than replacing it; one anchor per renamed sentence, each 1 before and 0 after — `grep -o 'or a confirming full-document round'` (`:416`), `grep -o 'confirming round alone'` (`:419`), `grep -o 'a confirming round on a spec'` (`:421`), `grep -o 'The confirming-round arm'` (`:424`). Round two anchored two of the four and round three the rest, which is why each now stands on its own sentence rather than on the count.
-- W1, `spec-plan-lifecycle.md`: `grep -c 'whose latest round heading is a$' ` — the owner leg's line — 1 before, 0 after. Whitespace-normalized: `grep -o 'highest ordinal' | wc -l` — 0 before, 1 after (decision 4); `grep -o 'continue across loops' | wc -l` — 0 before, 1 after (round one's F2); `grep -o 'where that heading is an .LGTM.' | wc -l` — 0 before, 1 after (round one's F3); `grep -o 'wait for the confirming round' | wc -l` — 0 before, 1 after (decision 5).
+- W1, `workflow.md`, whitespace-normalized: `grep -o 'never terminates on a diff-scoped LGTM' | wc -l` — 1 before, 0 after; `grep -o 'latest verdict round was full-document' | wc -l` — 0 before, 1 after; `grep -o 'inherits the gating of whatever ended' | wc -l` — 0 before, 1 after, paired with `grep -o 'runs under the loop.s standing consent like any other' | wc -l` — 1 before, 0 after, the sentence it replaces (round one's F1, the pairing added by the integrity audit); `grep -o 'at the document.s next touch' | wc -l` — 1 before and after, a declared invariant: round four's F1 keeps that phrase for the `LGTM` heading and adds the other verdicts' trigger beside it rather than replacing it; one anchor per renamed sentence, each 1 before and 0 after — `grep -o 'or a confirming full-document round'` (`:416`), `grep -o 'confirming round alone'` (`:419`), `grep -o 'a confirming round on a spec'` (`:421`), `grep -o 'The confirming-round arm'` (`:424`). Round two anchored two of the four and round three the rest, which is why each now stands on its own sentence rather than on the count.
+- W1, `spec-plan-lifecycle.md`: `grep -o 'except on a plan whose latest round heading is a diff-scoped' | wc -l` over the whitespace-normalized rule — the owner leg's antecedent — 1 before, 0 after. Whitespace-normalized: `grep -o 'highest ordinal' | wc -l` — 0 before, 1 after (decision 4); `grep -o 'continue across loops' | wc -l` — 0 before, 1 after (round one's F2); `grep -o 'where that heading is an .LGTM.' | wc -l` — 0 before, 1 after (round one's F3); `grep -o 'wait for the confirming round' | wc -l` — 0 before, 1 after (decision 5).
 - W1, glossary: `grep -c '^\*\*Confirming round\*\*:' docs/domain/glossary.md` — 1 before and after, a declared invariant, the entry having landed at grilling; `tr -s '[:space:]' ' ' < docs/domain/glossary.md | grep -o 'inherits the gating' | wc -l` — 1 before and after, and `grep -o 'A plan already .implemented. owes none' | wc -l` over the same stream — 1 before and after: both declared invariants, since rounds one and two wrote those clauses into the entry rather than leaving them to the prescribed rule edits.
 - W2: over the whitespace-normalized `workflow.md`, `grep -o 'unbounded by the cap' | wc -l` — 0 before, 1 after; `grep -o 'records their close, and no session' | wc -l` — 1 before, 0 after, paired with `grep -o 'on a plan, once the confirming round has run' | wc -l` — 0 before, 1 after: the removal and the arrival, since a removal alone proves only that the sentence moved (round three's F4).
 - W3: `tr -s '[:space:]' ' ' < plugins/working-process/rules/spec-plan-lifecycle.md | grep -o 'never stands in for the' | wc -l` — 0 before, 1 after.
 - W4: `tr -s '[:space:]' ' ' < plugins/working-process/skills/process-status/SKILL.md | grep -o 'two confirmed hits share one document' | wc -l` — 0 before, 1 after; `grep -c 'Unresolved verdict and Chain debt' plugins/working-process/skills/process-status/SKILL.md` — 0 before and after, a declared invariant: round four's F2 replaced the class pair with the shape, so the skill must never name them.
 - W5: `grep -c 'decline — of the gate' docs/domain/glossary.md` — 1 before, 0 after.
 - W6: `grep -c '^## Branch naming' plugins/working-process/rules/workflow.md` — 0 before, 1 after; the same command against `ticket-frontmatter.md` — 0 before and after, a declared invariant, since round one moved the section out of that rule; `tr -s '[:space:]' ' ' < plugins/working-process/rules/ticket-frontmatter.md | grep -o 'branch naming convention' | wc -l` — 0 before, 1 after (the pointer that replaces it).
-- W7: `ls plugins/working-process/rules/*.md | wc -l` — 5 before, 6 after; `grep -c 'docs/domain/\*\*' plugins/working-process/rules/propagation-duties.md` — no file before, 1 after; `grep -c 'six rule files' plugins/working-process/README.md` — 0 before, 1 after; `claude plugin validate plugins/working-process` passes after.
+- W7: `ls plugins/working-process/rules/*.md | wc -l` — 5 before, 6 after; `grep -c 'docs/domain/\*\*' plugins/working-process/rules/propagation-duties.md` — no file before, 1 after; `grep -c 'six rule files' plugins/working-process/README.md` — 0 before, 1 after; `claude plugin validate plugins/working-process` passes before and after — a declared invariant, since a wave that only adds a rule file must not be the thing that breaks the manifest.
 
 ## Review rounds
 
@@ -372,3 +392,26 @@ rule's own prescription for a plan mid-loop.
 - fixed 2026-09-11 — [Minor] the Problem section attributed all seven items to the two outside cycles and pointed at two memory entries as the record, while those entries carry only W1, W2 and W7; W3, W4, W5 and W6 are this repo's own; license: those entries' contents; the section now splits three from four and names which is which
 - fixed 2026-09-11 — the line enumeration W1 publishes is a snapshot that W6's heading will shift, and nothing said whether the two edits are ordered; ruling: 2026-09-11; the item now says the numbers are a snapshot and that the checks anchor text, so neither edit depends on the other's order
 - signal 2026-09-11 — a fifth full round would not repay, and this is the second round to say so: both remaining repairs were clauses needing no whole-document context, and the residue class — provenance, a snapshot of line numbers — is what an integrity audit proves with two quotes more cheaply than a round. The reviewer noted that `blocking` suspends autonomy, so whether a short diff-scoped round or the audit follows is the developer's call
+
+### 2026-09-11 — integrity audit, fable, at the consumption gate
+
+Dispatched on a fresh context before plan-writing, on the developer's
+call and on the reviewer's twice-given signal that the residue belonged
+here rather than to a fifth round. Coverage 374 of 374 lines. It returned
+eight defects, each proved by two quotes, and twelve ranked implementer
+questions; the defects are disposed below and the questions are the
+plan's input. Not a verdict: the audit grades nothing and stamps
+nothing, so `architect: blocking` stands until it is closed.
+
+Seven of the eight were one shape — a claim repaired in one place and
+left stale in its neighbour — which is the shape four review rounds
+passed over and this read caught in one pass.
+
+- fixed 2026-09-11 — W1 added the gating sentence beside `workflow.md`'s "That round runs under the loop's standing consent like any other" without saying the shipped sentence goes, so the rule would carry both, and the check anchored only the arrival — against this document's own rule that a W1 check pairs a removal with an arrival; license: that rule, stated in the Verification section; W1 now says the sentence is replaced and keeps what it also carried, and the check carries the removal anchor
+- fixed 2026-09-11 — the exclusion on the missing decline path said "next touch" catches an annotation written early, while round four had just reserved "next touch" for the `LGTM` heading; license: W1's own rewritten trigger, in which an annotation is one of the events that end a plan's rounds; the bullet now says the annotation is itself the trigger
+- fixed 2026-09-11 — decision 3 still described the report line as a named pair of classes that are "one debt seen from two sides", the exact words round four's F2 removed from W4; license: decision 3's own ruling, that the line is derived from the mapping without judging it; the decision now states the shape and records that round four sharpened it
+- fixed 2026-09-11 — the Problem section's first paragraph said seven items survived 0.16.0 from the two outside cycles while its second paragraph, rewritten in round four, said three; license: the two memory entries, which carry three; the first paragraph now splits the same way
+- fixed 2026-09-11 — the decisions preamble said each was put to the developer with its options and cost, and decision 2 alone recorded no declined alternative; license: that preamble; decision 2 now records the option left on the table and why the third was refused on construction rather than preference
+- fixed 2026-09-11 — the Scope preamble called both landed glossary changes "applied at grilling" while the **Confirming round** entry was minted there and amended by rounds one and two; license: those rounds' own `fixed` lines; the preamble now says what landed when
+- fixed 2026-09-11 — W7's `claude plugin validate` check stated only an after value where the section's preamble requires both; license: that preamble; the check is a declared invariant, passing before and after, on the ground that adding a rule file must not be what breaks the manifest
+- fixed 2026-09-11 — the Verification preamble claimed every check normalizes whitespace while four were plain `grep -c`, one of them anchoring a line ending with `$` — which would pass or fail on where an editor wrapped the new sentence, the precise dependency the claim denied; license: the preamble's own claim; the preamble now says which checks are plain and why, and the line-ending anchor is replaced by a normalized phrase
