@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-11
 status: draft
 grilled: 2026-09-11
-architect: concerns
+architect: blocking
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-07-diff-scoped-chain-debt-design.md, ./2026-08-27-audit-agents-design.md]
 branch: feature/process-wave-four
 base: develop
@@ -27,10 +27,15 @@ document's alternatives section would have carried, and because round
 one found its rough edges to be one-clause fixes rather than a reshape
 (developer ruling, 2026-09-11).
 
-The findings live in this repo's Private memory as lifted copies
+Three of the seven come from those cycles and live in this repo's
+Private memory as lifted copies
 (`idea-working-process-second-cycle`, `idea-working-process-sweep-verifier`),
-each pointing at its authoritative source. This document records the
-decisions and the changes; it does not repeat the evidence.
+each pointing at its authoritative source: W1's trigger, W2's cap
+sentence and W7's author-facing rule. The other four are this repo's
+own — W3 and W4 answer questions its own designs left open, W5 is a seam
+in text it shipped, and W6 is the cross-project half of a convention it
+adopted in 2026-07. This document records the decisions and the changes;
+it does not repeat the evidence.
 
 ## Decisions taken 2026-09-11
 
@@ -140,15 +145,27 @@ sentence, the Confirming round entry) and one owed (W5).
    `workflow.md`, *What a diff-scoped LGTM certifies*: the plan
    paragraph generalizes from "never terminates on a diff-scoped LGTM"
    to "closes only when the latest verdict round was full-document",
-   and the recovery sentence reads "latest round heading is diff-scoped,
-   whatever its verdict". The same paragraph gains the gating sentence:
+   and the recovery sentence carries decision 1's trigger rather than
+   the heading alone: a diff-scoped `LGTM` keeps the shipped "at the
+   document's next touch", since that heading is itself an end, while a
+   diff-scoped heading of any other verdict re-offers the round when
+   something tries to end the plan's rounds — an annotation, an
+   adjudication, a `status` move — or when a terminator that suspends
+   autonomy has fired. Without that trigger the sentence would fire on a
+   plan merely mid-loop between two diff-scoped rounds, where the loop
+   rule prescribes a different next round: "Held set empty — dispatch
+   the next round without asking, within the cap", and every later round
+   diff-scoped. The same paragraph gains the gating sentence:
    the confirming round inherits the gating of whatever ended the
    rounds, autonomous only where autonomy still stands, since
    `blocking`, the round cap and the all-Minor signal each suspend it by
    their own terminator. Four sentences in that section rename the
    spec's pair-offer arm from "confirming round" to "a full-document
    round" — the enumeration is `workflow.md:416`, `:419`, `:421` and
-   `:424` — so the term names one object.
+   `:424`, a snapshot of the file as it stands — so the term names one
+   object. The numbers move once W6 inserts its heading above them; the
+   checks anchor text rather than lines, so neither edit depends on the
+   other's order.
 
    `spec-plan-lifecycle.md`, Unfinished-work list, Unresolved verdict
    owner leg: the plan exception widens to any plan whose latest heading
@@ -195,7 +212,16 @@ sentence, the Confirming round entry) and one owed (W5).
 3. **W3 — sha beside hash** (decision 2). `spec-plan-lifecycle.md`,
    the per-round-commits paragraph: one sentence.
 4. **W4 — co-firing line** (decision 3). `process-status/SKILL.md`,
-   Step 4, after the Misplaced stamp paragraph.
+   Step 4, after the Misplaced stamp paragraph — and written as a shape
+   rather than as a pair of class names: where two confirmed hits share
+   one document, the report says so on one line and points at the
+   classes' own owner legs. Naming the pair, or restating that they are
+   one debt seen from two sides, would put the relationship in a second
+   place and make the skill carry what it declares it does not — process
+   knowledge of its own, where it takes the owner from the entry and
+   never from its own knowledge. The shape also survives the next pair
+   of classes without an edit, which is the same property the Misplaced
+   stamp paragraph buys by keying on match semantics.
 5. **W5 — glossary wrap seam.** `docs/domain/glossary.md`, Chain debt:
    the clause "recorded decline — of the gate's pair offer, or, where
    …, of the question …" loses its comma pile; the term's meaning does
@@ -271,12 +297,12 @@ Each change is checked by grep against the shipped file, whitespace
 normalized so a wrapped phrase still matches; a check states both its
 before and after value.
 
-- W1, `workflow.md`, whitespace-normalized: `grep -o 'never terminates on a diff-scoped LGTM' | wc -l` — 1 before, 0 after; `grep -o 'latest verdict round was full-document' | wc -l` — 0 before, 1 after; `grep -o 'inherits the gating of whatever ended' | wc -l` — 0 before, 1 after (round one's F1); one anchor per renamed sentence, each 1 before and 0 after — `grep -o 'or a confirming full-document round'` (`:416`), `grep -o 'confirming round alone'` (`:419`), `grep -o 'a confirming round on a spec'` (`:421`), `grep -o 'The confirming-round arm'` (`:424`). Round two anchored two of the four and round three the rest, which is why each now stands on its own sentence rather than on the count.
+- W1, `workflow.md`, whitespace-normalized: `grep -o 'never terminates on a diff-scoped LGTM' | wc -l` — 1 before, 0 after; `grep -o 'latest verdict round was full-document' | wc -l` — 0 before, 1 after; `grep -o 'inherits the gating of whatever ended' | wc -l` — 0 before, 1 after (round one's F1); `grep -o 'at the document.s next touch' | wc -l` — 1 before and after, a declared invariant: round four's F1 keeps that phrase for the `LGTM` heading and adds the other verdicts' trigger beside it rather than replacing it; one anchor per renamed sentence, each 1 before and 0 after — `grep -o 'or a confirming full-document round'` (`:416`), `grep -o 'confirming round alone'` (`:419`), `grep -o 'a confirming round on a spec'` (`:421`), `grep -o 'The confirming-round arm'` (`:424`). Round two anchored two of the four and round three the rest, which is why each now stands on its own sentence rather than on the count.
 - W1, `spec-plan-lifecycle.md`: `grep -c 'whose latest round heading is a$' ` — the owner leg's line — 1 before, 0 after. Whitespace-normalized: `grep -o 'highest ordinal' | wc -l` — 0 before, 1 after (decision 4); `grep -o 'continue across loops' | wc -l` — 0 before, 1 after (round one's F2); `grep -o 'where that heading is an .LGTM.' | wc -l` — 0 before, 1 after (round one's F3); `grep -o 'wait for the confirming round' | wc -l` — 0 before, 1 after (decision 5).
 - W1, glossary: `grep -c '^\*\*Confirming round\*\*:' docs/domain/glossary.md` — 1 before and after, a declared invariant, the entry having landed at grilling; `tr -s '[:space:]' ' ' < docs/domain/glossary.md | grep -o 'inherits the gating' | wc -l` — 1 before and after, and `grep -o 'A plan already .implemented. owes none' | wc -l` over the same stream — 1 before and after: both declared invariants, since rounds one and two wrote those clauses into the entry rather than leaving them to the prescribed rule edits.
 - W2: over the whitespace-normalized `workflow.md`, `grep -o 'unbounded by the cap' | wc -l` — 0 before, 1 after; `grep -o 'records their close, and no session' | wc -l` — 1 before, 0 after, paired with `grep -o 'on a plan, once the confirming round has run' | wc -l` — 0 before, 1 after: the removal and the arrival, since a removal alone proves only that the sentence moved (round three's F4).
 - W3: `tr -s '[:space:]' ' ' < plugins/working-process/rules/spec-plan-lifecycle.md | grep -o 'never stands in for the' | wc -l` — 0 before, 1 after.
-- W4: `grep -c 'Unresolved verdict and Chain debt' plugins/working-process/skills/process-status/SKILL.md` — 0 before, 1 after.
+- W4: `tr -s '[:space:]' ' ' < plugins/working-process/skills/process-status/SKILL.md | grep -o 'two confirmed hits share one document' | wc -l` — 0 before, 1 after; `grep -c 'Unresolved verdict and Chain debt' plugins/working-process/skills/process-status/SKILL.md` — 0 before and after, a declared invariant: round four's F2 replaced the class pair with the shape, so the skill must never name them.
 - W5: `grep -c 'decline — of the gate' docs/domain/glossary.md` — 1 before, 0 after.
 - W6: `grep -c '^## Branch naming' plugins/working-process/rules/workflow.md` — 0 before, 1 after; the same command against `ticket-frontmatter.md` — 0 before and after, a declared invariant, since round one moved the section out of that rule; `tr -s '[:space:]' ' ' < plugins/working-process/rules/ticket-frontmatter.md | grep -o 'branch naming convention' | wc -l` — 0 before, 1 after (the pointer that replaces it).
 - W7: `ls plugins/working-process/rules/*.md | wc -l` — 5 before, 6 after; `grep -c 'docs/domain/\*\*' plugins/working-process/rules/propagation-duties.md` — no file before, 1 after; `grep -c 'six rule files' plugins/working-process/README.md` — 0 before, 1 after; `claude plugin validate plugins/working-process` passes after.
@@ -332,3 +358,17 @@ included.
 - fixed 2026-09-11 — [Minor] W2's check proved only the removal of the all-Minor bullet's close sentence and never named the clause replacing it, where every W1 check pairs a removal with an arrival; license: those checks' own shape; W2 now names the qualifier and the check anchors it 0 to 1
 - hit fixed 2026-09-11 — reordering the ledger at the previous commit moved only the first line of round one's multi-line `signal`, leaving its three continuation lines under round two's signal; the reviewer reported it as an integrity note rather than a finding, and the lines are back under their own
 - signal 2026-09-11 — a fourth round would not repay: what remains after this wave is a clause, a placement phrase and two anchors, none of which needs design judgment. The residue class — partial anchors and drifted ledger lines — is what an integrity audit proves with two quotes, so the chain debt is better discharged at the consumption gate by the audit arm than by another round
+
+### 2026-09-11 — architect, fable 5.1, blocking (round 4, full-document)
+
+Dispatched full-document against the reviewer's round-three stop signal,
+on the developer's order, and the brief said so rather than letting the
+override read as an oversight. The gate returned `CLEAN` beforehand.
+Every citation checked, including the two that prove F1 — the loop
+rule's own prescription for a plan mid-loop.
+
+- fixed 2026-09-11 — [Important] W1's recovery sentence generalized to "latest round heading is diff-scoped, whatever its verdict", which makes a plan merely mid-loop between two diff-scoped rounds indistinguishable from one owing a confirming round — and for that state the loop rule prescribes something else, "Held set empty — dispatch the next round without asking, within the cap", every later round diff-scoped; the `LGTM` case was sound because that heading is itself an end; license: decision 1's own ruling, which keys on what ends a plan's rounds rather than on the heading alone; the sentence now carries that trigger and keeps "next touch" for `LGTM`
+- fixed 2026-09-11 — [Important] W4 wrote the co-firing line as a pair of class names restating that they are one debt seen from two sides, putting the relationship in a second place and making the skill carry process knowledge it declares it has none of — it takes the owner from the entry, never from its own knowledge, and a later erratum changing the owner leg would have to edit the skill too; license: decision 3's own ruling, that the line is derived from the mapping without judging it, which "one debt" does not satisfy; W4 now publishes the shape — two confirmed hits sharing one document — and the check anchors that, with the class pair a declared invariant at zero
+- fixed 2026-09-11 — [Minor] the Problem section attributed all seven items to the two outside cycles and pointed at two memory entries as the record, while those entries carry only W1, W2 and W7; W3, W4, W5 and W6 are this repo's own; license: those entries' contents; the section now splits three from four and names which is which
+- fixed 2026-09-11 — the line enumeration W1 publishes is a snapshot that W6's heading will shift, and nothing said whether the two edits are ordered; ruling: 2026-09-11; the item now says the numbers are a snapshot and that the checks anchor text, so neither edit depends on the other's order
+- signal 2026-09-11 — a fifth full round would not repay, and this is the second round to say so: both remaining repairs were clauses needing no whole-document context, and the residue class — provenance, a snapshot of line numbers — is what an integrity audit proves with two quotes more cheaply than a round. The reviewer noted that `blocking` suspends autonomy, so whether a short diff-scoped round or the audit follows is the developer's call
