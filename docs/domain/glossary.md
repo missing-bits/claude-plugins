@@ -377,10 +377,12 @@ _Avoid_: chain accepted, chain closed, unclosed chain
 **Confirming round**:
 The full-document round a plan's loop owes before it may close, whenever
 the latest round heading is diff-scoped — whatever path would otherwise
-end the rounds. It runs as the same loop's last round under its standing
-consent, counts against the round cap like any other, and its verdict is
-the one stamped; on a plan the resolution annotation and the
-adjudication wait for it. A spec owes none: its diff-scoped chain is
+end the rounds. It runs as the same loop's last round, counts against
+the round cap like any other, and its verdict is the one stamped; on a
+plan the resolution annotation and the adjudication wait for it. It
+inherits the gating of whatever ended the rounds: autonomous where
+autonomy still stands, the developer's to order after a terminator that
+suspends it. A spec owes none: its diff-scoped chain is
 discharged at the consumption gate, where a full-document round is one
 arm of the pair offer.
 _Avoid_: final round, closing round, full read (as the name)
