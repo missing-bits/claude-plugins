@@ -339,7 +339,10 @@ scope. Those dispatch-time fields are immutable — they say what one
 reviewer was given and returned — while a later event about that round
 appends after the heading's closing parenthesis, never inside it. The
 loop's derived state — round count, the all-Minor signal, the
-diff-scoped chain — is read by folding these.
+diff-scoped chain — is read by folding these. The latest round heading
+is the one carrying the highest ordinal, wherever it sits in the
+section: the rules prescribe no order for the blocks, and live ledgers
+run both ways.
 _Avoid_: round title, round record (for the heading alone)
 
 **Disposition line**:
@@ -370,6 +373,17 @@ round heading, and the record says only that it happened and when, never
 how or how well. Distinct from the diff-scoped chain itself, the
 round-one-plus-reviewed-waves structure the LGTM certifies.
 _Avoid_: chain accepted, chain closed, unclosed chain
+
+**Confirming round**:
+The full-document round a plan's loop owes before it may close, whenever
+the latest round heading is diff-scoped — whatever path would otherwise
+end the rounds. It runs as the same loop's last round under its standing
+consent, counts against the round cap like any other, and its verdict is
+the one stamped; on a plan the resolution annotation and the
+adjudication wait for it. A spec owes none: its diff-scoped chain is
+discharged at the consumption gate, where a full-document round is one
+arm of the pair offer.
+_Avoid_: final round, closing round, full read (as the name)
 
 **Document branch**:
 The local branch a review loop's per-round commits live on, named
