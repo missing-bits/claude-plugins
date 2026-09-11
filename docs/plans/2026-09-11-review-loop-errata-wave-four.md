@@ -1041,19 +1041,23 @@ stated counts rather than against a git baseline, which would move under
 it.
 
 ```bash
-for pair in \
-  "plugins/working-process/rules/workflow.md 3" \
-  "plugins/working-process/rules/spec-plan-lifecycle.md 36" \
-  "plugins/working-process/rules/ticket-frontmatter.md 1" \
-  "plugins/working-process/skills/process-status/SKILL.md 3" \
-  "docs/domain/glossary.md 50" \
-  "plugins/working-process/README.md 7"; do
-  set -- $pair
-  now=$(awk 'length > 72 && $0 !~ /^\|/' "$1" | wc -l)
-  printf '%-62s was %-3s now %s\n' "$1" "$2" "$now"
-done
+while read -r f want; do
+  now=$(awk 'length > 72 && $0 !~ /^\|/' "$f" | wc -l)
+  printf '%-58s was %-3s now %s\n' "$f" "$want" "$now"
+done <<'EOF'
+plugins/working-process/rules/workflow.md 3
+plugins/working-process/rules/spec-plan-lifecycle.md 36
+plugins/working-process/rules/ticket-frontmatter.md 1
+plugins/working-process/skills/process-status/SKILL.md 3
+docs/domain/glossary.md 50
+plugins/working-process/README.md 7
+EOF
 awk 'length > 72 && $0 !~ /^\|/' plugins/working-process/rules/propagation-duties.md | wc -l
 ```
+
+The loop reads its pairs rather than splitting a string: `set -- $pair`
+would work in bash and silently fail in zsh, which does not word-split
+an unquoted parameter, and this repo's sessions run zsh.
 
 Expected: `now` equals `was` for all six — the replacement texts are
 wrapped, so none of them adds a long line — and `0` for the new rule
@@ -1151,4 +1155,5 @@ including the two that needed running rather than reading.
 - fixed 2026-09-11 — [Minor] two replacement blocks written in round one's wave exceeded the 72-column constraint the plan commits to, so Task 7 step 4 would have reported `workflow.md` growing and ordered a `style:` commit to repair a defect the plan prescribed verbatim; license: the constraint; both paragraphs are rewrapped inside their Replace blocks, and every Replace block was re-measured — the one line still over 72 is an existing line carried through unchanged
 - fixed 2026-09-11 — [Minor] the rewritten rule said "eight classes of change owe an enumeration. This rule lists them" and then listed nine rows, because one duty answers two different edits — a counter that does not re-derive, inside the rule whose duty 4 is counters; license: the card's eight duties against the table's nine triggers; the sentence now says eight duties keyed by nine edits
 - fixed 2026-09-11 — [Minor] the delivery gap named "a release, or a `-dev` dogfood install" as its route while no repo text describes that install — the version convention is in the plugin-versioning rule and the procedure only in the developer's own notes; license: those two locations; the report now says where each half lives instead of naming a step nobody documented
+- hit fixed 2026-09-11 — the wrap check round two rebuilt used `for pair in "<file> <count>"` with `set -- $pair`, which relies on word splitting that zsh does not do — run on this host every file name arrived with its count appended and `awk` failed on all six, so the step would have died at the implementer's shell; the gate before this round returned `CLEAN` without running it, and the dispatcher found it by running it; the loop now reads its pairs from a heredoc, verified on this host, and the step says why
 - signal 2026-09-11 — a third round pays only as a short diff-scoped read: five Important repairs are one sentence or one command each, but two of them changed verification commands that must be run on this branch rather than read. The dispatcher ran both — the `diff` heredoc returns 0 against its own prescribed block, and the six stated wrap counts were measured at this commit — so what is left is Minor: descriptions, numbering and two wrapped lines
