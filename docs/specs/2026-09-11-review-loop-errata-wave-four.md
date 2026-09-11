@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-11
 status: draft
 grilled: 2026-09-11
-architect: blocking
+architect: concerns
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-07-diff-scoped-chain-debt-design.md, ./2026-08-27-audit-agents-design.md]
 branch: feature/process-wave-four
 base: develop
@@ -114,8 +114,13 @@ where a ledger later cites them.
    measured plan whose confirming round earned nothing. A plan already
    at `status: implemented` is the exception, on the ground its sibling
    class already ships: completed work is not re-reviewed, so there the
-   round is discharged by recorded decline without any dispatch, exactly
-   as the Chain debt owner leg discharges its debt. Without that clause
+   round is discharged by recorded decline without any dispatch, as the
+   Chain debt owner leg discharges its debt. The plan clause below
+   carries the same exception, or it would forbid the very annotation
+   this one requires. One thing the analogy does not carry: a `blocking`
+   verdict closes by adjudication, which the glossary defines as the
+   developer's own act, so on an implemented plan a session derives the
+   `concerns` decline and never the adjudication. Without that clause
    such a plan would sit on the Unfinished-work list for good, reporting
    finished work as unfinished. `ruling: 2026-09-11`.
 
@@ -140,9 +145,10 @@ sentence, the Confirming round entry) and one owed (W5).
    the confirming round inherits the gating of whatever ended the
    rounds, autonomous only where autonomy still stands, since
    `blocking`, the round cap and the all-Minor signal each suspend it by
-   their own terminator. Three sentences in that section rename the
+   their own terminator. Four sentences in that section rename the
    spec's pair-offer arm from "confirming round" to "a full-document
-   round", so the term names one object.
+   round" — the enumeration is `workflow.md:416`, `:419`, `:421` and
+   `:424` — so the term names one object.
 
    `spec-plan-lifecycle.md`, Unfinished-work list, Unresolved verdict
    owner leg: the plan exception widens to any plan whose latest heading
@@ -162,15 +168,25 @@ sentence, the Confirming round entry) and one owed (W5).
    bullet — "Concerns resolved without a fresh review round keep the
    verdict and gain a resolution date" — gains the plan clause of
    decision 5: on a plan the annotation and the adjudication are written
-   only once the latest round heading is full-document. The glossary
+   only once the latest round heading is full-document, unless the plan
+   is already `implemented`, where the annotation is written citing that
+   standing decision — the exception the owner leg carries, stated where
+   the prohibition is, since an `implemented` document is amended in
+   frontmatter and the annotation is the only lever left. The glossary
    gains **Confirming round**, minted at grilling and amended in this
    wave to carry the gating clause.
-2. **W2 — what the cap does not promise.** `workflow.md`, Terminators,
+2. **W2 — what the terminators do not promise.** `workflow.md`, Terminators,
    Round cap bullet: one sentence saying a run of `blocking` verdicts is
    unbounded by the cap, because the cap counts autonomous rounds and
    `blocking` suspends autonomy — each continuation is the developer's
    own decision, so consenting to three rounds consents to three
-   autonomous ones.
+   autonomous ones. The all-Minor bullet gains a plan clause in the same
+   edit: it says today that the resolution annotation records the
+   developer's close, which W1 makes untrue on a plan until the
+   confirming round runs. A session executing a terminator reads that
+   terminator's bullet, not the section three pages down, and the cap
+   bullet already carries plan-specific text, so the pointer belongs
+   there.
 3. **W3 — sha beside hash** (decision 2). `spec-plan-lifecycle.md`,
    the per-round-commits paragraph: one sentence.
 4. **W4 — co-firing line** (decision 3). `process-status/SKILL.md`,
@@ -179,8 +195,11 @@ sentence, the Confirming round entry) and one owed (W5).
    the clause "recorded decline — of the gate's pair offer, or, where
    …, of the question …" loses its comma pile; the term's meaning does
    not move.
-6. **W6 — topic-branch naming.** `workflow.md` gains a short *Branch
-   naming* paragraph near step 1: `feature/<ticket>-<short-name>`,
+6. **W6 — topic-branch naming.** `workflow.md` gains a short
+   `## Branch naming` section, after the numbered flow and before
+   `## Dispatching a verdict agent` — the file's only other H2, and the
+   flow's steps name no branch-creation moment to sit beside:
+   `feature/<ticket>-<short-name>`,
    `feature/<short-name>` where the ticket is `none`, auto-generated
    worktree names renamed to it before the first commit, and the
    `branch:` field recording the result. It goes to the workflow rule
@@ -245,10 +264,10 @@ Each change is checked by grep against the shipped file, whitespace
 normalized so a wrapped phrase still matches; a check states both its
 before and after value.
 
-- W1, `workflow.md`, whitespace-normalized: `grep -o 'never terminates on a diff-scoped LGTM' | wc -l` — 1 before, 0 after; `grep -o 'latest verdict round was full-document' | wc -l` — 0 before, 1 after; `grep -o 'inherits the gating of whatever ended' | wc -l` — 0 before, 1 after (round one's F1); `grep -o 'a confirming round on a spec' | wc -l` — 1 before, 0 after (round one's M1, the spec arm renamed).
+- W1, `workflow.md`, whitespace-normalized: `grep -o 'never terminates on a diff-scoped LGTM' | wc -l` — 1 before, 0 after; `grep -o 'latest verdict round was full-document' | wc -l` — 0 before, 1 after; `grep -o 'inherits the gating of whatever ended' | wc -l` — 0 before, 1 after (round one's F1); `grep -o 'a confirming round on a spec' | wc -l` — 1 before, 0 after, and `grep -o 'confirming round alone' | wc -l` — 1 before, 0 after: the two sentences of round one's M1 that a single anchor missed (round two's F3, which enumerated all four).
 - W1, `spec-plan-lifecycle.md`: `grep -c 'whose latest round heading is a$' ` — the owner leg's line — 1 before, 0 after. Whitespace-normalized: `grep -o 'highest ordinal' | wc -l` — 0 before, 1 after (decision 4); `grep -o 'continue across loops' | wc -l` — 0 before, 1 after (round one's F2); `grep -o 'where that heading is an .LGTM.' | wc -l` — 0 before, 1 after (round one's F3); `grep -o 'wait for the confirming round' | wc -l` — 0 before, 1 after (decision 5).
-- W1, glossary: `grep -c '^\*\*Confirming round\*\*:' docs/domain/glossary.md` — 1 before and after, a declared invariant, the entry having landed at grilling; `tr -s '[:space:]' ' ' < docs/domain/glossary.md | grep -o 'inherits the gating' | wc -l` — 1 before and after, a declared invariant: round one's F1 reached the entry, so this text landed with that fix wave rather than with the prescribed rule edits.
-- W2: `tr -s '[:space:]' ' ' < plugins/working-process/rules/workflow.md | grep -o 'unbounded by the cap' | wc -l` — 0 before, 1 after.
+- W1, glossary: `grep -c '^\*\*Confirming round\*\*:' docs/domain/glossary.md` — 1 before and after, a declared invariant, the entry having landed at grilling; `tr -s '[:space:]' ' ' < docs/domain/glossary.md | grep -o 'inherits the gating' | wc -l` — 1 before and after, and `grep -o 'A plan already .implemented. owes none' | wc -l` over the same stream — 1 before and after: both declared invariants, since rounds one and two wrote those clauses into the entry rather than leaving them to the prescribed rule edits.
+- W2: over the whitespace-normalized `workflow.md`, `grep -o 'unbounded by the cap' | wc -l` — 0 before, 1 after; `grep -o 'records their close, and no session' | wc -l` — 1 before, 0 after (round two's F5: the all-Minor bullet's close sentence gains its plan clause).
 - W3: `tr -s '[:space:]' ' ' < plugins/working-process/rules/spec-plan-lifecycle.md | grep -o 'never stands in for the' | wc -l` — 0 before, 1 after.
 - W4: `grep -c 'Unresolved verdict and Chain debt' plugins/working-process/skills/process-status/SKILL.md` — 0 before, 1 after.
 - W5: `grep -c 'decline — of the gate' docs/domain/glossary.md` — 1 before, 0 after.
@@ -274,6 +293,20 @@ before anything was written here, and all twenty hold.
 - fixed 2026-09-11 — [Minor] decision 5's stated cost covered in-flight plans only, leaving a plan that reaches `implemented` with a diff-scoped latest heading a permanent Unresolved verdict resident; ruling: 2026-09-11; the implemented-document decline of the sibling Chain debt leg now extends to the confirming round, on the ground that leg already ships — completed work is not re-reviewed
 - fixed 2026-09-11 — [Minor] W7's "costs nothing outside authoring" ignored that the rule loads for every reader of a matching document, the propagation-auditor included, which already carries these duties; license: that agent's card; the item now accepts the duplication and bounds the rule to the trigger list plus duty numbers, with none of the card's measurements
 - fixed 2026-09-11 — [Minor] "None needs a design of its own" was contradicted by the document's own content; ruling: 2026-09-11; the Problem section now says six errata and one design item, and why W1 rides here rather than in a spec of its own
+### 2026-09-11 — architect, fable 5.1, concerns (round 2, diff-scoped)
+
+Scoped to round one's fix wave. Every citation checked before anything
+was written here: the four spec-arm sentences, the one H2 in
+`workflow.md`, and each rule and glossary line the report names.
+
+- fixed 2026-09-11 — [Important] the implemented-document decline of round one's M3 landed in decision 5 and the owner leg but not in the annotation-bullet clause the same wave prescribes, which forbids the annotation absolutely until the latest heading is full-document — so the plan it was meant to free would sit on the Unfinished-work list for good; license: decision 5's own ruling, which grants that decline, and the lifecycle rule's clause amending an `implemented` document in frontmatter only, which leaves the annotation the sole lever; the plan clause now carries the exception where the prohibition is
+- fixed 2026-09-11 — [Minor] the Chain debt analogy carried derivability onto a `blocking` close, which the glossary defines as Adjudication — the developer's own act; license: that entry; decision 5 now says a session derives the `concerns` decline and never the adjudication
+- fixed 2026-09-11 — [Minor] W1 said three sentences rename the spec's pair-offer arm where `workflow.md` carries four, and the check anchored only one of them, so `:419` would have survived and the term would name two objects again; license: the enumeration itself, `:416`, `:419`, `:421`, `:424`; the item now says four and names them, and the check gains the second anchor
+- fixed 2026-09-11 — [Minor] the **Confirming round** entry, amended in this wave, states the obligation unconditionally while decision 5 exempts an implemented plan, where the sibling Chain debt entry carries its own exception in its definition; license: decision 5's ruling and that sibling's shape; the entry now carries the clause
+- fixed 2026-09-11 — [Minor] the gating sentence of round one's F1 was placed in the diff-scoped-LGTM section while the terminators it names point nowhere at it, and the all-Minor bullet still says the resolution annotation records the developer's close — untrue on a plan once W1 lands; license: the cap bullet's own precedent of carrying plan-specific text, and that bullet's sentence being falsified by this wave; W2 now widens to the all-Minor bullet and says why the terminator's own bullet is where a session reads
+- fixed 2026-09-11 — [Minor] W6 prescribed a paragraph "near step 1" while its check anchored an H2, and the flow's numbered steps name no branch-creation moment; license: the file's own structure — one H2, `## Dispatching a verdict agent`; the item now prescribes a `## Branch naming` section placed after the flow and before that H2
+- signal 2026-09-11 — a third round has moderate value: the F1 repair is one clause in two places and the rest are one-line fixes, so if it runs it should be a short diff-scoped read of the F1 and F5 repairs; the leftovers after it are wording, one number and one heading
+
 - hit fixed 2026-09-11 — the W1 glossary check stated 0 before for "inherits the gating" while the fix wave had just written that clause into the entry, so the check would have failed against a correct tree; the check is now a declared invariant at 1, like the Confirming round entry check beside it. Re-simulating all twenty before-values found no second instance
 - signal 2026-09-11 — another round earns its cost: F1 to F4 change rule
   text the whole wave hangs on and F1 touches an entry minted at
