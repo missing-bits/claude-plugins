@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-09-11
 status: draft
+adversary: blocking
 spec: ../specs/2026-09-11-review-loop-errata-wave-four.md
 branch: feature/process-wave-four
 base: develop
@@ -48,6 +49,12 @@ payload; `grep`, `tr` and `claude plugin validate` for verification.
   are canonical here.
 - **Public repo hygiene**: no machine-specific paths, no company or
   client names, all committed text in English.
+- **The replacement texts already carry the elements-of-style pass.**
+  The repo requires it over changed prose in rules, skills, READMEs and
+  the glossary; it was applied to every Replace block at authoring, so
+  an implementer copying a block verbatim is complying rather than
+  skipping it. A block an implementer rewords leaves that guarantee and
+  owes the pass again.
 - **Commit messages are one line** — a conventional-commit subject, no
   body, no trailers.
 - **Do not run `sync-rules` and do not move the spec's `status`.** Both
@@ -83,7 +90,8 @@ Modified:
 - `plugins/working-process/rules/workflow.md` — Task 1 (the plan
   paragraph and the spec's pair-offer arm, inside *What a diff-scoped
   LGTM certifies*) and Task 2 (two Terminators bullets, plus a new
-  `## Branch naming` section). The two tasks share the file and touch no
+  `## Branch naming` section, and the all-Minor qualifier moved into
+  Task 1 by review round one). The two tasks share the file and touch no
   common line.
 - `plugins/working-process/rules/spec-plan-lifecycle.md` — Task 3: the
   Unresolved verdict owner leg, two sentences in *The disposition
@@ -112,9 +120,11 @@ order, with three caveats this plan fixes by its task order:
   when it reads them. Task 2 inserts a heading above those lines, which
   is why it runs second. Every check anchors text rather than a line, so
   the order is a convenience, not a dependency.
-- Task 2's W2 sentence assumes decision 1's semantics, which Task 1
-  lands. Running Task 1 first keeps the rule self-consistent at every
-  commit.
+- Task 2's cap sentence assumes decision 1's semantics, which Task 1
+  lands. Task 1 also carries the all-Minor qualifier, which review round
+  one moved there from Task 2: without it, Task 1's own commit would
+  leave `workflow.md` saying both that the annotation waits for the
+  confirming round and that it records the developer's close.
 - `sync-rules` and `claude plugin validate` run once, at Task 7, after
   every file has changed. Validation before then proves nothing about
   the end state.
@@ -226,8 +236,10 @@ Replace with:
 
 ```
 For a plan the loop closes only when the latest verdict round was
-full-document: whatever ends its rounds, one confirming full-document
-round follows, and that round's verdict is the one stamped. It inherits
+full-document: whatever ends its rounds while the latest round heading
+is diff-scoped, one confirming full-document round follows, and that
+round's verdict is the one stamped. A round already full-document owes
+no successor — it is the close. It inherits
 the gating of whatever ended the rounds. Where autonomy still stands —
 a diff-scoped `LGTM`, or a `concerns` inside the cap — the rules mandate
 the round, so it is no decision of the developer's and spends none of
@@ -255,16 +267,46 @@ annotation, an adjudication, a `status` move — or when a terminator that
 suspends autonomy has fired.
 ```
 
-- [ ] **Step 4: Verify**
+- [ ] **Step 4: Qualify the all-Minor bullet**
 
-Run the Step 1 command again.
+This lands here rather than in Task 2 so that no commit leaves the rule
+saying two things: Step 3 writes that the annotation waits for the
+confirming round, and until this edit the all-Minor bullet still says the
+annotation records the developer's close.
 
-Expected: `A 0`, `B 1`, `C 1`, `D 0`, `E 1`, `F 0`, `G 0`, `H 0`, `I 0`.
+Find:
+
+```
+  until the developer answers it: the resolution annotation the
+  spec-plan-lifecycle rule defines records their close, and no session
+  writes it without their answer.
+```
+
+Replace with:
+
+```
+  until the developer answers it: the resolution annotation the
+  spec-plan-lifecycle rule defines records their close — on a plan, once
+  the confirming round has run — and no session writes it without their
+  answer.
+```
+
+- [ ] **Step 5: Verify**
+
+Run the Step 1 command again, with the two the qualifier moves:
+
+```bash
+echo "J $(n $W | grep -o 'records their close, and no session' | wc -l)"
+echo "K $(n $W | grep -o 'on a plan, once the confirming round has run' | wc -l)"
+```
+
+Expected: `A 0`, `B 1`, `C 1`, `D 0`, `E 1`, `F 0`, `G 0`, `H 0`, `I 0`,
+`J 0`, `K 1`.
 
 `E` is the declared invariant: the phrase survives because the `LGTM`
 heading keeps it.
 
-- [ ] **Step 5: Check the neighbours the rename must not touch**
+- [ ] **Step 6: Check the neighbours the rename must not touch**
 
 The words "confirming round" stay wherever they name the plan's
 obligation. Run:
@@ -278,7 +320,7 @@ for the confirming round"), in the Round cap bullet (two), and in the
 paragraphs Step 3 wrote. No match remains in the spec's pair-offer
 paragraph.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add plugins/working-process/rules/workflow.md
@@ -309,14 +351,14 @@ W=plugins/working-process/rules/workflow.md
 T=plugins/working-process/rules/ticket-frontmatter.md
 n() { tr -s '[:space:]' ' ' < "$1"; }
 echo "A $(n $W | grep -o 'unbounded by the cap' | wc -l)"
-echo "B $(n $W | grep -o 'records their close, and no session' | wc -l)"
-echo "C $(n $W | grep -o 'on a plan, once the confirming round has run' | wc -l)"
 echo "D $(grep -c '^## Branch naming' $W)"
 echo "E $(grep -c '^## Branch naming' $T)"
 echo "F $(n $T | grep -o 'branch naming convention' | wc -l)"
 ```
 
-Expected: `A 0`, `B 1`, `C 0`, `D 0`, `E 0`, `F 0`.
+Expected: `A 0`, `D 0`, `E 0`, `F 0`. The all-Minor qualifier that used
+to sit in this task moved to Task 1 step 4, so that no commit leaves the
+rule self-contradicting; its two checks moved with it.
 
 - [ ] **Step 2: Extend the Round cap bullet**
 
@@ -340,26 +382,7 @@ Replace with:
   Consenting to three rounds consents to three autonomous ones.
 ```
 
-- [ ] **Step 3: Qualify the all-Minor bullet**
-
-In the `All-Minor signal` bullet, find:
-
-```
-  until the developer answers it: the resolution annotation the
-  spec-plan-lifecycle rule defines records their close, and no session
-  writes it without their answer.
-```
-
-Replace with:
-
-```
-  until the developer answers it: the resolution annotation the
-  spec-plan-lifecycle rule defines records their close — on a plan, once
-  the confirming round has run — and no session writes it without their
-  answer.
-```
-
-- [ ] **Step 4: Add the Branch naming section**
+- [ ] **Step 3: Add the Branch naming section**
 
 The words `## Dispatching a verdict agent` occur twice in this file —
 once as the heading, and once inside backticks in the closing paragraph
@@ -391,15 +414,16 @@ issue as its number alone (`feature/123-short-name`), since a leading
 `#` and the `/` of an `org/repo#123` form would both change what the ref
 means.
 
-A worktree created with a generated name is renamed to this shape before
-its first commit, so the branch a reader sees is the branch the
-convention names. The work's spec and plan record the result in their
+The branch of a worktree created with a generated name is renamed to
+this shape before its first commit, so the branch a reader sees is the
+branch the convention names; the worktree's own directory is a separate
+name and this convention does not govern it. The work's spec and plan record the result in their
 `branch:` field, and the ticket rule reads the ticket back out of it.
 
 ## Dispatching a verdict agent
 ```
 
-- [ ] **Step 5: Point the ticket rule at it**
+- [ ] **Step 4: Point the ticket rule at it**
 
 In `ticket-frontmatter.md`, `## Sourcing and backfill`, find:
 
@@ -419,19 +443,23 @@ for one unit of work — a plan inherits its spec's ticket, and artifacts
 of the same session reuse the established value. The branch naming
 convention that produces the names this order reads is the workflow
 rule's, which is where a branch is cut — before any `docs/` file of that
-work exists, and so before this rule loads.
+work exists, and so before this rule loads. Reading a name back: a
+Jira-shaped segment is the key itself; a bare leading number is a
+GitHub or GitLab issue and becomes `"#<n>"`, quoted as the Values
+section requires; an `org/repo#123` reference cannot survive a branch
+name and comes from the next source in the order above.
 ```
 
-- [ ] **Step 6: Verify**
+- [ ] **Step 5: Verify**
 
 Run the Step 1 command again.
 
-Expected: `A 1`, `B 0`, `C 1`, `D 1`, `E 0`, `F 1`.
+Expected: `A 1`, `D 1`, `E 0`, `F 1`.
 
 `E` is the declared invariant: the section belongs to the workflow rule
 and must never appear in the ticket rule.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add plugins/working-process/rules/workflow.md plugins/working-process/rules/ticket-frontmatter.md
@@ -548,9 +576,9 @@ Replace with:
   the round's ledger record as that body note. On a plan both wait for
   the confirming round: neither is written while the latest round
   heading is diff-scoped, unless the plan is already `implemented`,
-  where the annotation is written citing that standing decision — such a
-  document is amended in frontmatter, so the annotation is the only
-  lever left.
+  where the annotation — or the developer's adjudication — is written
+  citing that standing decision, such a document being amended in
+  frontmatter, where that entry is the only lever left.
 ```
 
 - [ ] **Step 5: Part the round sha from the integrity hash**
@@ -790,12 +818,18 @@ paths:
 
 # Propagation duties — the author's checklist
 
-The `propagation-auditor` agent walks eight duties over a spec or plan
-before an expensive reader sees it. This rule is that list turned
-around: keyed by the edit an author has just made, so the enumeration a
-duty demands can be done at the desk instead of paid for at the gate.
-The agent's card is the definition and keeps the measurement behind each
-duty; this rule cites them by number and repeats none of that evidence.
+Before a document goes to an expensive reader, eight classes of change
+owe an enumeration. This rule lists them keyed by the edit an author has
+just made, so the enumeration can be done at the desk instead of paid
+for at the gate. The list below is complete as it stands and needs
+nothing else to be usable.
+
+When the `propagation-auditor` agent is available it walks the same
+eight as a gate, and its card is their definition and keeps the
+measurement behind each; the numbers in the last column are that card's,
+so a hit it reports can be read back to the row that would have caught
+it. Without the agent the rows still hold — what is lost is the second
+pair of eyes, not the duties.
 
 | You have just… | Enumerate | Duty |
 |---|---|---|
@@ -816,10 +850,10 @@ the domain directory as well as at specs and plans. And a count asserted
 about another document is duties 4 and 6 at once: re-derive it, then
 read it back at its source.
 
-Doing this before a dispatch never replaces the gate. The audit runs on
-a fresh context and finds what an author's eye has stopped seeing; what
-self-checking buys is a shorter list for it to find, which is what makes
-the round after it cheaper.
+Self-checking never replaces a gate where one runs. A fresh context
+finds what an author's eye has stopped seeing; what this buys is a
+shorter list for it to find, which is what makes the round after it
+cheaper.
 ````
 
 - [ ] **Step 3: Update the README**
@@ -868,7 +902,22 @@ Expected: `A 6`, `B 1`, `C 0`, `D 1`.
 literal; the prose says "the domain directory" for exactly that reason
 (deviation 3).
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Read the new frontmatter back**
+
+`claude plugin validate` does not check `rules/` — a rule file is not a
+plugin component — so an unquoted `: ` in a scalar fails silently at
+load time and nothing in Task 7 would catch it. Read the block back and
+parse it:
+
+```bash
+sed -n '1,6p' plugins/working-process/rules/propagation-duties.md
+python3 -c "import yaml,sys; d=yaml.safe_load(open('plugins/working-process/rules/propagation-duties.md').read().split('---')[1]); print(d); assert d['paths']==['docs/specs/**','docs/plans/**','docs/domain/**']"
+```
+
+Expected: the six lines are the `---`, three `paths:` entries and the
+closing `---`; the parse prints the dict and the assertion passes.
+
+- [ ] **Step 6: Commit**
 
 ```bash
 git add plugins/working-process/rules/propagation-duties.md plugins/working-process/README.md
@@ -939,44 +988,74 @@ claude plugin validate plugins/working-process && claude plugin validate .
 
 Expected: both pass. This is the declared invariant `W7d` — they passed
 before the wave, and a wave that only adds a rule file must not be what
-breaks them.
+breaks them. What it does not cover is the rule file itself: `validate`
+reads plugin components, and `rules/` is not one, so the new file's
+frontmatter is checked by Task 6 step 5 and by nothing here.
 
-- [ ] **Step 3: Confirm the ruleset hash moved**
+- [ ] **Step 3: Confirm the payload changed, and say what that does not mean**
 
 ```bash
-plugins/working-process/scripts/ruleset-hash.sh plugins/working-process/rules
-grep -o '"rulesetHash": "[^"]*"' ~/.claude/rules/working-process/.manifest.json
+echo "repo     $(plugins/working-process/scripts/ruleset-hash.sh plugins/working-process/rules)"
+CACHE=$(claude plugin list --json | python3 -c 'import json,sys; print(next(p["installPath"] for p in json.load(sys.stdin) if p["id"]=="working-process@missing-bits"))')
+echo "cache    $(plugins/working-process/scripts/ruleset-hash.sh "$CACHE/rules")"
+echo "manifest $(grep -o '"rulesetHash": "[^"]*"' ~/.claude/rules/working-process/.manifest.json)"
 ```
 
-Expected: the two differ. That difference is the drift the developer
-clears by running `sync-rules`; this plan does not run it, and the
-difference is the evidence that it is owed.
+Expected: `repo` differs from `cache`, and `cache` still equals
+`manifest`.
 
-- [ ] **Step 4: Confirm the wrap width held**
+Read that result carefully, because the obvious reading is wrong. The
+difference proves the payload changed **in this checkout**. It is not
+drift any installed copy can see: the drift hook hashes
+`$CLAUDE_PLUGIN_ROOT/rules`, and `sync-rules` discovers its source from
+the `installPath` that `claude plugin list` reports — both of which are
+the installed plugin cache, not this working tree. The cache stays at
+its released version until a release or a `-dev` dogfood install puts
+this branch there. So `sync-rules` run today would report no drift and
+would re-copy the old rules, and the developer would keep running the
+process under them while believing this wave was installed.
+
+- [ ] **Step 4: Confirm the wrap width did not worsen**
+
+The constraint is "match the surrounding paragraph", not a hard column:
+`workflow.md` already carries three lines over 72 characters that this
+wave does not touch. So the check is a comparison, not a threshold —
+count the long lines in each file at `HEAD` before the wave and now, and
+require the second number not to exceed the first.
 
 ```bash
+BASE=$(git merge-base HEAD develop)
 for f in plugins/working-process/rules/workflow.md \
          plugins/working-process/rules/spec-plan-lifecycle.md \
          plugins/working-process/rules/ticket-frontmatter.md \
-         plugins/working-process/rules/propagation-duties.md \
          plugins/working-process/skills/process-status/SKILL.md \
          docs/domain/glossary.md; do
-  echo "$f: $(awk 'length > 78 && $0 !~ /^\|/ && $0 !~ /^ / {c++} END {print c+0}' "$f") long lines"
+  before=$(git show "$BASE:$f" | awk 'length > 72 && $0 !~ /^\|/' | wc -l)
+  after=$(awk 'length > 72 && $0 !~ /^\|/' "$f" | wc -l)
+  printf '%-62s before %s  after %s\n' "$f" "$before" "$after"
 done
+awk 'length > 72 && $0 !~ /^\|/' plugins/working-process/rules/propagation-duties.md | wc -l
 ```
 
-Expected: `0` for every file except `propagation-duties.md`, whose table
-rows are exempt — the `awk` skips lines starting with `|`, so a non-zero
-count there names a prose line to rewrap, not a table row.
+Expected: `after` is not greater than `before` for any of the five, and
+`0` for the new rule file, whose table rows the `awk` skips.
+
+On a count that grew, rewrap the offending paragraph in the file that
+owns it and commit it as `style(working-process): rewrap <file>`. Do not
+reflow a paragraph this wave did not change.
 
 - [ ] **Step 5: Report the end state**
 
 State to the developer: seven changes landed across six files, one file
-created, every published check at its expected value, both validations
-passing, and the ruleset hash now differing from the installed
-manifest's. Name the two things this plan deliberately left undone —
-running `sync-rules`, and moving the spec's `status` to `implemented` —
-and that both are theirs.
+created, every published check at its expected value, and
+`claude plugin validate` passing for the plugin and the marketplace.
+Then state the delivery gap in its own sentence: this branch's rules are
+not the rules any session is running, and will not be until the plugin
+cache carries this branch — through a release, or a `-dev` dogfood
+install. Neither the drift hook nor `sync-rules` will announce that,
+because both read the cache. Name the two things this plan deliberately
+left undone — the install, and moving the spec's `status` to
+`implemented` — and that both are theirs.
 
 Do not commit in this task; there is nothing to commit.
 
@@ -1006,3 +1085,24 @@ and Task 4 step 2), `where that heading is an LGTM` (Task 3 step 2),
 the` (Task 3 step 5), `two confirmed hits share one document` (Task 5
 step 2), `branch naming convention` (Task 2 step 5), `six rule files`
 (Task 6 step 3).
+
+## Review rounds
+
+### 2026-09-11 — plan-adversary, fable 5.1, blocking (round 1, full-document)
+
+The propagation gate returned `CLEAN` beforehand, so this round wrote no
+gate lines. Every citation was checked before anything was written here,
+the drift-hook and sync-rules source paths included — the finding that
+cost this plan its most confident sentence.
+
+- fixed 2026-09-11 — [Important] the new plan paragraph dropped decision 1's "unless the latest verdict round already was full-document" clause, reading as an unconditional obligation — a plan closed by a full-document round would owe another one; license: decision 1's own text and the glossary's **Confirming round** entry, which conditions the obligation on a diff-scoped latest heading; the sentence now carries "while the latest round heading is diff-scoped" and says outright that a full-document round is the close
+- fixed 2026-09-11 — [Important] Task 7 told the developer the repo-versus-manifest hash difference was "the drift the developer clears by running `sync-rules`", while both the drift hook and that skill read their source from the installed plugin cache rather than this checkout — so the command would report no drift, re-copy the old rules, and leave the developer running the process under them while believing the wave was installed; license: `check-rules-drift.sh`, which hashes `$CLAUDE_PLUGIN_ROOT/rules`, and the sync-rules skill's step 0, which discovers its source from `installPath`; the step now compares three hashes, states that the difference proves only that the payload changed here, and names what actually delivers it — a release or a `-dev` dogfood install
+- fixed 2026-09-11 — [Important] the new rule named the `propagation-auditor` agent unconditionally and pointed at "the agent's card" as its definition, where committed project-level rules load for readers without the plugin; license: `.claude/rules/plugin-authoring.md`, which requires agent mentions in rule text to be conditional; the rule now states the eight classes as its own complete list and makes the agent, its card and the duty numbers a conditional second paragraph
+- fixed 2026-09-11 — [Important] the branch convention minted a name shape the ticket rule must decode — a bare leading number — while only one end of that chain was written: nothing said how the number reads back, nor that an `org/repo#123` reference cannot survive a branch name; license: the ticket rule's own sourcing order and its requirement that a `#`-leading value be quoted, plus the new rule's duty-3 row demanding both ends of a chain; the pointer now states all three read-backs
+- fixed 2026-09-11 — [Minor] the plan claimed Task 1 "keeps the rule self-consistent at every commit" while Task 1's own commit would leave `workflow.md` saying both that the annotation waits for the confirming round and that it records the developer's close, the repair landing only in Task 2; license: the spec's sentence that W1 makes that bullet untrue on a plan; the qualifier and its two checks moved into Task 1 as step 4, and the order section says why
+- fixed 2026-09-11 — [Minor] the annotation bullet's implemented-plan exception freed only "the annotation" while the owner leg written in the same task has a `blocking` heading waiting for the developer's adjudication — read literally the bullet forbade that adjudication; license: the spec's clause that a session derives the `concerns` decline and never the adjudication, which leaves the adjudication the developer's to write; the bullet now names both
+- fixed 2026-09-11 — [Minor] "A worktree created with a generated name is renamed to this shape" named the wrong object: the shape is a branch name, and this repo keeps the worktree directory at its own path regardless; license: this repo's `CLAUDE.md`, which fixes that directory independently; the sentence now renames the branch and says the worktree's directory is a separate name
+- fixed 2026-09-11 — [Minor] the wrap check flagged lines over 78 while the constraint says 72, and skipped every indented line — which is where three replacements land — with no repair path for a non-zero count; license: the plan's own Global Constraint; the check is now a before/after comparison against the merge base, since `workflow.md` already carries three long lines this wave does not touch, and it names the rewrap commit
+- fixed 2026-09-11 — [Minor] `claude plugin validate` was presented as the invariant guarding the new rule file, which it cannot be: it does not read `rules/` at all, so an unquoted `: ` would fail silently at load time; license: `.claude/rules/plugin-authoring.md`, which says so and asks for a hand review; Task 6 gained a frontmatter read-back with a YAML parse, and Task 7 says what validate does not cover
+- fixed 2026-09-11 — [Minor] no step invoked the elements-of-style pass the repo mandates over changed prose, and an implementer copying verbatim text could not run it without deviating; license: `.claude/rules/elements-of-style.md`; a Global Constraint now records that every Replace block carries the pass from authoring, and that rewording a block forfeits the guarantee
+- signal 2026-09-11 — another round earns its cost: the four Important repairs change rule text the wave hangs on and the report the developer acts on, so a diff-scoped read aimed at those four first is worth it; what remains after that is wording, one threshold and one added step
