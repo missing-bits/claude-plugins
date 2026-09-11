@@ -1,10 +1,10 @@
 ---
 ticket: none
 date: 2026-09-11
-status: draft
+status: approved
 grilled: 2026-09-11
-architect: blocking
-revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-07-diff-scoped-chain-debt-design.md, ./2026-08-27-audit-agents-design.md]
+architect: blocking (adjudicated 2026-09-11)
+revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-07-diff-scoped-chain-debt-design.md]
 branch: feature/process-wave-four
 base: develop
 ---
@@ -166,7 +166,15 @@ in the file is the wave's own work, not a prescription waiting on it.
    plan merely mid-loop between two diff-scoped rounds, where the loop
    rule prescribes a different next round: "Held set empty — dispatch
    the next round without asking, within the cap", and every later round
-   diff-scoped. The same paragraph's sentence "That round runs
+   diff-scoped. The paragraph also answers what a dispatching session
+   needs and the recovery sentence alone does not: a session never
+   judges that the rounds are ending. The terminators do — an `LGTM`, a
+   `blocking`, the cap, the all-Minor signal — as does the developer
+   closing the loop. While none has fired and the held set is empty, the
+   next round is diff-scoped and the loop continues; the confirming
+   round is owed the moment one fires, which is the moment a session
+   would otherwise write the annotation. Leaving that to inference is
+   what let the recovery sentence drift. The same paragraph's sentence "That round runs
    under the loop's standing consent like any other" is replaced rather
    than joined, since the two would contradict: the confirming round
    inherits the gating of whatever ended the rounds, autonomous only
@@ -200,7 +208,9 @@ in the file is the wave's own work, not a prescription waiting on it.
    The same rule's *The disposition ledger* section gains two sentences:
    the latest round heading is the one carrying the highest ordinal
    wherever it sits, and ordinals run per document and per field and
-   continue across loops (decision 4). The rule's resolution-annotation
+   continue across loops (decision 4). The glossary's **Round heading**
+   entry gains the continuity half too, so the term reads without the
+   rule beside it. The rule's resolution-annotation
    bullet — "Concerns resolved without a fresh review round keep the
    verdict and gain a resolution date" — gains the plan clause of
    decision 5: on a plan the annotation and the adjudication are written
@@ -390,7 +400,7 @@ rule's own prescription for a plan mid-loop.
 - fixed 2026-09-11 — [Important] W1's recovery sentence generalized to "latest round heading is diff-scoped, whatever its verdict", which makes a plan merely mid-loop between two diff-scoped rounds indistinguishable from one owing a confirming round — and for that state the loop rule prescribes something else, "Held set empty — dispatch the next round without asking, within the cap", every later round diff-scoped; the `LGTM` case was sound because that heading is itself an end; license: decision 1's own ruling, which keys on what ends a plan's rounds rather than on the heading alone; the sentence now carries that trigger and keeps "next touch" for `LGTM`
 - fixed 2026-09-11 — [Important] W4 wrote the co-firing line as a pair of class names restating that they are one debt seen from two sides, putting the relationship in a second place and making the skill carry process knowledge it declares it has none of — it takes the owner from the entry, never from its own knowledge, and a later erratum changing the owner leg would have to edit the skill too; license: decision 3's own ruling, that the line is derived from the mapping without judging it, which "one debt" does not satisfy; W4 now publishes the shape — two confirmed hits sharing one document — and the check anchors that, with the class pair a declared invariant at zero
 - fixed 2026-09-11 — [Minor] the Problem section attributed all seven items to the two outside cycles and pointed at two memory entries as the record, while those entries carry only W1, W2 and W7; W3, W4, W5 and W6 are this repo's own; license: those entries' contents; the section now splits three from four and names which is which
-- fixed 2026-09-11 — the line enumeration W1 publishes is a snapshot that W6's heading will shift, and nothing said whether the two edits are ordered; ruling: 2026-09-11; the item now says the numbers are a snapshot and that the checks anchor text, so neither edit depends on the other's order
+- fixed 2026-09-11 — the line enumeration W1 publishes is a snapshot that W6's heading will shift, and nothing said whether the two edits are ordered — the reviewer raised it as a line for the integrity class rather than as a graded finding, which is why this line carries no severity; ruling: 2026-09-11; the item now says the numbers are a snapshot and that the checks anchor text, so neither edit depends on the other's order
 - signal 2026-09-11 — a fifth full round would not repay, and this is the second round to say so: both remaining repairs were clauses needing no whole-document context, and the residue class — provenance, a snapshot of line numbers — is what an integrity audit proves with two quotes more cheaply than a round. The reviewer noted that `blocking` suspends autonomy, so whether a short diff-scoped round or the audit follows is the developer's call
 
 ### 2026-09-11 — integrity audit, fable, at the consumption gate
@@ -414,4 +424,5 @@ passed over and this read caught in one pass.
 - fixed 2026-09-11 — the decisions preamble said each was put to the developer with its options and cost, and decision 2 alone recorded no declined alternative; license: that preamble; decision 2 now records the option left on the table and why the third was refused on construction rather than preference
 - fixed 2026-09-11 — the Scope preamble called both landed glossary changes "applied at grilling" while the **Confirming round** entry was minted there and amended by rounds one and two; license: those rounds' own `fixed` lines; the preamble now says what landed when
 - fixed 2026-09-11 — W7's `claude plugin validate` check stated only an after value where the section's preamble requires both; license: that preamble; the check is a declared invariant, passing before and after, on the ground that adding a rule file must not be what breaks the manifest
+- fixed 2026-09-11 — four of the twelve implementer questions were answerable from written decisions and are answered in the document rather than left to the plan: what event ends a plan's rounds for a dispatching session and not only for the re-offer (Q1, licensed by the terminators, which are what end them); the **Round heading** entry carrying decision 4's continuity clause so the term reads alone (Q9); this ledger's one severity-free line saying why it has none (Q10); and `revises:` dropping `2026-08-27-audit-agents-design.md`, since that design anticipated an author-facing mirror of the duties and W7 is that mirror rather than a departure from it (Q11, licensed by the lifecycle rule's definition of `revises:` as a claim that the named design no longer matches what shipped). The remaining eight are the plan's agenda: full replacement text for three rule passages, W7's rule body, W6's placeholder and renaming duty, W3's paragraph and sentence, W4's literal line shape, and W2's sentence placement
 - fixed 2026-09-11 — the Verification preamble claimed every check normalizes whitespace while four were plain `grep -c`, one of them anchoring a line ending with `$` — which would pass or fail on where an editor wrapped the new sentence, the precise dependency the claim denied; license: the preamble's own claim; the preamble now says which checks are plain and why, and the line-ending anchor is replaced by a normalized phrase
