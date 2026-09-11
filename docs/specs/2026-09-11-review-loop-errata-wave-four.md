@@ -293,6 +293,9 @@ before anything was written here, and all twenty hold.
 - fixed 2026-09-11 — [Minor] decision 5's stated cost covered in-flight plans only, leaving a plan that reaches `implemented` with a diff-scoped latest heading a permanent Unresolved verdict resident; ruling: 2026-09-11; the implemented-document decline of the sibling Chain debt leg now extends to the confirming round, on the ground that leg already ships — completed work is not re-reviewed
 - fixed 2026-09-11 — [Minor] W7's "costs nothing outside authoring" ignored that the rule loads for every reader of a matching document, the propagation-auditor included, which already carries these duties; license: that agent's card; the item now accepts the duplication and bounds the rule to the trigger list plus duty numbers, with none of the card's measurements
 - fixed 2026-09-11 — [Minor] "None needs a design of its own" was contradicted by the document's own content; ruling: 2026-09-11; the Problem section now says six errata and one design item, and why W1 rides here rather than in a spec of its own
+- hit fixed 2026-09-11 — the W1 glossary check stated 0 before for "inherits the gating" while the fix wave had just written that clause into the entry, so the check would have failed against a correct tree; the check is now a declared invariant at 1, like the Confirming round entry check beside it. Re-simulating all twenty before-values found no second instance
+- signal 2026-09-11 — another round earns its cost: F1 to F4 change rule
+
 ### 2026-09-11 — architect, fable 5.1, concerns (round 2, diff-scoped)
 
 Scoped to round one's fix wave. Every citation checked before anything
@@ -306,9 +309,6 @@ was written here: the four spec-arm sentences, the one H2 in
 - fixed 2026-09-11 — [Minor] the gating sentence of round one's F1 was placed in the diff-scoped-LGTM section while the terminators it names point nowhere at it, and the all-Minor bullet still says the resolution annotation records the developer's close — untrue on a plan once W1 lands; license: the cap bullet's own precedent of carrying plan-specific text, and that bullet's sentence being falsified by this wave; W2 now widens to the all-Minor bullet and says why the terminator's own bullet is where a session reads
 - fixed 2026-09-11 — [Minor] W6 prescribed a paragraph "near step 1" while its check anchored an H2, and the flow's numbered steps name no branch-creation moment; license: the file's own structure — one H2, `## Dispatching a verdict agent`; the item now prescribes a `## Branch naming` section placed after the flow and before that H2
 - signal 2026-09-11 — a third round has moderate value: the F1 repair is one clause in two places and the rest are one-line fixes, so if it runs it should be a short diff-scoped read of the F1 and F5 repairs; the leftovers after it are wording, one number and one heading
-
-- hit fixed 2026-09-11 — the W1 glossary check stated 0 before for "inherits the gating" while the fix wave had just written that clause into the entry, so the check would have failed against a correct tree; the check is now a declared invariant at 1, like the Confirming round entry check beside it. Re-simulating all twenty before-values found no second instance
-- signal 2026-09-11 — another round earns its cost: F1 to F4 change rule
   text the whole wave hangs on and F1 touches an entry minted at
   grilling, so the fix wave deserves a diff-scoped read; the leftovers
   after it are worth little, being wording and one honest cost statement
