@@ -1063,12 +1063,12 @@ Do not commit in this task; there is nothing to commit.
 
 **Spec coverage.** W1 → Tasks 1, 3 and 4 (its `workflow.md`,
 `spec-plan-lifecycle.md` and glossary halves). W2 → Task 2. W3 → Task 3
-step 5. W4 → Task 5. W5 → Task 4 step 3. W6 → Task 2 steps 4 and 5.
+step 5. W4 → Task 5. W5 → Task 4 step 3. W6 → Task 2 steps 3 and 4.
 W7 → Task 6. Every check in the spec's Verification section appears in
 Task 7 step 1, and each also appears in the before/after pair of the
 task that produces it. The spec's three exclusions produce no task by
-design, and Task 7 step 3 turns one of them — the owed `sync-rules`
-run — into evidence rather than silence.
+design, and Task 7 step 3 turns one of them — the owed install — into a
+statement of what is and is not delivered rather than silence.
 
 **Placeholder scan.** No step says TBD, "handle appropriately", or
 "similar to Task N"; every edit carries its find text and its
@@ -1078,13 +1078,17 @@ replacement text in full.
 replacement texts contain, verified by reading each replacement against
 its check: `latest verdict round was full-document` (Task 1 step 3),
 `inherits the gating of whatever ended` (same), `unbounded by the cap`
-(Task 2 step 2), `on a plan, once the confirming round has run` (Task 2
-step 3), `highest ordinal` and `continue across loops` (Task 3 step 3
+(Task 2 step 2), `on a plan, once the confirming round has run` (Task 1
+step 4), `highest ordinal` and `continue across loops` (Task 3 step 3
 and Task 4 step 2), `where that heading is an LGTM` (Task 3 step 2),
 `wait for the confirming round` (Task 3 step 4), `never stands in for
 the` (Task 3 step 5), `two confirmed hits share one document` (Task 5
-step 2), `branch naming convention` (Task 2 step 5), `six rule files`
+step 2), `branch naming convention` (Task 2 step 4), `six rule files`
 (Task 6 step 3).
+
+Every step reference above was re-derived after round one moved the
+all-Minor qualifier into Task 1 and renumbered two tasks; three were
+stale and are corrected here.
 
 ## Review rounds
 
@@ -1105,4 +1109,5 @@ cost this plan its most confident sentence.
 - fixed 2026-09-11 — [Minor] the wrap check flagged lines over 78 while the constraint says 72, and skipped every indented line — which is where three replacements land — with no repair path for a non-zero count; license: the plan's own Global Constraint; the check is now a before/after comparison against the merge base, since `workflow.md` already carries three long lines this wave does not touch, and it names the rewrap commit
 - fixed 2026-09-11 — [Minor] `claude plugin validate` was presented as the invariant guarding the new rule file, which it cannot be: it does not read `rules/` at all, so an unquoted `: ` would fail silently at load time; license: `.claude/rules/plugin-authoring.md`, which says so and asks for a hand review; Task 6 gained a frontmatter read-back with a YAML parse, and Task 7 says what validate does not cover
 - fixed 2026-09-11 — [Minor] no step invoked the elements-of-style pass the repo mandates over changed prose, and an implementer copying verbatim text could not run it without deviating; license: `.claude/rules/elements-of-style.md`; a Global Constraint now records that every Replace block carries the pass from authoring, and that rewording a block forfeits the guarantee
+- hit fixed 2026-09-11 — round one's wave moved the all-Minor qualifier into Task 1 and renumbered two tasks, leaving three step references in the Self-review section pointing at steps that had become something else — W6 at "Task 2 steps 4 and 5" where it is now 3 and 4, the qualifier's phrase at "Task 2 step 3", and the branch pointer at "Task 2 step 5"; the gate that preceded this round returned `CLEAN` and its body claimed to have checked that very mapping, so the dispatcher found these by re-deriving every step citation mechanically rather than by reading. All three corrected, and the section now records that the derivation was re-run
 - signal 2026-09-11 — another round earns its cost: the four Important repairs change rule text the wave hangs on and the report the developer acts on, so a diff-scoped read aimed at those four first is worth it; what remains after that is wording, one threshold and one added step
