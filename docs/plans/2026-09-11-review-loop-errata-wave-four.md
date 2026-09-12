@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-11
 status: draft
-adversary: blocking
+adversary: concerns
 spec: ../specs/2026-09-11-review-loop-errata-wave-four.md
 branch: feature/process-wave-four
 base: develop
@@ -77,7 +77,13 @@ the reason where the disagreement lives.
    by the edit an author just made") and the citation by duty number. A
    table is the shortest form that keeps trigger, enumeration and duty
    number on one row. Task 6 carries the reason.
-3. **W7's prose never writes the literal `docs/domain/**`.** The spec's
+3. **The spec disagrees with itself about the glossary, and the plan
+   follows its body.** The Scope preamble says two glossary changes are
+   already applied and one is owed; W1's body says the **Round heading**
+   entry "gains the continuity half too". Measured at authoring: that
+   clause is not in the file, so the preamble's count is one short and
+   the body is right. Task 4 step 2 writes it and Task 7 sweeps it.
+4. **W7's prose never writes the literal `docs/domain/**`.** The spec's
    own check expects exactly one line matching it, and the frontmatter
    entry is that line; a second mention in prose would make the check
    read 2 where the spec says 1. Task 6 says "the domain directory"
@@ -406,9 +412,10 @@ substitute pass and no install nagging — the work proceeds normally.
 
 Feature work happens on a topic branch named
 `feature/<ticket>-<short-name>`, where `<ticket>` is the work's tracker
-reference as the ticket-frontmatter rule defines it, and
-`feature/<short-name>` where there is none. That rule owns what a ticket
-value is; this one owns only the shape of the name.
+reference and `<short-name>` says what the work is, and
+`feature/<short-name>` where there is no ticket. How a tracker's
+reference is spelled in a branch name is the project's own — this
+convention fixes the shape and not the spelling.
 
 The branch of a worktree created with a generated name is renamed to
 this shape before its first commit, so the branch a reader sees is the
@@ -417,8 +424,8 @@ name and this convention does not govern it. The work's spec and plan
 record the result in their `branch:` field — the topic branch, not the
 `<topic>.docs` branch a review loop's per-round commits use, which the
 spec-plan-lifecycle rule names and which is a sibling of it rather than
-a second topic branch. The ticket rule reads the ticket back out of the
-recorded name.
+a second topic branch. The ticket rule's sourcing order reads the
+current branch name first when a new document needs a ticket.
 
 ## Dispatching a verdict agent
 ```
@@ -490,9 +497,10 @@ echo "C $(n $L | grep -o 'continue across loops' | wc -l)"
 echo "D $(n $L | grep -o 'where that heading is an .LGTM.' | wc -l)"
 echo "E $(n $L | grep -o 'wait for the confirming round' | wc -l)"
 echo "F $(n $L | grep -o 'never stands in for the' | wc -l)"
+echo "G $(n $L | grep -o 'feature/<ticket>-<short-name>/docs' | wc -l)"
 ```
 
-Expected: `A 1`, `B 0`, `C 0`, `D 0`, `E 0`, `F 0`.
+Expected: `A 1`, `B 0`, `C 0`, `D 0`, `E 0`, `F 0`, `G 0`.
 
 - [ ] **Step 2: Widen the Unresolved verdict owner leg**
 
@@ -579,7 +587,28 @@ Replace with:
   frontmatter, where that entry is the only lever left.
 ```
 
-- [ ] **Step 5: Part the round sha from the integrity hash**
+- [ ] **Step 5: Match the document-branch placeholder to the convention**
+
+W6 mints `feature/<ticket>-<short-name>` for the topic branch, and this
+rule writes the same slot as `feature/<issue>-<name>` inside its
+document-branch paragraph. Two rules of one payload naming one slot
+differently is the changed-interface class the wave's own new rule tells
+an author to enumerate, so the older spelling joins the newer.
+
+Find:
+
+```
+so `feature/<issue>-<name>/docs` cannot exist while its parent does; the
+```
+
+Replace with:
+
+```
+so `feature/<ticket>-<short-name>/docs` cannot exist while its parent
+does; the
+```
+
+- [ ] **Step 6: Part the round sha from the integrity hash**
 
 In the per-round-commits section, find the final paragraph:
 
@@ -610,13 +639,13 @@ do, which is what the sentence says; the spec named only "the
 per-round-commits paragraph", and the integrity audit reported that
 ambiguity (deviation 1).
 
-- [ ] **Step 6: Verify**
+- [ ] **Step 7: Verify**
 
 Run the Step 1 command again.
 
-Expected: `A 0`, `B 1`, `C 1`, `D 1`, `E 1`, `F 1`.
+Expected: `A 0`, `B 1`, `C 1`, `D 1`, `E 1`, `F 1`, `G 1`.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add plugins/working-process/rules/spec-plan-lifecycle.md
@@ -756,13 +785,17 @@ Replace with:
 published later works the same way. Name the field on the line, so the
 developer can see which class went quiet.
 
-Where two confirmed hits share one document, say so on one line and
-point at the owner legs of the classes that produced them. The line is
-the mapping read back — two hits, one file — and nothing more: it does
-not say the duplicate is deliberate, and it does not explain how the two
-relate, because both are process knowledge and this skill carries none.
-A reader who wants the relationship finds it in the legs the line points
-at.
+Where two confirmed hits share one document, add one line beneath that
+document's per-hit lines, naming the classes and pointing at their owner
+legs:
+
+    - two classes hit this document; one move may close both — see their owner legs
+
+The line is the mapping read back — two hits, one file — and nothing
+more: it does not say the duplicate is deliberate, and it does not
+explain how the two relate, because both are process knowledge and this
+skill carries none. A reader who wants the relationship finds it in the
+legs the line points at.
 ```
 
 - [ ] **Step 3: Verify**
@@ -973,6 +1006,7 @@ echo "W1n  $(n $L | grep -o 'wait for the confirming round' | wc -l)  want 1"
 echo "W1o  $(grep -c '^\*\*Confirming round\*\*:' $G)  want 1 (invariant)"
 echo "W1p  $(n $G | grep -o 'inherits the gating' | wc -l)  want 1 (invariant)"
 echo "W1q  $(n $G | grep -o 'A plan already .implemented. owes none' | wc -l)  want 1 (invariant)"
+echo "W1r  $(n $G | grep -o 'continue across loops' | wc -l)  want 1"
 echo "W2a  $(n $W | grep -o 'unbounded by the cap' | wc -l)  want 1"
 echo "W2b  $(n $W | grep -o 'records their close, and no session' | wc -l)  want 0"
 echo "W2c  $(n $W | grep -o 'on a plan, once the confirming round has run' | wc -l)  want 1"
@@ -1177,3 +1211,21 @@ loop here, not the cap.
 - fixed 2026-09-11 — [Minor] the branch-naming section, read alone, left no room for the `<topic>.docs` branch this very work runs on, so the plan's own `branch:` field looked like a violation of the convention it ships; license: the spec-plan-lifecycle rule, which defines that branch as a sibling of the topic branch rather than a second one; the section now says the field records the topic branch and names the document branch as the sibling it is
 - signal 2026-09-11 — a fourth round pays only as a few minutes on three sentences and one command line, and after this wave all three are settled: the third was dissolved rather than answered, by cutting the text that raised it. The residue belongs to the full-document confirming round the plan owes before its loop closes, which will read these repairs in place rather than in isolation
 - signal 2026-09-11 — a scope note the dispatcher owes the next reader: W6 grew past its spec item at round one and shrank back at round three. Three findings across three rounds were spent on text the spec never asked for, and none of them was wrong — the cost was admitting the scope, not reviewing it
+
+### 2026-09-12 — plan-adversary, fable 5.1, concerns (round 4, full-document)
+
+The confirming round the plan owed before its loop could close, and the
+first non-`blocking` verdict it has returned. The gate ran full-scope
+first and returned `CLEAN`; the reviewer then re-ran the plan's own
+commands rather than reading them, and reported finding no disagreement
+between the Order, Self-review, Deviations sections and the tasks —
+after the scope cut the document says one thing. Every citation checked
+here, including the branch this repo carries.
+
+- fixed 2026-09-12 — [Important] the round-three cut left a subordinate clause, "where `<ticket>` is the work's tracker reference as the ticket-frontmatter rule defines it", which binds the slot to that rule's value forms and so answers the developer's question in the opposite direction: this repo's own `feature/12-python-content` becomes non-compliant with the rule the repo ships, and a session obeying "renamed before its first commit" would rewrite it to carry a `#`; license: this repo's `CLAUDE.md`, whose example is `feature/6-salesforce-standards`, and the spec's W6, which names the shape and no value clause; the section now says the spelling is the project's own and fixes only the shape
+- fixed 2026-09-12 — [Minor] "The ticket rule reads the ticket back out of the recorded name" overstates that rule, whose sourcing order reads the current branch name as the first of three sources for a new document, before any `branch:` field exists; license: that order; the sentence now says what it does
+- held — [Minor] after the edit the resolution-annotation bullet says a resolution carries "a body note saying what resolved them" and that on an implemented plan the frontmatter entry "is the only lever left", while the implemented-document bullet excepts ledger process-event annotations from the frontmatter-only rule — so the shipped rule leaves open whether the body note is written; question: on an implemented plan, is the resolution's body note written as a process record, or is the frontmatter annotation the whole close?; options: (a) say the body note rides the process-event exception and is written, which keeps every resolution's reasoning in the ledger — the session's recommendation; (b) drop "where that entry is the only lever left", leaving the bullet silent on the body note; counter: the wording is inherited from decision 5, which the developer ruled, so choosing here would re-decide a ruling rather than apply one
+- fixed 2026-09-12 — [Minor] W4 described the co-firing line where the integrity audit had handed the plan "W4's literal line shape" as its agenda, and never said whether the line joins or replaces the per-hit lines the same step prescribes; license: that agenda item, recorded in the spec's ledger; the step now says the line goes beneath the per-hit lines and shows it
+- fixed 2026-09-12 — [Minor] the spec disagrees with itself about the glossary — its Scope preamble counts the **Round heading** continuity clause as already applied while W1's body says the entry gains it, and the clause is measurably absent — and the plan followed the body without recording the disagreement or sweeping the edit; license: the measurement; a fourth Deviation records it and Task 7 sweeps it as `W1r`
+- fixed 2026-09-12 — [Minor] W6 mints `feature/<ticket>-<short-name>` while `spec-plan-lifecycle.md` writes the same slot as `feature/<issue>-<name>` in its document-branch paragraph, so the wave would ship two rules of one payload naming one slot differently — the changed-interface class the wave's own new rule tells an author to enumerate; license: that duty and the spec's choice of `<ticket>` for a tracker-agnostic rule; Task 3 gains a step that matches the older spelling to the newer
+- signal 2026-09-12 — another round would not repay: the one Important is a clause cut whose correctness is checked by reading `CLAUDE.md` beside the text, which needs no fresh context, and the rest is wording, one ruling and one Deviations entry. With this heading full-document the loop may close by annotation once the held line is answered
