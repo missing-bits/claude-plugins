@@ -181,13 +181,15 @@ new gates merely stay silent.
 
 ## Process rules
 
-The plugin ships five rule files in `rules/` — the preferred workflow
+The plugin ships six rule files in `rules/` — the preferred workflow
 (always loaded once installed), spec/plan frontmatter and lifecycle,
-Process directory conventions, ticket frontmatter, and the review-report
-contract (`review-reports.md`: where a code-review run writes its
-Review report and what shape it takes; domain review skills locate the
-installed contract via its contract probe — the project-level then
-user-level install path, in that order). Claude Code
+Process directory conventions, ticket frontmatter, the propagation
+duties keyed by the edit that triggers them (`propagation-duties.md`,
+loaded while a spec, plan or domain document is open), and the
+review-report contract (`review-reports.md`: where a code-review run
+writes its Review report and what shape it takes; domain review skills
+locate the installed contract via its contract probe — the
+project-level then user-level install path, in that order). Claude Code
 does not load plugin rules by itself: install them with the
 `working-process:sync-rules` skill.
 

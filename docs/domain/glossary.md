@@ -339,7 +339,11 @@ scope. Those dispatch-time fields are immutable — they say what one
 reviewer was given and returned — while a later event about that round
 appends after the heading's closing parenthesis, never inside it. The
 loop's derived state — round count, the all-Minor signal, the
-diff-scoped chain — is read by folding these.
+diff-scoped chain — is read by folding these. The latest round heading
+is the one carrying the highest ordinal, wherever it sits in the
+section: the rules prescribe no order for the blocks, and live ledgers
+run both ways. Ordinals run per document and per field, and continue
+across loops rather than restarting.
 _Avoid_: round title, round record (for the heading alone)
 
 **Disposition line**:
@@ -363,13 +367,29 @@ responsibility for the part no round re-read — or explicitly decline to.
 The consumption gate owns it, not the loop, which owes nothing further
 once it terminates. Discharged three ways: an integrity audit, any later
 full-document round whatever its verdict, or the developer's recorded
-decline — of the gate's pair offer, or, where the document is already
-implemented and the gate never fired, of the question that offer would
-have put. Recorded as `, debt discharged <date>` appended to that LGTM's
-round heading, and the record says only that it happened and when, never
-how or how well. Distinct from the diff-scoped chain itself, the
-round-one-plus-reviewed-waves structure the LGTM certifies.
+decline. What they decline is the gate's pair offer — or, where the
+document is already implemented and the gate never fired, the question
+that offer would have put. Recorded as `, debt discharged <date>`
+appended to that LGTM's round heading, and the record says only that it
+happened and when, never how or how well. Distinct from the diff-scoped
+chain itself, the round-one-plus-reviewed-waves structure the LGTM
+certifies.
 _Avoid_: chain accepted, chain closed, unclosed chain
+
+**Confirming round**:
+The full-document round a plan's loop owes before it may close, whenever
+the latest round heading is diff-scoped — whatever path would otherwise
+end the rounds. A plan already `implemented` owes none: there the round
+is discharged by recorded decline without any dispatch, as the sibling
+chain debt is, since completed work is not re-reviewed. It runs as the
+same loop's last round, counts against the round cap like any other, and
+its verdict is the one stamped; on a plan the resolution annotation and
+the adjudication wait for it. It inherits the gating of whatever ended
+the rounds: autonomous where autonomy still stands, the developer's to
+order after a terminator that suspends it. A spec owes none: its
+diff-scoped chain is discharged at the consumption gate, where a
+full-document round is one arm of the pair offer.
+_Avoid_: final round, closing round, full read (as the name)
 
 **Document branch**:
 The local branch a review loop's per-round commits live on, named
