@@ -1062,46 +1062,31 @@ this branch there. So `sync-rules` run today would report no drift and
 would re-copy the old rules, and the developer would keep running the
 process under them while believing this wave was installed.
 
-- [ ] **Step 4: Confirm the wrap width did not worsen**
+- [ ] **Step 4: Confirm no line this wave wrote breaks the wrap**
 
-The constraint is "match the surrounding paragraph", not a hard column:
-every one of these files already carries long lines this wave does not
-touch, and `docs/domain/glossary.md` gained one more from the wave's own
-authoring before implementation began. So the check compares against
-stated counts rather than against a git baseline, which would move under
-it.
+The check reads the diff, not the files. A whole-file count of long
+lines moves whenever anything else in the file moves, cannot tell this
+wave's lines from the ones already there, and carries magic numbers that
+go stale at the next unrelated edit — three ways of measuring something
+other than what the constraint says. What the constraint says is that
+the lines this wave writes are wrapped, so that is what is measured.
 
-Both `awk` calls are pinned to a UTF-8 locale. `length` counts bytes
-under `LC_ALL=C`, and these files are full of em dashes, so the same
-command reports 19 for `workflow.md` instead of 3 — the six stated
-numbers are character counts and only hold as such.
+Lines indented four spaces or more are excluded: they are grammar
+examples, a form the rules use throughout — `spec-plan-lifecycle.md`
+carries four of them, up to 123 characters. Two-space bullet text stays
+in scope, because that is where replacement prose lands.
 
 ```bash
-while read -r f want; do
-  now=$(LC_ALL=C.UTF-8 awk 'length > 72 && $0 !~ /^\|/' "$f" | wc -l)
-  printf '%-58s was %-3s now %s\n' "$f" "$want" "$now"
-done <<'EOF'
-plugins/working-process/rules/workflow.md 3
-plugins/working-process/rules/spec-plan-lifecycle.md 36
-plugins/working-process/rules/ticket-frontmatter.md 1
-plugins/working-process/skills/process-status/SKILL.md 3
-docs/domain/glossary.md 50
-plugins/working-process/README.md 7
-EOF
-LC_ALL=C.UTF-8 awk 'length > 72 && $0 !~ /^\|/' plugins/working-process/rules/propagation-duties.md | wc -l
+BASE=$(git merge-base HEAD develop)
+git diff "$BASE"..HEAD -- plugins/working-process docs/domain/glossary.md \
+  | grep '^+' | grep -v '^+++' | sed 's/^+//' \
+  | LC_ALL=C.UTF-8 awk 'length > 72 && $0 !~ /^    / {print "("length") "$0}'
 ```
 
-The loop reads its pairs rather than splitting a string: `set -- $pair`
-would work in bash and silently fail in zsh, which does not word-split
-an unquoted parameter, and this repo's sessions run zsh.
-
-Expected: `now` equals `was` for all six — the replacement texts are
-wrapped, so none of them adds a long line — and `0` for the new rule
-file, whose table rows the `awk` skips.
-
-On a count that grew, rewrap the offending paragraph in the file that
-owns it and commit it as `style(working-process): rewrap <file>`. Do not
-reflow a paragraph this wave did not change.
+Expected: no output. Any line printed is one this wave added that breaks
+the wrap; rewrap it in the file that owns it and commit as
+`style(working-process): rewrap <file>`. Do not reflow a paragraph this
+wave did not change — it will not appear here anyway.
 
 - [ ] **Step 5: Report the end state**
 
@@ -1230,6 +1215,7 @@ here, including the branch this repo carries.
 - fixed 2026-09-12 — [Minor] W4 described the co-firing line where the integrity audit had handed the plan "W4's literal line shape" as its agenda, and never said whether the line joins or replaces the per-hit lines the same step prescribes; license: that agenda item, recorded in the spec's ledger; the step now says the line goes beneath the per-hit lines and shows it
 - fixed 2026-09-12 — [Minor] the spec disagrees with itself about the glossary — its Scope preamble counts the **Round heading** continuity clause as already applied while W1's body says the entry gains it, and the clause is measurably absent — and the plan followed the body without recording the disagreement or sweeping the edit; license: the measurement; a fourth Deviation records it and Task 7 sweeps it as `W1r`
 - fixed 2026-09-12 — [Minor] W6 mints `feature/<ticket>-<short-name>` while `spec-plan-lifecycle.md` writes the same slot as `feature/<issue>-<name>` in its document-branch paragraph, so the wave would ship two rules of one payload naming one slot differently — the changed-interface class the wave's own new rule tells an author to enumerate; license: that duty and the spec's choice of `<ticket>` for a tracker-agnostic rule; Task 3 gains a step that matches the older spelling to the newer
+- fixed 2026-09-14 — [Important] Task 7's wrap check counted long lines per file against six stated numbers, which measures the wrong thing three ways: the count moves with any unrelated edit, it cannot separate this wave's lines from those already present, and the numbers go stale at the next change. It surfaced during execution, when Task 5 landed a prescribed indented example of 83 characters — a form the sibling rule uses four times, up to 123 — and the count went from 3 to 4 on a file whose deliverable was byte-exact; ruling: 2026-09-14, the developer's, that wrapping a line to fit a convention must not break a test and that the test was the thing mis-designed; the step now reads the diff and fails only on a line this wave added that exceeds 72 outside a four-space indent, which passes cleanly over every commit of the wave so far
 - signal 2026-09-12 — another round would not repay: the one Important is a clause cut whose correctness is checked by reading `CLAUDE.md` beside the text, which needs no fresh context, and the rest is wording, one ruling and one Deviations entry. With this heading full-document the loop may close by annotation
 
 The loop closes here. Four rounds — `blocking`, `blocking`, `blocking`,
