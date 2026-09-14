@@ -95,7 +95,17 @@ for a hole.
    length. It publishes what it never condenses: error reports, security
    warnings, and confirmations of destructive actions. A review relay is
    absent from that list. Length therefore has a second owner now, and
-   the rule must name what that owner may not eat. `ruling: 2026-09-14`
+   the rule must name what that owner may not eat.
+
+   That the rule's clause outranks the style's instruction is an
+   assumption rather than a measurement. Both reach the model as
+   instructions — a style's with every request, a rule's from the
+   session's loaded instructions — and their relative precedence is
+   unmeasured. The observable that falsifies it: a relay produced under
+   the `Concise` style that drops a finding line. A project running the
+   style is where the probe belongs, and until one runs it the wave
+   proceeds on the assumption rather than on a result.
+   `ruling: 2026-09-14`
 
 2. **A floor sits where its unit has a shape.** A verdict relay keeps
    its floor in the relay: a finding arrives with a `claim` slot, so a
@@ -366,6 +376,6 @@ wrap.
 - fixed 2026-09-14 — [Minor] `revises:` was declined on the design-personas document although that document names the relay as the floor's site and this wave moves it; ruling: 2026-09-14, overturning the decline; the developer's stated ground for the decline — that the document is git-ignored and unlinkable — was refuted by checking the index, where all 28 files of `docs/specs/` are tracked; the pointer is added
 - fixed 2026-09-14 — [Minor] "one paragraph answering each focusing question" has no value where a single persona is consulted and no focusing question was appended; license: the workflow rule's consultation paragraph, which appends one only when both personas are consulted; the shape now reads per focusing question, or per briefing where none was appended
 - fixed 2026-09-14 — [Minor] the filename shape assumes a ledger ordinal for every verdict agent, which an `architect` dispatch on a bare question does not have; license: the glossary's **Consultation** entry, which records exactly that case; such a dispatch now takes the timestamp shape
-- open — [Minor] the spec states as settled that a rule's condensation clause outranks an output style's system-prompt instruction, where the relative precedence is unmeasured
+- fixed 2026-09-14 — [Minor] the spec stated as settled that a rule's condensation clause outranks an output style's system-prompt instruction, where the relative precedence is unmeasured; ruling: 2026-09-14; decision 1 now marks it an assumption and names the observable that falsifies it — a relay under `Concise` that drops a finding line
 - fixed 2026-09-14 — [Minor] "report" and "report store" collided with the glossary's **Review report**, a different object under `docs/code-review/`; license: that glossary term; the artefact is now a **dispatch record**, and W4 gains the glossary entry that mints it
 - signal 2026-09-14 — another round earns its cost: the four Important findings each reshape a sentence in the decision they concern, and repair-born drift between decisions 2 and 5 is the likely failure of that wave, so a diff-scoped round two attacking those fixes is worth a top-tier read; the Minors need no round of their own
