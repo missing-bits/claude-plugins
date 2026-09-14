@@ -1071,16 +1071,18 @@ go stale at the next unrelated edit — three ways of measuring something
 other than what the constraint says. What the constraint says is that
 the lines this wave writes are wrapped, so that is what is measured.
 
-Lines indented four spaces or more are excluded: they are grammar
-examples, a form the rules use throughout — `spec-plan-lifecycle.md`
-carries four of them, up to 123 characters. Two-space bullet text stays
-in scope, because that is where replacement prose lands.
+Two forms are excluded, both because they cannot wrap. Lines indented
+four spaces or more are grammar examples, a form the rules use
+throughout — `spec-plan-lifecycle.md` carries four of them, up to 123
+characters. Markdown table rows begin with a pipe and hold one cell per
+column; the rule this wave adds is built on one. Two-space bullet text
+stays in scope, because that is where replacement prose lands.
 
 ```bash
 BASE=$(git merge-base HEAD develop)
 git diff "$BASE"..HEAD -- plugins/working-process docs/domain/glossary.md \
   | grep '^+' | grep -v '^+++' | sed 's/^+//' \
-  | LC_ALL=C.UTF-8 awk 'length > 72 && $0 !~ /^    / {print "("length") "$0}'
+  | LC_ALL=C.UTF-8 awk 'length > 72 && $0 !~ /^    / && $0 !~ /^\|/ {print "("length") "$0}'
 ```
 
 Expected: no output. Any line printed is one this wave added that breaks
