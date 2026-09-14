@@ -213,7 +213,7 @@ for a hole.
        .working-process/<stem>/<agent>-round-<N>.md
        .working-process/<stem>/<agent>-<date>-<HH-MM-SS>.md
 
-A verdict agent takes the round ordinal, which the ledger already
+   A verdict agent takes the round ordinal, which the ledger already
    owns — except where it reviews no document and so has no ledger to
    own one, as an `architect` dispatch on a bare question does; that
    dispatch takes the timestamp shape. A consultation takes the
