@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-14
 status: draft
 grilled: 2026-09-14
-architect: blocking
+architect: concerns
 revises: ./2026-07-28-working-process-design-personas-design.md
 branch: feature/process-wave-five
 base: develop
@@ -127,24 +127,35 @@ for a hole.
    move into the session's own memory, which is where it already
    fails.
 
-   Part of this restores rather than relaxes. The design-personas spec
+   Part of this re-aligns two shipped copies rather than relaxing
+   anything. The obligation exists twice by design: `PERSONA_COMMON.md`
+   carries the persona-facing copy and says so — *the dispatcher-facing
+   copy of these obligations lives in the plugin's workflow rule; the
+   two are edited together*. The persona copy kept the permission
+   (*substantially verbatim — compression is allowed, merging is not;
+   every recommendation and every named risk survives*); `workflow.md`
+   kept the floor and lost the permission, where the word `compression`
+   appears nowhere. Two copies declared edited together have drifted,
+   and the dispatcher reads the one that drifted — which is why
+   consultation relays grew into walls while the agents' own card said
+   compression was allowed all along. The design-personas spec
    (`./2026-07-28-working-process-design-personas-design.md`,
-   `status: implemented`) grants the compression: *Compression is
-   allowed; merging is not. The checkable floor: every recommendation
-   and every named risk survives, and text from two personas never
-   lands in one bullet.* The shipped rule carries the floor and drops
-   the permission — the word `compression` appears nowhere in
-   `workflow.md` — so a rule read literally says *verbatim*, full stop,
-   which is why consultation relays grew into walls.
+   `status: implemented`) is where both copies come from.
 
-   What this wave changes beyond that restoration is the floor's site
+   What this wave changes beyond that re-alignment is the floor's site
    for consultations alone, and it says so rather than hiding the
-   change inside a restoration. The floor's content is untouched: every
-   recommendation and every named risk still survives, and two personas
-   still never land in one bullet — in the file. `revises:` stays
-   absent even so, since the design-personas document's design is not
-   superseded: its floor holds, at a place that document could not have
-   named, because no file existed then. `ruling: 2026-09-14`
+   change inside a re-alignment. The floor's content is untouched:
+   every recommendation and every named risk still survives, and two
+   personas still never land in one bullet — in the file.
+
+   The site is what `revises:` records. The design-personas document
+   places the floor in the relay; after this wave a consultation's
+   floor is met in the dispatch record, so that document's design no
+   longer matches what ships, which is the lifecycle rule's own test
+   for the pointer. The frontmatter therefore names it. What the
+   pointer does not claim is that the floor lapsed: it holds, at a
+   place the older document could not have named because no record
+   existed then. `ruling: 2026-09-14`
 
 3. **The adversary emits the origin.** The finding schema gains
    `origin` beside `section`, valued `plan`, `spec`, or `both`. The
@@ -223,12 +234,15 @@ for a hole.
    written at its first use. The location is what settles its mode. A
    directory the process creates in a repo to hold work artifacts is a
    Process directory and owes the first-create question, and
-   `.superpowers/` at the repo root is one — but a store under
-   `.claude/` is outside that class by the glossary's own carve-out,
-   and Private memory is the standing precedent: always ignored, never
-   asked, a store under the config namespace. This wave adds a second
-   store of that kind rather than a Process directory whose class it
-   would have to amend.
+   `.superpowers/` at the repo root is one. Private memory is the
+   standing exception, and it is excepted by its own definition rather
+   than by a rule about prefixes: the glossary says outright that
+   `.claude/memory/` is *not a Process directory — a per-user store
+   under the `.claude/` config namespace*, and the process-artifacts
+   rule says the same. The dispatch record takes that shape: W4's
+   glossary entry carries the same exclusion in the same words, so the
+   store is outside the class by its own definition and the class needs
+   no amendment.
 
    What the store guarantees is bounded, and decision 2 leans on the
    bound rather than on a promise. A dispatch record survives what the
@@ -306,6 +320,10 @@ for a hole.
    gains a **Dispatch record** entry, since the rules now name an
    artefact the glossary does not define and the nearest defined term,
    **Review report**, is a different object under `docs/code-review/`.
+   That entry carries the store's exclusion in the words **Private
+   memory** uses — not a Process directory, a store under the
+   `.claude/` namespace — so the exclusion lives where the term is
+   defined rather than in the rule that uses it.
 
 ## Out of scope
 
@@ -379,3 +397,10 @@ wrap.
 - fixed 2026-09-14 — [Minor] the spec stated as settled that a rule's condensation clause outranks an output style's system-prompt instruction, where the relative precedence is unmeasured; ruling: 2026-09-14; decision 1 now marks it an assumption and names the observable that falsifies it — a relay under `Concise` that drops a finding line
 - fixed 2026-09-14 — [Minor] "report" and "report store" collided with the glossary's **Review report**, a different object under `docs/code-review/`; license: that glossary term; the artefact is now a **dispatch record**, and W4 gains the glossary entry that mints it
 - signal 2026-09-14 — another round earns its cost: the four Important findings each reshape a sentence in the decision they concern, and repair-born drift between decisions 2 and 5 is the likely failure of that wave, so a diff-scoped round two attacking those fixes is worth a top-tier read; the Minors need no round of their own
+
+### 2026-09-14 — architect, fable 5.1, concerns (round 2, diff-scoped)
+
+- fixed 2026-09-14 — [Important] the `revises:` ruling landed in the frontmatter and the ledger but decision 2's closing paragraph still ruled the pointer absent, leaving two `ruling:` statements in contradiction; license: the round-one ledger line carrying `ruling: 2026-09-14, overturning the decline`, which settles which of the two stands; the paragraph now states what the pointer records — the older document places the floor in the relay, this wave meets a consultation's floor in the dispatch record, so its design no longer matches what ships — and no longer argues the overturned position
+- fixed 2026-09-14 — [Minor] decision 5 argued the store's exclusion from a prefix-based carve-out the glossary does not state; license: the glossary's **Private memory** entry and the process-artifacts rule, which except that store by its own definition rather than by its prefix; the argument now runs from that precedent and W4's **Dispatch record** entry carries the same exclusion in the same words
+- fixed 2026-09-14 — [Minor] decision 2 said the shipped rule dropped the permission, where the permission ships in the persona-facing copy; license: `PERSONA_COMMON.md`, which carries *compression is allowed, merging is not* and declares that the dispatcher-facing copy lives in the workflow rule and the two are edited together; W2 is now stated as re-aligning two copies that drifted, which is the stronger claim and names a defect in the shipped plugin
+- signal 2026-09-14 — a further round does not earn its cost on the present text: the Important was a held decision plus a paragraph rewrite and the Minors are one sentence each; where the fixes leave anything behind, the consumption gate's integrity audit is the right reader for it
