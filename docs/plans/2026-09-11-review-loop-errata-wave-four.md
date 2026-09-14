@@ -1,8 +1,8 @@
 ---
 ticket: none
 date: 2026-09-11
-status: draft
-adversary: concerns
+status: approved
+adversary: concerns (resolved 2026-09-14)
 spec: ../specs/2026-09-11-review-loop-errata-wave-four.md
 branch: feature/process-wave-four
 base: develop
@@ -1231,3 +1231,16 @@ here, including the branch this repo carries.
 - fixed 2026-09-12 — [Minor] the spec disagrees with itself about the glossary — its Scope preamble counts the **Round heading** continuity clause as already applied while W1's body says the entry gains it, and the clause is measurably absent — and the plan followed the body without recording the disagreement or sweeping the edit; license: the measurement; a fourth Deviation records it and Task 7 sweeps it as `W1r`
 - fixed 2026-09-12 — [Minor] W6 mints `feature/<ticket>-<short-name>` while `spec-plan-lifecycle.md` writes the same slot as `feature/<issue>-<name>` in its document-branch paragraph, so the wave would ship two rules of one payload naming one slot differently — the changed-interface class the wave's own new rule tells an author to enumerate; license: that duty and the spec's choice of `<ticket>` for a tracker-agnostic rule; Task 3 gains a step that matches the older spelling to the newer
 - signal 2026-09-12 — another round would not repay: the one Important is a clause cut whose correctness is checked by reading `CLAUDE.md` beside the text, which needs no fresh context, and the rest is wording, one ruling and one Deviations entry. With this heading full-document the loop may close by annotation
+
+The loop closes here. Four rounds — `blocking`, `blocking`, `blocking`,
+`concerns` — returned thirty-three findings and every one is terminal:
+thirty carry `license:`, three carry `ruling:`, and no `open` or `held`
+line remains. The last round was full-document, so the confirming round
+this plan owed is the round that produced the standing verdict rather
+than one still due. Five propagation gates ran, two found hits and the
+dispatcher found two more by running commands a gate only reads.
+
+What the verdict's `concerns` still names is the residue round four
+judged not worth another read: wording, one Deviations entry, and the
+ruling recorded above. Nothing in it blocks execution, which is why the
+close is an annotation rather than a fresh round.
