@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-11
-status: approved
+status: implemented
 grilled: 2026-09-11
 architect: blocking (adjudicated 2026-09-11)
 revises: [./2026-08-17-autonomous-review-loop-design.md, ./2026-09-07-diff-scoped-chain-debt-design.md]
