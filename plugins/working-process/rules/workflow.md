@@ -120,6 +120,25 @@ run an explicit editing pass over the changed prose of an existing one.
 The pass binds wording, never decisions. Without the skill there is no
 substitute pass and no install nagging — the work proceeds normally.
 
+## Branch naming
+
+Feature work happens on a topic branch named
+`feature/<ticket>-<short-name>`, where `<ticket>` is the work's tracker
+reference and `<short-name>` says what the work is, and
+`feature/<short-name>` where there is no ticket. How a tracker's
+reference is spelled in a branch name is the project's own — this
+convention fixes the shape and not the spelling.
+
+The branch of a worktree created with a generated name is renamed to
+this shape before its first commit, so the branch a reader sees is the
+branch the convention names; the worktree's own directory is a separate
+name and this convention does not govern it. The work's spec and plan
+record the result in their `branch:` field — the topic branch, not the
+`<topic>.docs` branch a review loop's per-round commits use, which the
+spec-plan-lifecycle rule names and which is a sibling of it rather than
+a second topic branch. The ticket rule's sourcing order reads the
+current branch name first when a new document needs a ticket.
+
 ## Dispatching a verdict agent
 
 Dispatching a verdict agent (`architect`, `plan-adversary`), when
@@ -385,7 +404,11 @@ evidence to attack, never a defence to protect.
   the cap is best-effort. A plan whose loop spent its three rounds
   therefore escalates once before its confirming round, which is the
   most expensive shape a round takes and the one a cap guarding spend
-  should guard first.
+  should guard first. A run of `blocking` verdicts is unbounded by the
+  cap, for the reason the cap is stated in: it counts autonomous rounds,
+  and `blocking` suspends autonomy, so every continuation after one is
+  the developer's own decision rather than a round the cap governs.
+  Consenting to three rounds consents to three autonomous ones.
 - All-Minor signal: two consecutive rounds whose findings are all Minor
   end the unattended run. Triage the round as always — by license, never
   by grade — and escalate with an offer of a fresh round instead of

@@ -52,7 +52,12 @@ GitLab, or anything else; the field is always `ticket`.
 For a NEW document: branch name (`feature/ABC-123-...`) → conversation
 context → ask the developer once; no answer means `none`. Never ask twice
 for one unit of work — a plan inherits its spec's ticket, and artifacts
-of the same session reuse the established value.
+of the same session reuse the established value. The branch naming
+convention that produces the names this order reads is the workflow
+rule's, which is where a branch is cut — before any `docs/` file of that
+work exists, and so before this rule loads. Where a branch name yields
+no usable reference, the order above simply falls through to its next
+source, as it does for any work whose branch carries none.
 
 When editing an existing `docs/` document that has no frontmatter, add
 the block as part of the edit — sourced from document content → branch →
