@@ -3,6 +3,7 @@ ticket: none
 date: 2026-09-14
 status: draft
 grilled: 2026-09-14
+architect: blocking
 branch: feature/process-wave-five
 base: develop
 ---
@@ -90,14 +91,18 @@ for a hole.
    absent from that list. Length therefore has a second owner now, and
    the rule must name what that owner may not eat. `ruling: 2026-09-14`
 
-2. **A floor sits where its unit is bounded.** A verdict relay keeps
-   its floor in the relay: findings are enumerable and one line each,
-   so carrying every one of them costs little and leaves the veto
-   whole. A consultation's floor moves to the file: recommendations and
-   named risks have no bound, a persona may return fifteen, and that is
-   the wall this wave exists to remove. The consultation relay then
-   carries one paragraph answering each focusing question and the path
-   to the contribution.
+2. **A floor sits where its unit has a shape.** A verdict relay keeps
+   its floor in the relay: a finding arrives with a `claim` slot, so a
+   relay carries every one of them in one line each and the veto stays
+   whole however many arrive. A consultation's floor moves to the file:
+   a contribution is prose with no delimited unit, so "every
+   recommendation survives" cannot be carried in a relay at all without
+   carrying the whole thing — which is the wall this wave exists to
+   remove. The asymmetry is structural rather than numerical: a round
+   of twenty findings still relays in twenty lines. The consultation
+   relay then carries one paragraph per focusing question — or one per
+   briefing, where a single persona was consulted and none was appended
+   — and the path to the contribution.
 
    The move is possible only because decision 5 guarantees the file
    before the relay. Without it the floor would move to the session's
@@ -208,12 +213,15 @@ for a hole.
        .working-process/<stem>/<agent>-round-<N>.md
        .working-process/<stem>/<agent>-<date>-<HH-MM-SS>.md
 
-   A verdict agent takes the round ordinal, which the ledger already
-   owns. A consultation takes the timestamp, because a consultation
-   records nothing and so has no ordinal to derive, and because several
-   consultations of one persona on one subject in one day are expected
-   — a follow-up is a fresh dispatch rather than a resumption. The
-   timestamp also orders them, which a counter would not.
+A verdict agent takes the round ordinal, which the ledger already
+   owns — except where it reviews no document and so has no ledger to
+   own one, as an `architect` dispatch on a bare question does; that
+   dispatch takes the timestamp shape. A consultation takes the
+   timestamp too, because a consultation records nothing and so has no
+   ordinal to derive, and because several consultations of one persona
+   on one subject in one day are expected — a follow-up is a fresh
+   dispatch rather than a resumption. The timestamp also orders them,
+   which a counter would not.
 
    Where a name is already taken, the new file appends the timestamp.
    That covers the superseded round the rules already describe, whose
@@ -231,7 +239,8 @@ for a hole.
 
 2. **W2 — the consultation relay shape and its floor's site.**
    `workflow.md`, the *Dispatching a consultation* paragraph. One
-   paragraph per focusing question, then the path to the contribution.
+   paragraph per focusing question — or per briefing, where none was
+   appended — then the path to the contribution.
    The paragraph names where the floor is met — compression yes,
    merging no, every recommendation and every named risk surviving in
    the file — so a reader meets the floor and its site together.
@@ -303,3 +312,18 @@ wrap.
   an invariant.
 
 ## Review rounds
+
+### 2026-09-14 — architect, fable 5.1, blocking (round 1, full-document)
+
+- hit fixed 2026-09-14 — the spec cited seven `Owner:` legs where the Unfinished-work list carries six; recounted against the list's entries and corrected to six
+- held — [Important] the header's decisions count is derived from `held` lines that do not exist at relay time: `open` is written at stamp time and triage follows the stamp, so the header forecasts triage rather than counting lines; question: does the header count findings the session can cite no license for, computed before any line is written, or does the count leave the header for the held batch?; options: (a) redefine as unlicensed findings and make the later `held` count the check that must equal it — my recommendation, since it keeps one number in the header and turns the ledger into its verification; (b) move the count into the held batch, which is where those decisions are actually put, leaving the header three elements
+- held — [Important] `.working-process/` is a Process directory by the glossary's own definition, and the spec declares its mode without amending the class or the rule that owns the first-create question; question: earn the exception at the class, or place the store where the existing exception already applies?; options: (a) move the store under `.claude/working-process/`, inside the carve-out for configuration directories that the glossary already grants and Private memory already uses — my recommendation, one precedent, no glossary edit; (b) amend the **Process directory** entry and `process-artifacts.md` to name the store a derived, re-creatable cache outside the class
+- held — [Important] decisions 2 and 5 disagree about what the file is: decision 2 moves a floor into it because decision 5 "guarantees" it, while decision 5 calls it ephemeral by construction and gives it no lifetime; question: what bounds the guarantee, and is that bound acceptable for the one artefact with no ledger behind it?; options: (a) state the lifetime in decision 5 — this checkout, until the `<stem>` directory is deleted — and have decision 2 cite the bound rather than a guarantee, my recommendation; (b) keep the consultation floor in the relay and move only its narrative to the file, which costs the wave its main saving; (c) give the store a close, as subagent-driven-development gives its workspace one
+- held — [Important] the triage clause licenses editing a spec from a plan's fix wave and says nothing about where that edit is recorded or what it does to the spec's standing stamp; question: does a spec-origin fix follow the spec's own lifecycle?; options: (a) one sentence — the disposition line lands under the spec's latest round heading or as the lifecycle rule's resolution annotation, and the plan's line points at it, keeping one authorizer per line across two documents — my recommendation; (b) leave the recording unspecified and let each session decide, which is the state the wave set out to end
+- fixed 2026-09-14 — [Minor] decision 2 argued the floor's move from the unboundedness of a contribution's count, where the real asymmetry is the unit's shape; license: `agents/plan-adversary.md`'s Output schema, which gives a finding a `claim` slot a relay carries in one line while a contribution has no delimited unit; the argument now runs from shape and survives a twenty-finding round
+- held — [Minor] `revises:` is declined on the design-personas document although that document names the relay as the floor's site and this wave moves it; question: add `revises: ./2026-07-28-working-process-design-personas-design.md`?; options: (a) add it — the reviewer's reading is that the lifecycle rule's definition is met, and the pointer costs one line; (b) keep it absent on the recorded ground that the floor holds rather than lapses; counter: the decline carries `ruling: 2026-09-14`, so this is a re-raise against a recorded decision and belongs to the developer
+- fixed 2026-09-14 — [Minor] "one paragraph answering each focusing question" has no value where a single persona is consulted and no focusing question was appended; license: the workflow rule's consultation paragraph, which appends one only when both personas are consulted; the shape now reads per focusing question, or per briefing where none was appended
+- fixed 2026-09-14 — [Minor] the filename shape assumes a ledger ordinal for every verdict agent, which an `architect` dispatch on a bare question does not have; license: the glossary's **Consultation** entry, which records exactly that case; such a dispatch now takes the timestamp shape
+- open — [Minor] the spec states as settled that a rule's condensation clause outranks an output style's system-prompt instruction, where the relative precedence is unmeasured
+- open — [Minor] "report" and "report store" collide with the glossary's **Review report**, a different object under `docs/code-review/`
+- signal 2026-09-14 — another round earns its cost: the four Important findings each reshape a sentence in the decision they concern, and repair-born drift between decisions 2 and 5 is the likely failure of that wave, so a diff-scoped round two attacking those fixes is worth a top-tier read; the Minors need no round of their own
