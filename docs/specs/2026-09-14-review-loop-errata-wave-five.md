@@ -148,7 +148,7 @@ for a hole.
 
    The field is named `origin` rather than `owner` because this process
    already spends `owner` on an actor: the Unfinished-work list's third
-   leg names who makes the next move, seven times over, and
+   leg names who makes the next move, six times over, and
    `review-reports.md` calls the author of a report the run's owner.
    Grilling minted **Origin** in the glossary, with `owner` for a
    document under its `_Avoid_`. `ruling: 2026-09-14`
