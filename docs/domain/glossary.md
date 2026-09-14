@@ -134,6 +134,14 @@ bracket slot (`[Minor]`). The collective noun is
 model-capability ladder.
 _Avoid_: severity tier
 
+**Origin**:
+The document a review finding traces to — `plan`, `spec`, or `both` —
+named by the reviewer that found it rather than derived at triage. A
+finding originating in the spec is held unless a written decision
+licenses the edit, since editing a spec from inside a plan review is
+design work.
+_Avoid_: owner (for a document), source
+
 **Rule tag**:
 The inline parenthesized annotation at a rule's (or sub-rule's)
 definition site carrying its identity and grade:
