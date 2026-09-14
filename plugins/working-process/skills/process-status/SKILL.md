@@ -74,6 +74,18 @@ the mapping, so you never need process knowledge to find it and a class
 published later works the same way. Name the field on the line, so the
 developer can see which class went quiet.
 
+Where two confirmed hits share one document, add one line beneath that
+document's per-hit lines, naming the classes and pointing at their owner
+legs:
+
+    - two classes hit this document; one move may close both — see their owner legs
+
+The line is the mapping read back — two hits, one file — and nothing
+more: it does not say the duplicate is deliberate, and it does not
+explain how the two relate, because both are process knowledge and this
+skill carries none. A reader who wants the relationship finds it in the
+legs the line points at.
+
 Close the report with:
 
 - the rejected hits — how many, and in which documents — because
