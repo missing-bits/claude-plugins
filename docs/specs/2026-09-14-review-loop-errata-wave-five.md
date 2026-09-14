@@ -4,6 +4,7 @@ date: 2026-09-14
 status: draft
 grilled: 2026-09-14
 architect: blocking
+revises: ./2026-07-28-working-process-design-personas-design.md
 branch: feature/process-wave-five
 base: develop
 ---
@@ -73,15 +74,20 @@ for a hole.
    carries no information and invites a reviewer to manufacture variety
    it does not have.
 
-   The count of decisions is derived rather than judged: it is the
-   number of `held` lines this round wrote. The ledger grammar already
-   defines `held` as the finding that needs the developer, and requires
-   `question:` and `options:` on every such line, so the count is a
-   count of lines and a later reader can recompute it. Verdicts that
-   suspend autonomy — `blocking`, the spent round cap, the all-Minor
-   signal — stay out of it: they decide whether the loop continues
-   rather than what a document says, and the relay already reports them
-   in its own right.
+   The count of decisions is derived rather than judged, and it is
+   derived from what exists at relay time: the findings for which the
+   session can cite no license. Triage's license test needs only the
+   report and the decisions already written down, so the count is
+   computable before any ledger line is. The `held` lines the same
+   round later writes are that count's check — they must come to the
+   same number, and a divergence means triage found a license the
+   relay missed or lost one it claimed. Deriving the count from the
+   lines themselves would have the header report a forecast, since
+   `open` is written at stamp time and triage follows the stamp, which
+   follows the relay. Verdicts that suspend autonomy — `blocking`, the
+   spent round cap, the all-Minor signal — stay out of the count: they
+   decide whether the loop continues rather than what a document says,
+   and the relay already reports them in its own right.
 
    What makes the second clause load-bearing is new. Claude Code ships a
    built-in `Concise` output style that condenses by default and expands
@@ -104,9 +110,12 @@ for a hole.
    briefing, where a single persona was consulted and none was appended
    — and the path to the contribution.
 
-   The move is possible only because decision 5 guarantees the file
-   before the relay. Without it the floor would move to the session's
-   own memory, which is where it already fails.
+   The move rests on decision 5's dispatch record, and on the bound
+   that decision states: the record survives compaction, the session's
+   end and a branch switch, and no further. The floor is met on the
+   checkout that ran the dispatch. Without the record the floor would
+   move into the session's own memory, which is where it already
+   fails.
 
    Part of this restores rather than relaxes. The design-personas spec
    (`./2026-07-28-working-process-design-personas-design.md`,
@@ -140,6 +149,14 @@ for a hole.
    decision licenses; what this adds is that spec origin is itself a
    reason to hold, since editing a spec from inside a plan review is
    design work.
+
+   A licensed spec-origin fix follows the spec's own lifecycle rather
+   than the plan's. Its disposition line lands under the spec's latest
+   round heading, or as the resolution annotation the lifecycle rule
+   already defines for a stamped document edited without a fresh round,
+   and the plan's line points at it. One authorizer per line still
+   holds — one authorizer, two documents, two lines — and the spec's
+   stamp stops certifying words that are gone.
 
    `both` holds like `spec`, and the `held` line names in its `options:`
    which half is fixable at once. A finding whose origin is both
@@ -181,17 +198,35 @@ for a hole.
    `process-status` contract forbids rewriting a published command.
    Its live instance is also gone, so nothing remains to test against.
 
-5. **A report is written to disk before it is relayed.** The relay may
-   condense narrative only because the full text stays recoverable, and
-   a copy living in the session dies at the next compaction — twice
-   over in this repo's own history. So the dispatcher writes the
-   agent's report to a file, then names that file in the relay.
+5. **A dispatch record is written to disk before it is relayed.** The
+   relay may condense narrative only because the full text stays
+   recoverable, and a copy living in the session dies at the next
+   compaction — twice over in this repo's own history. So the
+   dispatcher writes what the agent returned to a file, then names that
+   file in the relay. The artefact is a **dispatch record**: one
+   background dispatch, one file. It is not a Review report, which is
+   the persistent, counted document a code-review run writes under
+   `docs/code-review/`.
 
-   The store is `.working-process/`, a git-ignored directory at the
-   repository root, materialised with a `.gitignore` containing exactly
-   `*` at its first write. This is a declaration rather than a
-   first-create question: the artefacts are ephemeral by construction,
-   so the mode follows from what they are and no project is asked.
+   The store is `.claude/working-process/`, under the `.claude/`
+   namespace and ignored by a `.gitignore` containing exactly `*`
+   written at its first use. The location is what settles its mode. A
+   directory the process creates in a repo to hold work artifacts is a
+   Process directory and owes the first-create question, and
+   `.superpowers/` at the repo root is one — but a store under
+   `.claude/` is outside that class by the glossary's own carve-out,
+   and Private memory is the standing precedent: always ignored, never
+   asked, a store under the config namespace. This wave adds a second
+   store of that kind rather than a Process directory whose class it
+   would have to amend.
+
+   What the store guarantees is bounded, and decision 2 leans on the
+   bound rather than on a promise. A dispatch record survives what the
+   session does not: compaction, the end of the session, a branch
+   switch. It does not survive `git clean -fdx`, which removes ignored
+   files, nor does it reach a second Environment or a reviewer reading
+   the document branch. That is the same durability Private memory has
+   and the same the developer relies on daily.
 
    One directory per subject, named for it — `<stem>`, the reviewed
    document's basename without its extension. A consultation carrying
@@ -210,8 +245,8 @@ for a hole.
 
    Inside, the file names its agent and one discriminator:
 
-       .working-process/<stem>/<agent>-round-<N>.md
-       .working-process/<stem>/<agent>-<date>-<HH-MM-SS>.md
+       .claude/working-process/<stem>/<agent>-round-<N>.md
+       .claude/working-process/<stem>/<agent>-<date>-<HH-MM-SS>.md
 
    A verdict agent takes the round ordinal, which the ledger already
    owns — except where it reviews no document and so has no ledger to
@@ -253,11 +288,14 @@ for a hole.
    `docs/domain/glossary.md` carries the **Origin** entry grilling
    already minted.
 
-4. **W4 — the report store.** `workflow.md`, the verdict-agent
-   dispatch bullet list and the consultation paragraph: both gain the
-   write-then-relay duty and the path shape decision 5 defines. The
-   store's ignored mode is stated where the path is, so a reader never
-   meets the path without the mode.
+4. **W4 — the dispatch record.** Two sites. `workflow.md`, the
+   verdict-agent dispatch bullet list and the consultation paragraph:
+   both gain the write-then-relay duty and the path shape decision 5
+   defines, with the ignored mode stated where the path is, so a reader
+   never meets the path without the mode. `docs/domain/glossary.md`
+   gains a **Dispatch record** entry, since the rules now name an
+   artefact the glossary does not define and the nearest defined term,
+   **Review report**, is a different object under `docs/code-review/`.
 
 ## Out of scope
 
@@ -305,8 +343,12 @@ wrap.
 - `plan-adversary.md` still contains its spec-boundary sentence:
   expected 1, an invariant this wave must not disturb.
 - `workflow.md` contains the spec-origin triage sentence: expected 1.
-- `workflow.md` contains `.working-process/` and the two filename
-  shapes: expected 1 each, and the word naming the store ignored: 1.
+- `workflow.md` contains `.claude/working-process/` and the two
+  filename shapes: expected 1 each, and the word naming the store
+  ignored: 1.
+- `glossary.md` contains a `**Dispatch record**:` entry: expected 1.
+- `workflow.md` contains no `.working-process/` outside the
+  `.claude/` prefix: expected 0.
 - `glossary.md` contains an `**Origin**:` entry: expected 1.
 - `claude plugin validate` passes for the plugin and the marketplace:
   an invariant.
@@ -316,14 +358,14 @@ wrap.
 ### 2026-09-14 — architect, fable 5.1, blocking (round 1, full-document)
 
 - hit fixed 2026-09-14 — the spec cited seven `Owner:` legs where the Unfinished-work list carries six; recounted against the list's entries and corrected to six
-- held — [Important] the header's decisions count is derived from `held` lines that do not exist at relay time: `open` is written at stamp time and triage follows the stamp, so the header forecasts triage rather than counting lines; question: does the header count findings the session can cite no license for, computed before any line is written, or does the count leave the header for the held batch?; options: (a) redefine as unlicensed findings and make the later `held` count the check that must equal it — my recommendation, since it keeps one number in the header and turns the ledger into its verification; (b) move the count into the held batch, which is where those decisions are actually put, leaving the header three elements
-- held — [Important] `.working-process/` is a Process directory by the glossary's own definition, and the spec declares its mode without amending the class or the rule that owns the first-create question; question: earn the exception at the class, or place the store where the existing exception already applies?; options: (a) move the store under `.claude/working-process/`, inside the carve-out for configuration directories that the glossary already grants and Private memory already uses — my recommendation, one precedent, no glossary edit; (b) amend the **Process directory** entry and `process-artifacts.md` to name the store a derived, re-creatable cache outside the class
-- held — [Important] decisions 2 and 5 disagree about what the file is: decision 2 moves a floor into it because decision 5 "guarantees" it, while decision 5 calls it ephemeral by construction and gives it no lifetime; question: what bounds the guarantee, and is that bound acceptable for the one artefact with no ledger behind it?; options: (a) state the lifetime in decision 5 — this checkout, until the `<stem>` directory is deleted — and have decision 2 cite the bound rather than a guarantee, my recommendation; (b) keep the consultation floor in the relay and move only its narrative to the file, which costs the wave its main saving; (c) give the store a close, as subagent-driven-development gives its workspace one
-- held — [Important] the triage clause licenses editing a spec from a plan's fix wave and says nothing about where that edit is recorded or what it does to the spec's standing stamp; question: does a spec-origin fix follow the spec's own lifecycle?; options: (a) one sentence — the disposition line lands under the spec's latest round heading or as the lifecycle rule's resolution annotation, and the plan's line points at it, keeping one authorizer per line across two documents — my recommendation; (b) leave the recording unspecified and let each session decide, which is the state the wave set out to end
+- fixed 2026-09-14 — [Important] the header's decisions count was derived from `held` lines that do not exist at relay time, since `open` is written at stamp time and triage follows the stamp; ruling: 2026-09-14; the count is now the findings for which the session can cite no license, computable from the report and the decisions already written, and the round's later `held` lines are its check
+- fixed 2026-09-14 — [Important] `.working-process/` at the repo root is a Process directory by the glossary's definition, and the spec declared its mode without amending the class; ruling: 2026-09-14; the store moved to `.claude/working-process/`, inside the carve-out the glossary already grants and Private memory already occupies, so no class is amended and no project is asked
+- fixed 2026-09-14 — [Important] decisions 2 and 5 disagreed about what the file is, one calling it guaranteed and the other ephemeral by construction; ruling: 2026-09-14; decision 5 now states the bound — it survives compaction, the session's end and a branch switch, and not `git clean -fdx`, a second Environment or the document branch — and decision 2 leans on that bound rather than on a promise
+- fixed 2026-09-14 — [Important] the triage clause licensed editing a spec from a plan's fix wave and said nothing about where that edit is recorded or what it does to the spec's standing stamp; ruling: 2026-09-14; a spec-origin fix now follows the spec's own lifecycle — its line lands under the spec's latest round heading or as the resolution annotation, and the plan's line points at it
 - fixed 2026-09-14 — [Minor] decision 2 argued the floor's move from the unboundedness of a contribution's count, where the real asymmetry is the unit's shape; license: `agents/plan-adversary.md`'s Output schema, which gives a finding a `claim` slot a relay carries in one line while a contribution has no delimited unit; the argument now runs from shape and survives a twenty-finding round
-- held — [Minor] `revises:` is declined on the design-personas document although that document names the relay as the floor's site and this wave moves it; question: add `revises: ./2026-07-28-working-process-design-personas-design.md`?; options: (a) add it — the reviewer's reading is that the lifecycle rule's definition is met, and the pointer costs one line; (b) keep it absent on the recorded ground that the floor holds rather than lapses; counter: the decline carries `ruling: 2026-09-14`, so this is a re-raise against a recorded decision and belongs to the developer
+- fixed 2026-09-14 — [Minor] `revises:` was declined on the design-personas document although that document names the relay as the floor's site and this wave moves it; ruling: 2026-09-14, overturning the decline; the developer's stated ground for the decline — that the document is git-ignored and unlinkable — was refuted by checking the index, where all 28 files of `docs/specs/` are tracked; the pointer is added
 - fixed 2026-09-14 — [Minor] "one paragraph answering each focusing question" has no value where a single persona is consulted and no focusing question was appended; license: the workflow rule's consultation paragraph, which appends one only when both personas are consulted; the shape now reads per focusing question, or per briefing where none was appended
 - fixed 2026-09-14 — [Minor] the filename shape assumes a ledger ordinal for every verdict agent, which an `architect` dispatch on a bare question does not have; license: the glossary's **Consultation** entry, which records exactly that case; such a dispatch now takes the timestamp shape
 - open — [Minor] the spec states as settled that a rule's condensation clause outranks an output style's system-prompt instruction, where the relative precedence is unmeasured
-- open — [Minor] "report" and "report store" collide with the glossary's **Review report**, a different object under `docs/code-review/`
+- fixed 2026-09-14 — [Minor] "report" and "report store" collided with the glossary's **Review report**, a different object under `docs/code-review/`; license: that glossary term; the artefact is now a **dispatch record**, and W4 gains the glossary entry that mints it
 - signal 2026-09-14 — another round earns its cost: the four Important findings each reshape a sentence in the decision they concern, and repair-born drift between decisions 2 and 5 is the likely failure of that wave, so a diff-scoped round two attacking those fixes is worth a top-tier read; the Minors need no round of their own
