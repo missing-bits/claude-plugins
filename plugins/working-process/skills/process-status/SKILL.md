@@ -78,7 +78,7 @@ Where two confirmed hits share one document, add one line beneath that
 document's per-hit lines, naming the classes and pointing at their owner
 legs:
 
-    - two classes hit this document; one move may close both — see their owner legs
+    - <class> and <class> hit this document — see their owner legs
 
 The line is the mapping read back — two hits, one file — and nothing
 more: it does not say the duplicate is deliberate, and it does not
