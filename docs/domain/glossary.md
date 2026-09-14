@@ -381,14 +381,14 @@ The full-document round a plan's loop owes before it may close, whenever
 the latest round heading is diff-scoped — whatever path would otherwise
 end the rounds. A plan already `implemented` owes none: there the round
 is discharged by recorded decline without any dispatch, as the sibling
-chain debt is, since completed work is not re-reviewed. It runs as the same loop's last round, counts against
-the round cap like any other, and its verdict is the one stamped; on a
-plan the resolution annotation and the adjudication wait for it. It
-inherits the gating of whatever ended the rounds: autonomous where
-autonomy still stands, the developer's to order after a terminator that
-suspends it. A spec owes none: its diff-scoped chain is
-discharged at the consumption gate, where a full-document round is one
-arm of the pair offer.
+chain debt is, since completed work is not re-reviewed. It runs as the
+same loop's last round, counts against the round cap like any other, and
+its verdict is the one stamped; on a plan the resolution annotation and
+the adjudication wait for it. It inherits the gating of whatever ended
+the rounds: autonomous where autonomy still stands, the developer's to
+order after a terminator that suspends it. A spec owes none: its
+diff-scoped chain is discharged at the consumption gate, where a
+full-document round is one arm of the pair offer.
 _Avoid_: final round, closing round, full read (as the name)
 
 **Document branch**:
