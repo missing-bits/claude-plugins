@@ -391,8 +391,9 @@ evidence to attack, never a defence to protect.
   by grade — and escalate with an offer of a fresh round instead of
   dispatching one. The escalation is a question, so the loop stays open
   until the developer answers it: the resolution annotation the
-  spec-plan-lifecycle rule defines records their close, and no session
-  writes it without their answer.
+  spec-plan-lifecycle rule defines records their close — on a plan, once
+  the confirming round has run — and no session writes it without their
+  answer.
 - Oscillation tripwire: a finding re-raised against a line carrying
   `license:` is never re-fixed autonomously. Two readings of one license
   are a contested reading, so it escalates as held, the flip named. A
@@ -413,15 +414,15 @@ reviewed by the round that followed it. What that chain still owes
 differs by document.
 
 For a spec, the consumption gate before plan-writing offers the pair as
-one question — an integrity audit or a confirming full-document round —
-and never an offer followed by a re-offer of the option just declined.
-When the `integrity-auditor` agent is absent the offer carries the
-confirming round alone. The two arms cost differently and the offer says
-so: an audit returns material for the dispatcher to dispose of and
-leaves the verdict alone, while a confirming round on a spec is a new
-loop's first round, since the spec's LGTM already closed its loop — it
-mints its own verdict and stamps it, so a `concerns` there flips the
-field back while plan-writing waits. The confirming-round arm therefore
+one question — an integrity audit or a full-document round — and never
+an offer followed by a re-offer of the option just declined. When the
+`integrity-auditor` agent is absent the offer carries the full-document
+round alone. The two arms cost differently and the offer says so: an
+audit returns material for the dispatcher to dispose of and leaves the
+verdict alone, while a full-document round on a spec is a new loop's
+first round, since the spec's LGTM already closed its loop — it mints
+its own verdict and stamps it, so a `concerns` there flips the field
+back while plan-writing waits. The full-document-round arm therefore
 blocks plan-writing; the audit arm does not, and plan-writing follows
 its dispositions.
 
@@ -432,18 +433,36 @@ diff-scoped LGTM heading, in the shape the spec-plan-lifecycle rule
 defines, and that annotation defeats the gate's re-ask. The other two
 paths write the same token.
 
-For a plan the loop never terminates on a diff-scoped LGTM: one
-full-document confirming round follows, and the confirming round's
-verdict is the one stamped. That round runs under the loop's standing
-consent like any other — the rules mandate it, so it is no decision of
-the developer's and spends none of the round's one interruption. It
-carries the single named exception to the relay-then-stamp order above —
-a plan's diff-scoped LGTM is relayed and its round record written, and
-only the frontmatter stamp waits for the confirming round. Recovery
-therefore reads the ledger rather than the stamp: a plan whose latest
-round heading is a diff-scoped LGTM that no later full-document round
-follows is re-offered its confirming round at the document's next touch,
-whatever the frontmatter says.
+For a plan the loop closes only when the latest verdict round was
+full-document: whatever ends its rounds while the latest round heading
+is diff-scoped, one confirming full-document round follows, and that
+round's verdict is the one stamped. A round already full-document owes
+no successor — it is the close. The confirming round inherits the gating
+of whatever ended the rounds. Where autonomy still stands —
+a diff-scoped `LGTM`, or a `concerns` inside the cap — the rules mandate
+the round, so it is no decision of the developer's and spends none of
+the round's one interruption. After `blocking`, the round cap or the
+all-Minor signal it is the developer's to order, because each of those
+suspends autonomy by its own terminator, and a round the rules mandate
+cannot outrank a terminator that stopped the loop.
+
+A session never judges that the rounds are ending. The terminators do,
+as does the developer closing the loop. While none has fired and the
+held set is empty, the next round is diff-scoped and the loop simply
+continues; the confirming round is owed the moment one fires, which is
+the moment a session would otherwise write the resolution annotation.
+
+The plan case carries the single named exception to the relay-then-stamp
+order above — a plan's diff-scoped LGTM is relayed and its round record
+written, and only the frontmatter stamp waits for the confirming round.
+Recovery therefore reads the ledger rather than the stamp. A plan whose
+latest round heading is a diff-scoped `LGTM` that no later full-document
+round follows is re-offered its confirming round at the document's next
+touch, whatever the frontmatter says, since that heading is itself an
+end. A latest heading of any other verdict is not an end, so there the
+round is re-offered when something tries to end the rounds — an
+annotation, an adjudication, a `status` move — or when a terminator that
+suspends autonomy has fired.
 
 Scoping never spans a close. An annotation close ends the loop, and a
 later round on the same document opens a new one, reading the whole
