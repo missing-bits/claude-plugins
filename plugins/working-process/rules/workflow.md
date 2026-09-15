@@ -330,6 +330,14 @@ decision. Consequences the loop states outright:
 - Only written decisions license fixes. A decision settled in
   conversation becomes citable by being written into the document,
   which the fix itself accomplishes.
+- A finding whose `origin` names the spec is held unless a written
+  decision licenses the edit, since editing a spec from inside a plan
+  review is design work; `both` holds the same way, and its `held`
+  line names in `options:` which half is fixable at once. A licensed
+  spec-origin fix lands in the spec's own ledger and the plan's line
+  points at it, by the cross-document clause the spec-plan-lifecycle
+  rule defines — which also leaves the spec's `integrity:` stamp
+  stale, as any body edit does.
 
 A fix wave that deviates from a reviewer's suggestion records the
 deviation and its rationale beside the text they concern — not only in
