@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-08
-status: approved
+status: implemented
 adversary: concerns (resolved 2026-09-08)
 spec: ../specs/2026-09-08-salesforce-trigger-frameworks-design.md
 branch: feature/trigger-frameworks
