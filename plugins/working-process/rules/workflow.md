@@ -104,10 +104,24 @@ settled decisions separated from open questions — pointing at files
 rather than pasting them. A follow-up is a fresh cross-check dispatch,
 never a resumption. When both personas are consulted on one subject,
 give both the same canonical briefing, each with its own focusing
-question appended, and tell neither what the other said. Relay each
-contribution attributed and substantially verbatim, disagreements
-presented as disagreements, and dispatch as a named background agent so
-the transcript stays inspectable.
+question appended, and tell neither what the other said. Dispatch as a
+named background agent, so the transcript stays inspectable.
+
+A contribution is written to its dispatch record before it is relayed,
+taking the timestamp shape of the two the verdict-agent dispatch
+subsection defines: a consultation mints no round heading, so it has
+no ordinal to derive, and several consultations of one persona on one
+subject in one day are expected. The floor is met in that file —
+attributed and substantially verbatim, compression allowed and merging
+forbidden, every recommendation and every named risk surviving, and
+text from two personas never landing in one bullet. The relay then
+carries one paragraph per focusing question — or one per briefing,
+where a single persona was consulted and none was appended — and the
+path to the record. One thing stays in the relay whatever the floor
+does: where the personas disagree, the disagreement is presented as a
+disagreement with both positions, because a disagreement is the one
+thing in a contribution the developer must decide and the digest
+exists to raise decisions rather than bury them.
 
 When `docs/domain/glossary.md` exists in the project, its canonical
 terms and `_Avoid_` bans bind specs, plans, code identifiers, and
