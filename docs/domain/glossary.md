@@ -420,11 +420,25 @@ _Avoid_: review agent (unqualified), reviewer agent
 
 **Relay**:
 The delivery of a background agent's result to the developer before any
-further action on it — a verdict agent's report before its stamp (the
-verdict, the model self-report, and every finding in substance), a
-consultation's Contribution attributed and substantially verbatim. The
-developer's standing veto point.
+further action on it — a verdict agent's report before its stamp (a
+header carrying the verdict, the model self-report and the counts, then
+one line per finding, that list never condensed), a consultation's
+Contribution digested one paragraph per focusing question. Either way it
+names the Dispatch record holding the full text. The developer's
+standing veto point.
 _Avoid_: report back, forward (as the term)
+
+**Dispatch record**:
+The file a dispatcher writes before relaying a background agent's
+result — one dispatch, one file, holding what the agent returned
+verbatim under a four-line header (date, agent, model self-report,
+subject). Kept per subject under `.claude/working-process/<stem>/`,
+git-ignored, and NOT a Process directory — a per-checkout store under
+the `.claude/` config namespace, as Private memory is a per-user one. It
+survives compaction, the session's end and a branch switch, and no more:
+that bound is what lets a Relay condense. Never a Review report, the
+counted document a code-review run writes under `docs/code-review/`.
+_Avoid_: dispatch log, transcript file
 
 **Session skill**:
 A skill whose content is an open-ended conversation, named `*-session` —
@@ -444,9 +458,10 @@ _Avoid_: informal review, advisory review
 
 **Contribution**:
 What a consultation returns: reasoning, options, and the questions the
-persona would need answered next, relayed to the developer attributed and
-substantially verbatim. Never graded and never counted — the graded,
-counted unit is a Finding, which belongs to verdict-bearing reviews.
+persona would need answered next, held attributed and substantially
+verbatim in its Dispatch record and relayed from there as a digest.
+Never graded and never counted — the graded, counted unit is a Finding,
+which belongs to verdict-bearing reviews.
 _Avoid_: consultation finding, recommendation
 
 **Project memory**:
