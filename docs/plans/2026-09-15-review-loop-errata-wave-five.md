@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-15
 status: draft
-adversary: blocking
+adversary: concerns
 spec: ../specs/2026-09-14-review-loop-errata-wave-five.md
 branch: feature/process-wave-five
 base: develop
@@ -1157,3 +1157,9 @@ an episode that precedes a document's first round.
 - fixed 2026-09-15 — [Minor] the store path carried no base, where the plugin's own shared file records that a dispatch inherits a working directory possibly below the root and that the miss is silent; license: `PERSONA_COMMON.md`'s glossary-duty paragraph, which resolves its own path against the repo root for that reason; the bullet now says at the repo root and names the command
 - fixed 2026-09-15 — [Minor] "the reviewed document's line points at it" named no clause while the ledger's clause table is closed; license: the `fixed` line's own shape, whose `<what changed>` clause carries the pointer without a new row; the clause now says so and states that the table stays closed
 - signal 2026-09-15 — a further round earns its cost only as a diff-scoped read over Tasks 1 and 6, where the fixes reshape rule text and repair-born defects are the likely failure; the counter fix and the deviation entry are mechanical and the propagation gate verifies them without a round, and the three Minors are one sentence each
+
+### 2026-09-15 — plan-adversary, fable 5.1, concerns (round 2, diff-scoped)
+
+- held — [Important] the collision rule appends the timestamp to the name it collided with, which settles the ordinal shape but not the timestamp shape: two dispatches of one agent on one subject landing in the same second collide on `<agent>-<date>-<HH-MM-SS>.md`, and appending the same timestamp reproduces a name already taken, so the second record overwrites the first; question: how does a timestamp-shape collision resolve?; options: (a) scope the timestamp append to the ordinal shape, which is the case spec decision 5 gives as its reason, and give the timestamp shape the lowest free counter suffix, `-2` then `-3` — recommended, deterministic and clock-free, with the spec's decision 5 sentence corrected by the cross-document clause this wave defines; (b) sub-second precision in every timestamp name, which changes the filename shape the developer settled and Task 1's `G` check; (c) state the collision as accepted, which loses a record rather than merely misordering one; counter: the finding traces to both documents — spec decision 5 states the append for every taken name under `ruling: 2026-09-14`, so its spec half is not the session's to edit
+- held — [Minor] spec decision 3 says the resolution annotation "is defined for `concerns` alone" where the shipped rule defines it for an adjudicated `blocking` as well; the plan already follows the rule through deviation 5, so only the spec carries the error, and it would freeze into an `implemented` document amendable only in frontmatter; question: correct the spec's clause now, while the spec is still `approved`?; options: (a) correct it through the cross-document clause this wave defines, landing the line with the spec's existing resolution note and pointing at it from here, accepting that the spec's `integrity:` stamp goes stale as the rule says any body edit makes it — recommended, and one spec edit can carry the spec half of the finding above with it, so the stamp goes stale once rather than twice; (b) leave the spec as it stands, relying on deviation 5 to record the disagreement
+- signal 2026-09-15 — a further round does not earn its cost: the Important is a one-or-two-sentence fix the propagation gate verifies mechanically, and the Minor is held for the developer whatever a round finds, being spec-origin; a diff-scoped round three would mostly re-confirm a small patch
