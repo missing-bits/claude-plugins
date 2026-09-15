@@ -185,9 +185,11 @@ echo "F $(grep -c '<agent>-round-<N>\.md' $W)"
 echo "G $(grep -c '<agent>-<date>-<HH-MM-SS>\.md' $W)"
 echo "H $(n $W | grep -o 'git-ignored by a .\.gitignore. containing exactly' | wc -l)"
 echo "I $(n $W | grep -o 'write the dispatch record defined below' | wc -l)"
+echo "J $(n $W | grep -o 'Before writing a record the dispatcher ensures' | wc -l)"
 ```
 
-Expected: `A 0`, `B 0`, `C 0`, `D 0`, `E 0`, `F 0`, `G 0`, `H 0`, `I 0`.
+Expected: `A 0`, `B 0`, `C 0`, `D 0`, `E 0`, `F 0`, `G 0`, `H 0`, `I 0`,
+`J 0`.
 
 `D` counts the store path; `E` counts a store path written without the
 `.claude/` prefix, which the spec forbids. The two are not the same
@@ -249,13 +251,19 @@ Replace with:
   the date, the agent, the model self-report, and the subject — with
   no frontmatter and no `ticket`, since the record is evidence rather
   than a process artefact. It goes to `.claude/working-process/` at
-  the repo root (`git rev-parse --show-toplevel`), a store git-ignored
-  by a `.gitignore` containing exactly `*` written at its first use. A record survives compaction, the session's end
-  and a branch switch, and no more; that bound is what the relay's
-  condensation below leans on. Audits write none — a propagation
-  gate's hits land in the ledger and an integrity audit's dispositions
-  land as the edits it causes plus the `integrity:` stamp, so a record
-  would give one fact a second home.
+  the repo root (`git rev-parse --show-toplevel`). A record survives
+  compaction, the session's end and a branch switch, and no more; that
+  bound is what the relay's condensation below leans on. Audits write
+  none — a propagation gate's hits land in the ledger and an integrity
+  audit's dispositions land as the edits it causes plus the
+  `integrity:` stamp, so a record would give one fact a second home.
+- The store is git-ignored by a `.gitignore` containing exactly `*`.
+  Before writing a record the dispatcher ensures that file holds
+  exactly that, rather than writing it once: the guard repairs a store
+  directory made by hand, a file someone truncated, and a `git clean`
+  that took the file and left the directory. A project already
+  ignoring `.claude/` still gets the file, since the store may not
+  depend on another file's contents.
 - The record's name carries its agent and one discriminator:
 
       .claude/working-process/<stem>/<agent>-round-<N>.md
@@ -314,7 +322,10 @@ the rules already carry.
 Run the Step 1 command again.
 
 Expected: `A 1`, `B 1`, `C 1`, `D 3`, `E 0`, `F 1`, `G 1`, `H 1`,
-`I 1`.
+`I 1`, `J 1`.
+
+`J 1` is the idempotent guard: the store's git-ignored state is ensured
+before every record write rather than at a first use nothing defines.
 
 `D 3` is the Global Constraints cap: once in the store sentence, once in
 each filename shape, and a count of one would mean a shape went missing.
@@ -736,14 +747,24 @@ echo "A $(n $L | grep -o 'Every terminal line carries exactly one authorizer' | 
 echo "B $(n $L | grep -o 'other than the reviewed one' | wc -l)"
 echo "C $(grep -c '^    ### <ISO date> — fix from' $L)"
 echo "D $(n $L | grep -o 'one authorizer, two documents, two lines' | wc -l)"
+echo "E $(n $L | grep -o 'One annotation extends those shapes' | wc -l)"
+echo "F $(n $L | grep -o 'Two additions extend those shapes' | wc -l)"
+echo "G $(n $L | grep -o 'is no counter-example' | wc -l)"
 ```
 
-Expected: `A 1`, `B 0`, `C 0`, `D 0`.
+Expected: `A 1`, `B 0`, `C 0`, `D 0`, `E 1`, `F 0`, `G 0`.
 
 `A` is the invariant the spec names: the clause must leave "every
 terminal line carries exactly one authorizer" standing, because the
 clause is what makes it hold across two documents rather than an
 exception to it.
+
+`E`, `F` and `G` belong to the two sentences Steps 3 and 4 amend. The
+rule says today that one annotation extends the heading shapes and
+nothing else does, and gives a gate's heading-lessness the ground that
+the round heading's grammar is closed. Step 2 mints a heading, so
+leaving those sentences would ship a rule contradicting itself —
+`ruling: 2026-09-15`.
 
 - [ ] **Step 2: Write the clause**
 
@@ -766,8 +787,9 @@ points at it in its `<what changed>` clause, naming that document and
 the heading the line sits under: one authorizer, two documents, two
 lines, and the invariant above holds on each. The pointer needs no
 clause of its own — `<what changed>` already belongs to the `fixed`
-line's shape, so the clause table stays closed. In the changed document the line goes
-under its latest round heading, or with the body note the resolution
+line's shape, so the clause table stays closed. In the changed
+document the line goes under its latest round heading, or with the
+body note the resolution
 annotation above already owes, where that document is stamped and no
 fresh round ran. A document whose loop closed at `LGTM` has neither —
 the annotation is defined for `concerns` and `blocking` alone — so the
@@ -782,13 +804,53 @@ any body edit — the `integrity:` hash stops matching, and the verdict
 stops certifying the words that changed.
 ```
 
-- [ ] **Step 3: Verify**
+- [ ] **Step 3: Admit the fix heading to the closed shape set**
+
+Find:
+
+```
+One annotation extends those shapes, and nothing else does. A
+diff-scoped `LGTM` heading gains `, debt discharged <date>` once the
+```
+
+Replace with:
+
+```
+Two additions extend those shapes, and nothing else does: the
+annotation here, and the cross-document fix heading above. A
+diff-scoped `LGTM` heading gains `, debt discharged <date>` once the
+```
+
+- [ ] **Step 4: Say why a gate still mints no heading**
+
+Find:
+
+```
+one. A gate still never mints a heading of its own, on the separate
+ground that the round heading's grammar is closed and a gate is not a
+round. Writing at gate
+```
+
+Replace with:
+
+```
+one. A gate still never mints a heading of its own, on the separate
+ground that the round heading's grammar is closed and a gate is not a
+round. The fix heading above is no counter-example: a gate's lines can
+wait for the round that is coming, while a fix landing on a document
+whose loop closed at `LGTM` waits for nothing. Writing at gate
+```
+
+- [ ] **Step 5: Verify**
 
 Run the Step 1 command again.
 
-Expected: `A 1`, `B 1`, `C 1`, `D 1`.
+Expected: `A 1`, `B 1`, `C 1`, `D 1`, `E 0`, `F 1`, `G 1`.
 
-- [ ] **Step 4: Commit**
+`E 0` is the point of Step 3: the sentence claiming one extension is
+gone, replaced by the one claiming two.
+
+- [ ] **Step 6: Commit**
 
 ```bash
 git add plugins/working-process/rules/spec-plan-lifecycle.md
@@ -1087,8 +1149,8 @@ an episode that precedes a document's first round.
 - fixed 2026-09-15 — [Important] Task 3's `A` counted `origin` as a bare substring, so `originates` in Task 1's relay bullet leaked in and both expectations were wrong in both directions; license: the plan's Global Constraints, which require a step's values measured rather than predicted; the check is now `grep -ow` and the expectations are 2 and 4, verified by simulating both tasks on a scratch copy
 - fixed 2026-09-15 — [Important] Task 6 said the resolution annotation is defined for `concerns` and `blocking` alone where the spec says `concerns` alone, departing from the spec with no Deviations entry; license: `spec-plan-lifecycle.md`'s resolution-annotation bullet, which gives an adjudicated `blocking` verdict the same form with the round's ledger record as its body note; deviation 5 now records the departure and its ground
 - fixed 2026-09-15 — [Important] the collision rule said only that the new file appends the timestamp, leaving two sessions to spell one name two ways, where the spec's integrity audit routed the exact concatenation to this plan; license: spec decision 5, which decides the append, and that routing; the bullet now carries `<agent>-round-<N>-<date>-<HH-MM-SS>.md`, measured not to disturb either filename check
-- held — [Important] Task 6 mints a heading shape inside `## Review rounds` while `spec-plan-lifecycle.md` keeps "One annotation extends those shapes, and nothing else does" and, for gate lines, "the round heading's grammar is closed", so the shipped rule would contradict itself after the edit; question: should Task 6 also amend those two sentences to admit the fix heading as the one other extension?; options: (a) amend both sentences inside Task 6 and add a check anchoring the amended text — recommended, since spec decision 3 rules that the fix opens a heading of its own, and the closure sentences are simply where that ruling propagates; (b) drop the fix heading and land the line under the document's latest round heading whatever its verdict, which contradicts decision 3's `ruling:` and would reopen the spec
-- held — [Important] the store's git-ignored guarantee rests on a `.gitignore` "written at its first use" and nothing defines first use, so a store directory that already exists without the file never gets one and its records become untracked files a `git add -A` would commit; question: should the rule make the guard idempotent — before every record write, ensure `.claude/working-process/.gitignore` holds exactly `*` — instead of writing it once at first use?; options: (a) the idempotent guard — recommended, since it costs one file read per dispatch and is the only form surviving a directory made by hand, a truncated file, or a `git clean` that took the file and left the directory; (b) keep "at first use" and define it as "the directory is absent, or holds no `.gitignore`", cheaper to read but leaving a wrong-content file unrepaired; either answer sits within this plan's remit, since the integrity audit routed these edge cases here
+- fixed 2026-09-15 — [Important] Task 6 mints a heading shape inside `## Review rounds` while `spec-plan-lifecycle.md` keeps "One annotation extends those shapes, and nothing else does" and, for gate lines, "the round heading's grammar is closed", so the shipped rule would contradict itself after the edit; ruling: 2026-09-15; Task 6 gains Steps 3 and 4 amending both sentences — the shape set now admits two additions, the annotation and the fix heading, and the gate sentence says why the fix heading is no counter-example, a gate's lines being able to wait for the round that is coming — plus checks E, F and G anchoring the amended text
+- fixed 2026-09-15 — [Important] the store's git-ignored guarantee rested on a `.gitignore` "written at its first use" with nothing defining first use, so a store directory already present without the file never got one and its records became untracked files a `git add -A` would commit; ruling: 2026-09-15; the guard is idempotent — before every record write the dispatcher ensures the file holds exactly `*`, which repairs a directory made by hand, a truncated file and a `git clean` that took the file and left the directory — the store bullet is split so the guard stands on its own, and check J anchors it
 - fixed 2026-09-15 — [Minor] Task 2 said a consultation records nothing one sentence after saying a contribution is written to its record; license: the glossary's **Consultation** entry, whose discriminator is stamping rather than recording; the clause now says a consultation mints no round heading, which is the property the ordinal argument actually needs
 - fixed 2026-09-15 — [Minor] the store path carried no base, where the plugin's own shared file records that a dispatch inherits a working directory possibly below the root and that the miss is silent; license: `PERSONA_COMMON.md`'s glossary-duty paragraph, which resolves its own path against the repo root for that reason; the bullet now says at the repo root and names the command
 - fixed 2026-09-15 — [Minor] "the reviewed document's line points at it" named no clause while the ledger's clause table is closed; license: the `fixed` line's own shape, whose `<what changed>` clause carries the pointer without a new row; the clause now says so and states that the table stays closed
