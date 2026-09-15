@@ -1,8 +1,8 @@
 ---
 ticket: none
 date: 2026-09-15
-status: draft
-adversary: concerns
+status: approved
+adversary: concerns (resolved 2026-09-15)
 spec: ../specs/2026-09-14-review-loop-errata-wave-five.md
 branch: feature/process-wave-five
 base: develop
@@ -1176,3 +1176,12 @@ an episode that precedes a document's first round.
 
 - fixed 2026-09-15 — [Important] Task 1 wrote the verdict relay's header, its uncondensable finding list and the condensation rule, but never told the relay to name the dispatch record, while spec decision 1 requires it and Task 7's **Relay** entry states it for both relay kinds; license: spec decision 1, "the relay names the dispatch record decision 5 defines"; the condensation bullet now ends by naming the record's path, and check `K` anchors it in Task 1's Step 1 and Step 4
 - signal 2026-09-15 — a further full-document round would not earn its cost: the one Important is a single-sentence fix with an obvious license, verifiable mechanically by one added check, so a propagation gate over Task 1 is sufficient before the loop closes
+
+The loop closed here on 2026-09-15, by the developer's decision and on
+round 3's own stop signal, without a fourth round. What resolved the
+concerns: round 3 was the confirming full-document round the developer's
+earlier close made owed, and its one finding was licensed by spec
+decision 1 and fixed in the same turn. A propagation gate over Task 1
+then passed clean, which is the verification that finding's stop signal
+named as sufficient. Every finding of all three rounds reached a
+terminal disposition, and the held set is empty.
