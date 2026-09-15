@@ -588,11 +588,12 @@ disagreeing about where their own words land.
 
 Run the Step 1 command again.
 
-Expected: `A 0`, `B 2`, `C 1`, `D 1`, `E 0`, `F 0`, `G 1`, `H 1`.
+Expected: `A 0`, `B 1`, `C 1`, `D 1`, `E 0`, `F 0`, `G 1`, `H 1`.
 
-`B 2` counts the bullet's two mentions of the record. `C 1` and `D 1`
-unchanged prove the floor's content and the edited-together declaration
-both survived.
+`B 1` counts the one place the bullet names the term; its later mentions
+read "the record", and the check anchors the whole phrase. `C 1` and
+`D 1` unchanged prove the floor's content and the edited-together
+declaration both survived.
 
 - [ ] **Step 6: Commit**
 
@@ -930,7 +931,7 @@ echo "19 $(grep -c '^\*\*Dispatch record\*\*:' $G)"
 echo "20 $(grep -c '^\*\*Origin\*\*:' $G)"
 ```
 
-Expected, in order: `1`, `1`, `1`, `1`, `1`, `1`, `1`, `2`, `1`, `1`,
+Expected, in order: `1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`,
 `1`, `1`, `0 0`, `1`, `1`, `1 1`, `3 3`, `1`, `1`, `1`.
 
 Line `13` is the collision check in both files and `17` is the store's
