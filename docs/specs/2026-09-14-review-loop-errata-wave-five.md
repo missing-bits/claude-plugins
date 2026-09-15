@@ -63,9 +63,9 @@ for a hole.
    condensed.** The header carries the verdict, the model self-report,
    the finding count by severity, and how many decisions await the
    developer. Each finding then takes one line — severity, origin,
-   claim. Narrative may be condensed, and the relay names the agent's
-   report file so an expansion is a quotation rather than a
-   reconstruction. The floor stays as written.
+   claim. Narrative may be condensed, and the relay names the dispatch
+   record decision 5 defines, so an expansion is a quotation rather
+   than a reconstruction. The floor stays as written.
 
    The finding line carries what the finding carries. `origin` belongs
    to a plan review, so an architect relay's line reads severity and
@@ -196,9 +196,11 @@ for a hole.
    Grilling minted **Origin** in the glossary, with `owner` for a
    document under its `_Avoid_`. `ruling: 2026-09-14`
 
-4. **Two items left this wave during brainstorming, and one was never
-   in it.** Both departures are recorded here so a later reader finds
-   the reasoning rather than a gap. `ruling: 2026-09-14`
+4. **Two items left this wave during brainstorming.** Both departures
+   are recorded here so a later reader finds the reasoning rather than
+   a gap. What never entered the wave at all is listed under *Out of
+   scope* instead, which is where a reader looks for it.
+   `ruling: 2026-09-14`
 
    The ban on process noise in code comments left because the developer
    refused all three of its delivery routes on a better ground than any
@@ -230,8 +232,12 @@ for a hole.
    `docs/code-review/`.
 
    The store is `.claude/working-process/`, under the `.claude/`
-   namespace and ignored by a `.gitignore` containing exactly `*`
-   written at its first use. The location is what settles its mode. A
+   namespace and git-ignored by a `.gitignore` containing exactly `*`
+   written at its first use. It is git-ignored rather than in **Ignored
+   mode**: the glossary defines that term for a Process directory, and
+   the point of the paragraph below is that this store is not one.
+   Private memory is described the same way — *always ignored*, with no
+   mode named. The location is what settles its mode. A
    directory the process creates in a repo to hold work artifacts is a
    Process directory and owes the first-create question, and
    `.superpowers/` at the repo root is one. Private memory is the
@@ -293,8 +299,9 @@ for a hole.
 1. **W1 — the relay header and the uncondensable list.**
    `workflow.md`, the relay bullet under *Dispatching a verdict agent*.
    The bullet gains the header's contents, the one-line-per-finding
-   rule, and the report-file pointer. It states that condensation
-   reaches narrative alone, whatever a session's output style says.
+   rule, and the pointer to the dispatch record. It states that
+   condensation reaches narrative alone, whatever a session's output
+   style says.
 
 2. **W2 — the consultation relay shape and its floor's site.**
    `workflow.md`, the *Dispatching a consultation* paragraph. One
@@ -315,11 +322,12 @@ for a hole.
 4. **W4 — the dispatch record.** Two sites. `workflow.md`, the
    verdict-agent dispatch bullet list and the consultation paragraph:
    both gain the write-then-relay duty and the path shape decision 5
-   defines, with the ignored mode stated where the path is, so a reader
-   never meets the path without the mode. `docs/domain/glossary.md`
-   gains a **Dispatch record** entry, since the rules now name an
-   artefact the glossary does not define and the nearest defined term,
-   **Review report**, is a different object under `docs/code-review/`.
+   defines, stating where the path is that the store is git-ignored, so
+   a reader never meets the path without that fact.
+   `docs/domain/glossary.md` gains a **Dispatch record** entry, since
+   the rules now name an artefact the glossary does not define and the
+   nearest defined term, **Review report**, is a different object under
+   `docs/code-review/`.
    That entry carries the store's exclusion in the words **Private
    memory** uses — not a Process directory, a store under the
    `.claude/` namespace — so the exclusion lives where the term is
@@ -371,9 +379,11 @@ wrap.
 - `plan-adversary.md` still contains its spec-boundary sentence:
   expected 1, an invariant this wave must not disturb.
 - `workflow.md` contains the spec-origin triage sentence: expected 1.
-- `workflow.md` contains `.claude/working-process/` and the two
-  filename shapes: expected 1 each, and the word naming the store
-  ignored: 1.
+- `workflow.md` contains the two filename shapes: expected 1 each. The
+  path `.claude/working-process/` is expected 3 — once where the store
+  is named and once inside each shape — so the check states three
+  rather than one, and a count of one would mean a shape went missing.
+  The sentence naming the store git-ignored: expected 1.
 - `glossary.md` contains a `**Dispatch record**:` entry: expected 1.
 - `workflow.md` contains no `.working-process/` outside the
   `.claude/` prefix: expected 0.
@@ -423,3 +433,18 @@ the two are edited together, and they have drifted — the persona copy
 kept `compression is allowed, merging is not` and the rule copy did
 not. W2 repairs that drift, which makes it a defect fix rather than the
 addition this spec first took it for.
+
+### 2026-09-15 — integrity audit, fable, at the consumption gate
+
+Coverage tell: 425 lines read, highest line cited 424 — a whole-document
+read. Seven defects and twelve implementer questions; every defect's two
+quotes were checked against the files they name before any disposition
+was written, and all seven held.
+
+- fixed 2026-09-15 — decision 1 and W1 still called the artefact a "report file" after the rename to dispatch record; license: the glossary's **Review report** entry, whose `_Avoid_` list carries `report file` verbatim; both now name the dispatch record
+- fixed 2026-09-15 — decision 4's heading promised three items — two that left and one never in the wave — where its body describes two; license: the document itself, whose *Out of scope* section is where what never entered is listed; the heading now claims two and points at that section for the rest
+- fixed 2026-09-15 — the verification check expected `.claude/working-process/` once in `workflow.md`, where the two prescribed filename shapes each carry the prefix; license: the check's own derivation, as a recounted expectation decides itself; the expectation is three, and the check now says a count of one would mean a shape went missing
+- fixed 2026-09-15 — decision 5 and W4 called the store's state **Ignored mode**, a glossary term defined for a Process directory, in a paragraph arguing the store is not one; license: the glossary's **Ignored mode** and **Private memory** entries, the second describing the same shape as *always ignored* with no mode named; both now say git-ignored
+- held — decision 2 claims `workflow.md` "kept the floor and lost the permission", and the rule kept neither: it carries `attributed and substantially verbatim, disagreements presented as disagreements` and nothing else — no recommendation clause, no named-risk clause, no one-bullet clause, zero matches for all three; question: does W2 add the floor to the rule as well as the permission, or does the rule stay floorless with the floor living only in `PERSONA_COMMON.md`?; options: (a) W2 writes both, since a dispatcher-facing rule that never states the floor is why the floor was unenforced — my recommendation; (b) W2 writes the permission only and the rule points at the persona copy, which keeps the edit small and leaves the dispatcher reading a rule that states no floor
+- held — W2 edits `workflow.md` alone while `PERSONA_COMMON.md` places the consultation floor in the relay, so the wave would recreate in the other direction the drift it names as a defect; question: does `PERSONA_COMMON.md` join W2's sites?; options: (a) add it, since the two copies declare themselves edited together and this wave's own argument rests on that declaration — my recommendation; (b) leave it and accept a known drift, which forfeits the argument decision 2 is built on
+- held — decision 3 prescribes where a disposition line lands for a spec-origin fix, which is `spec-plan-lifecycle.md`'s grammar, while W3 names three sites and none is that rule; question: does the lifecycle rule join W3's sites, or does decision 3 narrow to what the grammar already allows?; options: (a) add the rule as a fourth site and let it carry the cross-document clause, since the grammar today has none — my recommendation; (b) narrow decision 3 to cite the resolution annotation the rule already defines and prescribe nothing new, which is smaller but leaves the plan-side pointer undefined
