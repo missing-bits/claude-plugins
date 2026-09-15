@@ -72,8 +72,8 @@ verification.
 Recorded here and beside the text they concern, so a reviewer trips over
 the reason where the disagreement lives.
 
-1. **Task 7 amends the glossary's **Relay** and **Contribution**
-   entries, which the spec's W4 does not name.** Both state the floor
+1. **Task 7 amends the glossary's Relay and Contribution entries, which
+   the spec's W4 does not name.** Both state the floor
    this wave moves: **Relay** says a consultation's Contribution reaches
    the developer "attributed and substantially verbatim", and
    **Contribution** repeats it. The glossary binds specs, plans and
