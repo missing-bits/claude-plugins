@@ -191,9 +191,10 @@ for a hole.
    round heading, or as the resolution annotation the lifecycle rule
    already defines for a stamped document edited without a fresh round,
    and the plan's line points at it. Where the spec's loop closed at
-   `LGTM` it has neither — the annotation is defined for `concerns`
-   alone — so the fix opens a heading of its own: dated, naming the fix
-   rather than a round, and carrying the one line. Two consequences
+   `LGTM` it has neither — the annotation is defined for `concerns` and
+   for a `blocking` verdict closed by adjudication, never for `LGTM` —
+   so the fix opens a heading of its own: dated, naming the fix rather
+   than a round, and carrying the one line. Two consequences
    this decision states rather than invents: a spec's standing
    `integrity:` stamp goes stale on any body edit, this one included,
    by the rule that already says so; and the architect stamp stops
@@ -335,11 +336,16 @@ for a hole.
    session can collide there, which the rule already accepts as
    undetectable and which the next clause resolves mechanically.
 
-   Where a name is already taken, the new file appends the timestamp.
-   That covers the superseded round the rules already describe, whose
-   stale result is relayed and never stamped: the two rounds share an
-   ordinal, and the rule resolves it mechanically instead of asking a
-   session to judge which report is the stale one. `ruling: 2026-09-14`
+   Where a round-ordinal name is already taken, the new file appends the
+   timestamp. That covers the superseded round the rules already
+   describe, whose stale result is relayed and never stamped: the two
+   rounds share an ordinal, and the rule resolves it mechanically
+   instead of asking a session to judge which report is the stale one.
+   A timestamp name cannot take that remedy, since it collides only
+   when a second record lands in the same second and appending the
+   same timestamp reproduces the taken name. It takes the lowest free
+   counter suffix instead — `-2`, then `-3` — which needs no clock and
+   gives every session the same answer. `ruling: 2026-09-14`
 
 ## Scope
 
@@ -511,6 +517,15 @@ the two are edited together, and they have drifted — the persona copy
 kept `compression is allowed, merging is not` and the rule copy did
 not. W2 repairs that drift, which makes it a defect fix rather than the
 addition this spec first took it for.
+
+Two fixes reached this spec afterwards from the plan's adversary review,
+round 2. Both trace to this document, so their lines land here, beside
+the note that resolved the verdict, and the plan's lines point at them.
+This spec's `integrity:` stamp stopped matching with these edits, as
+the lifecycle rule says any body edit makes it.
+
+- fixed 2026-09-15 — [Important] decision 5 appended the timestamp to every taken name, which reproduces a taken timestamp name rather than freeing one, so a second record in the same second overwrote the first; ruling: 2026-09-15; the timestamp append now covers the round-ordinal name alone, and a timestamp name takes the lowest free counter suffix — pointed at from `docs/plans/2026-09-15-review-loop-errata-wave-five.md`, under its round-2 heading
+- fixed 2026-09-15 — [Minor] decision 3 said the resolution annotation is defined for `concerns` alone, where the lifecycle rule defines it for a `blocking` verdict closed by adjudication too; ruling: 2026-09-15; the clause now names both and says the annotation never covers `LGTM`, which is the case the decision needs — pointed at from `docs/plans/2026-09-15-review-loop-errata-wave-five.md`, under its round-2 heading
 
 ### 2026-09-15 — integrity audit, fable, at the consumption gate
 
