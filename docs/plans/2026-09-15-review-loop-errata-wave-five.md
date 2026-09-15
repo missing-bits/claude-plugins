@@ -97,9 +97,9 @@ the reason where the disagreement lives.
    Task 1 writes all three; Task 2 names "the timestamp shape of the two
    the verdict-agent dispatch subsection defines" instead.
 5. **Resolved at the source.** Task 6 says the resolution annotation is
-   defined for `concerns` and `blocking` alone, following the
-   resolution-annotation bullet of `spec-plan-lifecycle.md`, which gives
-   a `blocking` verdict closed by adjudication the same form. The spec
+   defined for `concerns` and for a `blocking` verdict closed by
+   adjudication, following the resolution-annotation bullet of
+   `spec-plan-lifecycle.md`, which gives that verdict the same form. The spec
    said `concerns` alone when this entry was written; adversary round 2
    corrected the spec to match, so no departure remains. The entry keeps
    its number because the round-1 ledger cites it.
@@ -790,11 +790,11 @@ lines, and the invariant above holds on each. The pointer needs no
 clause of its own — `<what changed>` already belongs to the `fixed`
 line's shape, so the clause table stays closed. In the changed
 document the line goes under its latest round heading, or with the
-body note the resolution
-annotation above already owes, where that document is stamped and no
-fresh round ran. A document whose loop closed at `LGTM` has neither —
-the annotation is defined for `concerns` and `blocking` alone — so the
-fix opens a heading of its own:
+body note the resolution annotation above already owes, where that
+document is stamped and no fresh round ran. A document whose loop
+closed at `LGTM` has neither — the annotation is defined for `concerns`
+and for a `blocking` verdict closed by adjudication, never for `LGTM` —
+so the fix opens a heading of its own:
 
     ### <ISO date> — fix from <path of the reviewing document>
 
@@ -1161,6 +1161,7 @@ an episode that precedes a document's first round.
 
 ### 2026-09-15 — plan-adversary, fable 5.1, concerns (round 2, diff-scoped)
 
+- hit fixed 2026-09-15 — Task 6's Replace block and deviation 5 said the annotation is defined for `concerns` and `blocking` alone, where the corrected spec names a `blocking` verdict closed by adjudication and a bare `blocking` carries no annotation; both now use the spec's wording, and the same edit rejoined a line the Replace block had broken mid-sentence
 - fixed 2026-09-15 — [Important] the collision rule appends the timestamp to the name it collided with, which settles the ordinal shape but not the timestamp shape: two dispatches of one agent on one subject landing in the same second collide on `<agent>-<date>-<HH-MM-SS>.md`, and appending the same timestamp reproduces a name already taken, so the second record overwrites the first; ruling: 2026-09-15; Task 1's bullet scopes the timestamp append to the round-ordinal name and gives a timestamp name the lowest free counter suffix, `-2` then `-3`; the spec half landed in `docs/specs/2026-09-14-review-loop-errata-wave-five.md` beside its round-2 resolution note
 - fixed 2026-09-15 — [Minor] spec decision 3 says the resolution annotation "is defined for `concerns` alone" where the shipped rule defines it for an adjudicated `blocking` as well; the plan already follows the rule through deviation 5, so only the spec carries the error, and it would freeze into an `implemented` document amendable only in frontmatter; ruling: 2026-09-15; the line landed in `docs/specs/2026-09-14-review-loop-errata-wave-five.md` beside its round-2 resolution note, and deviation 5 now records the departure as resolved at the source
 - signal 2026-09-15 — a further round does not earn its cost: the Important is a one-or-two-sentence fix the propagation gate verifies mechanically, and the Minor is held for the developer whatever a round finds, being spec-origin; a diff-scoped round three would mostly re-confirm a small patch
