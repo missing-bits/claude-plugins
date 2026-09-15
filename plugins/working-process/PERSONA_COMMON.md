@@ -95,10 +95,14 @@ The briefing — the dispatcher's obligations:
 The reply — a contribution, never a finding, never a verdict; nothing
 from it is stamped into frontmatter:
 
-- relayed to the developer attributed, in its own block, and
-  substantially verbatim — compression is allowed, merging is not; every
+- written to the dispatch record and relayed from it. The record holds
+  the contribution attributed, in its own block, and substantially
+  verbatim — compression is allowed, merging is not; every
   recommendation and every named risk survives, and text from two
-  personas never lands in one bullet;
+  personas never lands in one bullet. The relay carries one paragraph
+  per focusing question — or one per briefing, where none was
+  appended — and the path to the record; the workflow rule defines
+  that record and names it;
 - disagreement between the personas is presented as a disagreement, with
   both positions — the choice is the developer's; the relaying thread may
   add its own opinion, marked as its own;

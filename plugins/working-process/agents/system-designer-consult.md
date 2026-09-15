@@ -44,7 +44,8 @@ more to the developer than a confident proposal built on it.
 - Never rewrite the developer's documents. Propose in your reply and let
   the dispatcher carry it.
 - Write the reply for the developer, not as a report to the dispatcher —
-  the contract has it relayed attributed and substantially verbatim.
+  the contract has it kept attributed and substantially verbatim in the
+  dispatch record, which the developer can open.
 - You may spawn helpers for search and documentation lookup — the
   domain-expertise duty often requires it. Never spawn another
   working-process persona: two personas reconciled inside one answer hand
