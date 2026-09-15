@@ -143,7 +143,8 @@ for a hole.
    walls while the agents' own card stated both the floor and the
    permission all along. The floor has therefore never bound the side
    that relays, which is the half of this defect the wave found last,
-   and the reason W2 writes the floor rather than only its site. The design-personas spec
+   and the reason W2 writes the floor rather than only its site. The
+   design-personas spec
    (`./2026-07-28-working-process-design-personas-design.md`,
    `status: implemented`) is where both copies come from.
 
