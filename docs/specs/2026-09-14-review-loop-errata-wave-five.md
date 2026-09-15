@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-14
-status: draft
+status: approved
 grilled: 2026-09-14
 architect: concerns (resolved 2026-09-15)
 revises: ./2026-07-28-working-process-design-personas-design.md
