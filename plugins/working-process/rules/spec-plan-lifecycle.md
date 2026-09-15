@@ -226,6 +226,30 @@ their condition holds.
 
 Every terminal line carries exactly one authorizer.
 
+A fix one review licenses can land in a document other than the
+reviewed one — a plan review's finding carrying `origin: spec` is the
+case the workflow rule names. The disposition line then lands in the
+ledger of the document that changed, and the reviewed document's line
+points at it in its `<what changed>` clause, naming that document and
+the heading the line sits under: one authorizer, two documents, two
+lines, and the invariant above holds on each. The pointer needs no
+clause of its own — `<what changed>` already belongs to the `fixed`
+line's shape, so the clause table stays closed. In the changed
+document the line goes under its latest round heading, or with the
+body note the resolution annotation above already owes, where that
+document is stamped and no fresh round ran. A document whose loop
+closed at `LGTM` has neither — the annotation is defined for `concerns`
+and for a `blocking` verdict closed by adjudication, never for `LGTM` —
+so the fix opens a heading of its own:
+
+    ### <ISO date> — fix from <path of the reviewing document>
+
+It carries no ordinal and no verdict, which keeps it out of the round
+cap's derivation and out of the Unfinished-work commands that anchor a
+round heading: it records a fix, not a round. Two stamps go stale as on
+any body edit — the `integrity:` hash stops matching, and the verdict
+stops certifying the words that changed.
+
 Payload costs nothing structurally. An Unfinished-work command under the
 list's default scope guard is held to the frontmatter block, so no body
 line reaches it at all; an entry publishing its own scope anchors a
@@ -234,7 +258,8 @@ continuation matches neither. Payload under a line is therefore invisible
 to every published command, and where it runs long it belongs in
 indented sub-bullets rather than in a longer line.
 
-One annotation extends those shapes, and nothing else does. A
+Two additions extend those shapes, and nothing else does: the
+annotation here, and the cross-document fix heading above. A
 diff-scoped `LGTM` heading gains `, debt discharged <date>` once the
 chain debt it carries is discharged, and its presence defeats the
 consumption gate's re-ask, as `, waived <date>` defeats the re-review
@@ -316,7 +341,9 @@ token tells a gate line apart from that round's own findings; the date
 does not, since a gate episode and the round it precedes commonly share
 one. A gate still never mints a heading of its own, on the separate
 ground that the round heading's grammar is closed and a gate is not a
-round. Writing at gate
+round. The fix heading above is no counter-example: a gate's lines can
+wait for the round that is coming, while a fix landing on a document
+whose loop closed at `LGTM` waits for nothing. Writing at gate
 time is what the lines are for: a dismissal must exist while the episode
 is still re-dispatching, or the gate cannot terminate, and the next
 diff-scoped brief is composed before its own round is stamped. A gate

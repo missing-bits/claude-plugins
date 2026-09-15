@@ -48,6 +48,12 @@ the review and point the dispatcher at the `architect` agent. Plan
 mechanics — named tests, per-phase commits, concrete paths — do not apply
 to a design document and would misfire as findings.
 
+Naming a document is not reviewing it. A finding whose `origin` is
+`spec` or `both` says where the defect traces to and proposes no change
+to the spec, so this boundary holds: what to do about a spec-origin
+finding is the dispatcher's, and its own rules hold one for the
+developer unless a written decision licenses the edit.
+
 ## Generic dimensions — walk every one; nothing passes by default
 
 ### 1. Scope against done-when
@@ -93,6 +99,7 @@ to a design document and would misfire as findings.
         {
           "severity": "Critical" | "Important" | "Minor",
           "section": "<plan section or null>",
+          "origin": "plan" | "spec" | "both",
           "claim": "<one sentence>",
           "evidence": "<file:line | plan quote | ruleId | skill reference path>",
           "suggestion": "<the change to make>"
