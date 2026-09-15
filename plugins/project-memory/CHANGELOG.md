@@ -1,8 +1,6 @@
 # Changelog — project-memory
 
-Released versions, newest first. The marketplace serves what `master`
-holds; `## Unreleased` collects what has landed on `develop` since the
-last release.
+Released versions of this plugin, newest first.
 
 ## 0.5.1 — 2026-09-15
 
