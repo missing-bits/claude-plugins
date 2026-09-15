@@ -1077,7 +1077,9 @@ nowhere, being banned by **Review report**'s `_Avoid_` list.
 
 ### 2026-09-15 — plan-adversary, fable 5.1, blocking (round 1, full-document)
 
-The propagation gate ran three times before this dispatch; its lines are written here, under the first round heading, as the grammar directs for an episode that precedes a document's first round.
+The propagation gate ran three times before this dispatch. Its lines are
+written here, under the first round heading, as the grammar directs for
+an episode that precedes a document's first round.
 
 - hit fixed 2026-09-15 — Task 4 expected the phrase `dispatch record` twice where its replacement names the term once, later mentions reading "the record"; recounted by applying the replacement to a scratch copy, corrected to one, and the same figure corrected in Task 8's sweep line
 - hit fixed 2026-09-15 — the bare store-path check expected three where `\.working-process/` cannot match inside `.claude/working-process/`, a slash sitting where the pattern needs a dot; measured on constructed text, corrected to zero and declared an invariant, and four counts moved from `grep -c` to `grep -o | wc -l` so they count occurrences rather than lines
