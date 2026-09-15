@@ -160,18 +160,83 @@ available:
   progress visible in the session's task list.
 - On the completion notification, in one turn and in this order:
   verify the agent's model self-report (the comparison the lifecycle
-  rule defines), relay the report to the developer, check every
-  citation the report supplies against what it names, then stamp the
-  verdict (`LGTM` | `concerns` | `blocking`) into the reviewed
-  document's `architect:` / `adversary:` frontmatter field. The
-  citation check follows the relay rather than preceding it, because a
-  wrong citation in conversation costs a correction while a wrong one
-  in the record outlives the loop. The order
-  has one named exception, defined under *What a diff-scoped LGTM
-  certifies* below: a plan's diff-scoped LGTM.
-- The relay carries the verdict, the model self-report, and every
-  finding in substance — condense narrative prose, never drop a
-  finding or its severity.
+  rule defines), write the dispatch record defined below, relay the
+  report to the developer, check every citation the report supplies
+  against what it names, then stamp the verdict (`LGTM` | `concerns` |
+  `blocking`) into the reviewed document's `architect:` /
+  `adversary:` frontmatter field. The citation check follows the relay
+  rather than preceding it, because a wrong citation in conversation
+  costs a correction while a wrong one in the record outlives the
+  loop. The order has one named exception, defined under *What a
+  diff-scoped LGTM certifies* below: a plan's diff-scoped LGTM.
+- The dispatch record is written before the relay. The dispatcher
+  saves what the agent returned, verbatim, under a four-line header —
+  the date, the agent, the model self-report, and the subject — with
+  no frontmatter and no `ticket`, since the record is evidence rather
+  than a process artefact. It goes to `.claude/working-process/` at
+  the repo root (`git rev-parse --show-toplevel`). A record survives
+  compaction, the session's end and a branch switch, and no more; that
+  bound is what the relay's condensation below leans on. Audits write
+  none — a propagation gate's hits land in the ledger and an integrity
+  audit's dispositions land as the edits it causes plus the
+  `integrity:` stamp, so a record would give one fact a second home.
+- The store is git-ignored by a `.gitignore` containing exactly `*`.
+  Before writing a record the dispatcher ensures that file holds
+  exactly that, rather than writing it once: the guard repairs a store
+  directory made by hand, a file someone truncated, and a `git clean`
+  that took the file and left the directory. A project already
+  ignoring `.claude/` still gets the file, since the store may not
+  depend on another file's contents.
+- The record's name carries its agent and one discriminator:
+
+      .claude/working-process/<stem>/<agent>-round-<N>.md
+      .claude/working-process/<stem>/<agent>-<date>-<HH-MM-SS>.md
+
+  `<stem>` is the reviewed document's basename without its extension,
+  one directory per subject. A verdict agent takes the round ordinal,
+  derived the way the heading will derive it — the highest ordinal the
+  document's rounds carry, plus one, ordinals continuing across
+  loops — because the record is written before that heading exists. A
+  dispatch that reviews no document takes its subject as the stem,
+  kebab-cased and capped at sixty characters, and the timestamp shape,
+  having no ledger to draw an ordinal from; an `architect` dispatch on
+  a bare question is one such, and the test is whether a document
+  exists rather than which agent ran. Where a round-ordinal name is
+  already taken, the new file appends the timestamp to it —
+  `<agent>-round-<N>-<date>-<HH-MM-SS>.md` — which settles the
+  superseded round two sessions can produce on one ordinal without
+  asking either to judge which report is stale. A timestamp name
+  collides only when a second record lands in the same second, where
+  appending the same timestamp would reproduce the taken name, so it
+  takes the lowest free counter suffix instead: `-2`, then `-3`.
+- The relay opens with one header line, then one line per finding. The
+  header carries the verdict, the model self-report, the finding count
+  by severity, and how many decisions await the developer. Each
+  finding takes one line — severity, origin, claim — except where the
+  reviewer emits no origin: the `architect` reads one document and
+  every finding it returns originates there, so an architect relay's
+  line carries severity and claim alone.
+- Condensation reaches narrative prose alone, whatever a session's
+  output style prescribes. The finding list is never condensed, and no
+  finding or its severity is ever dropped: the relay is the
+  developer's standing veto, so a finding nobody printed is a finding
+  nobody could overrule. Narrative is safe to condense because the
+  dispatch record holds the full text, which makes an expansion a
+  quotation rather than a reconstruction — so the relay names that
+  record's path, and the developer can open what was condensed.
+- The header's count of decisions is the findings for which the
+  session can cite no license, derived at relay time from the report
+  and the decisions already written down — before any ledger line
+  exists, since `open` is written at stamp time and triage follows the
+  stamp. The `held` lines the same round later writes are that count's
+  check: they come to the same number, and a divergence means triage
+  found a license the relay missed, triage lost one the relay claimed,
+  or the oscillation tripwire held a finding that does carry a
+  license. The third is lawful, so the check reports the number rather
+  than asserting a fault. Verdicts that suspend autonomy — `blocking`,
+  the spent round cap, the all-Minor signal — stay out of the count:
+  they decide whether the loop continues rather than what a document
+  says, and the relay reports them in its own right.
 - A citation the report supplies — a file and line, an identifier, a
   count — is checked against what it names before it is written into
   the document or acted on by a fix. A precise citation reads like
