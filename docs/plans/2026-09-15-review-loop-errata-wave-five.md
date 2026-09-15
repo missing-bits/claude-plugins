@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-15
-status: approved
+status: implemented
 adversary: concerns (resolved 2026-09-15)
 spec: ../specs/2026-09-14-review-loop-errata-wave-five.md
 branch: feature/process-wave-five
