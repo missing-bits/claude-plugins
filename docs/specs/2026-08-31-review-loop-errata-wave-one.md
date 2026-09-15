@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-08-31
-status: draft
+status: implemented
 architect: blocking (adjudicated 2026-09-01)
 revises: ./2026-08-17-autonomous-review-loop-design.md
 branch: feature/audit-errata

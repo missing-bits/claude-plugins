@@ -9,9 +9,10 @@ Standards for Apex test classes: structure, test data, assertions,
 mocking, and coverage. Cite rules in review findings as
 `(standard: salesforce-apex-testing, rule: <id>)`; each rule names its
 source — the Apex Developer Guide, or `this standard` (a recorded house
-decision). Layering (handler/domain/service/selector) is
-`salesforce-apex`'s concern, not restated here — a test exercises those
-layers, it does not redefine them. LWC jest tests are out of scope —
+decision). Layering (domain/service/selector) is `salesforce-apex`'s
+concern and the trigger handler `salesforce-triggers`'s, neither
+restated here — a test exercises those layers, it does not redefine
+them. LWC jest tests are out of scope —
 see `salesforce-lwc`.
 
 ## Test-class structure

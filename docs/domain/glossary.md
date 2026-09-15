@@ -134,6 +134,14 @@ bracket slot (`[Minor]`). The collective noun is
 model-capability ladder.
 _Avoid_: severity tier
 
+**Origin**:
+The document a review finding traces to — `plan`, `spec`, or `both` —
+named by the reviewer that found it rather than derived at triage. A
+finding originating in the spec is held unless a written decision
+licenses the edit, since editing a spec from inside a plan review is
+design work.
+_Avoid_: owner (for a document), source
+
 **Rule tag**:
 The inline parenthesized annotation at a rule's (or sub-rule's)
 definition site carrying its identity and grade:
@@ -339,7 +347,11 @@ scope. Those dispatch-time fields are immutable — they say what one
 reviewer was given and returned — while a later event about that round
 appends after the heading's closing parenthesis, never inside it. The
 loop's derived state — round count, the all-Minor signal, the
-diff-scoped chain — is read by folding these.
+diff-scoped chain — is read by folding these. The latest round heading
+is the one carrying the highest ordinal, wherever it sits in the
+section: the rules prescribe no order for the blocks, and live ledgers
+run both ways. Ordinals run per document and per field, and continue
+across loops rather than restarting.
 _Avoid_: round title, round record (for the heading alone)
 
 **Disposition line**:
@@ -363,13 +375,29 @@ responsibility for the part no round re-read — or explicitly decline to.
 The consumption gate owns it, not the loop, which owes nothing further
 once it terminates. Discharged three ways: an integrity audit, any later
 full-document round whatever its verdict, or the developer's recorded
-decline — of the gate's pair offer, or, where the document is already
-implemented and the gate never fired, of the question that offer would
-have put. Recorded as `, debt discharged <date>` appended to that LGTM's
-round heading, and the record says only that it happened and when, never
-how or how well. Distinct from the diff-scoped chain itself, the
-round-one-plus-reviewed-waves structure the LGTM certifies.
+decline. What they decline is the gate's pair offer — or, where the
+document is already implemented and the gate never fired, the question
+that offer would have put. Recorded as `, debt discharged <date>`
+appended to that LGTM's round heading, and the record says only that it
+happened and when, never how or how well. Distinct from the diff-scoped
+chain itself, the round-one-plus-reviewed-waves structure the LGTM
+certifies.
 _Avoid_: chain accepted, chain closed, unclosed chain
+
+**Confirming round**:
+The full-document round a plan's loop owes before it may close, whenever
+the latest round heading is diff-scoped — whatever path would otherwise
+end the rounds. A plan already `implemented` owes none: there the round
+is discharged by recorded decline without any dispatch, as the sibling
+chain debt is, since completed work is not re-reviewed. It runs as the
+same loop's last round, counts against the round cap like any other, and
+its verdict is the one stamped; on a plan the resolution annotation and
+the adjudication wait for it. It inherits the gating of whatever ended
+the rounds: autonomous where autonomy still stands, the developer's to
+order after a terminator that suspends it. A spec owes none: its
+diff-scoped chain is discharged at the consumption gate, where a
+full-document round is one arm of the pair offer.
+_Avoid_: final round, closing round, full read (as the name)
 
 **Document branch**:
 The local branch a review loop's per-round commits live on, named
@@ -392,11 +420,25 @@ _Avoid_: review agent (unqualified), reviewer agent
 
 **Relay**:
 The delivery of a background agent's result to the developer before any
-further action on it — a verdict agent's report before its stamp (the
-verdict, the model self-report, and every finding in substance), a
-consultation's Contribution attributed and substantially verbatim. The
-developer's standing veto point.
+further action on it — a verdict agent's report before its stamp (a
+header carrying the verdict, the model self-report and the counts, then
+one line per finding, that list never condensed), a consultation's
+Contribution digested one paragraph per focusing question. Either way it
+names the Dispatch record holding the full text. The developer's
+standing veto point.
 _Avoid_: report back, forward (as the term)
+
+**Dispatch record**:
+The file a dispatcher writes before relaying a background agent's
+result — one dispatch, one file, holding what the agent returned
+verbatim under a four-line header (date, agent, model self-report,
+subject). Kept per subject under `.claude/working-process/<stem>/`,
+git-ignored, and NOT a Process directory — a per-checkout store under
+the `.claude/` config namespace, as Private memory is a per-user one. It
+survives compaction, the session's end and a branch switch, and no more:
+that bound is what lets a Relay condense. Never a Review report, the
+counted document a code-review run writes under `docs/code-review/`.
+_Avoid_: dispatch log, transcript file
 
 **Session skill**:
 A skill whose content is an open-ended conversation, named `*-session` —
@@ -416,9 +458,10 @@ _Avoid_: informal review, advisory review
 
 **Contribution**:
 What a consultation returns: reasoning, options, and the questions the
-persona would need answered next, relayed to the developer attributed and
-substantially verbatim. Never graded and never counted — the graded,
-counted unit is a Finding, which belongs to verdict-bearing reviews.
+persona would need answered next, held attributed and substantially
+verbatim in its Dispatch record and relayed from there as a digest.
+Never graded and never counted — the graded, counted unit is a Finding,
+which belongs to verdict-bearing reviews.
 _Avoid_: consultation finding, recommendation
 
 **Project memory**:

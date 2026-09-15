@@ -53,7 +53,14 @@ base: master        # optional: branch the topic branch was cut from
   whole value as usual. A `blocking` verdict the developer closes by
   explicit adjudication instead of a fresh round takes the same form with
   its own token — `architect: blocking (adjudicated 2026-08-17)` — and
-  the round's ledger record as that body note.
+  the round's ledger record as that body note. On a plan both wait for
+  the confirming round: neither is written while the latest round
+  heading is diff-scoped, unless the plan is already `implemented`,
+  where the annotation — or the developer's adjudication — is written
+  citing that standing decision. Its body note is written too: a note
+  recording what resolved a verdict is a process record, which the
+  implemented-document rule above excepts from its frontmatter-only
+  clause, as it excepts `, debt discharged <date>`.
 - A verdict produced below the prescribed tier (the model-selection
   heuristic in the workflow rule) gains a companion `architect-fallback:`
   / `adversary-fallback:` field: the family alias of the model that
@@ -131,6 +138,13 @@ The scope token admits two values, `diff-scoped` and `full-document`,
 and is omitted only on a round predating the distinction. A recovery
 reading keys on the absence of `full-document`, so a full-document round
 always says so.
+
+The latest round heading is the one carrying the highest ordinal,
+wherever it sits in the section: no order is prescribed for the blocks
+and live ledgers run both ways. Ordinals run per document and per field,
+and continue across loops — a later loop opens at the next number rather
+than at one, which is what the round cap's derivation from the headings
+already assumed.
 
 Under the heading each finding takes one line, its disposition the
 leading token:
@@ -212,6 +226,30 @@ their condition holds.
 
 Every terminal line carries exactly one authorizer.
 
+A fix one review licenses can land in a document other than the
+reviewed one — a plan review's finding carrying `origin: spec` is the
+case the workflow rule names. The disposition line then lands in the
+ledger of the document that changed, and the reviewed document's line
+points at it in its `<what changed>` clause, naming that document and
+the heading the line sits under: one authorizer, two documents, two
+lines, and the invariant above holds on each. The pointer needs no
+clause of its own — `<what changed>` already belongs to the `fixed`
+line's shape, so the clause table stays closed. In the changed
+document the line goes under its latest round heading, or with the
+body note the resolution annotation above already owes, where that
+document is stamped and no fresh round ran. A document whose loop
+closed at `LGTM` has neither — the annotation is defined for `concerns`
+and for a `blocking` verdict closed by adjudication, never for `LGTM` —
+so the fix opens a heading of its own:
+
+    ### <ISO date> — fix from <path of the reviewing document>
+
+It carries no ordinal and no verdict, which keeps it out of the round
+cap's derivation and out of the Unfinished-work commands that anchor a
+round heading: it records a fix, not a round. Two stamps go stale as on
+any body edit — the `integrity:` hash stops matching, and the verdict
+stops certifying the words that changed.
+
 Payload costs nothing structurally. An Unfinished-work command under the
 list's default scope guard is held to the frontmatter block, so no body
 line reaches it at all; an entry publishing its own scope anchors a
@@ -220,7 +258,8 @@ continuation matches neither. Payload under a line is therefore invisible
 to every published command, and where it runs long it belongs in
 indented sub-bullets rather than in a longer line.
 
-One annotation extends those shapes, and nothing else does. A
+Two additions extend those shapes, and nothing else does: the
+annotation here, and the cross-document fix heading above. A
 diff-scoped `LGTM` heading gains `, debt discharged <date>` once the
 chain debt it carries is discharged, and its presence defeats the
 consumption gate's re-ask, as `, waived <date>` defeats the re-review
@@ -302,7 +341,9 @@ token tells a gate line apart from that round's own findings; the date
 does not, since a gate episode and the round it precedes commonly share
 one. A gate still never mints a heading of its own, on the separate
 ground that the round heading's grammar is closed and a gate is not a
-round. Writing at gate
+round. The fix heading above is no counter-example: a gate's lines can
+wait for the round that is coming, while a fix landing on a document
+whose loop closed at `LGTM` waits for nothing. Writing at gate
 time is what the lines are for: a dismissal must exist while the episode
 is still re-dispatching, or the gate cannot terminate, and the next
 diff-scoped brief is composed before its own round is stamped. A gate
@@ -375,12 +416,17 @@ leg, and the entries below that do so say it there.
   and nothing closed it.
   `rg -l --no-ignore --crlf '^\s*(architect|adversary): (blocking|concerns)$' docs/`
   Owner: a fresh round at the prescribed tier, or the resolution
-  annotation above — except on a plan whose latest round heading is a
-  diff-scoped `LGTM`, where the confirming full-document round closes
-  the verdict and the annotation may not, since a plan's loop never
-  terminates on that heading. Such a plan matches Chain debt as well:
-  one debt seen from two sides, both extinguished by that round, and the
-  duplicate is deliberate.
+  annotation above — except on a plan whose latest round heading is
+  diff-scoped, whatever its verdict, where the confirming full-document
+  round closes the verdict and the annotation may not, since a plan's
+  loop closes only on a full-document round. Such a plan matches Chain
+  debt as well where that heading is an `LGTM`: one debt seen from two
+  sides, both extinguished by that round, and the duplicate is
+  deliberate. On a plan already at `status: implemented` the round is
+  discharged by recorded decline without any dispatch, as the Chain debt
+  leg discharges its own debt — a session derives that decline under a
+  `concerns` heading, while a `blocking` one waits for the developer's
+  adjudication, which is theirs to make.
 - **Unfinished review-loop ledger** — a disposition line nobody closed:
   an `open` line whose remediation never ran, or a `held` line whose
   question still waits.
@@ -492,7 +538,8 @@ it.
 
 The commits go to a local branch named `<topic>.docs`, never to the
 topic branch itself. Git refuses a ref nested under an existing branch,
-so `feature/<issue>-<name>/docs` cannot exist while its parent does; the
+so `feature/<ticket>-<short-name>/docs` cannot exist while its parent
+does; the
 suffix takes a dot because the branch convention already spends hyphens
 on name parts, where `-docs` would read as a topic about documenting.
 
@@ -517,7 +564,11 @@ What per-round commits never do is replace the ledger. Git says which
 lines changed; the ledger says with what intent and on whose license,
 and a diff carries neither "narrowed the claim" nor a cited ADR. A
 `<what changed>` clause may thin to a sentence where the commit carries
-the detail; it does not go.
+the detail; it does not go. Nor does a sha stand in for a hash: a round
+heading that one day carried its commit's sha would name that round,
+and it never stands in for the `integrity:` hash, which is computed from
+the body and must work on a document nobody committed — the default
+path, where no sha exists.
 
 Ticket value format, sourcing order, and backfill live in the
 ticket-frontmatter rule.

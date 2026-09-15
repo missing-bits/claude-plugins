@@ -104,10 +104,24 @@ settled decisions separated from open questions — pointing at files
 rather than pasting them. A follow-up is a fresh cross-check dispatch,
 never a resumption. When both personas are consulted on one subject,
 give both the same canonical briefing, each with its own focusing
-question appended, and tell neither what the other said. Relay each
-contribution attributed and substantially verbatim, disagreements
-presented as disagreements, and dispatch as a named background agent so
-the transcript stays inspectable.
+question appended, and tell neither what the other said. Dispatch as a
+named background agent, so the transcript stays inspectable.
+
+A contribution is written to its dispatch record before it is relayed,
+taking the timestamp shape of the two the verdict-agent dispatch
+subsection defines: a consultation mints no round heading, so it has
+no ordinal to derive, and several consultations of one persona on one
+subject in one day are expected. The floor is met in that file —
+attributed and substantially verbatim, compression allowed and merging
+forbidden, every recommendation and every named risk surviving, and
+text from two personas never landing in one bullet. The relay then
+carries one paragraph per focusing question — or one per briefing,
+where a single persona was consulted and none was appended — and the
+path to the record. One thing stays in the relay whatever the floor
+does: where the personas disagree, the disagreement is presented as a
+disagreement with both positions, because a disagreement is the one
+thing in a contribution the developer must decide and the digest
+exists to raise decisions rather than bury them.
 
 When `docs/domain/glossary.md` exists in the project, its canonical
 terms and `_Avoid_` bans bind specs, plans, code identifiers, and
@@ -119,6 +133,25 @@ glossary — get its pass: invoke it before drafting a new document, and
 run an explicit editing pass over the changed prose of an existing one.
 The pass binds wording, never decisions. Without the skill there is no
 substitute pass and no install nagging — the work proceeds normally.
+
+## Branch naming
+
+Feature work happens on a topic branch named
+`feature/<ticket>-<short-name>`, where `<ticket>` is the work's tracker
+reference and `<short-name>` says what the work is, and
+`feature/<short-name>` where there is no ticket. How a tracker's
+reference is spelled in a branch name is the project's own — this
+convention fixes the shape and not the spelling.
+
+The branch of a worktree created with a generated name is renamed to
+this shape before its first commit, so the branch a reader sees is the
+branch the convention names; the worktree's own directory is a separate
+name and this convention does not govern it. The work's spec and plan
+record the result in their `branch:` field — the topic branch, not the
+`<topic>.docs` branch a review loop's per-round commits use, which the
+spec-plan-lifecycle rule names and which is a sibling of it rather than
+a second topic branch. The ticket rule's sourcing order reads the
+current branch name first when a new document needs a ticket.
 
 ## Dispatching a verdict agent
 
@@ -141,18 +174,83 @@ available:
   progress visible in the session's task list.
 - On the completion notification, in one turn and in this order:
   verify the agent's model self-report (the comparison the lifecycle
-  rule defines), relay the report to the developer, check every
-  citation the report supplies against what it names, then stamp the
-  verdict (`LGTM` | `concerns` | `blocking`) into the reviewed
-  document's `architect:` / `adversary:` frontmatter field. The
-  citation check follows the relay rather than preceding it, because a
-  wrong citation in conversation costs a correction while a wrong one
-  in the record outlives the loop. The order
-  has one named exception, defined under *What a diff-scoped LGTM
-  certifies* below: a plan's diff-scoped LGTM.
-- The relay carries the verdict, the model self-report, and every
-  finding in substance — condense narrative prose, never drop a
-  finding or its severity.
+  rule defines), write the dispatch record defined below, relay the
+  report to the developer, check every citation the report supplies
+  against what it names, then stamp the verdict (`LGTM` | `concerns` |
+  `blocking`) into the reviewed document's `architect:` /
+  `adversary:` frontmatter field. The citation check follows the relay
+  rather than preceding it, because a wrong citation in conversation
+  costs a correction while a wrong one in the record outlives the
+  loop. The order has one named exception, defined under *What a
+  diff-scoped LGTM certifies* below: a plan's diff-scoped LGTM.
+- The dispatch record is written before the relay. The dispatcher
+  saves what the agent returned, verbatim, under a four-line header —
+  the date, the agent, the model self-report, and the subject — with
+  no frontmatter and no `ticket`, since the record is evidence rather
+  than a process artefact. It goes to `.claude/working-process/` at
+  the repo root (`git rev-parse --show-toplevel`). A record survives
+  compaction, the session's end and a branch switch, and no more; that
+  bound is what the relay's condensation below leans on. Audits write
+  none — a propagation gate's hits land in the ledger and an integrity
+  audit's dispositions land as the edits it causes plus the
+  `integrity:` stamp, so a record would give one fact a second home.
+- The store is git-ignored by a `.gitignore` containing exactly `*`.
+  Before writing a record the dispatcher ensures that file holds
+  exactly that, rather than writing it once: the guard repairs a store
+  directory made by hand, a file someone truncated, and a `git clean`
+  that took the file and left the directory. A project already
+  ignoring `.claude/` still gets the file, since the store may not
+  depend on another file's contents.
+- The record's name carries its agent and one discriminator:
+
+      .claude/working-process/<stem>/<agent>-round-<N>.md
+      .claude/working-process/<stem>/<agent>-<date>-<HH-MM-SS>.md
+
+  `<stem>` is the reviewed document's basename without its extension,
+  one directory per subject. A verdict agent takes the round ordinal,
+  derived the way the heading will derive it — the highest ordinal the
+  document's rounds carry, plus one, ordinals continuing across
+  loops — because the record is written before that heading exists. A
+  dispatch that reviews no document takes its subject as the stem,
+  kebab-cased and capped at sixty characters, and the timestamp shape,
+  having no ledger to draw an ordinal from; an `architect` dispatch on
+  a bare question is one such, and the test is whether a document
+  exists rather than which agent ran. Where a round-ordinal name is
+  already taken, the new file appends the timestamp to it —
+  `<agent>-round-<N>-<date>-<HH-MM-SS>.md` — which settles the
+  superseded round two sessions can produce on one ordinal without
+  asking either to judge which report is stale. A timestamp name
+  collides only when a second record lands in the same second, where
+  appending the same timestamp would reproduce the taken name, so it
+  takes the lowest free counter suffix instead: `-2`, then `-3`.
+- The relay opens with one header line, then one line per finding. The
+  header carries the verdict, the model self-report, the finding count
+  by severity, and how many decisions await the developer. Each
+  finding takes one line — severity, origin, claim — except where the
+  reviewer emits no origin: the `architect` reads one document and
+  every finding it returns originates there, so an architect relay's
+  line carries severity and claim alone.
+- Condensation reaches narrative prose alone, whatever a session's
+  output style prescribes. The finding list is never condensed, and no
+  finding or its severity is ever dropped: the relay is the
+  developer's standing veto, so a finding nobody printed is a finding
+  nobody could overrule. Narrative is safe to condense because the
+  dispatch record holds the full text, which makes an expansion a
+  quotation rather than a reconstruction — so the relay names that
+  record's path, and the developer can open what was condensed.
+- The header's count of decisions is the findings for which the
+  session can cite no license, derived at relay time from the report
+  and the decisions already written down — before any ledger line
+  exists, since `open` is written at stamp time and triage follows the
+  stamp. The `held` lines the same round later writes are that count's
+  check: they come to the same number, and a divergence means triage
+  found a license the relay missed, triage lost one the relay claimed,
+  or the oscillation tripwire held a finding that does carry a
+  license. The third is lawful, so the check reports the number rather
+  than asserting a fault. Verdicts that suspend autonomy — `blocking`,
+  the spent round cap, the all-Minor signal — stay out of the count:
+  they decide whether the loop continues rather than what a document
+  says, and the relay reports them in its own right.
 - A citation the report supplies — a file and line, an identifier, a
   count — is checked against what it names before it is written into
   the document or acted on by a fix. A precise citation reads like
@@ -232,6 +330,14 @@ decision. Consequences the loop states outright:
 - Only written decisions license fixes. A decision settled in
   conversation becomes citable by being written into the document,
   which the fix itself accomplishes.
+- A finding whose `origin` names the spec is held unless a written
+  decision licenses the edit, since editing a spec from inside a plan
+  review is design work; `both` holds the same way, and its `held`
+  line names in `options:` which half is fixable at once. A licensed
+  spec-origin fix lands in the spec's own ledger and the plan's line
+  points at it, by the cross-document clause the spec-plan-lifecycle
+  rule defines — which also leaves the spec's `integrity:` stamp
+  stale, as any body edit does.
 
 A fix wave that deviates from a reviewer's suggestion records the
 deviation and its rationale beside the text they concern — not only in
@@ -385,14 +491,19 @@ evidence to attack, never a defence to protect.
   the cap is best-effort. A plan whose loop spent its three rounds
   therefore escalates once before its confirming round, which is the
   most expensive shape a round takes and the one a cap guarding spend
-  should guard first.
+  should guard first. A run of `blocking` verdicts is unbounded by the
+  cap, for the reason the cap is stated in: it counts autonomous rounds,
+  and `blocking` suspends autonomy, so every continuation after one is
+  the developer's own decision rather than a round the cap governs.
+  Consenting to three rounds consents to three autonomous ones.
 - All-Minor signal: two consecutive rounds whose findings are all Minor
   end the unattended run. Triage the round as always — by license, never
   by grade — and escalate with an offer of a fresh round instead of
   dispatching one. The escalation is a question, so the loop stays open
   until the developer answers it: the resolution annotation the
-  spec-plan-lifecycle rule defines records their close, and no session
-  writes it without their answer.
+  spec-plan-lifecycle rule defines records their close — on a plan, once
+  the confirming round has run — and no session writes it without their
+  answer.
 - Oscillation tripwire: a finding re-raised against a line carrying
   `license:` is never re-fixed autonomously. Two readings of one license
   are a contested reading, so it escalates as held, the flip named. A
@@ -413,15 +524,15 @@ reviewed by the round that followed it. What that chain still owes
 differs by document.
 
 For a spec, the consumption gate before plan-writing offers the pair as
-one question — an integrity audit or a confirming full-document round —
-and never an offer followed by a re-offer of the option just declined.
-When the `integrity-auditor` agent is absent the offer carries the
-confirming round alone. The two arms cost differently and the offer says
-so: an audit returns material for the dispatcher to dispose of and
-leaves the verdict alone, while a confirming round on a spec is a new
-loop's first round, since the spec's LGTM already closed its loop — it
-mints its own verdict and stamps it, so a `concerns` there flips the
-field back while plan-writing waits. The confirming-round arm therefore
+one question — an integrity audit or a full-document round — and never
+an offer followed by a re-offer of the option just declined. When the
+`integrity-auditor` agent is absent the offer carries the full-document
+round alone. The two arms cost differently and the offer says so: an
+audit returns material for the dispatcher to dispose of and leaves the
+verdict alone, while a full-document round on a spec is a new loop's
+first round, since the spec's LGTM already closed its loop — it mints
+its own verdict and stamps it, so a `concerns` there flips the field
+back while plan-writing waits. The full-document-round arm therefore
 blocks plan-writing; the audit arm does not, and plan-writing follows
 its dispositions.
 
@@ -432,18 +543,36 @@ diff-scoped LGTM heading, in the shape the spec-plan-lifecycle rule
 defines, and that annotation defeats the gate's re-ask. The other two
 paths write the same token.
 
-For a plan the loop never terminates on a diff-scoped LGTM: one
-full-document confirming round follows, and the confirming round's
-verdict is the one stamped. That round runs under the loop's standing
-consent like any other — the rules mandate it, so it is no decision of
-the developer's and spends none of the round's one interruption. It
-carries the single named exception to the relay-then-stamp order above —
-a plan's diff-scoped LGTM is relayed and its round record written, and
-only the frontmatter stamp waits for the confirming round. Recovery
-therefore reads the ledger rather than the stamp: a plan whose latest
-round heading is a diff-scoped LGTM that no later full-document round
-follows is re-offered its confirming round at the document's next touch,
-whatever the frontmatter says.
+For a plan the loop closes only when the latest verdict round was
+full-document: whatever ends its rounds while the latest round heading
+is diff-scoped, one confirming full-document round follows, and that
+round's verdict is the one stamped. A round already full-document owes
+no successor — it is the close. The confirming round inherits the gating
+of whatever ended the rounds. Where autonomy still stands —
+a diff-scoped `LGTM`, or a `concerns` inside the cap — the rules mandate
+the round, so it is no decision of the developer's and spends none of
+the round's one interruption. After `blocking`, the round cap or the
+all-Minor signal it is the developer's to order, because each of those
+suspends autonomy by its own terminator, and a round the rules mandate
+cannot outrank a terminator that stopped the loop.
+
+A session never judges that the rounds are ending. The terminators do,
+as does the developer closing the loop. While none has fired and the
+held set is empty, the next round is diff-scoped and the loop simply
+continues; the confirming round is owed the moment one fires, which is
+the moment a session would otherwise write the resolution annotation.
+
+The plan case carries the single named exception to the relay-then-stamp
+order above — a plan's diff-scoped LGTM is relayed and its round record
+written, and only the frontmatter stamp waits for the confirming round.
+Recovery therefore reads the ledger rather than the stamp. A plan whose
+latest round heading is a diff-scoped `LGTM` that no later full-document
+round follows is re-offered its confirming round at the document's next
+touch, whatever the frontmatter says, since that heading is itself an
+end. A latest heading of any other verdict is not an end, so there the
+round is re-offered when something tries to end the rounds — an
+annotation, an adjudication, a `status` move — or when a terminator that
+suspends autonomy has fired.
 
 Scoping never spans a close. An annotation close ends the loop, and a
 later round on the same document opens a new one, reading the whole
