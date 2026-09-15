@@ -21,15 +21,13 @@ paths:
 - Every plugin keeps a `CHANGELOG.md` at its root: released versions
   newest first, each heading carrying the version and its date. The file
   installs with the plugin, so a copy on disk carries the history of
-  exactly that copy.
-- A topic branch writes its entry under an `## Unreleased` heading
-  before it merges into `develop`, while the author still knows what the
-  change means. The release PR renames that heading to
-  `## <version> — <date>` in the commit that mints the version, and the
-  PR body is assembled from the entries that changed.
-- A plugin whose only change is its own changelog takes a patch bump,
-  for the reason the bump bullet gives: the file reaches an installed
-  copy the way any other content does.
+  exactly that copy, and a plugin whose only change is that file still
+  takes a patch bump.
+- A topic branch writes its entry under an `## Unreleased` heading at
+  the top of the file, before it merges into `develop`, while the author
+  still knows what the change means. The release PR renames that heading
+  to `## <version> — <date>` in the commit that mints the version, and
+  the PR body is assembled from the entries that changed.
 - Dogfooding unreleased content needs a changed version string — the
   plugin cache keys content by version. A topic branch that dogfoods a
   plugin sets `X.Y.Z-dev.<discriminator>` on it — the issue number the
