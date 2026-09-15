@@ -169,8 +169,8 @@ n() { tr -s '[:space:]' ' ' < "$1"; }
 echo "A $(n $W | grep -o 'The relay opens with one header line' | wc -l)"
 echo "B $(n $W | grep -o 'finding list is never condensed' | wc -l)"
 echo "C $(n $W | grep -o 'output style' | wc -l)"
-echo "D $(grep -c '\.claude/working-process/' $W)"
-echo "E $(grep -c '\.working-process/' $W)"
+echo "D $(grep -o '\.claude/working-process/' $W | wc -l)"
+echo "E $(grep -o '\.working-process/' $W | wc -l)"
 echo "F $(grep -c '<agent>-round-<N>\.md' $W)"
 echo "G $(grep -c '<agent>-<date>-<HH-MM-SS>\.md' $W)"
 echo "H $(n $W | grep -o 'git-ignored by a .\.gitignore. containing exactly' | wc -l)"
@@ -179,9 +179,13 @@ echo "I $(n $W | grep -o 'write the dispatch record defined below' | wc -l)"
 
 Expected: `A 0`, `B 0`, `C 0`, `D 0`, `E 0`, `F 0`, `G 0`, `H 0`, `I 0`.
 
-`D` and `E` are the same count measured two ways: `E` catches a store
-path written without the `.claude/` prefix, which the spec forbids, so
-the two must stay equal at every later reading.
+`D` counts the store path; `E` counts a store path written without the
+`.claude/` prefix, which the spec forbids. The two are not the same
+count: `\.working-process/` needs a dot immediately before
+`working-process`, and inside `.claude/working-process/` a slash sits
+there, so `E` reads 0 over text `D` reads 3 over. `E` is therefore an
+invariant at zero — it is the spec's own check that no bare store path
+appears, and it must read 0 before and after.
 
 - [ ] **Step 2: Put the record into the completion sequence**
 
@@ -298,12 +302,13 @@ the rules already carry.
 
 Run the Step 1 command again.
 
-Expected: `A 1`, `B 1`, `C 1`, `D 3`, `E 3`, `F 1`, `G 1`, `H 1`,
+Expected: `A 1`, `B 1`, `C 1`, `D 3`, `E 0`, `F 1`, `G 1`, `H 1`,
 `I 1`.
 
 `D 3` is the Global Constraints cap: once in the store sentence, once in
-each filename shape. A count of one would mean a shape went missing,
-and `D` differing from `E` would mean a path lost its `.claude/` prefix.
+each filename shape, and a count of one would mean a shape went missing.
+`E 0` is the invariant: any store path this wave wrote without the
+`.claude/` prefix would raise it off zero.
 
 - [ ] **Step 5: Commit**
 
@@ -338,7 +343,7 @@ echo "B $(n $W | grep -o 'every recommendation and every named risk' | wc -l)"
 echo "C $(n $W | grep -o 'never .\{0,12\}in one bullet' | wc -l)"
 echo "D $(n $W | grep -o 'paragraph per focusing question' | wc -l)"
 echo "E $(n $W | grep -o 'focusing question' | wc -l)"
-echo "F $(grep -c '\.claude/working-process/' $W)"
+echo "F $(grep -o '\.claude/working-process/' $W | wc -l)"
 echo "G $(n $W | grep -o 'Relay each contribution attributed' | wc -l)"
 ```
 
@@ -925,18 +930,21 @@ echo "13 $(grep -ci 'owner' $A) $(grep -ci 'owner' $W)"
 echo "14 $(grep -c 'Handed a spec' $A)"
 echo "15 $(n $W | grep -o 'editing a spec from inside a plan review is design work' | wc -l)"
 echo "16 $(grep -c '<agent>-round-<N>\.md' $W) $(grep -c '<agent>-<date>-<HH-MM-SS>\.md' $W)"
-echo "17 $(grep -c '\.claude/working-process/' $W) $(grep -c '\.working-process/' $W)"
+echo "17 $(grep -o '\.claude/working-process/' $W | wc -l) $(grep -o '\.working-process/' $W | wc -l)"
 echo "18 $(n $W | grep -o 'git-ignored by a .\.gitignore. containing exactly' | wc -l)"
 echo "19 $(grep -c '^\*\*Dispatch record\*\*:' $G)"
 echo "20 $(grep -c '^\*\*Origin\*\*:' $G)"
 ```
 
 Expected, in order: `1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`, `1`,
-`1`, `1`, `0 0`, `1`, `1`, `1 1`, `3 3`, `1`, `1`, `1`.
+`1`, `1`, `0 0`, `1`, `1`, `1 1`, `3 0`, `1`, `1`, `1`.
 
-Line `13` is the collision check in both files and `17` is the store's
-path count measured two ways — a pair that differs means a path lost
-its `.claude/` prefix. Lines `10`, `13`, `14` and `20` are invariants:
+Line `13` is the collision check in both files. Line `17` reads two
+different things: the store path, expected three, and a store path
+written without the `.claude/` prefix, expected zero — the spec's own
+check, and zero because the pattern needs a dot immediately before
+`working-process`, where `.claude/working-process/` puts a slash. Lines
+`10`, `13`, `14`, `17`'s second half and `20` are invariants:
 they read the same before and after the wave, and each is here because
 something in it could have disturbed them.
 
