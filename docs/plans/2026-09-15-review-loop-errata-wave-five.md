@@ -1091,7 +1091,7 @@ Equal counts are what the declaration claims.
 
 - [ ] **Step 5: Report the end state**
 
-State to the developer: four changes landed across six files, nothing
+State to the developer: four changes landed across seven files, nothing
 created, every published check at its expected value, and
 `claude plugin validate` passing for the plugin and the marketplace.
 
@@ -1117,7 +1117,7 @@ Task 5 (`plan-adversary.md`), Task 3 (`workflow.md`), Task 6
 (`spec-plan-lifecycle.md`) and Task 7's invariant on the **Origin**
 entry the grilling already minted. W4 → Task 1 (`workflow.md`, verdict
 side), Task 2 (consultation side) and Task 7 (the glossary entry). The
-spec's five Out-of-scope entries produce no task by construction. Every
+spec's four Out-of-scope entries produce no task by construction. Every
 check in the spec's *Verification* section appears in Task 8 Step 1,
 with the path count corrected to three as the integrity audit ruled.
 
@@ -1146,6 +1146,8 @@ an episode that precedes a document's first round.
 - hit fixed 2026-09-15 — Task 4 expected the phrase `dispatch record` twice where its replacement names the term once, later mentions reading "the record"; recounted by applying the replacement to a scratch copy, corrected to one, and the same figure corrected in Task 8's sweep line
 - hit fixed 2026-09-15 — the bare store-path check expected three where `\.working-process/` cannot match inside `.claude/working-process/`, a slash sitting where the pattern needs a dot; measured on constructed text, corrected to zero and declared an invariant, and four counts moved from `grep -c` to `grep -o | wc -l` so they count occurrences rather than lines
 - hit dismissed 2026-09-15 — Task 7's Find block was reported as failing the byte-exact duty for covering only part of the **Contribution** entry; counter: a Find block is a substring and the duty is byte-exact and unique, measured at exactly one occurrence, and applying the replacement leaves that entry's `_Avoid_` line in place
+- hit fixed 2026-09-15 — the Self-review claimed the spec has five Out-of-scope entries where its section lists four; recounted against the section's bullets and corrected to four
+- hit fixed 2026-09-15 — Task 8's end-state report claimed four changes across six files where the plan's own `Modify:` lines name seven distinct paths, the Task 4 bullet carrying two of them; enumerated those lines and corrected to seven
 - fixed 2026-09-15 — [Important] Task 3's `A` counted `origin` as a bare substring, so `originates` in Task 1's relay bullet leaked in and both expectations were wrong in both directions; license: the plan's Global Constraints, which require a step's values measured rather than predicted; the check is now `grep -ow` and the expectations are 2 and 4, verified by simulating both tasks on a scratch copy
 - fixed 2026-09-15 — [Important] Task 6 said the resolution annotation is defined for `concerns` and `blocking` alone where the spec says `concerns` alone, departing from the spec with no Deviations entry; license: `spec-plan-lifecycle.md`'s resolution-annotation bullet, which gives an adjudicated `blocking` verdict the same form with the round's ledger record as its body note; deviation 5 now records the departure and its ground
 - fixed 2026-09-15 — [Important] the collision rule said only that the new file appends the timestamp, leaving two sessions to spell one name two ways, where the spec's integrity audit routed the exact concatenation to this plan; license: spec decision 5, which decides the append, and that routing; the bullet now carries `<agent>-round-<N>-<date>-<HH-MM-SS>.md`, measured not to disturb either filename check
