@@ -4,6 +4,7 @@ date: 2026-09-14
 status: approved
 grilled: 2026-09-14
 architect: concerns (resolved 2026-09-15)
+integrity: 2026-09-15 (sha: 2673d32)
 revises: ./2026-07-28-working-process-design-personas-design.md
 branch: feature/process-wave-five
 base: develop
