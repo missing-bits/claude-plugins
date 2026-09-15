@@ -80,8 +80,12 @@ for a hole.
    report and the decisions already written down, so the count is
    computable before any ledger line is. The `held` lines the same
    round later writes are that count's check — they must come to the
-   same number, and a divergence means triage found a license the
-   relay missed or lost one it claimed. Deriving the count from the
+   same number, and a divergence means one of three things: triage
+   found a license the relay missed, triage lost one the relay claimed,
+   or the oscillation tripwire held a finding that does carry a
+   license, which the rules already require. The third is lawful and
+   the first two are errors, so the check reports the number rather
+   than asserting a fault. Deriving the count from the
    lines themselves would have the header report a forecast, since
    `open` is written at stamp time and triage follows the stamp, which
    follows the relay. Verdicts that suspend autonomy — `blocking`, the
@@ -271,6 +275,13 @@ for a hole.
    it follows the shape `subagent-driven-development` already uses for
    its own workspace.
 
+   A dispatch that reviews no document takes its subject as the stem
+   too, whatever kind of dispatch it is. An `architect` dispatch on a
+   bare question is a review round rather than a consultation — it
+   grades and stamps nothing — so the rule keys on whether a document
+   exists rather than on the agent's kind, and both the stem and the
+   timestamp follow from that one test.
+
    A subject becomes a stem mechanically: the briefing's own naming of
    it, kebab-cased and capped at sixty characters. The briefing already
    has to name the subject, so nothing is invented. The limit is worth
@@ -293,6 +304,14 @@ for a hole.
    on one subject in one day are expected — a follow-up is a fresh
    dispatch rather than a resumption. The timestamp also orders them,
    which a counter would not.
+
+   The record is written before the relay and the round heading is
+   written after it, so the ordinal the filename needs does not yet
+   exist in the ledger. The dispatcher derives it the way the heading
+   will: the highest ordinal the document's rounds carry, plus one,
+   ordinals continuing across loops. A parallel round from another
+   session can collide there, which the rule already accepts as
+   undetectable and which the next clause resolves mechanically.
 
    Where a name is already taken, the new file appends the timestamp.
    That covers the superseded round the rules already describe, whose
@@ -355,10 +374,12 @@ for a hole.
    the rules now name an artefact the glossary does not define and the
    nearest defined term, **Review report**, is a different object under
    `docs/code-review/`.
-   That entry carries the store's exclusion in the words **Private
-   memory** uses — not a Process directory, a store under the
-   `.claude/` namespace — so the exclusion lives where the term is
-   defined rather than in the rule that uses it.
+   That entry carries the store's exclusion the way **Private memory**
+   carries its own — stating outright that it is not a Process
+   directory, and why — so the exclusion lives where the term is
+   defined rather than in the rule that uses it. The words differ where
+   the facts differ: Private memory is per-user, and a dispatch record
+   store is per-checkout, shared by whoever works in it.
 
 ## Out of scope
 
@@ -483,3 +504,24 @@ was written, and all seven held.
 - fixed 2026-09-15 — decision 2 claimed `workflow.md` "kept the floor and lost the permission" where the rule kept neither: it carries `attributed and substantially verbatim, disagreements presented as disagreements` and nothing else, with zero matches for all three floor clauses; ruling: 2026-09-15; the claim is corrected and W2 now writes the floor into the rule as well as the permission, on the ground that a dispatcher-facing rule stating no floor is why the floor went unenforced on the side that relays
 - fixed 2026-09-15 — W2 edited `workflow.md` alone while `PERSONA_COMMON.md` places the consultation floor in the relay, so the wave would have recreated its own named defect in the other direction; ruling: 2026-09-15; `PERSONA_COMMON.md` joins W2 as a second site, edited together as both files declare
 - fixed 2026-09-15 — decision 3 prescribed where a disposition line lands, which is `spec-plan-lifecycle.md`'s grammar, while W3 named three sites and not that rule; ruling: 2026-09-15; the rule joins W3 as a fourth site and carries the cross-document clause its grammar lacks, leaving `every terminal line carries exactly one authorizer` intact
+
+The audit's twelve implementer questions were disposed by where their
+answer belongs. Four were design and are answered in the decisions
+above: the stem for a dispatch that reviews no document (the rule keys
+on whether a document exists, not on the agent's kind), a third and
+lawful cause of divergence in the decisions count (the oscillation
+tripwire holds a licensed finding), the glossary entry's wording (it
+cannot copy **Private memory**'s words, since that store is per-user
+and this one per-checkout), and the ordinal a filename needs before the
+heading that owns it is written.
+
+Five are implementation detail and belong to the plan, which is where
+prescribed text and published checks are written: the exact clause
+excluding audits from the store, the exact concatenation a collision
+produces, which of two candidate sentences in the adversary's card
+carries the `origin` boundary, the concrete patterns behind two checks
+stated in prose, and the `.gitignore` edge cases at first use.
+
+- held — the dispatch record's own content and shape are unspecified: decision 5 says the dispatcher writes what the agent returned, and nothing about whether that is the returned text verbatim, whether a header carries date, agent, model self-report and subject, whether the file takes frontmatter, or what an agent returning JSON writes into a Markdown file; question: what does a dispatch record contain?; options: (a) the returned text verbatim under a four-line header — date, agent, model self-report, subject — and no frontmatter, since the record is evidence rather than a process artefact and the store is outside the class that owes `ticket` — my recommendation; (b) a process artefact with frontmatter, which makes it findable by the ticket sweep at the cost of putting a Process-directory convention on a store the wave argues is not one
+- held — a spec-origin fix on a spec whose loop closed at `LGTM` has no round heading to land under, and the resolution annotation the lifecycle rule defines exists only for `concerns`; the same fix re-arms the spec's `integrity:` hash, which decision 3 does not mention while it does mention the architect stamp; question: where does the line land on such a spec, and what happens to a standing `integrity:` stamp?; options: (a) the fix opens a new heading of its own, dated and naming no round, and the `integrity:` stamp goes stale by the rule that already covers any body edit, which decision 3 states rather than invents — my recommendation; (b) the fix is refused on a spec with no open heading, sending it back to the developer as a fresh round, which is safer and costs a round for a clause
+- held — the consultation relay's contract carries `disagreements presented as disagreements` in both copies, and the new shape says nothing about whether that presentation stays in the relay or moves to the file with the floor; question: where is a disagreement presented after this wave?; options: (a) it stays in the relay, since a disagreement is the one thing the developer must decide and the digest exists to surface decisions — my recommendation; (b) it moves with the floor, which is simpler to state and buries the decision the relay exists to raise
