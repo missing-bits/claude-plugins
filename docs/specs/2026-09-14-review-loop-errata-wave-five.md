@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-14
 status: draft
 grilled: 2026-09-14
-architect: concerns
+architect: concerns (resolved 2026-09-15)
 revises: ./2026-07-28-working-process-design-personas-design.md
 branch: feature/process-wave-five
 base: develop
@@ -404,3 +404,22 @@ wrap.
 - fixed 2026-09-14 — [Minor] decision 5 argued the store's exclusion from a prefix-based carve-out the glossary does not state; license: the glossary's **Private memory** entry and the process-artifacts rule, which except that store by its own definition rather than by its prefix; the argument now runs from that precedent and W4's **Dispatch record** entry carries the same exclusion in the same words
 - fixed 2026-09-14 — [Minor] decision 2 said the shipped rule dropped the permission, where the permission ships in the persona-facing copy; license: `PERSONA_COMMON.md`, which carries *compression is allowed, merging is not* and declares that the dispatcher-facing copy lives in the workflow rule and the two are edited together; W2 is now stated as re-aligning two copies that drifted, which is the stronger claim and names a defect in the shipped plugin
 - signal 2026-09-14 — a further round does not earn its cost on the present text: the Important was a held decision plus a paragraph rewrite and the Minors are one sentence each; where the fixes leave anything behind, the consumption gate's integrity audit is the right reader for it
+
+The loop closed here on 2026-09-15, by the developer's decision and on
+round 2's own stop signal, without a third round. What resolved the
+concerns: every finding of both rounds reached a terminal disposition —
+ten in round 1, three in round 2 — and the held set was empty at each
+close. The four Important findings of round 1 were decided by the
+developer and repaired; round 2 confirmed that the drift it had been
+dispatched to hunt did not occur, and its own three findings were
+licensed and fixed. Nothing was declined and no deviation from a
+reviewer's suggestion was recorded, so the ledger above is the whole
+account.
+
+One thing this loop produced that belongs to the plugin rather than to
+this spec: `PERSONA_COMMON.md` declares that the dispatcher-facing copy
+of the consultation-relay obligations lives in `workflow.md` and that
+the two are edited together, and they have drifted — the persona copy
+kept `compression is allowed, merging is not` and the rule copy did
+not. W2 repairs that drift, which makes it a defect fix rather than the
+addition this spec first took it for.
