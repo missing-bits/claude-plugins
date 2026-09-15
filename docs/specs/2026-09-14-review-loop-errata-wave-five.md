@@ -131,14 +131,19 @@ for a hole.
    anything. The obligation exists twice by design: `PERSONA_COMMON.md`
    carries the persona-facing copy and says so — *the dispatcher-facing
    copy of these obligations lives in the plugin's workflow rule; the
-   two are edited together*. The persona copy kept the permission
+   two are edited together*. The persona copy kept the whole contract
    (*substantially verbatim — compression is allowed, merging is not;
    every recommendation and every named risk survives*); `workflow.md`
-   kept the floor and lost the permission, where the word `compression`
-   appears nowhere. Two copies declared edited together have drifted,
-   and the dispatcher reads the one that drifted — which is why
-   consultation relays grew into walls while the agents' own card said
-   compression was allowed all along. The design-personas spec
+   kept neither half. It carries `attributed and substantially
+   verbatim, disagreements presented as disagreements` and stops there:
+   no recommendation clause, no named-risk clause, no one-bullet
+   clause, and the word `compression` nowhere. Two copies declared
+   edited together have drifted that far apart, and the dispatcher
+   reads the emptier one — which is why consultation relays grew into
+   walls while the agents' own card stated both the floor and the
+   permission all along. The floor has therefore never bound the side
+   that relays, which is the half of this defect the wave found last,
+   and the reason W2 writes the floor rather than only its site. The design-personas spec
    (`./2026-07-28-working-process-design-personas-design.md`,
    `status: implemented`) is where both copies come from.
 
@@ -303,21 +308,42 @@ for a hole.
    condensation reaches narrative alone, whatever a session's output
    style says.
 
-2. **W2 — the consultation relay shape and its floor's site.**
-   `workflow.md`, the *Dispatching a consultation* paragraph. One
-   paragraph per focusing question — or per briefing, where none was
-   appended — then the path to the contribution.
-   The paragraph names where the floor is met — compression yes,
-   merging no, every recommendation and every named risk surviving in
-   the file — so a reader meets the floor and its site together.
+2. **W2 — the consultation relay shape and its floor's site.** Two
+   sites, edited together because they declare themselves so.
 
-3. **W3 — the origin field.** Three sites, edited together:
+   `workflow.md`, the *Dispatching a consultation* paragraph: one
+   paragraph per focusing question — or per briefing, where none was
+   appended — then the path to the contribution. The paragraph states
+   the floor as well as its site, because the rule states no floor
+   today: it carries `attributed and substantially verbatim,
+   disagreements presented as disagreements` and nothing more. So the
+   dispatcher-facing copy gains the whole contract — compression yes,
+   merging no, every recommendation and every named risk surviving, two
+   personas never in one bullet — with the file named as where it is
+   met. A rule that never states a floor is why this floor went
+   unenforced on the side that relays.
+
+   `PERSONA_COMMON.md`, the relay bullet of *The reply*: the same move
+   of the floor's site, so the two copies agree. That file already
+   carries the whole floor and the permission, and it declares that the
+   dispatcher-facing copy lives in the workflow rule and the two are
+   edited together. Editing one alone would recreate, in the other
+   direction, the very drift this wave names as the defect it repairs.
+
+3. **W3 — the origin field.** Four sites, edited together:
    `agents/plan-adversary.md` gains `origin` in the `Output` schema
    with its three values and one sentence placing it inside the card's
    existing spec boundary; `workflow.md` gains the triage sentence
-   decision 3 defines, beside the existing license clause; and
+   decision 3 defines, beside the existing license clause;
    `docs/domain/glossary.md` carries the **Origin** entry grilling
-   already minted.
+   already minted; and `spec-plan-lifecycle.md` gains the
+   cross-document clause its ledger grammar lacks — where a fix lands
+   in a document other than the reviewed one, that document's ledger
+   takes the disposition line and the reviewed document's line points
+   at it. The grammar owns where a line lands, so the clause belongs
+   there rather than in the rule that invokes it, and `every terminal
+   line carries exactly one authorizer` stands: one authorizer, two
+   documents, two lines.
 
 4. **W4 — the dispatch record.** Two sites. `workflow.md`, the
    verdict-agent dispatch bullet list and the consultation paragraph:
@@ -369,7 +395,15 @@ wrap.
 - `workflow.md` contains the header's four elements in the relay bullet,
   and one phrase naming the finding line as uncondensable: expected 1.
 - `workflow.md` contains `compression`: expected ≥ 1, where today it is
-  0 — the check that proves decision 2 landed.
+  0 — the check that proves decision 2 landed. It also contains the
+  floor's three clauses — every recommendation, every named risk, never
+  in one bullet — expected 1 each, and 0 today.
+- `PERSONA_COMMON.md` names the dispatch record as where a
+  consultation's floor is met: expected 1, where today its relay bullet
+  places the floor in the relay alone.
+- `spec-plan-lifecycle.md` contains the cross-document clause: expected
+  1, and `every terminal line carries exactly one authorizer` is
+  unchanged: expected 1, an invariant.
 - `workflow.md` contains a phrase naming one paragraph per focusing
   question: expected 1.
 - `plan-adversary.md` contains `"origin"` inside the `Output` block:
@@ -445,6 +479,6 @@ was written, and all seven held.
 - fixed 2026-09-15 — decision 4's heading promised three items — two that left and one never in the wave — where its body describes two; license: the document itself, whose *Out of scope* section is where what never entered is listed; the heading now claims two and points at that section for the rest
 - fixed 2026-09-15 — the verification check expected `.claude/working-process/` once in `workflow.md`, where the two prescribed filename shapes each carry the prefix; license: the check's own derivation, as a recounted expectation decides itself; the expectation is three, and the check now says a count of one would mean a shape went missing
 - fixed 2026-09-15 — decision 5 and W4 called the store's state **Ignored mode**, a glossary term defined for a Process directory, in a paragraph arguing the store is not one; license: the glossary's **Ignored mode** and **Private memory** entries, the second describing the same shape as *always ignored* with no mode named; both now say git-ignored
-- held — decision 2 claims `workflow.md` "kept the floor and lost the permission", and the rule kept neither: it carries `attributed and substantially verbatim, disagreements presented as disagreements` and nothing else — no recommendation clause, no named-risk clause, no one-bullet clause, zero matches for all three; question: does W2 add the floor to the rule as well as the permission, or does the rule stay floorless with the floor living only in `PERSONA_COMMON.md`?; options: (a) W2 writes both, since a dispatcher-facing rule that never states the floor is why the floor was unenforced — my recommendation; (b) W2 writes the permission only and the rule points at the persona copy, which keeps the edit small and leaves the dispatcher reading a rule that states no floor
-- held — W2 edits `workflow.md` alone while `PERSONA_COMMON.md` places the consultation floor in the relay, so the wave would recreate in the other direction the drift it names as a defect; question: does `PERSONA_COMMON.md` join W2's sites?; options: (a) add it, since the two copies declare themselves edited together and this wave's own argument rests on that declaration — my recommendation; (b) leave it and accept a known drift, which forfeits the argument decision 2 is built on
-- held — decision 3 prescribes where a disposition line lands for a spec-origin fix, which is `spec-plan-lifecycle.md`'s grammar, while W3 names three sites and none is that rule; question: does the lifecycle rule join W3's sites, or does decision 3 narrow to what the grammar already allows?; options: (a) add the rule as a fourth site and let it carry the cross-document clause, since the grammar today has none — my recommendation; (b) narrow decision 3 to cite the resolution annotation the rule already defines and prescribe nothing new, which is smaller but leaves the plan-side pointer undefined
+- fixed 2026-09-15 — decision 2 claimed `workflow.md` "kept the floor and lost the permission" where the rule kept neither: it carries `attributed and substantially verbatim, disagreements presented as disagreements` and nothing else, with zero matches for all three floor clauses; ruling: 2026-09-15; the claim is corrected and W2 now writes the floor into the rule as well as the permission, on the ground that a dispatcher-facing rule stating no floor is why the floor went unenforced on the side that relays
+- fixed 2026-09-15 — W2 edited `workflow.md` alone while `PERSONA_COMMON.md` places the consultation floor in the relay, so the wave would have recreated its own named defect in the other direction; ruling: 2026-09-15; `PERSONA_COMMON.md` joins W2 as a second site, edited together as both files declare
+- fixed 2026-09-15 — decision 3 prescribed where a disposition line lands, which is `spec-plan-lifecycle.md`'s grammar, while W3 named three sites and not that rule; ruling: 2026-09-15; the rule joins W3 as a fourth site and carries the cross-document clause its grammar lacks, leaving `every terminal line carries exactly one authorizer` intact
