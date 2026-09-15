@@ -122,7 +122,11 @@ for a hole.
    of twenty findings still relays in twenty lines. The consultation
    relay then carries one paragraph per focusing question — or one per
    briefing, where a single persona was consulted and none was appended
-   — and the path to the contribution.
+   — and the path to the contribution. One thing does not move with the
+   floor: where the personas disagree, the disagreement is presented as
+   a disagreement, in the relay, with both positions. A disagreement is
+   the one thing in a contribution the developer must decide, and the
+   digest exists to raise decisions rather than bury them.
 
    The move rests on decision 5's dispatch record, and on the bound
    that decision states: the record survives compaction, the session's
@@ -185,7 +189,14 @@ for a hole.
    than the plan's. Its disposition line lands under the spec's latest
    round heading, or as the resolution annotation the lifecycle rule
    already defines for a stamped document edited without a fresh round,
-   and the plan's line points at it. One authorizer per line still
+   and the plan's line points at it. Where the spec's loop closed at
+   `LGTM` it has neither — the annotation is defined for `concerns`
+   alone — so the fix opens a heading of its own: dated, naming the fix
+   rather than a round, and carrying the one line. Two consequences
+   this decision states rather than invents: a spec's standing
+   `integrity:` stamp goes stale on any body edit, this one included,
+   by the rule that already says so; and the architect stamp stops
+   certifying the words that changed. One authorizer per line still
    holds — one authorizer, two documents, two lines — and the spec's
    stamp stops certifying words that are gone.
 
@@ -267,6 +278,16 @@ for a hole.
    files, nor does it reach a second Environment or a reviewer reading
    the document branch. That is the same durability Private memory has
    and the same the developer relies on daily.
+
+   A record contains what the agent returned, verbatim, under a header
+   of four lines: the date, the agent, the model self-report, and the
+   subject. Nothing else — no frontmatter, no `ticket`. The record is
+   evidence rather than a process artefact, and the store sits outside
+   the class that owes a ticket field, so adding one would import a
+   Process-directory convention into a store this decision argues is
+   not one. An agent returning structured output writes it as it came,
+   fenced; the header is the only thing the dispatcher adds, and it
+   exists so a reader who opens the file cold knows what produced it.
 
    One directory per subject, named for it — `<stem>`, the reviewed
    document's basename without its extension. A consultation carrying
@@ -522,6 +543,6 @@ produces, which of two candidate sentences in the adversary's card
 carries the `origin` boundary, the concrete patterns behind two checks
 stated in prose, and the `.gitignore` edge cases at first use.
 
-- held — the dispatch record's own content and shape are unspecified: decision 5 says the dispatcher writes what the agent returned, and nothing about whether that is the returned text verbatim, whether a header carries date, agent, model self-report and subject, whether the file takes frontmatter, or what an agent returning JSON writes into a Markdown file; question: what does a dispatch record contain?; options: (a) the returned text verbatim under a four-line header — date, agent, model self-report, subject — and no frontmatter, since the record is evidence rather than a process artefact and the store is outside the class that owes `ticket` — my recommendation; (b) a process artefact with frontmatter, which makes it findable by the ticket sweep at the cost of putting a Process-directory convention on a store the wave argues is not one
-- held — a spec-origin fix on a spec whose loop closed at `LGTM` has no round heading to land under, and the resolution annotation the lifecycle rule defines exists only for `concerns`; the same fix re-arms the spec's `integrity:` hash, which decision 3 does not mention while it does mention the architect stamp; question: where does the line land on such a spec, and what happens to a standing `integrity:` stamp?; options: (a) the fix opens a new heading of its own, dated and naming no round, and the `integrity:` stamp goes stale by the rule that already covers any body edit, which decision 3 states rather than invents — my recommendation; (b) the fix is refused on a spec with no open heading, sending it back to the developer as a fresh round, which is safer and costs a round for a clause
-- held — the consultation relay's contract carries `disagreements presented as disagreements` in both copies, and the new shape says nothing about whether that presentation stays in the relay or moves to the file with the floor; question: where is a disagreement presented after this wave?; options: (a) it stays in the relay, since a disagreement is the one thing the developer must decide and the digest exists to surface decisions — my recommendation; (b) it moves with the floor, which is simpler to state and buries the decision the relay exists to raise
+- fixed 2026-09-15 — the dispatch record's content and shape were unspecified, decision 5 saying only that the dispatcher writes what the agent returned; ruling: 2026-09-15; a record is the returned text verbatim under a four-line header — date, agent, model self-report, subject — with no frontmatter and no `ticket`, since it is evidence rather than a process artefact and the store lies outside the class that owes the field
+- fixed 2026-09-15 — a spec-origin fix on a spec closed at `LGTM` had no heading to land under, the resolution annotation being defined for `concerns` alone, and decision 3 said nothing about the spec's `integrity:` stamp; ruling: 2026-09-15; such a fix opens a dated heading of its own naming the fix rather than a round, and the decision now states both consequences — the `integrity:` hash goes stale by the rule that already covers any body edit, and the architect stamp stops certifying the changed words
+- fixed 2026-09-15 — the new consultation shape said nothing about where a disagreement between personas is presented once the floor moved to the file; ruling: 2026-09-15; it stays in the relay with both positions, because a disagreement is the one thing in a contribution the developer must decide and the digest exists to raise decisions
