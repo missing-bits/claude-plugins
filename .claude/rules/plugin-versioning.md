@@ -32,10 +32,12 @@ paths:
   plugin cache keys content by version. A topic branch that dogfoods a
   plugin sets `X.Y.Z-dev.<discriminator>` on it — the issue number the
   branch name carries, or the branch short-name when the topic has no
-  issue (e.g. `-dev.design-personas`). Widening the discriminator
-  instead of minting another channel keeps one channel for one purpose;
-  the discriminator only needs to be unique among parallel topics. The
-  suffix flows into develop as-is. A topic that does not dogfood never
+  issue (e.g. `-dev.design-personas`). The suffix hangs off a version
+  above the one `develop` currently carries — never a re-suffix of a
+  version already minted. Widening the discriminator instead of minting
+  another channel keeps one channel for one purpose; the discriminator
+  only needs to be unique among parallel topics. The suffix flows into
+  develop as-is. A topic that does not dogfood never
   touches the version. On a version-line merge conflict between parallel
   topics, the merging topic's own `-dev.<discriminator>` wins — both
   strings are provisional. The release PR strips every `-dev` suffix
