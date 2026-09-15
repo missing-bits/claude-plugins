@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-09-15
 status: draft
+adversary: blocking
 spec: ../specs/2026-09-14-review-loop-errata-wave-five.md
 branch: feature/process-wave-five
 base: develop
@@ -95,6 +96,15 @@ the reason where the disagreement lives.
    occurrences of `.claude/working-process/` in `workflow.md`, and
    Task 1 writes all three; Task 2 names "the timestamp shape of the two
    the verdict-agent dispatch subsection defines" instead.
+5. **Task 6 says the resolution annotation is defined for `concerns`
+   and `blocking` alone, where the spec says `concerns` alone.** The
+   shipped rule is what the plan follows: the resolution-annotation
+   bullet of `spec-plan-lifecycle.md` gives a `blocking` verdict the
+   developer closes by explicit adjudication the same form, with the
+   round's ledger record as its body note. So a `blocking` document
+   has somewhere for the line to land and does not need the fix
+   heading, which is what the sentence claims. Task 6 carries the
+   reason.
 
 ## File structure
 
@@ -238,9 +248,9 @@ Replace with:
   saves what the agent returned, verbatim, under a four-line header —
   the date, the agent, the model self-report, and the subject — with
   no frontmatter and no `ticket`, since the record is evidence rather
-  than a process artefact. It goes to `.claude/working-process/`, a
-  store git-ignored by a `.gitignore` containing exactly `*` written
-  at its first use. A record survives compaction, the session's end
+  than a process artefact. It goes to `.claude/working-process/` at
+  the repo root (`git rev-parse --show-toplevel`), a store git-ignored
+  by a `.gitignore` containing exactly `*` written at its first use. A record survives compaction, the session's end
   and a branch switch, and no more; that bound is what the relay's
   condensation below leans on. Audits write none — a propagation
   gate's hits land in the ledger and an integrity audit's dispositions
@@ -261,9 +271,10 @@ Replace with:
   having no ledger to draw an ordinal from; an `architect` dispatch on
   a bare question is one such, and the test is whether a document
   exists rather than which agent ran. Where a name is already taken,
-  the new file appends the timestamp, which settles the superseded
-  round two sessions can produce on one ordinal without asking either
-  to judge which report is stale.
+  the new file appends the timestamp to the name it collided with —
+  `<agent>-round-<N>-<date>-<HH-MM-SS>.md` — which settles the
+  superseded round two sessions can produce on one ordinal without
+  asking either to judge which report is stale.
 - The relay opens with one header line, then one line per finding. The
   header carries the verdict, the model self-report, the finding count
   by severity, and how many decisions await the developer. Each
@@ -377,8 +388,8 @@ named background agent, so the transcript stays inspectable.
 
 A contribution is written to its dispatch record before it is relayed,
 taking the timestamp shape of the two the verdict-agent dispatch
-subsection defines: a consultation records nothing, so it has no
-ordinal to derive, and several consultations of one persona on one
+subsection defines: a consultation mints no round heading, so it has
+no ordinal to derive, and several consultations of one persona on one
 subject in one day are expected. The floor is met in that file —
 attributed and substantially verbatim, compression allowed and merging
 forbidden, every recommendation and every named risk surviving, and
@@ -430,17 +441,19 @@ git commit -m "feat(working-process): state the consultation floor and digest it
 ```bash
 W=plugins/working-process/rules/workflow.md
 n() { tr -s '[:space:]' ' ' < "$1"; }
-echo "A $(n $W | grep -o 'origin' | wc -l)"
+echo "A $(n $W | grep -ow 'origin' | wc -l)"
 echo "B $(n $W | grep -o 'editing a spec from inside a plan review is design work' | wc -l)"
 echo "C $(n $W | grep -o 'Only written decisions license fixes' | wc -l)"
 echo "D $(grep -ci 'owner' $W)"
 ```
 
-Expected: `A 1`, `B 0`, `C 1`, `D 0`.
+Expected: `A 2`, `B 0`, `C 1`, `D 0`.
 
-`A 1` counts the single occurrence Task 1 wrote into the relay bullet —
-run this task after Task 1 or the expectation is `A 0`, and either way
-the after value is one higher. `C` is an invariant: the bullet this task
+`A 2` counts `origin` as a whole word: the two Task 1 wrote into the
+relay bullet, with `originates` in that same bullet correctly left out —
+which a bare `grep -o 'origin'` would have counted. Run this task after
+Task 1, or the expectation is `A 0`; either way this task adds two, the
+field name and `spec-origin`. `C` is an invariant: the bullet this task
 follows must survive it. `D` is the collision check the spec publishes,
 and it is an invariant in both directions: `owner` is spent on an actor
 elsewhere in the process and must never name a document here.
@@ -475,7 +488,7 @@ Replace with:
 
 Run the Step 1 command again.
 
-Expected: `A 2`, `B 1`, `C 1`, `D 0`.
+Expected: `A 4`, `B 1`, `C 1`, `D 0`.
 
 - [ ] **Step 4: Commit**
 
@@ -749,8 +762,11 @@ A fix one review licenses can land in a document other than the
 reviewed one — a plan review's finding carrying `origin: spec` is the
 case the workflow rule names. The disposition line then lands in the
 ledger of the document that changed, and the reviewed document's line
-points at it: one authorizer, two documents, two lines, and the
-invariant above holds on each. In the changed document the line goes
+points at it in its `<what changed>` clause, naming that document and
+the heading the line sits under: one authorizer, two documents, two
+lines, and the invariant above holds on each. The pointer needs no
+clause of its own — `<what changed>` already belongs to the `fixed`
+line's shape, so the clause table stays closed. In the changed document the line goes
 under its latest round heading, or with the body note the resolution
 annotation above already owes, where that document is stamped and no
 fresh round ran. A document whose loop closed at `LGTM` has neither —
@@ -1056,3 +1072,22 @@ are `plan`, `spec`, `both` everywhere. The store path is
 than spelled in Task 2, which is what holds the count at three. The
 artefact is a **dispatch record** in every task; `report file` appears
 nowhere, being banned by **Review report**'s `_Avoid_` list.
+
+## Review rounds
+
+### 2026-09-15 — plan-adversary, fable 5.1, blocking (round 1, full-document)
+
+The propagation gate ran three times before this dispatch; its lines are written here, under the first round heading, as the grammar directs for an episode that precedes a document's first round.
+
+- hit fixed 2026-09-15 — Task 4 expected the phrase `dispatch record` twice where its replacement names the term once, later mentions reading "the record"; recounted by applying the replacement to a scratch copy, corrected to one, and the same figure corrected in Task 8's sweep line
+- hit fixed 2026-09-15 — the bare store-path check expected three where `\.working-process/` cannot match inside `.claude/working-process/`, a slash sitting where the pattern needs a dot; measured on constructed text, corrected to zero and declared an invariant, and four counts moved from `grep -c` to `grep -o | wc -l` so they count occurrences rather than lines
+- hit dismissed 2026-09-15 — Task 7's Find block was reported as failing the byte-exact duty for covering only part of the **Contribution** entry; counter: a Find block is a substring and the duty is byte-exact and unique, measured at exactly one occurrence, and applying the replacement leaves that entry's `_Avoid_` line in place
+- fixed 2026-09-15 — [Important] Task 3's `A` counted `origin` as a bare substring, so `originates` in Task 1's relay bullet leaked in and both expectations were wrong in both directions; license: the plan's Global Constraints, which require a step's values measured rather than predicted; the check is now `grep -ow` and the expectations are 2 and 4, verified by simulating both tasks on a scratch copy
+- fixed 2026-09-15 — [Important] Task 6 said the resolution annotation is defined for `concerns` and `blocking` alone where the spec says `concerns` alone, departing from the spec with no Deviations entry; license: `spec-plan-lifecycle.md`'s resolution-annotation bullet, which gives an adjudicated `blocking` verdict the same form with the round's ledger record as its body note; deviation 5 now records the departure and its ground
+- fixed 2026-09-15 — [Important] the collision rule said only that the new file appends the timestamp, leaving two sessions to spell one name two ways, where the spec's integrity audit routed the exact concatenation to this plan; license: spec decision 5, which decides the append, and that routing; the bullet now carries `<agent>-round-<N>-<date>-<HH-MM-SS>.md`, measured not to disturb either filename check
+- held — [Important] Task 6 mints a heading shape inside `## Review rounds` while `spec-plan-lifecycle.md` keeps "One annotation extends those shapes, and nothing else does" and, for gate lines, "the round heading's grammar is closed", so the shipped rule would contradict itself after the edit; question: should Task 6 also amend those two sentences to admit the fix heading as the one other extension?; options: (a) amend both sentences inside Task 6 and add a check anchoring the amended text — recommended, since spec decision 3 rules that the fix opens a heading of its own, and the closure sentences are simply where that ruling propagates; (b) drop the fix heading and land the line under the document's latest round heading whatever its verdict, which contradicts decision 3's `ruling:` and would reopen the spec
+- held — [Important] the store's git-ignored guarantee rests on a `.gitignore` "written at its first use" and nothing defines first use, so a store directory that already exists without the file never gets one and its records become untracked files a `git add -A` would commit; question: should the rule make the guard idempotent — before every record write, ensure `.claude/working-process/.gitignore` holds exactly `*` — instead of writing it once at first use?; options: (a) the idempotent guard — recommended, since it costs one file read per dispatch and is the only form surviving a directory made by hand, a truncated file, or a `git clean` that took the file and left the directory; (b) keep "at first use" and define it as "the directory is absent, or holds no `.gitignore`", cheaper to read but leaving a wrong-content file unrepaired; either answer sits within this plan's remit, since the integrity audit routed these edge cases here
+- fixed 2026-09-15 — [Minor] Task 2 said a consultation records nothing one sentence after saying a contribution is written to its record; license: the glossary's **Consultation** entry, whose discriminator is stamping rather than recording; the clause now says a consultation mints no round heading, which is the property the ordinal argument actually needs
+- fixed 2026-09-15 — [Minor] the store path carried no base, where the plugin's own shared file records that a dispatch inherits a working directory possibly below the root and that the miss is silent; license: `PERSONA_COMMON.md`'s glossary-duty paragraph, which resolves its own path against the repo root for that reason; the bullet now says at the repo root and names the command
+- fixed 2026-09-15 — [Minor] "the reviewed document's line points at it" named no clause while the ledger's clause table is closed; license: the `fixed` line's own shape, whose `<what changed>` clause carries the pointer without a new row; the clause now says so and states that the table stays closed
+- signal 2026-09-15 — a further round earns its cost only as a diff-scoped read over Tasks 1 and 6, where the fixes reshape rule text and repair-born defects are the likely failure; the counter fix and the deviation entry are mechanical and the propagation gate verifies them without a round, and the three Minors are one sentence each
