@@ -184,10 +184,11 @@ echo "G $(grep -c '<agent>-<date>-<HH-MM-SS>\.md' $W)"
 echo "H $(n $W | grep -o 'git-ignored by a .\.gitignore. containing exactly' | wc -l)"
 echo "I $(n $W | grep -o 'write the dispatch record defined below' | wc -l)"
 echo "J $(n $W | grep -o 'Before writing a record the dispatcher ensures' | wc -l)"
+echo "K $(n $W | grep -o "the relay names that record's path" | wc -l)"
 ```
 
 Expected: `A 0`, `B 0`, `C 0`, `D 0`, `E 0`, `F 0`, `G 0`, `H 0`, `I 0`,
-`J 0`.
+`J 0`, `K 0`.
 
 `D` counts the store path; `E` counts a store path written without the
 `.claude/` prefix, which the spec forbids. The two are not the same
@@ -297,7 +298,8 @@ Replace with:
   developer's standing veto, so a finding nobody printed is a finding
   nobody could overrule. Narrative is safe to condense because the
   dispatch record holds the full text, which makes an expansion a
-  quotation rather than a reconstruction.
+  quotation rather than a reconstruction — so the relay names that
+  record's path, and the developer can open what was condensed.
 - The header's count of decisions is the findings for which the
   session can cite no license, derived at relay time from the report
   and the decisions already written down — before any ledger line
@@ -323,7 +325,11 @@ the rules already carry.
 Run the Step 1 command again.
 
 Expected: `A 1`, `B 1`, `C 1`, `D 3`, `E 0`, `F 1`, `G 1`, `H 1`,
-`I 1`, `J 1`.
+`I 1`, `J 1`, `K 1`.
+
+`K 1` is spec decision 1's pointer: the relay names the record's path,
+which is what makes condensing narrative safe. Task 2 carries the same
+duty for a consultation, and Task 7's **Relay** entry states it for both.
 
 `J 1` is the idempotent guard: the store's git-ignored state is ensured
 before every record write rather than at a first use nothing defines.
@@ -1165,3 +1171,8 @@ an episode that precedes a document's first round.
 - fixed 2026-09-15 — [Important] the collision rule appends the timestamp to the name it collided with, which settles the ordinal shape but not the timestamp shape: two dispatches of one agent on one subject landing in the same second collide on `<agent>-<date>-<HH-MM-SS>.md`, and appending the same timestamp reproduces a name already taken, so the second record overwrites the first; ruling: 2026-09-15; Task 1's bullet scopes the timestamp append to the round-ordinal name and gives a timestamp name the lowest free counter suffix, `-2` then `-3`; the spec half landed in `docs/specs/2026-09-14-review-loop-errata-wave-five.md` beside its round-2 resolution note
 - fixed 2026-09-15 — [Minor] spec decision 3 says the resolution annotation "is defined for `concerns` alone" where the shipped rule defines it for an adjudicated `blocking` as well; the plan already follows the rule through deviation 5, so only the spec carries the error, and it would freeze into an `implemented` document amendable only in frontmatter; ruling: 2026-09-15; the line landed in `docs/specs/2026-09-14-review-loop-errata-wave-five.md` beside its round-2 resolution note, and deviation 5 now records the departure as resolved at the source
 - signal 2026-09-15 — a further round does not earn its cost: the Important is a one-or-two-sentence fix the propagation gate verifies mechanically, and the Minor is held for the developer whatever a round finds, being spec-origin; a diff-scoped round three would mostly re-confirm a small patch
+
+### 2026-09-15 — plan-adversary, fable 5.1, concerns (round 3, full-document)
+
+- fixed 2026-09-15 — [Important] Task 1 wrote the verdict relay's header, its uncondensable finding list and the condensation rule, but never told the relay to name the dispatch record, while spec decision 1 requires it and Task 7's **Relay** entry states it for both relay kinds; license: spec decision 1, "the relay names the dispatch record decision 5 defines"; the condensation bullet now ends by naming the record's path, and check `K` anchors it in Task 1's Step 1 and Step 4
+- signal 2026-09-15 — a further full-document round would not earn its cost: the one Important is a single-sentence fix with an obvious license, verifiable mechanically by one added check, so a propagation gate over Task 1 is sufficient before the loop closes
