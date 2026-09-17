@@ -315,8 +315,11 @@ re-review offer on a fallback-recorded verdict, the integrity audit
 offered when a document's body, or that of the document audited with it,
 no longer matches its stamp, the pair question a diff-scoped chain earns, the chain debt
 itself, and the offer of a technical design. Only one ordering is fixed:
-everything a technical design owes settles before anything its design
-spec owes, and the questions reach the developer in one batch.
+writing the technical design and applying its review dispositions
+precede the joint integrity audit. The gate runs in passes where that
+offer is accepted, and each pass reaches the developer in one batch —
+every question answerable at that pass, never every question the gate
+will ever ask.
 _Avoid_: usage point
 
 **Unfinished-work list**:
