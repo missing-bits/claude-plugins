@@ -966,8 +966,12 @@ Run:
 F=plugins/working-process/rules/propagation-duties.md
 sed -n '2,5p' $F
 grep -c 'technical-design' $F   # expect 0
-grep -c '^- \|^## ' $F
+grep -c '^| ' $F                # expect 10: header plus nine edit rows
 ```
+
+The separator row (`|---|---|---|`) carries no space after the pipe and
+never matches this pattern — which is why the count is ten and not
+eleven.
 
 - [ ] **Step 2: Widen the rule's scope**
 
@@ -1026,7 +1030,7 @@ Run:
 ```bash
 F=plugins/working-process/rules/propagation-duties.md
 grep -c '"docs/technical-designs/\*\*"' $F      # expect 1
-grep -c '^| ' $F                                 # expect 12: header, separator, ten edit rows
+grep -c '^| ' $F                                 # expect 11: header plus ten edit rows
 grep -c 'nine duties fall due' $F                # expect 1
 grep -c 'keyed by the ten edits' $F              # expect 1
 grep -c 'walks the same nine' $F                 # expect 1
@@ -2140,6 +2144,13 @@ before any line below was written; none missed.
   15), with the `superpowers:writing-plans` template explicitly out of
   scope. The developer chose this over both declaring the sentence
   undelivered and editing another vendor's plugin.
+- hit fixed 2026-09-21 — Task 9's before-state step still counted
+  bullet-list lines, a measurement left over from the bullet its Step 3
+  no longer writes; it counts the duty table's rows instead.
+- hit fixed 2026-09-21 — Task 9's verify step expected twelve table
+  lines, counting a separator row that `^| ` never matches because it
+  carries no space after the pipe; measured against the file, the
+  before count is ten and the after count eleven.
 - signal 2026-09-17 — the reviewer judges a second round worth its cost
   after this wave and says it should be diff-scoped: most Important
   findings are one class, consumers no task enumerated, which a
