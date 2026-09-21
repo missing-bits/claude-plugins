@@ -559,6 +559,21 @@ document passes to plan-writing, nor a plan to implementation, while
 `held` lines stay open — an LGTM can leave the frontmatter clean while a
 ```
 
+The next sentence of the same paragraph is a seventh branch and has to
+move with it. Replace:
+
+```
+latest. Writing a plan from a spec is that same seam: the held spec
+questions are asked before the plan is written, whoever writes it.
+```
+
+with:
+
+```
+latest. Writing a plan from a judged document is that same seam: its
+held questions are asked before the plan is written, whoever writes it.
+```
+
 - [ ] **Step 5: Name the class at the three remaining branches**
 
 Replace:
@@ -671,6 +686,7 @@ grep -c 'for a spec, the consumption' $F            # expect 0
 grep -c 'spec-gate semantics' $F                    # expect 0
 grep -c 'plan-writing for a spec' $F                # expect 0
 grep -c 'origin: spec' $F                           # expect 0
+grep -c 'the held spec questions' $F                # expect 0
 ```
 
 The last three are deletion assertions: each names a branch sentence
@@ -1093,8 +1109,7 @@ with:
    absent.
 
    At the same gate, and before the integrity audit above, offer the
-   technical design when the repository is one that has code, and when
-   the `system-designer-session` skill is available to write it. A
+   technical design when the repository is one that has code. A
    declaration the project records binds and is never re-asked, in
    either direction; a session reads it from a `CLAUDE.md` note at the
    repository root, or from the file such a note points at, which is
@@ -1107,9 +1122,12 @@ with:
    skill may name the markers of its technology. A marker proves the
    repository holds code, never that this change needs decomposing, so
    the declaration is the signal and the marker only raises the
-   question. The offer reads *open the `system-designer-session` skill
-   and write the technical design?* — never *dispatch*, which names a
-   background agent here. A session may propose writing the declaration
+   question. The offer reads *open the `system-designer-session` skill,
+   when available, and write the technical design?* — never *dispatch*,
+   which names a background agent here. Where no skill covers the
+   technology the document is still written, from generic knowledge and
+   best effort: a tool that is not installed disables its suggestion,
+   never the work. A session may propose writing the declaration
    and never writes it unasked. A change may skip the document when it
    sits inside boundaries and contracts already settled and leaves the
    implementer no new responsibility split, placement, or ownership of
@@ -1121,10 +1139,11 @@ with:
 Three things ride in that block beyond the offer itself. The
 `CLAUDE.md` sentence is what makes a declaration readable — without it
 the rule says a declaration binds while no session can find one, and no
-project could ever silence the offer. The `when the
-`system-designer-session` skill is available` clause matches the
-conditional form every neighbouring step uses, because committed
-project-level rules load for people who do not have the plugin. The
+project could ever silence the offer. The `when available` clause sits
+on the skill and not on the offer: this rule's own preamble says a tool
+that is not installed disables its suggestion and never the work, and
+the spec carries a degradation path for exactly that case, so gating
+the offer on the tool would make the work vanish with it. The
 domain-marker sentence is the spec's, and had no other task.
 
 - [ ] **Step 3: Order the audit behind the technical-design offer**
@@ -1159,7 +1178,8 @@ tr -s '[:space:]' ' ' < $F | grep -c 'system-designer-session` skill and write t
 tr -s '[:space:]' ' ' < $F | grep -c 'the declaration is the signal and the marker only raises the question'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'audited as one target'   # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'from a `CLAUDE.md` note at the repository root'  # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c 'when the `system-designer-session` skill is available'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'skill, when available, and write the technical design'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'never the work'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'may name the markers of its technology'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'one offer for the pair'  # expect 1
 grep -c 'designer session' $F    # expect 0 — the glossary bans "session" for a skill
@@ -1415,7 +1435,7 @@ reads it once more as an implementer who must build from this text and has no ot
 with:
 
 ```
-reads it once more as an implementer who must build from this text, the documents audited with it, and the documents its pointers name, and has no other context
+reads it once more as an implementer who must build from this text, the documents audited with it, and the documents its `spec:` and `technical-design:` name, and has no other context
 ```
 
 - [ ] **Step 3: Write the four cases**
@@ -1541,7 +1561,7 @@ Run:
 F=plugins/working-process/agents/plan-adversary.md
 grep -c 'design document' $F                       # expect 2
 grep -c '"origin": "plan" | "spec" | "both"' $F    # expect 1
-grep -c '^### [0-9]' $F
+grep -c '^### [0-9]' $F                                 # expect 4
 ```
 
 - [ ] **Step 2: Rename the class in both sentences**
@@ -1605,7 +1625,7 @@ licenses the edit.
 Append to the generic dimensions:
 
 ```
-### 6. Coverage of the technical design's parts
+### 5. Coverage of the technical design's parts
 
 Where the plan's `technical-design:` names a document, read its Parts
 table. The plan must cover every part marked `new`, `changed` or
@@ -1637,6 +1657,7 @@ grep -c '"origin": "plan"' $F                           # expect 0
 grep -c '`spec` or `both`' $F                           # expect 0
 grep -c 'spec-origin' $F                                # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'Coverage of the technical design'  # expect 1
+grep -c '^### [0-9]' $F                                 # expect 5
 ```
 
 The two zeros are deletion assertions. A card whose prose still admits
@@ -1938,9 +1959,9 @@ Add at the top of the changelog, under its one-line preamble:
   one `integrity:` stamp on the design spec naming both.
 - `origin` on a plan-adversary finding is a list of named documents;
   `both` retires.
-- `design document` retires from every agent card and the README in
-  favour of `judged document`, the class a design spec and a technical
-  design share.
+- The class a design spec and a technical design share is named
+  `judged document` on every agent card and in the README; the phrase
+  those surfaces carried before is retired.
 ```
 
 - [ ] **Step 3: Set the dogfooding version**
@@ -2026,7 +2047,7 @@ git commit -m "chore(working-process): changelog and dogfooding version for the 
   prescription leaving the plan is delivered instead as a contract on
   how the existing blocks are filled: where a technical design exists it
   defines the interfaces, and the blocks reference its contracts rather
-  than restating them (Task 6, and the adversary's dimension 6 in Task
+  than restating them (Task 6, and the adversary's dimension 5 in Task
   15). A separate ticket earns its keep only if validation shows the
   existing block shape cannot reference a design usefully.
 
@@ -2122,9 +2143,10 @@ before any line below was written; none missed.
   stayed binary after its scope widened to three classes; license: the
   design spec, which puts technical designs under this rule; Task 5
   Step 3 rewrites both.
-- fixed 2026-09-17 — [Minor] dimension 6 named `origin` values in prose
-  while the schema three lines up emits literals; license: the schema in
-  the same task; dimension 6 writes the literals.
+- fixed 2026-09-17 — [Minor] the new coverage dimension named `origin`
+  values in prose while the schema three lines up emits literals;
+  license: the schema in the same task; the dimension writes the
+  literals. Renumbered 5 at round 2.
 - fixed 2026-09-17 — [Minor] Task 11 quotes a card sentence Task 13
   writes, an ordering dependency the plan did not state; license: the
   propagation duty on prescribed blocks, which this would breach by our
@@ -2140,8 +2162,9 @@ before any line below was written; none missed.
   delivered as a contract rather than a template change — where a
   technical design exists it defines the interfaces and the plan's
   `**Interfaces:**` blocks reference its contracts rather than restating
-  them (Task 6 Step 4, enforced by the adversary's dimension 6 in Task
-  15), with the `superpowers:writing-plans` template explicitly out of
+  them (Task 6 Step 4, enforced by the adversary's new coverage
+  dimension in Task 15), with the `superpowers:writing-plans` template
+  explicitly out of
   scope. The developer chose this over both declaring the sentence
   undelivered and editing another vendor's plugin.
 - hit fixed 2026-09-21 — Task 9's before-state step still counted
@@ -2157,3 +2180,83 @@ before any line below was written; none missed.
   propagation gate should catch once the plan names those sites. It
   expects round two to close on `concerns` or `LGTM`, and judges this
   round's leftovers insufficient to earn a third without new evidence.
+
+### 2026-09-21 — plan-adversary, fable 5.1, blocking (round 2, diff-scoped)
+
+Diff-scoped over round one's fix wave. Two Important, six Minor. Record:
+`.claude/working-process/2026-09-17-technical-design-step/plan-adversary-round-2.md`.
+Every citation was checked against what it names; none missed. The
+reviewer read the recorded deviation and declined to refute it, having
+verified in the `superpowers:writing-plans` skill that the
+`**Interfaces:**` block is indeed that plugin's.
+
+- fixed 2026-09-21 — [Important] round one's fix hung the conditional on
+  the offer rather than on the tool, so the technical design would never
+  be offered where the skill is absent and the work would vanish with
+  its tool; license: this rule's own preamble, "a tool that is not
+  installed disables its suggestion — never the work itself", and the
+  design spec's degradation path, where a document with no covering
+  skill is written from generic knowledge; the offer now fires on
+  declaration and marker alone, `when available` sits on the skill, and
+  the block says outright that the document is still written without
+  one.
+- fixed 2026-09-21 — [Minor] the backstop widened to "no judged
+  document" while the next sentence of the same paragraph stayed
+  spec-only, leaving a seventh branch one line below the sixth; license:
+  ADR 0004, as for the other six; Task 5 Step 4 extends through that
+  sentence and its verify step asserts the old wording is gone.
+- fixed 2026-09-21 — [Minor] the new coverage dimension was numbered 6
+  in a list whose last heading is 4, and the before-state count carried
+  no expected value to catch it; license: the count's own derivation
+  from the file; the dimension is 5, the before count expects 4 and the
+  after count 5, and three stale references to "dimension 6" are
+  rewritten.
+- fixed 2026-09-21 — [Minor] the rewritten auditor description said the
+  implementer lens reads "the documents its pointers name" while the
+  body two steps later excludes `revises:` — the description restating a
+  premise the body retires, which is the defect that step existed to
+  remove; license: the design spec, which narrows context to the two
+  pointers; the description names `spec:` and `technical-design:`.
+- fixed 2026-09-21 — [Minor] Task 19 wrote the retired phrase into the
+  changelog one task after Task 18's plugin-wide sweep expects zero, so
+  the sweep passed on its run and failed on a re-run, breaking the
+  plan's own Global Constraint; license: that constraint; the changelog bullet
+  names the new term and describes the old one without spelling it.
+- held — [Important] the discharge widening covers the audit arm only,
+  so with one joint offer for two documents a decline leaves undefined
+  whether the technical design's chain debt is discharged and which
+  headings are annotated; question: does declining the joint offer
+  discharge the chain debt of both documents, or only the design
+  spec's?;
+  options: (a) both, since one offer covered both and the developer
+  released both by the same act — recommended, because the alternative
+  makes one offer produce two different outcomes; (b) only the design
+  spec's, leaving the design's debt to its own later reading.
+- held — [Minor] after Task 10 names `CLAUDE.md` as the readable
+  declaration surface, the plan's "writes no declaration surface" bullet
+  describes a cost the plan itself just made avoidable, and the spec's
+  "this repository declines by declaration" has no deliverer; question:
+  does this change write this repository's own declaration, dogfooding
+  the surface it ships?; options: (a) yes, one step adding the
+  declaration to this repo's `CLAUDE.md` — recommended, since the
+  surface now exists and the alternative leaves us clicking the offer
+  away at every gate; (b) no, and the bullet is rewritten to say the
+  surface exists and this repo's declaration is deliberately a separate
+  change.
+- held — [Minor] the wave uses "the pair" for the design spec and its
+  technical design while the glossary already uses "pair offer" and
+  "pair question" for the two-arm chain-debt question, and one block
+  puts both senses two sentences apart; question: which sense keeps the
+  bare word, and what is the other called?; options: (a) mint a glossary
+  term for the document pair — `audit pair` reads best — and leave
+  "pair offer" alone, recommended because the offer sense is already
+  written into three glossary entries and a shipped rule; (b) rename the
+  offer side; (c) qualify every occurrence in prose and mint nothing.
+  This is spec-origin: the design spec is where the second sense enters.
+- signal 2026-09-21 — the reviewer judges a third round worth its cost
+  only as the confirming full-document round the plan already owes, not
+  as another diff-scoped pass. It reads both Important findings as one
+  class again — a fix pinned to the wrong noun, an extension stopped
+  halfway down a list — and expects the confirming round to close on
+  `concerns` or `LGTM`, with no material for a fourth absent new
+  evidence.
