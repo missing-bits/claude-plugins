@@ -216,13 +216,13 @@ kinds of contract, homes of state — from the **Domain expertise** duty
 the personas already carry, which has them scan and load the domain's
 skills. No new discovery convention ships with this change.
 
-A kind of part that no domain skill names is recorded in the document as
-a **vocabulary gap** — a term this change mints, kept apart from the
-review cascade's candidate gap, which is a graded and counted finding
-with a reviewer for its producer. Accumulated vocabulary gaps are either
-the specification of a `<domain>-technical-design` skill or the evidence
-that none is needed; the decision is then made on evidence rather than
-remembered.
+A kind of part, contract, or home of state that no domain skill names is
+recorded in the document as a **vocabulary gap** — a term this change
+mints, kept apart from the review cascade's candidate gap, which is a
+graded and counted finding with a reviewer for its producer. Accumulated
+vocabulary gaps are either the specification of a
+`<domain>-technical-design` skill or the evidence that none is needed;
+the decision is then made on evidence rather than remembered.
 
 The core closes the three definitions, the table columns, the contract
 entry's fields, and the four questions of the failure section. A domain
@@ -909,6 +909,13 @@ scope is the class, not the ledger's grammar.
   both senses stand close. Raised by the plan-adversary's round two
   against the plan; that plan's ledger line under its round-two heading
   points here.
+- fixed 2026-09-24 — [Minor] this spec defined a vocabulary gap as a
+  kind of part no domain skill names, while the glossary entry this
+  change minted covers kinds of part, contract, and home of state, so an
+  author following the spec would record fewer gaps than the term it
+  mints; ruling: 2026-09-24; the sentence takes the glossary's breadth.
+  Raised by the plan-adversary's round three against the plan, whose
+  round-three ledger points here.
 
 This heading takes the cross-document fix shape the lifecycle rule
 defines, which that rule scopes to a document whose loop closed at

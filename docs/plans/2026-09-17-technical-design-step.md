@@ -46,6 +46,23 @@ verification.
   (`tr -s '[:space:]' ' '`), so a phrase matches wherever a line wraps.
   Only a check anchoring something that cannot wrap — a path, a filename
   shape, a heading, a frontmatter key — is written plain.
+- **An anchor that ends mid-line runs to the line's end.** A
+  replacement whose anchor stops mid-line leaves the rest of that line
+  glued to the block's last line. Every anchor here ends at a line's
+  end, and where the original line's tail matters the replacement
+  carries it.
+- **Counting after `tr` proves existence, not occurrence.** `tr`
+  collapses a file to one line, so `grep -c` then reports 1 however
+  many times a phrase appears. Where a check must prove a block landed
+  once, it counts with `grep -o … | wc -l`, and it anchors on a phrase
+  unique to the block rather than one the file already carries.
+- **Checks are written for GNU grep and name the behaviour they need.**
+  `-H` wherever a filename prefix is filtered on, since GNU grep prints
+  none for a single named file; `-e` before any pattern that starts with
+  `-`. Run them where `grep` is not wrapped by a shell function — for
+  example `env -i PATH=/usr/bin:/bin bash --noprofile --norc` — because
+  a wrapper that resolves to a different implementation answers a
+  different question.
 - **Every step states its before value and its after value.** The before
   values in this plan were measured against the files on 2026-09-17, not
   predicted.
@@ -217,11 +234,11 @@ one from the other, and the cell is filled even then: a cell reading
 `rules/` says the convention was applied deliberately, while an empty
 one cannot be told apart from an omission.
 
-`change` takes one of `new`, `changed`, `retired` or `unchanged`. The
-set is closed and a domain adds no value to it: the column steers the
-process, so its meaning belongs to the core, and a value outside the
-set is an error the author corrects rather than a part that quietly
-escapes the plan's coverage check.
+`change` takes one value from the closed set `new | changed | retired |
+unchanged`, and a domain adds no value to it: the column steers the
+process, so its meaning belongs to the core, and a value outside the set
+is an error the author corrects rather than a part that quietly escapes
+the plan's coverage check.
 
 Tests are not a section. What verifies a contract is the contract's
 `check` column; when that check runs is the plan's business.
@@ -264,12 +281,12 @@ kinds of contract, homes of state — from the Domain expertise duty the
 personas already carry, which has them scan and load the domain's own
 skills. No discovery convention of its own ships here.
 
-A kind of part that no domain skill names is recorded in the document
-as a **vocabulary gap**: the author names the kind, writes the gap
-down, and the architect round judges the boundary, which is what it
-judges in any case. Accumulated vocabulary gaps are either the
-specification of a `<domain>-technical-design` skill or the evidence
-that none is needed.
+A kind of part, contract, or home of state that no domain skill names is
+recorded in the document as a **vocabulary gap**: the author names the
+kind, writes the gap down, and the architect round judges the boundary,
+which is what it judges in any case. Accumulated vocabulary gaps are
+either the specification of a `<domain>-technical-design` skill or the
+evidence that none is needed.
 
 Where no skill covers the technology at all, the document is written
 from generic knowledge, best effort. That degradation path is what
@@ -737,13 +754,15 @@ spec: ../specs/<file>.md   # plans only: the spec this plan implements; inline l
 with:
 
 ```
-spec: ../specs/<file>.md   # plans and technical designs: the design spec this document descends from; inline list when several
+spec: ../specs/<file>.md   # plans and technical designs: the design spec this document descends from; inline list when several, on a plan
 technical-design: ../technical-designs/<file>.md   # optional, on a design spec and on a plan: the technical design that develops this design spec
 ```
 
 - [ ] **Step 3: Write the five rules that keep the pair honest**
 
-After the field notes, add:
+The field notes are the bullets under the frontmatter example; the last
+of them ends `omitted entirely when there is no topic branch.` Add after
+that line:
 
 ```
 - `technical-design:` is optional and appears once the technical design
@@ -753,15 +772,18 @@ After the field notes, add:
   and it gives a reader holding the design spec the structure that
   develops it. The author who creates the design writes both ends in
   the same turn — the design's `spec:` and the design spec's
-  `technical-design:`. A plan keeps its own `spec:` and
-  `technical-design:`, and where it carries both they must agree with
-  the pair. One technical design per design spec.
+  `technical-design:`. A plan written from a design spec that names a
+  technical design carries that `technical-design:` as well as its
+  `spec:`, and the two name that audit pair; a plan written from a
+  design spec with no technical design carries no `technical-design:`.
+  One technical design per design spec.
 ```
 
 - [ ] **Step 4: Say what the pointer does to a plan's interface blocks**
 
 A plan naming a technical design must not redefine what that design
-already defines. Add after the five rules:
+already defines. Add after Step 3's block, whose last line is
+`  One technical design per design spec.`:
 
 ```
 - Where a plan's `technical-design:` names a document, that document
@@ -785,6 +807,8 @@ grep -c 'plans and technical designs' $F           # expect 1
 grep -c 'plans only' $F                            # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'they do not independently redefine those contracts'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'One technical design per design spec'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'carries that `technical-design:` as well as its'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'where it carries both they must agree'  # expect 0
 ```
 
 The third check is the deletion assertion: the old `plans only` comment
@@ -844,8 +868,9 @@ the bullet's real last line, `a typo fix included.`, and add after it:
 
 ```
   A design spec that names a technical design is audited with it as one
-  target — an **audit pair** — and one stamp records it. The stamp lives on the design
-  spec, names both documents and both body hashes, and the technical
+  target — an **audit pair** — and one stamp records it. The stamp
+  lives on the design spec, names both documents and both body hashes,
+  and the technical
   design carries no `integrity:` of its own — it owes the check like any
   judged document and discharges it jointly. The value takes the form
   `integrity: <date> (sha: <own-hash>; with: <file>@<their-hash>)`,
@@ -878,7 +903,7 @@ The decline path takes the same widening and a bound. Replace:
 ```
 dispatcher writes it in every case: the developer declining the gate's
 pair offer, written in the decline turn before the work that decline
-licenses begins;
+licenses begins; an integrity audit, written once its dispositions are
 ```
 
 with:
@@ -891,8 +916,14 @@ declined offer over an audit pair discharges the chain debt of both.
 What a decline never does is stand in for the audit itself: it writes
 no `integrity:` stamp, leaves every other open finding open, and closes
 no `blocking` verdict. "Do not run the audit" is a release from the
-chain debt the offer named and from nothing else;
+chain debt the offer named and from nothing else; an integrity audit,
+written once its dispositions are
 ```
+
+Both anchors in this step end at a line's end: the one above ends where
+the next anchor, `applied and before the `integrity:` stamp; …`,
+begins, so the two replacements touch disjoint lines and neither leaves
+a tail glued to the other.
 
 - [ ] **Step 5: Verify both directions**
 
@@ -923,7 +954,9 @@ git commit -m "feat(working-process): record a pair audit in one integrity stamp
   paragraph
 
 **Interfaces:**
-- Consumes: the class branches from Task 5.
+- Consumes: the class branches from Task 5. **Task 5 must land first**
+  — its Step 4 rewrites the sentence this task anchors on, so the anchor
+  below is the post-Task-5 wording and does not exist before Task 5.
 - Produces: the ordering and the pass structure Task 10's gate offer
   fires inside.
 
@@ -940,8 +973,8 @@ Expected: `0`.
 
 - [ ] **Step 2: Write the ordering and the passes**
 
-After the paragraph ending `the held spec questions are asked before the
-plan is written, whoever writes it.`, add:
+After the paragraph ending `its held questions are asked before the plan
+is written, whoever writes it.` — Task 5 Step 4's wording — add:
 
 ```
 A technical design's own consumption gate is plan-writing, the same
@@ -1026,7 +1059,7 @@ The duties are a table keyed by the edit, not a bullet list. Append a
 row after the `copied a citation out of a review report` row:
 
 ```
-| added or repointed a `spec:` or `technical-design:` pointer | both targets, and that each pointer names the document that names it; on a plan, that its `spec:` and `technical-design:` name a design spec and the design that design spec names | 9 |
+| added or repointed a `spec:` or `technical-design:` pointer | both targets, and that each pointer names the document that names it; on a plan, that where its `spec:` target names a technical design the plan names the same one — a plan missing that pointer is a hit | 9 |
 ```
 
 - [ ] **Step 4: Re-derive the two counters the row invalidates**
@@ -1072,7 +1105,7 @@ grep -c '"docs/technical-designs/\*\*"' $F      # expect 1
 grep -c '^| ' $F                                 # expect 11: header plus ten edit rows
 grep -c 'nine duties fall due' $F                # expect 1
 grep -c 'keyed by the ten edits' $F              # expect 1
-grep -c 'walks the same nine' $F                 # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'walks the same nine'  # expect 1
 grep -c 'eight duties\|the nine edits\|same eight' $F   # expect 0
 ```
 
@@ -1093,7 +1126,7 @@ git commit -m "feat(working-process): make the author check the pointer pair"
 
 **Files:**
 - Modify: `plugins/working-process/rules/workflow.md:36-56` (step 4,
-  *Spec → plan*)
+  *Spec → plan*), including the pair-offer sentence at `:43-45`
 
 **Interfaces:**
 - Consumes: the passes from Task 8.
@@ -1186,32 +1219,59 @@ with:
    Where the technical-design offer is accepted, the audit waits: the
    design is the last producer of changes to its design spec, and the
    two are then audited as one target — an audit pair. The gate makes
-   one offer for that pair rather than one per document, and the offer
+   one offer for that audit pair rather than one per document, and the
+   offer
    names both documents, so declining it releases the chain debt of the
    two it named and nothing besides. Where the audit runs instead, it
-   discharges that debt for both documents it read. The brief
+   discharges that debt for both documents it read. The other arm stays
+   per-document: a full-document architect round discharges the debt of
+   the one document it read. The brief
    confirms the auditor's two preconditions: every edit from the
 ```
 
-- [ ] **Step 4: Verify**
+- [ ] **Step 4: Name the class in the pair-offer sentence**
+
+The sentence that sends a diff-scoped chain to the pair offer still
+says "a spec". Replace:
+
+```
+   comparison. For a spec whose LGTM came from a diff-scoped chain the
+   offer takes the pair form the verdict-agent dispatch subsection
+   defines, and narrows as that definition says when the auditor is
+```
+
+with:
+
+```
+   comparison. For a judged document whose LGTM came from a diff-scoped
+   chain the offer takes the pair-offer form the verdict-agent dispatch
+   subsection defines — one pair offer for an audit pair, never one per
+   document — and narrows as that definition says when the auditor is
+```
+
+The last line ends where the original did, so `   absent. The brief`,
+Step 2's anchor, is untouched.
+
+- [ ] **Step 5: Verify**
 
 Run:
 
 ```bash
 F=plugins/working-process/rules/workflow.md
-tr -s '[:space:]' ' ' < $F | grep -c 'system-designer-session` skill and write the technical design'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'the declaration is the signal and the marker only raises the question'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'audited as one target'   # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'from a `CLAUDE.md` note at the repository root'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'skill, when available, and write the technical design'  # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c 'never the work'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -o 'from generic knowledge and best effort' | wc -l  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'may name the markers of its technology'  # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c 'one offer for that pair'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'one offer for that audit pair'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'an audit pair'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'For a judged document whose LGTM'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'For a spec whose LGTM'  # expect 0
 grep -c 'designer session' $F    # expect 0 — the glossary bans "session" for a skill
 ```
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add plugins/working-process/rules/workflow.md
@@ -1248,7 +1308,9 @@ Expected: `0`.
 
 - [ ] **Step 2: Write the authoring step**
 
-After the offer paragraph, add:
+The offer paragraph is the block Task 10 Step 2 inserted; its last line
+is `   state.`, directly above the paragraph opening `   Where the
+technical-design offer is accepted`. Add after that line:
 
 ```
    Accepted, the session opens the `system-designer-session` skill when
@@ -1260,6 +1322,9 @@ After the offer paragraph, add:
    agent is available, whose card admits any judged document dispatched
    standalone, with the propagation audit gating that dispatch as it
    gates every verdict dispatch. The plan-adversary stays on plans.
+   The plan written afterwards carries both `spec:` and
+   `technical-design:`, the second copied from its design spec, so the
+   plan-adversary always has the design to read.
 ```
 
 Both tool mentions are conditional, as every neighbouring step in this
@@ -1274,6 +1339,7 @@ Run:
 F=plugins/working-process/rules/workflow.md
 tr -s '[:space:]' ' ' < $F | grep -c 'writes both ends of the pair in the same turn'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'The plan-adversary stays on plans'   # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'the second copied from its design spec'  # expect 1
 ```
 
 - [ ] **Step 4: Commit**
@@ -1285,10 +1351,12 @@ git commit -m "feat(working-process): name the technical design's author and rev
 
 ---
 
-### Task 12: The workflow rule — the triage clause reads a list
+### Task 12: The workflow rule — the triage clause and the remaining class branches
 
 **Files:**
-- Modify: `plugins/working-process/rules/workflow.md:333-339`
+- Modify: `plugins/working-process/rules/workflow.md:333-339` (the
+  triage clause), `:169-171` (the Process directories resolved before a
+  verdict dispatch), `:526-537` (the chain-debt pair offer)
 
 **Interfaces:**
 - Consumes: `Origin` in its list form from Task 1.
@@ -1300,11 +1368,12 @@ git commit -m "feat(working-process): name the technical design's author and rev
 Run:
 
 ```bash
-sed -n '333,339p' plugins/working-process/rules/workflow.md
+grep -n -e 'A finding whose `origin` names the spec' plugins/working-process/rules/workflow.md
 ```
 
-Expected: the clause opening `- A finding whose `origin` names the spec
-is held unless a written` and carrying ``both` holds the same way`.
+Expected: one line. The measurement is by content rather than by line
+number, because Tasks 10 and 11 insert some forty lines above this
+clause and a positional `sed` would print unrelated bullets.
 
 - [ ] **Step 2: Widen the hold to the class**
 
@@ -1317,7 +1386,8 @@ Replace:
   line names in `options:` which half is fixable at once. A licensed
   spec-origin fix lands in the spec's own ledger and the plan's line
   points at it, by the cross-document clause the spec-plan-lifecycle
-  rule defines
+  rule defines — which also leaves the spec's `integrity:` stamp
+  stale, as any body edit does.
 ```
 
 with:
@@ -1330,10 +1400,76 @@ with:
   way, and its `held` line names in `options:` which part is fixable at
   once. A licensed fix lands in the ledger of the document that
   changed, and the plan's line points at it, by the cross-document
-  clause the spec-plan-lifecycle rule defines
+  clause the spec-plan-lifecycle rule defines — which also leaves the
+  design spec's `integrity:` stamp stale, as any body edit to either
+  document of an audit pair does.
 ```
 
-- [ ] **Step 3: Verify the retired value is gone**
+The anchor runs to the end of the bullet, so the replacement ends a
+sentence rather than leaving the original line's tail glued to its last
+line. The tail itself changes too: for an audit pair the stamp that
+goes stale is the design spec's, whichever document was edited.
+
+- [ ] **Step 3: Name the new directory before a verdict dispatch**
+
+Replace:
+
+```
+- Before dispatch, resolve any undecided Process directory
+  (`docs/specs/`, `docs/plans/`) so the first-create question cannot
+  interrupt the stamp turn.
+```
+
+with:
+
+```
+- Before dispatch, resolve any undecided Process directory
+  (`docs/specs/`, `docs/technical-designs/`, `docs/plans/`) so the
+  first-create question cannot interrupt the stamp turn.
+```
+
+- [ ] **Step 4: Name the class at the chain-debt pair offer**
+
+Each clause is considered on its own: the audit arm reads an audit pair
+together, while the round arm stays per-document, and the paragraph
+says both. It is rewrapped whole, since this task changes it. Replace:
+
+```
+For a spec, the consumption gate before plan-writing offers the pair as
+one question — an integrity audit or a full-document round — and never
+an offer followed by a re-offer of the option just declined. When the
+`integrity-auditor` agent is absent the offer carries the full-document
+round alone. The two arms cost differently and the offer says so: an
+audit returns material for the dispatcher to dispose of and leaves the
+verdict alone, while a full-document round on a spec is a new loop's
+first round, since the spec's LGTM already closed its loop — it mints
+its own verdict and stamps it, so a `concerns` there flips the field
+back while plan-writing waits. The full-document-round arm therefore
+blocks plan-writing; the audit arm does not, and plan-writing follows
+its dispositions.
+```
+
+with:
+
+```
+For a judged document, the consumption gate before plan-writing makes
+the pair offer as one question — an integrity audit or a full-document
+round — and never an offer followed by a re-offer of the option just
+declined. When the `integrity-auditor` agent is absent the offer
+carries the full-document round alone. For an audit pair the gate makes
+one pair offer for both documents: its audit arm reads the two
+together, while its round arm stays per-document, one architect round
+for each document it reviews. The two arms cost differently and the
+offer says so: an audit returns material for the dispatcher to dispose
+of and leaves the verdict alone, while a full-document round on a
+judged document is a new loop's first round, since that document's
+LGTM already closed its loop — it mints its own verdict and stamps it,
+so a `concerns` there flips the field back while plan-writing waits.
+The full-document-round arm therefore blocks plan-writing; the audit
+arm does not, and plan-writing follows its dispositions.
+```
+
+- [ ] **Step 5: Verify the retired value and the old branches are gone**
 
 Run:
 
@@ -1341,13 +1477,19 @@ Run:
 F=plugins/working-process/rules/workflow.md
 tr -s '[:space:]' ' ' < $F | grep -c 'names a judged document'   # expect 1
 grep -c '`both`' $F    # expect 0
+grep -cF '(`docs/specs/`, `docs/technical-designs/`, `docs/plans/`) so the' $F  # expect 1
+grep -cF '(`docs/specs/`, `docs/plans/`) so the' $F   # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c 'For a judged document, the consumption gate'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'its round arm stays per-document'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'For a spec, the consumption gate'  # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c 'round on a spec is a new loop'  # expect 0
 ```
 
 The second check is the deletion assertion: `both` retires with the
 value, and a surviving mention would send triage down a branch the
 adversary can no longer emit.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add plugins/working-process/rules/workflow.md
@@ -1653,22 +1795,25 @@ Append to the generic dimensions:
 ```
 ### 5. Coverage of the technical design's parts
 
-Where the plan's `technical-design:` names a document, read its Parts
-table. The plan must cover every part marked `new`, `changed` or
-`retired`; one part may span several tasks and one task several parts,
-and a part carried as `unchanged` context needs none. An uncovered part
-is an Important finding whose `origin` is `implementation-plan`. A `change` value
-outside `new | changed | retired | unchanged` is an Important finding
-whose `origin` is `technical-design`: the set is closed, and an unknown
-value would otherwise slip past this dimension unchecked.
+Where the plan's `technical-design:` names a document — or, failing
+that, where its design spec's does — read that document's Parts table.
+A plan whose design spec names a technical design the plan does not
+carry is itself an Important finding whose `origin` is
+`implementation-plan`. The plan must cover every part marked `new`,
+`changed` or `retired`; one part may span several tasks and one task
+several parts, and a part carried as `unchanged` context needs none. An
+uncovered part is an Important finding whose `origin` is
+`implementation-plan`. A `change` value outside
+`new | changed | retired | unchanged` is an Important finding whose
+`origin` is `technical-design`: the set is closed, and an unknown value
+would otherwise slip past this dimension unchecked.
 
-The `**Interfaces:**` blocks are read here too. Where the plan names a
-technical design, those blocks reference the contracts that design
+The `**Interfaces:**` blocks are read here too. Where a technical design
+applies to the plan, those blocks reference the contracts that design
 defines and say which part of one each task implements or changes; a
 block that redefines a contract independently is an Important finding
 whose `origin` is `implementation-plan`. Where no technical design is
-named, the existing plan convention stands and this paragraph is
-silent.
+named, the existing plan convention stands and this paragraph is silent.
 ```
 
 - [ ] **Step 6: Verify**
@@ -1683,6 +1828,7 @@ grep -c '"origin": "plan"' $F                           # expect 0
 grep -c '`spec` or `both`' $F                           # expect 0
 grep -c 'spec-origin' $F                                # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'Coverage of the technical design'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "or, failing that, where its design spec's does"  # expect 1
 grep -c '^### [0-9]' $F                                 # expect 5
 ```
 
@@ -1744,10 +1890,11 @@ reads.
 
 A plan is scoped differently and must not be read as half a pair. Its
 `spec:` names a design spec, which never names the plan back; what is
-checked there is that its `spec:` and `technical-design:` name a design
-spec and the technical design that design spec names. A plan whose two
-pointers disagree with the pair is a hit; a plan whose `spec:` is not
-named back is not.
+checked there starts from the design spec: where the plan's `spec:`
+target names a technical design, the plan must name the same one. A
+plan that omits the pointer or names a different design is a hit — the
+check reads the design spec's pointer, so a missing field is found
+rather than skipped. A plan whose `spec:` is not named back is not.
 ```
 
 The second paragraph is what keeps this duty from firing on every plan
@@ -1765,6 +1912,7 @@ grep -c 'a spec or plan' $F                                # expect 0
 grep -c '^### 9\. The pointer pair' $F                     # expect 1
 grep -c '^### [0-9]' $F                                    # expect 9
 tr -s '[:space:]' ' ' < $F | grep -c 'is not named back is not'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "the check reads the design spec's pointer"  # expect 1
 ```
 
 The count of `###` headings must equal the duty count the
@@ -1832,7 +1980,8 @@ git commit -m "feat(working-process): cover technical designs in the status pass
   (the architect paraphrase), `:47-49` (the adversary paraphrase),
   `:53-54` (the propagation-auditor paraphrase), `:66-68` (the
   integrity-auditor paraphrase), `:133` (the `integrity` field row),
-  `:184-192` (the Rules payload enumeration and its count)
+  `:184-192` (the Rules payload enumeration and its count), `:243-244`
+  (the directories the plugin creates)
 
 **Interfaces:**
 - Consumes: every earlier task. This is the reader-facing summary and it
@@ -1888,15 +2037,55 @@ and append to its `Meaning` cell:
 
 - [ ] **Step 5: Retire the premises in three more paraphrases**
 
-Replace `handed a spec it declines toward the `architect`` with
-`handed a judged document it declines toward the `architect``.
+Each replacement covers whole lines and is rewrapped, so no line runs
+past 72 columns and nothing is glued to the next line. Replace:
 
-Replace `the mechanical audit of a spec or` with
-`the mechanical audit of a design spec, a technical design or a`.
+```
+  plans (plans only; handed a spec it declines toward the `architect`
+  agent). Generic failure-mode dimensions live here; domain specifics
+```
 
-Replace `the document as an implementer who must build from that text
-alone.` with `the document as an implementer who must build from that
-text and whatever was audited with it.`
+with:
+
+```
+  plans (plans only; handed a judged document it declines toward the
+  `architect` agent). Generic failure-mode dimensions live here; domain
+  specifics
+```
+
+Replace:
+
+```
+- **`propagation-auditor` agent** — the mechanical audit of a spec or
+  plan: it parses every changed interface to enumerate its consumers,
+```
+
+with:
+
+```
+- **`propagation-auditor` agent** — the mechanical audit of a design
+  spec, a technical design or a plan: it parses every changed interface
+  to enumerate its consumers,
+```
+
+Replace:
+
+```
+  document, read on a fresh context: the document against itself, then
+  the document as an implementer who must build from that text alone.
+```
+
+with:
+
+```
+  document, read on a fresh context: the document against itself, then
+  the document as an implementer who must build from that text and
+  whatever was audited with it.
+```
+
+The first two leave a short line where the original paragraph resumes;
+that is the cost of an anchor ending at a line's end, and it keeps every
+line within 72 columns.
 
 - [ ] **Step 6: Re-count the Rules payload, which Task 2 changed**
 
@@ -1923,16 +2112,38 @@ edit that triggers them (`propagation-duties.md`, loaded while a design
 spec, technical design, plan or domain document is open), and the
 ```
 
-- [ ] **Step 7: Verify, and sweep the plugin for the retired phrase**
+- [ ] **Step 7: Re-count the directories the plugin creates**
+
+Task 11 has the plugin's own step write into `docs/technical-designs/`,
+and Task 3 makes it a Process directory with the first-create question,
+so the README's count goes stale. Replace:
+
+```
+This plugin creates two directories in a project repo: `docs/domain/`
+(glossary + ADRs) and `docs/code-review/` (Review reports — one per
+```
+
+with:
+
+```
+This plugin creates three directories in a project repo:
+`docs/domain/` (glossary + ADRs), `docs/technical-designs/` (technical
+designs, written when a project accepts the offer) and
+`docs/code-review/` (Review reports — one per
+```
+
+- [ ] **Step 8: Verify, and sweep the plugin for the retired phrase**
 
 Run:
 
 ```bash
-grep -rc 'design document' plugins/working-process/ | grep -v ':0$'
+grep -rcH 'design document' plugins/working-process/ | grep -v ':0$'
 grep -c 'seven rule files' plugins/working-process/README.md   # expect 1
 grep -c 'six rule files' plugins/working-process/README.md     # expect 0
 ls plugins/working-process/rules/*.md | wc -l                  # expect 7
-grep -rc 'a spec or plan\|build from that text alone\|handed a spec' \
+grep -c 'creates three directories' plugins/working-process/README.md   # expect 1
+grep -c 'creates two directories' plugins/working-process/README.md     # expect 0
+grep -rcH 'a spec or plan\|build from that text alone\|handed a spec' \
   plugins/working-process/README.md | grep -v ':0$'
 ```
 
@@ -1941,7 +2152,7 @@ count and the directory listing must agree — a README that counts its
 own payload wrong is the failure this check exists for. The first and
 last lines are the Global Constraint's closing sweep.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add plugins/working-process/README.md
@@ -2051,8 +2262,8 @@ Add at the top of the changelog, under its one-line preamble:
 - `origin` on a plan-adversary finding is a list of named documents;
   `both` retires.
 - The class a design spec and a technical design share is named
-  `judged document` on every agent card and in the README; the phrase
-  those surfaces carried before is retired.
+  `judged document` on the three agent cards that carried the old
+  phrase and in the README; that phrase is retired.
 ```
 
 - [ ] **Step 3: Set the dogfooding version**
@@ -2351,3 +2562,132 @@ verified in the `superpowers:writing-plans` skill that the
   halfway down a list — and expects the confirming round to close on
   `concerns` or `LGTM`, with no material for a fourth absent new
   evidence.
+
+### 2026-09-24 — plan-adversary, fable 5.1, blocking (round 3, full-document)
+
+The confirming round the plan owed. Five Important, eleven Minor.
+Record:
+`.claude/working-process/2026-09-17-technical-design-step/plan-adversary-round-3.md`.
+The reviewer went past reading and simulated execution: it applied every
+replacement of Tasks 2–19 in numbering order to copies of the files and
+ran each published after-check. That found a class no before-state
+measurement could see — a task whose anchor an earlier task destroys,
+and checks that fail on the plan's own replacement text. Fifteen of
+sixteen citations held against the files; the sixteenth is the grep
+finding below, and it held too, in a different environment.
+
+- fixed 2026-09-24 — [Important] Task 8 anchored its insertion on a
+  sentence Task 5 Step 4 rewrites, and Task 5's own verify step asserts
+  that sentence is gone, so in numbering order the anchor no longer
+  existed when Task 8 ran; license: Task 5's deletion assertion, which
+  fixes what text survives; Task 8 anchors on Task 5's wording and its
+  Interfaces block states that Task 5 lands first.
+- fixed 2026-09-24 — [Important] Task 2's check for the closed `change`
+  set grepped a spelling the prescribed rule text never used; license:
+  the design spec's spelling, `new | changed | retired | unchanged`,
+  which the adversary's dimension 5 also quotes; the rule text takes
+  that spelling, so rule, spec, card and check agree.
+- fixed 2026-09-24 — [Important] Task 9 checked `walks the same nine`
+  with a plain grep while its replacement wraps between "same" and
+  "nine"; license: the plan's own Global Constraint that prose checks
+  normalize whitespace first; the check runs through `tr`.
+- fixed 2026-09-24 — [Important] Task 10 still checked the pre-round-2
+  wording beside the check that replaced it, so it could not pass, and
+  an implementer satisfying it would have deleted the conditional round
+  two fixed as Important; license: the deletion the round-two fix
+  implied and never made; the stale check is deleted. Third time in this
+  work a superseded assertion survived its replacement.
+- fixed 2026-09-24 — [Important] nothing wrote `technical-design:` onto
+  a plan and neither duty 9 nor dimension 5 read its absence, so a plan
+  written from an audit pair that omitted the pointer escaped the
+  coverage check; ruling: 2026-09-24; a plan written from a design spec
+  that names a technical design carries that pointer, the plan-writing
+  step writes it, and both checks start from the design spec's pointer
+  — so an omitted field is found rather than skipped. A plan from a
+  design spec with no technical design carries none.
+- fixed 2026-09-24 — [Minor] the `never the work` check was vacuous, the
+  phrase already standing in the file, and every `tr | grep -c` check
+  proves existence rather than occurrence; license: the check's own
+  purpose; it counts a phrase unique to the block with `grep -o … | wc
+  -l`, and a Global Constraint now says when to count that way.
+- fixed 2026-09-24 — [Minor] an 86-character line in Task 7's block, and
+  two anchors ending mid-line that would glue the original line's tail
+  onto the block's last line; license: the plan's 72-column constraint;
+  the line is rewrapped, both anchors run to their line's end, and a
+  Global Constraint states the rule. Task 12's tail also carried a
+  binary — the stamp going stale is the design spec's for either
+  document of an audit pair — and says so now.
+- fixed 2026-09-24 — [Minor] Task 12 measured its before-state by line
+  number, and Tasks 10 and 11 insert some forty lines above it;
+  license: the measurement's purpose; it greps the clause's content,
+  with `-e` since the clause opens with a dash.
+- fixed 2026-09-24 — [Minor] the reviewer found that `grep -rc` on a
+  single named file prints a bare count, so the sweep's `grep -v ':0$'`
+  filter would not suppress it; ruling: 2026-09-24; both results are
+  true — GNU grep 3.11 prints a bare `0`, while this machine's `grep` is
+  a shell function resolving to ugrep 7.8.4, which prints the prefix.
+  The dispatcher's first reading, that the finding was refuted, was
+  wrong: it measured a different implementation. The sweeps take `-H`,
+  and a Global Constraint requires every check to name the behaviour it
+  needs and to run where `grep` is not wrapped.
+- fixed 2026-09-24 — [Minor] three spec/plan binaries in `workflow.md`
+  stayed untouched — the pair-offer sentence, the Process directories
+  resolved before a verdict dispatch, and the chain-debt pair offer;
+  ruling: 2026-09-24; each is widened on its own terms, Task 10 taking
+  the first and Task 12 the other two, with deletion assertions. The
+  audit-pair exception is kept: the audit arm reads the pair together,
+  while the round arm stays per-document.
+- fixed 2026-09-24 — [Minor] the README's "creates two directories" went
+  stale once the plugin's own step writes into `docs/technical-designs/`;
+  license: the count's own derivation; Task 18 gains a step and a check
+  for "three".
+- fixed 2026-09-24 — [Minor] the changelog said the class is named on
+  every agent card, where three of six take it; license: the count;
+  the bullet names the three cards.
+- fixed 2026-09-24 — [Minor] the rule defined a vocabulary gap as a kind
+  of part only, narrower than the glossary term it mints; ruling:
+  2026-09-24; the rule and the design spec both take the glossary's
+  breadth — kinds of part, contract, and home of state. The spec change
+  is recorded in that spec's ledger under
+  `### 2026-09-24 — fix from docs/plans/2026-09-17-technical-design-step.md`.
+- fixed 2026-09-24 — [Minor] the widened `spec:` comment admitted an
+  inline list on a technical design, which may name one design spec;
+  license: the plan's own "one technical design per design spec"; the
+  list clause is scoped to plans.
+- fixed 2026-09-24 — [Minor] the one-offer sentence dropped the spec's
+  clause that the round arm stays per-document; license: the design
+  spec's own sentence; Task 10's block carries it.
+- fixed 2026-09-24 — [Minor] "one offer for that pair" used the bare
+  word in the document sense three sentences from "the pair form" in the
+  question sense; license: the Audit pair entry's `_Avoid_`; the block
+  writes "audit pair" and its check follows.
+After the wave, the dispatcher ran the sequential simulation the round
+had shown was missing: every edit of Tasks 2–20 applied in numbering
+order to copies of the files, each task's after-checks run in a clean
+shell under GNU grep, and every edit-bearing step the parser could not
+resolve reported rather than skipped. Its first run skipped one step
+silently anyway — a filter meant for verify steps matched "validate"
+inside "invalidates" — which was caught and fixed before any result was
+trusted. The final run: 91 of 91 after-checks pass, no step
+unsimulated, both sweeps silent, the plugin validates, and 64 of 65
+non-zero checks fail on the pre-plan files, the sixty-fifth being a
+deliberate invariant. The simulation also found these:
+
+- hit fixed 2026-09-24 — three anchors named a position rather than
+  text: "After the field notes", "after the five rules", and "After the
+  offer paragraph", the last pointing at a block another task inserts;
+  each now quotes the exact line it follows.
+- hit fixed 2026-09-24 — Task 18 Step 5 nested backticks inside inline
+  code, which Markdown cannot render and which left "handed a spec"
+  standing after the task ran; its three edits are block replaces over
+  whole lines.
+- hit fixed 2026-09-24 — this wave's own edits left lines past 72
+  columns in Task 2's rule text and Task 15's new dimension; each
+  paragraph is rewrapped whole.
+- signal 2026-09-24 — the reviewer judges a further round worth its cost
+  only after this wave and only as a full-document round, since a plan's
+  loop cannot close on a diff-scoped one. It reads the five Important
+  findings as three classes — checks never run on their own replacement
+  text, an anchor an earlier task destroys, and one contract gap — and
+  expects the next full-document round to close on `LGTM` or
+  `concerns`.
