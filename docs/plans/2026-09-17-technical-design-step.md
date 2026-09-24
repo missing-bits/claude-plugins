@@ -83,10 +83,10 @@ term that already exists, and it commits nothing.
 - Verify: `docs/domain/adr/0004-ceremonies-follow-the-reader.md`
 
 **Interfaces:**
-- Produces: the seven glossary terms every later task's prose leans on —
+- Produces: the glossary terms every later task's prose leans on —
   `Design spec`, `Judged document`, `Technical design`, `Part`,
-  `Contract`, `Vocabulary gap`, and `Origin` in its list form — plus ADR
-  0004 as the citable decision behind the class.
+  `Contract`, `Vocabulary gap`, `Audit pair`, and `Origin` in its list
+  form — plus ADR 0004 as the citable decision behind the class.
 
 - [ ] **Step 1: Confirm every term the spec mints exists**
 
@@ -94,7 +94,8 @@ Run:
 
 ```bash
 for t in "Design spec" "Judged document" "Technical design" "Part" \
-         "Contract" "Vocabulary gap" "Origin" "Consumption gate"; do
+         "Contract" "Vocabulary gap" "Origin" "Consumption gate" \
+         "Audit pair"; do
   printf '%-18s %s\n' "$t" \
     "$(grep -c "^\*\*${t}\*\*:" docs/domain/glossary.md)"
 done
@@ -653,7 +654,7 @@ After the offers paragraph, add:
 A technical design is a judged document and takes the design spec's side
 of every branch in this rule: the same fields, the same
 consumption-gate semantics for a stale stamp, the same owner for an
-unresolved verdict, and the same pair offered against chain debt. It is
+unresolved verdict, and the same pair offer against chain debt. It is
 not grilled — grilling stress-tests terminology against the project
 glossary, and a technical design mints none: its vocabulary comes from
 its design spec, which was grilled, and from the domain's own skills.
@@ -662,8 +663,9 @@ those skills where one exists and recorded as a vocabulary gap where
 none does.
 
 One mechanism it shares rather than owns: the integrity check is due on
-it like any judged document, and one audit of the pair discharges it, so
-the `integrity:` stamp sits on the design spec and names both.
+it like any judged document, and one audit of the audit pair — the
+design spec together with the technical design it names — discharges it,
+so the `integrity:` stamp sits on the design spec and names both.
 ```
 
 Without that last sentence this block and Task 7's contradict each
@@ -842,7 +844,7 @@ the bullet's real last line, `a typo fix included.`, and add after it:
 
 ```
   A design spec that names a technical design is audited with it as one
-  target, and one stamp records the pair. The stamp lives on the design
+  target — an **audit pair** — and one stamp records it. The stamp lives on the design
   spec, names both documents and both body hashes, and the technical
   design carries no `integrity:` of its own — it owes the check like any
   judged document and discharges it jointly. The value takes the form
@@ -865,10 +867,31 @@ applied and before the `integrity:` stamp; and any later full-document
 with:
 
 ```
-applied and before the `integrity:` stamp — and where that audit read a
-pair, it discharges the debt of both documents it read, annotating each
-document's own unannotated diff-scoped `LGTM` headings; and any later
-full-document
+applied and before the `integrity:` stamp — and where that audit read an
+audit pair, it discharges the debt of both documents it read, annotating
+each document's own unannotated diff-scoped `LGTM` headings; and any
+later full-document
+```
+
+The decline path takes the same widening and a bound. Replace:
+
+```
+dispatcher writes it in every case: the developer declining the gate's
+pair offer, written in the decline turn before the work that decline
+licenses begins;
+```
+
+with:
+
+```
+dispatcher writes it in every case: the developer declining the gate's
+pair offer, written in the decline turn before the work that decline
+licenses begins, and written for every document that offer named — a
+declined offer over an audit pair discharges the chain debt of both.
+What a decline never does is stand in for the audit itself: it writes
+no `integrity:` stamp, leaves every other open finding open, and closes
+no `blocking` verdict. "Do not run the audit" is a release from the
+chain debt the offer named and from nothing else;
 ```
 
 - [ ] **Step 5: Verify both directions**
@@ -1162,9 +1185,11 @@ with:
 ```
    Where the technical-design offer is accepted, the audit waits: the
    design is the last producer of changes to its design spec, and the
-   two are then audited as one target. The gate makes one offer for the
-   pair rather than one per document, and where the audit discharges
-   chain debt it discharges it for both documents it read. The brief
+   two are then audited as one target — an audit pair. The gate makes
+   one offer for that pair rather than one per document, and the offer
+   names both documents, so declining it releases the chain debt of the
+   two it named and nothing besides. Where the audit runs instead, it
+   discharges that debt for both documents it read. The brief
    confirms the auditor's two preconditions: every edit from the
 ```
 
@@ -1181,7 +1206,8 @@ tr -s '[:space:]' ' ' < $F | grep -c 'from a `CLAUDE.md` note at the repository 
 tr -s '[:space:]' ' ' < $F | grep -c 'skill, when available, and write the technical design'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'never the work'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'may name the markers of its technology'  # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c 'one offer for the pair'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'one offer for that pair'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'an audit pair'  # expect 1
 grep -c 'designer session' $F    # expect 0 — the glossary bans "session" for a skill
 ```
 
@@ -1924,7 +1950,72 @@ git commit -m "docs(working-process): put the technical design in the README flo
 
 ---
 
-### Task 19: Changelog and the dogfooding version
+### Task 19: This repository's own declaration
+
+Task 10 gives the declaration a readable surface, so this repository can
+use it. Its product is prose, but `.claude-plugin/plugin.json`,
+`.claude-plugin/marketplace.json` and the CI workflows are files a
+platform reads to deploy it, so the marker test reaches it and without a
+declaration the offer fires at every consumption gate. Writing the
+declaration here also exercises the surface the plugin ships — the one
+thing this repository can dogfood about a document class it will never
+write.
+
+**Files:**
+- Modify: `CLAUDE.md` (repository root)
+
+**Interfaces:**
+- Consumes: the declaration surface from Task 10.
+- Produces: nothing later tasks read. This is the plugin's contract used
+  on its own repository, not part of the payload.
+
+- [ ] **Step 1: Measure the before state**
+
+Run:
+
+```bash
+grep -c 'technical design' CLAUDE.md   # expect 0
+grep -n '^## ' CLAUDE.md
+```
+
+- [ ] **Step 2: Write the declaration**
+
+Add a section after `## Worktrees and topic branches`:
+
+```markdown
+## Technical designs
+
+This repository does not get the technical-design offer by default. Its
+product is prose: a part's name is its path and behaviour is already the
+shape of the contract, so a technical design here would restate the
+design spec and the plan. The declaration switches the default offer
+off; it is not a ban. Ask for a technical design explicitly and the
+step runs as it would anywhere else.
+```
+
+- [ ] **Step 3: Verify the declaration reads as a switch, not a ban**
+
+Run:
+
+```bash
+grep -c 'does not get the technical-design offer by default' CLAUDE.md  # expect 1
+grep -c 'it is not a ban' CLAUDE.md                                     # expect 1
+```
+
+Both matter. A declaration a later session reads as a prohibition would
+refuse work the developer asked for, which is the failure the round-two
+finding about conditionals was about, one level up.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add CLAUDE.md
+git commit -m "docs: declare that this repository skips the technical-design offer"
+```
+
+---
+
+### Task 20: Changelog and the dogfooding version
 
 **Files:**
 - Modify: `plugins/working-process/CHANGELOG.md`
@@ -2020,13 +2111,13 @@ git commit -m "chore(working-process): changelog and dogfooding version for the 
 
 - **The dogfooding version uses a counter the versioning rule does not
   yet carry.** `.claude/rules/plugin-versioning.md` describes
-  `X.Y.Z-dev.<discriminator>` with no counter, while Task 19 mints
+  `X.Y.Z-dev.<discriminator>` with no counter, while Task 20 mints
   `0.18.0-dev.1.technical-design-step`. The counter is the developer's
   decision of 2026-09-17 — `n` separates the successive dogfood releases
   of successive topics and increments on `develop`, which is the owner
   the counter lacked when an earlier attempt at it was declined. The
   rule's amendment is deliberately not part of this branch, so the
-  divergence stands until that separate change lands. Task 19 follows
+  divergence stands until that separate change lands. Task 20 follows
   the decision, not the current rule text.
 
 ## What this plan does not do
@@ -2035,10 +2126,11 @@ git commit -m "chore(working-process): changelog and dogfooding version for the 
   The plugin ships the contract; this repo's product is prose and it
   declines the offer. The first project to accept the offer creates the
   directory, and the first-create question fires there.
-- It writes no declaration surface. Where a project records the
-  declaration is deferred by the spec, so this repo keeps receiving the
-  offer at every consumption gate until that question is settled. That
-  is a known cost, recorded in the spec.
+- It does not settle where a project's standing process answers live.
+  The spec defers that question; Task 10 names the shape available
+  today — a `CLAUDE.md` note, or a file it points at — and Task 19 uses
+  it for this repository. When the wider question is settled, the
+  declaration moves with every other standing answer.
 - It renames no existing spec to `-spec.md`, and adds no
   `<domain>-technical-design` skill. Both are out of scope in the spec.
 - **It changes no plan template.** The `**Interfaces:**` block shape
@@ -2217,42 +2309,41 @@ verified in the `superpowers:writing-plans` skill that the
   premise the body retires, which is the defect that step existed to
   remove; license: the design spec, which narrows context to the two
   pointers; the description names `spec:` and `technical-design:`.
-- fixed 2026-09-21 — [Minor] Task 19 wrote the retired phrase into the
-  changelog one task after Task 18's plugin-wide sweep expects zero, so
-  the sweep passed on its run and failed on a re-run, breaking the
-  plan's own Global Constraint; license: that constraint; the changelog bullet
+- fixed 2026-09-21 — [Minor] the changelog task wrote the retired phrase
+  one task after Task 18's plugin-wide sweep expects zero, so the sweep
+  passed on its run and failed on a re-run, breaking the plan's own
+  Global Constraint; license: that constraint; the changelog bullet
   names the new term and describes the old one without spelling it.
-- held — [Important] the discharge widening covers the audit arm only,
-  so with one joint offer for two documents a decline leaves undefined
-  whether the technical design's chain debt is discharged and which
-  headings are annotated; question: does declining the joint offer
-  discharge the chain debt of both documents, or only the design
-  spec's?;
-  options: (a) both, since one offer covered both and the developer
-  released both by the same act — recommended, because the alternative
-  makes one offer produce two different outcomes; (b) only the design
-  spec's, leaving the design's debt to its own later reading.
-- held — [Minor] after Task 10 names `CLAUDE.md` as the readable
-  declaration surface, the plan's "writes no declaration surface" bullet
-  describes a cost the plan itself just made avoidable, and the spec's
-  "this repository declines by declaration" has no deliverer; question:
-  does this change write this repository's own declaration, dogfooding
-  the surface it ships?; options: (a) yes, one step adding the
-  declaration to this repo's `CLAUDE.md` — recommended, since the
-  surface now exists and the alternative leaves us clicking the offer
-  away at every gate; (b) no, and the bullet is rewritten to say the
-  surface exists and this repo's declaration is deliberately a separate
-  change.
-- held — [Minor] the wave uses "the pair" for the design spec and its
-  technical design while the glossary already uses "pair offer" and
-  "pair question" for the two-arm chain-debt question, and one block
-  puts both senses two sentences apart; question: which sense keeps the
-  bare word, and what is the other called?; options: (a) mint a glossary
-  term for the document pair — `audit pair` reads best — and leave
-  "pair offer" alone, recommended because the offer sense is already
-  written into three glossary entries and a shipped rule; (b) rename the
-  offer side; (c) qualify every occurrence in prose and mint nothing.
-  This is spec-origin: the design spec is where the second sense enters.
+- fixed 2026-09-24 — [Important] the discharge widening covered the
+  audit arm only, so with one joint offer for two documents a decline
+  left undefined whether the technical design's chain debt was
+  discharged and which headings were annotated; ruling: 2026-09-24,
+  variant (a); a declined offer over an audit pair discharges the chain
+  debt of both documents the offer named, the offer names them so a
+  reader can see what the decline settles, and the same clause bounds
+  it — a decline writes no `integrity:` stamp, leaves every other open
+  finding open and closes no `blocking` verdict, so "do not run the
+  audit" never reads as a wider release.
+- fixed 2026-09-24 — [Minor] after Task 10 named `CLAUDE.md` as the
+  readable declaration surface, the plan's "writes no declaration
+  surface" bullet described a cost the plan itself had just made
+  avoidable, and the spec's "this repository declines by declaration"
+  had no deliverer; ruling: 2026-09-24, variant (a); new Task 19 writes
+  this repository's declaration and the changelog task moves to 20. The
+  declaration switches the default offer off rather than banning the
+  document — a session asked for a technical design here still writes
+  one — and its verify step asserts both halves, since a declaration a
+  later session read as a prohibition would refuse work the developer
+  asked for.
+- fixed 2026-09-24 — [Minor] "the pair" named both the two documents and
+  the two-armed chain-debt question, two sentences apart in one block;
+  ruling: 2026-09-24, variant (a); the glossary mints **Audit pair** for
+  the document sense, prose writes the full name wherever both senses
+  stand close, and the term's own entry says so. The glossary and the
+  design spec's Parts row changed for this, so the line lands in the
+  design spec's ledger too, under
+  `### 2026-09-24 — fix from docs/plans/2026-09-17-technical-design-step.md`,
+  which leaves that spec's `integrity:` stamp stale by design.
 - signal 2026-09-21 — the reviewer judges a third round worth its cost
   only as the confirming full-document round the plan already owes, not
   as another diff-scoped pass. It reads both Important findings as one

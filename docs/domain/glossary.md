@@ -228,6 +228,14 @@ contracts between them, and the state they keep — written between the
 design spec and the plan, and read next by the plan-writer.
 _Avoid_: detailed design
 
+**Audit pair**:
+A design spec and the technical design it names, audited together as one
+target, with one integrity record on the design spec identifying both
+documents and their body hashes. Where both senses of "pair" stand close
+together, write the full name — an audit pair is two documents, a pair
+offer is the two-armed question a diff-scoped chain earns.
+_Avoid_: pair (bare, where a pair offer is also in view), document pair
+
 **Vocabulary gap**:
 A kind of part, contract, or home of state that no domain skill
 available to the author names, recorded in the technical design where it

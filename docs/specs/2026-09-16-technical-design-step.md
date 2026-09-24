@@ -366,7 +366,7 @@ with its own audit, and it buys nothing this change needs.
 | `propagation-auditor` card | agent card | changed | the document class it audits, today "a spec or plan"; the pointer pair among what it checks | — |
 | `integrity-auditor` card | agent card | changed | which documents are its target in each case, what it may read as context, the second lens's premise, and the coverage tell's shape for a joint target | which gaps are structural |
 | `plan-adversary` card | agent card | changed | `origin` as a list of named documents; the coverage dimension | the document's contents |
-| glossary | reference document | changed | `Part`, `Contract`, `Technical design`, `Judged document`, `Design spec`, `Vocabulary gap`, `Origin` rewritten as a list of named documents, and the `Consumption gate` entry's count and ordering | — |
+| glossary | reference document | changed | `Part`, `Contract`, `Technical design`, `Judged document`, `Design spec`, `Vocabulary gap`, `Audit pair`, `Origin` rewritten as a list of named documents, and the `Consumption gate` entry's count and ordering | — |
 | `architect` card | agent card | changed | the class name in what it accepts | its duties |
 | ADR 0004 | reference document | new | why a class owes the ceremonies it owes | the ceremonies themselves |
 | plugin README | reference document | changed | the class name where it paraphrases the architect's card; the `integrity:` value shape in the field table | the two pointer fields, which are not stamped |
@@ -898,3 +898,28 @@ dispositions, and the lifecycle rule says only that an audit's
 dispositions land as edits plus the stamp, which leaves a `held` line
 and a gate line homeless. Recorded here, not fixed here — the spec's
 scope is the class, not the ledger's grammar.
+
+### 2026-09-24 — fix from docs/plans/2026-09-17-technical-design-step.md
+
+- fixed 2026-09-24 — [Minor] the bare word "pair" named both this
+  change's two documents and the two-armed chain-debt question, and one
+  block put the senses two sentences apart; ruling: 2026-09-24; the
+  glossary mints **Audit pair** for the document sense, the Parts
+  table's glossary row names it, and prose writes the full name wherever
+  both senses stand close. Raised by the plan-adversary's round two
+  against the plan; that plan's ledger line under its round-two heading
+  points here.
+
+This heading takes the cross-document fix shape the lifecycle rule
+defines, which that rule scopes to a document whose loop closed at
+`LGTM`. This one closed at `concerns (resolved)`, which has the
+resolution annotation instead — an annotation for closing a verdict, not
+for a fix arriving later from another document's review. The shape is
+the closest honest fit and the gap is worth naming: it carries no
+ordinal and no verdict, so it stays out of the round cap and out of the
+Unfinished-work anchors, which is what this record needs.
+
+The `integrity:` stamp above is stale as of this edit, by the rule that
+any body change re-arms it. That is the designed consequence of a
+licensed spec-origin fix, not an oversight: the stamp certifies the body
+it was given, and this body has changed.
