@@ -17,7 +17,7 @@ base: develop
 
 **Goal:** Ship the contract for a third document class — the technical
 design — across the `working-process` plugin: one new path-scoped rule,
-six changed rules and skills, five changed agent cards and the plugin
+six changed rules and skills, four changed agent cards and the plugin
 README, with the glossary and ADR 0004 already landed during spec
 authoring.
 
@@ -1167,9 +1167,10 @@ with:
    At the same gate, and before the integrity audit above, offer the
    technical design when the repository is one that has code. A
    declaration the project records binds and is never re-asked, in
-   either direction; a session reads it from a `CLAUDE.md` note at the
-   repository root, or from the file such a note points at, which is
-   the shape available until a standing home for a project's process
+   either direction; a session reads it from the project instructions
+   Claude Code loads at session start — a `CLAUDE.md` at the repository
+   root or in `.claude/` — or from the file such a note points at, which
+   is the shape available until a standing home for a project's process
    answers exists. Without a declaration, a repository carrying a
    toolchain manifest — a file a language or platform toolchain reads
    to build, test or deploy it — gets the offer at every consumption
@@ -1260,7 +1261,8 @@ Run:
 F=plugins/working-process/rules/workflow.md
 tr -s '[:space:]' ' ' < $F | grep -c 'the declaration is the signal and the marker only raises the question'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'audited as one target'   # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c 'from a `CLAUDE.md` note at the repository root'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'root or in `.claude/`'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'note at the repository root, or from'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'skill, when available, and write the technical design'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -o 'from generic knowledge and best effort' | wc -l  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'may name the markers of its technology'  # expect 1
@@ -2684,6 +2686,21 @@ deliberate invariant. The simulation also found these:
 - hit fixed 2026-09-24 — this wave's own edits left lines past 72
   columns in Task 2's rule text and Task 15's new dimension; each
   paragraph is rewrapped whole.
+The propagation gate before round four found one more, and the
+developer's question about which `CLAUDE.md` files load found another:
+
+- hit fixed 2026-09-24 — the Goal counted five changed agent cards where
+  the tasks change four — the architect, integrity-auditor,
+  plan-adversary and propagation-auditor cards; Task 9 edits a rule; the
+  Goal says four.
+- hit fixed 2026-09-24 — Task 10 had a session read the declaration
+  from a `CLAUDE.md` "at the repository root", narrower than the design
+  spec, which names a `CLAUDE.md` note without a location. Measured the
+  same day: Claude Code loads `.claude/CLAUDE.md` at session start as
+  well, alone or beside a root `CLAUDE.md`, so a project keeping its
+  instructions there would have a declaration the rule's literal
+  wording never names. The sentence names both files, and its check
+  asserts the root-only wording is gone.
 - signal 2026-09-24 — the reviewer judges a further round worth its cost
   only after this wave and only as a full-document round, since a plan's
   loop cannot close on a diff-scoped one. It reads the five Important
