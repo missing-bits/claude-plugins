@@ -314,7 +314,8 @@ owes the check like any judged document and discharges it jointly, which
 ADR 0004's principle allows, since the class decides what a document
 owes and not how many dispatches discharge it.
 
-    integrity: 2026-09-16 (sha: abc1234; with: x-technical-design.md@def5678)
+    technical-design: ../technical-designs/x-technical-design.md
+    integrity: 2026-09-16 (sha: abc1234; with: ../technical-designs/x-technical-design.md@def5678)
 
 Changing either document unsettles the pair, and the gate recomputes
 both hashes to see it. The two pointers are what identify the pair, so
@@ -916,6 +917,14 @@ scope is the class, not the ledger's grammar.
   mints; ruling: 2026-09-24; the sentence takes the glossary's breadth.
   Raised by the plan-adversary's round three against the plan, whose
   round-three ledger points here.
+- fixed 2026-09-25 — [Minor] the worked stamp example carried a bare
+  filename after `with:`, while the lifecycle rule the plan prescribes
+  defines that value from the design spec's pointer, so the two gave one
+  string two derivations; ruling: 2026-09-25; `with:` carries exactly
+  the value of the design spec's `technical-design:` pointer, read
+  relative to the design spec's directory, and the example now shows
+  both lines. Raised by the plan-adversary's round four against the
+  plan.
 
 This heading takes the cross-document fix shape the lifecycle rule
 defines, which that rule scopes to a document whose loop closed at

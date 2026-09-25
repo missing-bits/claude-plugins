@@ -874,8 +874,11 @@ the bullet's real last line, `a typo fix included.`, and add after it:
   design carries no `integrity:` of its own — it owes the check like any
   judged document and discharges it jointly. The value takes the form
   `integrity: <date> (sha: <own-hash>; with: <file>@<their-hash>)`,
-  where `<file>` is the technical design's path relative to the design
-  spec. Changing either document unsettles the pair, and the gate
+  where `<file>` is exactly the value the design spec's
+  `technical-design:` pointer carries, read relative to the design
+  spec's directory, so the gate can check that the recorded value still
+  equals the pointer. Changing either document unsettles the pair, and
+  the gate
   recomputes both hashes to see it; because the two pointers are what
   identify the pair, an added, removed or repointed `technical-design:`
   unsettles it too.
@@ -935,6 +938,8 @@ grep -c 'with: <file>@<their-hash>' $F     # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'carries no `integrity:` of its own'   # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'recomputes both hashes'   # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'both documents it read'   # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "exactly the value the design spec's"  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "the technical design's path relative to the design"  # expect 0
 ```
 
 - [ ] **Step 6: Commit**
@@ -1059,7 +1064,7 @@ The duties are a table keyed by the edit, not a bullet list. Append a
 row after the `copied a citation out of a review report` row:
 
 ```
-| added or repointed a `spec:` or `technical-design:` pointer | both targets, and that each pointer names the document that names it; on a plan, that where its `spec:` target names a technical design the plan names the same one — a plan missing that pointer is a hit | 9 |
+| added or repointed a `spec:` or `technical-design:` pointer | both targets; on a design spec or a technical design, that each pointer names the document that names it; on a plan, that where its `spec:` target names a technical design the plan names the same one — a plan missing that pointer is a hit | 9 |
 ```
 
 - [ ] **Step 4: Re-derive the two counters the row invalidates**
@@ -1104,6 +1109,7 @@ F=plugins/working-process/rules/propagation-duties.md
 grep -c '"docs/technical-designs/\*\*"' $F      # expect 1
 grep -c '^| ' $F                                 # expect 11: header plus ten edit rows
 grep -c 'nine duties fall due' $F                # expect 1
+grep -c 'on a design spec or a technical design, that each pointer' $F  # expect 1
 grep -c 'keyed by the ten edits' $F              # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'walks the same nine'  # expect 1
 grep -c 'eight duties\|the nine edits\|same eight' $F   # expect 0
@@ -1126,7 +1132,8 @@ git commit -m "feat(working-process): make the author check the pointer pair"
 
 **Files:**
 - Modify: `plugins/working-process/rules/workflow.md:36-56` (step 4,
-  *Spec → plan*), including the pair-offer sentence at `:43-45`
+  *Spec → plan*), including the audit sentence at `:38-41` and the
+  pair-offer sentence at `:43-45`
 
 **Interfaces:**
 - Consumes: the passes from Task 8.
@@ -1253,7 +1260,35 @@ with:
 The last line ends where the original did, so `   absent. The brief`,
 Step 2's anchor, is untouched.
 
-- [ ] **Step 5: Verify**
+- [ ] **Step 5: Let the audit sentence read the pair**
+
+Two lines above, the step still describes one document and one hash,
+while Task 7 has the gate recompute both hashes of an audit pair. A
+reader of this always-on rule alone would recompute the design spec's
+hash, see a match, and never offer the audit after the technical design
+changed. Replace:
+
+```
+   is available: a fresh-context read of the whole spec, returning
+   defects and the questions an implementer would have to ask. The
+   offer fires unless a standing `integrity:` stamp still matches the
+   spec's recomputed body hash — a match means the standing stamp
+```
+
+with:
+
+```
+   is available: a fresh-context read of the whole design spec, and of
+   its technical design where it names one, returning defects and the
+   questions an implementer would have to ask. The offer fires unless a
+   standing `integrity:` stamp still matches the recomputed body hash of
+   every document the stamp names — a match means the standing stamp
+```
+
+The last line ends as the original did, so the next line and Step 4's
+anchor stay untouched.
+
+- [ ] **Step 6: Verify**
 
 Run:
 
@@ -1270,10 +1305,12 @@ tr -s '[:space:]' ' ' < $F | grep -c 'one offer for that audit pair'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'an audit pair'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'For a judged document whose LGTM'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'For a spec whose LGTM'  # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c 'every document the stamp names'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "spec's recomputed body hash"  # expect 0
 grep -c 'designer session' $F    # expect 0 — the glossary bans "session" for a skill
 ```
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add plugins/working-process/rules/workflow.md
@@ -1316,8 +1353,10 @@ technical-design offer is accepted`. Add after that line:
 
 ```
    Accepted, the session opens the `system-designer-session` skill when
-   it is available and writes the document to `docs/technical-designs/`,
-   following the technical-design rule that loads there. It writes both
+   it is available and reads the technical-design rule, installed beside
+   this one, before drafting — a path-scoped rule loads only when a
+   matching file is read, and none exists yet — then writes the document
+   to `docs/technical-designs/` following it. It writes both
    ends of the pair in the same turn — the design's `spec:` and the
    design spec's `technical-design:` — so no audit ever meets a
    half-written pair. The reviewer is the `architect` agent when that
@@ -1342,6 +1381,8 @@ F=plugins/working-process/rules/workflow.md
 tr -s '[:space:]' ' ' < $F | grep -c 'writes both ends of the pair in the same turn'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'The plan-adversary stays on plans'   # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'the second copied from its design spec'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'a path-scoped rule loads only when a matching file is read'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'following the technical-design rule that loads there'  # expect 0
 ```
 
 - [ ] **Step 4: Commit**
@@ -1715,7 +1756,8 @@ git commit -m "feat(working-process): audit a design spec and its technical desi
 
 **Files:**
 - Modify: `plugins/working-process/agents/plan-adversary.md:46`, `:49`,
-  `:51-55`, `:102`, and the generic dimensions list at `:57-70`
+  `:51-55`, `:102`, the generic dimensions list at `:57-70`, the
+  section heading at `:44` and the description at `:3`
 
 **Interfaces:**
 - Consumes: the triage clause from Task 12 and the `change` set from
@@ -1751,6 +1793,31 @@ implementation plan)? Decline
 
 Replace `to a design document and would misfire as findings.` with
 `to a judged document and would misfire as findings.`
+
+The section's heading and the card's description state the same
+binary. Replace:
+
+```
+## Specs: decline
+```
+
+with:
+
+```
+## Judged documents: decline
+```
+
+and, in the `description:` field, replace:
+
+```
+Specs are out of scope — design review of a spec belongs to the architect agent.
+```
+
+with:
+
+```
+Judged documents — a design spec or a technical design — are out of scope; design review of one belongs to the architect agent.
+```
 
 - [ ] **Step 3: Make `origin` a list**
 
@@ -1829,6 +1896,9 @@ grep -c '"origin": \["design-spec"' $F                  # expect 1
 grep -c '"origin": "plan"' $F                           # expect 0
 grep -c '`spec` or `both`' $F                           # expect 0
 grep -c 'spec-origin' $F                                # expect 0
+grep -c '^## Judged documents: decline' $F              # expect 1
+grep -c '^## Specs: decline' $F                         # expect 0
+grep -c 'Specs are out of scope' $F                     # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'Coverage of the technical design'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c "or, failing that, where its design spec's does"  # expect 1
 grep -c '^### [0-9]' $F                                 # expect 5
@@ -1851,7 +1921,7 @@ git commit -m "feat(working-process): read origin as a list and cover the design
 
 **Files:**
 - Modify: `plugins/working-process/agents/propagation-auditor.md:3`
-  (description) and its duty list
+  (description), duty 5 at `:112-116`, and its duty list
 
 **Interfaces:**
 - Consumes: the pointers from Task 6.
@@ -1903,7 +1973,38 @@ The second paragraph is what keeps this duty from firing on every plan
 in the repository: the reciprocity check belongs to the design spec and
 its technical design alone.
 
-- [ ] **Step 4: Verify**
+- [ ] **Step 4: Give duty 5 the sources of each document class**
+
+Duty 5 diffs a document's names against "the spec" and reports the rest
+as spec gaps. A technical design mints part names by design, so read
+literally the gate before every architect round on one would return a
+hit per minted name. Replace:
+
+```
+Diff the names one document uses against the names its sources define. A
+name the plan uses that the spec never defines is a spec gap, not a plan
+error — the invention is the symptom, and report it as the gap it is.
+```
+
+with:
+
+```
+Diff the names one document uses against the names its sources define —
+for a plan, the design spec and the technical design its `spec:` and
+`technical-design:` name; for a technical design, its design spec and
+the domain skills available to its author. A name a plan uses that no
+source defines is a gap in the source, not a plan error — the invention
+is the symptom, and report it as the gap it is. A technical design mints
+part names by design: a name it introduces as its own, or records as a
+vocabulary gap, is never a hit. A name it presents as coming from its
+design spec or a domain skill is checked at that source like any other —
+the exception covers what the design mints, never the names it borrows.
+```
+
+The last sentence is the boundary: without it the minting exception
+would switch off name checking for a whole document class.
+
+- [ ] **Step 5: Verify**
 
 Run:
 
@@ -1915,13 +2016,15 @@ grep -c '^### 9\. The pointer pair' $F                     # expect 1
 grep -c '^### [0-9]' $F                                    # expect 9
 tr -s '[:space:]' ' ' < $F | grep -c 'is not named back is not'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c "the check reads the design spec's pointer"  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'never the names it borrows'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'A name the plan uses that the spec never defines'  # expect 0
 ```
 
 The count of `###` headings must equal the duty count the
 propagation-duties rule now states, or the rule's last column points at
 a duty that does not exist.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add plugins/working-process/agents/propagation-auditor.md
@@ -2025,16 +2128,17 @@ Replace `or any design document dispatched standalone; verdict` with
 
 - [ ] **Step 4: Extend the `integrity` field row**
 
-Replace the `Values` cell `` `<ISO date> (sha: <short-hash>)` `` with
+The row is replaced whole, since both its value and its meaning change
+and a table row is one line. Replace:
 
 ```
-`<ISO date> (sha: <short-hash>[; with: <file>@<short-hash>])`
+| `integrity` | `<ISO date> (sha: <short-hash>)` | last integrity audit — the date for the reader, the body hash for the check; the dispatcher writes it once the audit's dispositions land, and a spec's consumption gate recomputes the hash to decide whether the stamp still holds |
 ```
 
-and append to its `Meaning` cell:
+with:
 
 ```
-; where a design spec names a technical design the two are audited as one target and one stamp records the pair, on the design spec
+| `integrity` | `<ISO date> (sha: <short-hash>[; with: <file>@<short-hash>])` | last integrity audit — the date for the reader, the body hash for the check; the dispatcher writes it once the audit's dispositions land, and a judged document's consumption gate recomputes the hash of every document the stamp names to decide whether the stamp still holds; where a design spec names a technical design the two are audited as one target — an audit pair — and one stamp on the design spec records both |
 ```
 
 - [ ] **Step 5: Retire the premises in three more paraphrases**
@@ -2145,6 +2249,8 @@ grep -c 'six rule files' plugins/working-process/README.md     # expect 0
 ls plugins/working-process/rules/*.md | wc -l                  # expect 7
 grep -c 'creates three directories' plugins/working-process/README.md   # expect 1
 grep -c 'creates two directories' plugins/working-process/README.md     # expect 0
+grep -c 'recomputes the hash of every document the stamp names' plugins/working-process/README.md  # expect 1
+grep -c "a spec's consumption gate recomputes the hash" plugins/working-process/README.md  # expect 0
 grep -rcH 'a spec or plan\|build from that text alone\|handed a spec' \
   plugins/working-process/README.md | grep -v ':0$'
 ```
@@ -2332,6 +2438,15 @@ git commit -m "chore(working-process): changelog and dogfooding version for the 
   rule's amendment is deliberately not part of this branch, so the
   divergence stands until that separate change lands. Task 20 follows
   the decision, not the current rule text.
+
+- **A plan's `technical-design:` pointer is mandatory, not
+  conditional.** The design spec says a plan keeps its own `spec:` and
+  `technical-design:` and that, where it carries both, they must agree
+  with the pair. The developer's ruling of 2026-09-24 sharpens that: a
+  plan written from a design spec that names a technical design carries
+  that pointer, and its absence is a hit, found from the design spec's
+  side (Tasks 6, 9, 11, 15 and 16). Where this plan and the spec's
+  sentence differ on that point, the plan follows the ruling.
 
 ## What this plan does not do
 
@@ -2708,3 +2823,73 @@ developer's question about which `CLAUDE.md` files load found another:
   text, an anchor an earlier task destroys, and one contract gap — and
   expects the next full-document round to close on `LGTM` or
   `concerns`.
+
+### 2026-09-24 — plan-adversary, fable 5.1, blocking (round 4, full-document)
+
+Full-document read. Two Important, five Minor. Record:
+`.claude/working-process/2026-09-17-technical-design-step/plan-adversary-round-4.md`.
+Every citation held against the files it names; the one platform fact —
+that a path-scoped rule loads when a matching file is read — the
+reviewer checked against Claude Code's documentation rather than recall.
+
+- fixed 2026-09-25 — [Important] the propagation auditor's duty 5 read
+  every name against "the spec" and reported the rest as spec gaps,
+  while a technical design mints part names by design, so the gate
+  before each architect round on one would have returned a hit per
+  minted name; ruling: 2026-09-25; Task 16 gains a step giving duty 5
+  each class's sources — for a plan, both documents its pointers name;
+  for a technical design, its design spec and the domain skills — with
+  minted part names and recorded vocabulary gaps exempt. The developer
+  set the boundary: names a design presents as coming from its design
+  spec or a domain skill are still checked at that source, so the
+  exemption never switches name checking off for the class.
+- fixed 2026-09-25 — [Important] the authoring step relied on "the
+  technical-design rule that loads there", while a path-scoped rule
+  loads only when a matching file is read and none exists at the moment
+  of writing; license: the design spec's own sentence that the session
+  reads the path-scoped rule once the offer is accepted and it sits down
+  to write; Task 11 has the session read the rule before drafting.
+- fixed 2026-09-25 — [Minor] the always-on audit sentence and the
+  README's `integrity` row still described one hash and one document
+  after Task 7 made the gate recompute both hashes of an audit pair;
+  license: Task 7's own statement; Task 10 gains a step widening the
+  sentence — which also read "the whole spec" where an audit pair has
+  two documents — and Task 18 replaces the row whole, each with a
+  deletion assertion.
+- fixed 2026-09-25 — [Minor] the plan-adversary card's heading and
+  description kept "Specs" over a paragraph that now declines judged
+  documents; license: ADR 0004, where a branch names its class rather
+  than a filename; Task 15 renames both, with deletion assertions.
+- fixed 2026-09-25 — [Minor] the duty table's new row demanded
+  reciprocity of every pointer, without the plan carve-out the card
+  states; license: the card's own clause under the 2026-09-24 ruling;
+  the row scopes reciprocity to a design spec or a technical design.
+- fixed 2026-09-25 — [Minor] `<file>` in `with:` was defined as a
+  path relative to the design spec while the spec's example carried a
+  bare filename; ruling: 2026-09-25; `<file>` is exactly the value of
+  the design spec's `technical-design:` pointer, read relative to the
+  design spec's directory, so the gate can check the recorded value
+  against the pointer. The spec's example is corrected in that spec's
+  ledger under
+  `### 2026-09-24 — fix from docs/plans/2026-09-17-technical-design-step.md`.
+- fixed 2026-09-25 — [Minor] the 2026-09-24 ruling that makes a plan's
+  `technical-design:` pointer mandatory sharpens the design spec's
+  conditional, yet nothing recorded it while the Global Constraints say
+  the spec wins where the two disagree; license: those constraints,
+  which name the Deviations section as the one place a departure is
+  recorded; a Deviations bullet cites the ruling.
+The simulation, rebuilt in a fresh session from its memory entry, ran
+after the wave: 106 of 106 after-checks pass, no step unsimulated, 71 of
+72 non-zero checks fail on the pre-plan files (the seventy-second the
+deliberate invariant), no new line past 72 columns, both sweeps silent,
+the plugin validates. The rebuild first lost one anchor shape the old
+parser knew, reported the step as unsimulated rather than passing it,
+and was fixed before the result was read. A simulation proves the edits
+land and their checks pass; it does not find a consumer no task names,
+which is what this round's two Important findings were.
+
+- signal 2026-09-24 — the reviewer judges another round worth its cost
+  only after this wave and only as a full-document round, and expects it
+  to close on `LGTM` or `concerns`. It reads both Important findings as
+  a class earlier rounds met too: a consumer no task enumerated, and a
+  delivery mechanism assumed rather than read.
