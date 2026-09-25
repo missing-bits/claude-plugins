@@ -175,7 +175,7 @@ an entry resolving, from the plan's own directory, to that same
 document. A missing entry, an extra one, or one resolving elsewhere is
 a hit — the check reads each design spec's pointer, so a missing field
 is found rather than skipped. A plan whose `spec:` is not named back is
-not.
+not a hit: no design spec names its plans.
 
 ## Output
 

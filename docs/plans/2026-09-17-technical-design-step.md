@@ -2815,16 +2815,19 @@ git commit -m "chore(working-process): changelog and dogfooding version for the 
   and 16). Where this plan and the spec's sentence differ, the plan
   follows the rulings.
 
-- **The technical-design rule words two component mentions
+- **The technical-design rule words three component mentions
   conditionally where the design spec states them plainly.** The spec
   says the author takes vocabulary from "the Domain expertise duty the
-  personas already carry" and that "the architect round judges the
-  boundary". The spec describes a design; the rule Task 2 writes is a
-  committed project-level rule that loads for people without the
-  plugin, and the repository's plugin-authoring rule requires skill and
-  agent mentions in such text to be conditional. The rule says "when the
-  working-process plugin is installed" and "when that agent is
-  available"; the design is unchanged.
+  personas already carry", that "the architect round judges the
+  boundary", and that the Cuts not taken section is "the material the
+  architect grades". The spec describes a design; the rule Task 2
+  writes is a committed project-level rule that loads for people
+  without the plugin, and the repository's plugin-authoring rule
+  requires skill and agent mentions in such text to be conditional.
+  The rule says "when the working-process plugin is installed" and,
+  twice, "when that agent is available"; the design is unchanged.
+  Task 2 dropped the third clause instead of wording it conditionally;
+  the implementation's final review restored it.
 - **The grilling-session skill is edited though the spec's Parts table
   names no row for it.** It carries a copy of the flow line the README
   carries, and once Task 18 changes one copy the two would disagree, so
@@ -2853,6 +2856,14 @@ git commit -m "chore(working-process): changelog and dogfooding version for the 
   validation is a separate, open step the developer owns. Completing
   this plan's tasks shows the contract landed; it claims nothing about
   whether the step earns its cost.
+- **It gives the `system-designer-session` skill no hand-off to the
+  technical design.** The workflow rule names the skill as the author,
+  and it is the always-on rule that tells the session to read the
+  technical-design rule — which carries the skeleton — and to write to
+  `docs/technical-designs/`. The skill's own Handing off list does not
+  mention the step, so a session that opens the skill from its trigger
+  phrase learns of it only from the workflow rule. The final review
+  found the gap; a hand-off bullet in the skill is owed and left open.
 - It renames no existing spec to `-spec.md`, and adds no
   `<domain>-technical-design` skill. Both are out of scope in the spec.
 - **It changes no plan template.** The `**Interfaces:**` block shape
@@ -3593,3 +3604,53 @@ developer's ruling closes the loop at `concerns (resolved 2026-09-25)`:
 the verdict stays what the reviewer returned, and every finding of all
 eight rounds and of the independent review is disposed above.
 
+### 2026-09-25 — fix from the implementation's final review
+
+The subagent-driven implementation ran each task against its own
+review and its tree against the simulation, then a whole-branch review
+(fable 5.1, `With fixes`). The developer ruled on its findings on
+2026-09-25; the fixes land in one commit.
+
+- fixed 2026-09-25 — [Important] the plan-adversary card's dimension 5
+  read `origin` as a scalar, "whose `origin` is …", at four sites while
+  the schema makes it a list; ruling: 2026-09-25; all four say "names",
+  departing from Task 15's prescribed text.
+- fixed 2026-09-25 — [Minor] the glossary's Origin entry held only a
+  finding from the design spec, narrower than the triage rule Task 12
+  widened; ruling: 2026-09-25; it holds a finding from any judged
+  document.
+- fixed 2026-09-25 — [Minor] the glossary's Consumption gate entry named
+  plan-writing for a spec alone; ruling: 2026-09-25; it names both
+  judged documents and says what the gate precedes for each class.
+- fixed 2026-09-25 — [Minor] the workflow's triage bullet said "which
+  part is fixable", colliding with the canonical Part; ruling:
+  2026-09-25; it says "which named document".
+- fixed 2026-09-25 — [Minor] the workflow's authoring block ended
+  "following it", where "it" read as the document; ruling: 2026-09-25;
+  it says "following that rule".
+- fixed 2026-09-25 — [Minor] the propagation auditor's duty 9 ended on
+  an elided predicate, "is not named back is not"; ruling: 2026-09-25;
+  it says "is not a hit" and why.
+- fixed 2026-09-25 — [Minor] the technical-design rule's section 6
+  dropped the spec's "the material the architect grades" without a
+  record; ruling: 2026-09-25; the clause is restored, conditionally, and
+  the Deviations bullet on conditional mentions counts three.
+- declined 2026-09-25 — [Minor] the `system-designer-session` skill
+  carries no hand-off to the technical design; ruling: 2026-09-25; the
+  plan stands because the workflow rule already carries the instruction
+  and the pointer to the skeleton, and the gap is recorded under *What
+  this plan does not do*.
+
+Corrected after implementation: the simulation paragraphs of rounds
+four to eight each say "no step unsimulated", and each is wrong. Task
+14 Step 5 ends "and extend the sentence below it:", a shape that is
+neither a replacement nor an insertion; the simulator applied nothing
+for it and reported nothing. Every after-check still passed, because
+none of them reads the extended sentence. The implementation caught it:
+each task's tree was byte-compared with the simulator's snapshot of
+that task, and Task 14's differed by exactly that sentence. The
+implementer had applied the step as written. The snapshots of Tasks 14
+to 20 were patched with the sentence, and every task from 14 on then
+matched byte for byte. That comparison, each task's own verify checks
+and Task 20's width check are what was re-verified; the counts the
+round paragraphs report are left as run.

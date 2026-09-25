@@ -97,21 +97,20 @@ Read the Parts table of every technical design the plan's design
 specs name, reaching each through the plan's `technical-design:`
 entries or, where an entry is missing, through the design spec's own
 pointer. A missing or extra entry is itself an Important finding whose
-`origin` is `implementation-plan`. The plan must cover every part
-marked `new`,
-`changed` or `retired`; one part may span several tasks and one task
-several parts, and a part carried as `unchanged` context needs none. An
-uncovered part is an Important finding whose `origin` is
-`implementation-plan`. A `change` value outside
+`origin` names `implementation-plan`. The plan must cover every part
+marked `new`, `changed` or `retired`; one part may span several tasks
+and one task several parts, and a part carried as `unchanged` context
+needs none. An uncovered part is an Important finding whose `origin`
+names `implementation-plan`. A `change` value outside
 `new | changed | retired | unchanged` is an Important finding whose
-`origin` is `technical-design`: the set is closed, and an unknown value
-would otherwise slip past this dimension unchecked.
+`origin` names `technical-design`: the set is closed, and an unknown
+value would otherwise slip past this dimension unchecked.
 
 The `**Interfaces:**` blocks are read here too. Where a technical design
 applies to the plan, those blocks reference the contracts that design
 defines and say which part of one each task implements or changes; a
 block that redefines a contract independently is an Important finding
-whose `origin` is `implementation-plan`. Where no technical design is
+whose `origin` names `implementation-plan`. Where no technical design is
 named, the existing plan convention stands and this paragraph is silent.
 
 ## Output

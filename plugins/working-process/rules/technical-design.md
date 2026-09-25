@@ -27,7 +27,7 @@ location, the name is the path and the design spec carries it.
 | 3 | Contracts | required | `producer → consumer \| crosses \| guarantee \| breaks when \| check`; a flow crossing three or more parts in fixed order becomes a numbered sequence |
 | 4 | State | conditional | `record \| home \| written by \| read by \| lifecycle \| visible through` |
 | 5 | Failure and repetition | conditional | what happens when a step does not finish, runs twice, runs beside another, or finds the other side absent |
-| 6 | Cuts not taken | conditional | one line per rejected division and its reason |
+| 6 | Cuts not taken | conditional | one line per rejected division and its reason — the material the architect grades, when that agent is available |
 | 7–8 | Open questions, Review rounds | from the spec-plan-lifecycle rule | as a design spec and a plan carry them today |
 
 Three sections are required because only those three are never empty,

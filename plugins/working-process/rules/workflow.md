@@ -83,7 +83,7 @@ disables its suggestion — never the work itself.
    it is available and reads the technical-design rule, installed beside
    this one, before drafting — a path-scoped rule loads only when a
    matching file is read, and none exists yet — then writes the document
-   to `docs/technical-designs/` following it. It writes both
+   to `docs/technical-designs/` following that rule. It writes both
    ends of the pair in the same turn — the design's `spec:` and the
    design spec's `technical-design:` — so no audit ever meets a
    half-written pair. The reviewer is the `architect` agent when that
@@ -400,9 +400,9 @@ decision. Consequences the loop states outright:
   technical design — is held unless a written decision licenses the
   edit, since changing either from inside a plan review is design work.
   `origin` is a list, so a finding naming more than one holds the same
-  way, and its `held` line names in `options:` which part is fixable at
-  once. A licensed fix lands in the ledger of the document that
-  changed, and the plan's line points at it, by the cross-document
+  way, and its `held` line names in `options:` which named document is
+  fixable at once. A licensed fix lands in the ledger of the document
+  that changed, and the plan's line points at it, by the cross-document
   clause the spec-plan-lifecycle rule defines — which also leaves the
   design spec's `integrity:` stamp stale, as any body edit to either
   document of an audit pair does.

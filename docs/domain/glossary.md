@@ -137,9 +137,10 @@ _Avoid_: severity tier
 **Origin**:
 The documents a review finding traces to, as a list naming one or more
 of the process's document classes — named by the reviewer that found it
-rather than derived at triage. A finding originating in the design spec
-is held unless a written decision licenses the edit, since editing one
-from inside a plan review is design work.
+rather than derived at triage. A finding originating in a judged
+document — a design spec or a technical design — is held unless a
+written decision licenses the edit, since editing one from inside a
+plan review is design work.
 _Avoid_: owner (for a document), source, `both`
 
 **Rule tag**:
@@ -317,10 +318,12 @@ _Avoid_: sub-tier record
 
 **Consumption gate**:
 The workflow step at which a document's review verdict is about to be
-relied on as the basis of further work — plan-writing for a spec,
-implementation for a plan. Five things fire or come due there: the
-re-review offer on a fallback-recorded verdict, the integrity audit
-offered when a document's body, or that of the document audited with it,
+relied on as the basis of further work: for a judged document — a
+design spec or a technical design — the gate precedes plan-writing; for
+a plan, it precedes implementation. Five things fire or come due
+there: the re-review offer on a fallback-recorded verdict, the
+integrity audit offered when a document's body, or that of the
+document audited with it,
 no longer matches its stamp, the pair question a diff-scoped chain earns, the chain debt
 itself, and the offer of a technical design. Only one ordering is fixed:
 writing the technical design and applying its review dispositions
