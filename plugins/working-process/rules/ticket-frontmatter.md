@@ -11,7 +11,8 @@ GitLab, or anything else; the field is always `ticket`.
 
 ## Field sets
 
-- Specs and plans (`docs/specs/`, `docs/plans/`): `ticket` + `date` +
+- Design specs, technical designs and plans (`docs/specs/`,
+  `docs/technical-designs/`, `docs/plans/`): `ticket` + `date` +
   `status` + the process and branch fields — details in the
   spec-plan-lifecycle rule.
 - Review reports (`docs/code-review/`): the review-reports rule's
@@ -51,7 +52,8 @@ GitLab, or anything else; the field is always `ticket`.
 
 For a NEW document: branch name (`feature/ABC-123-...`) → conversation
 context → ask the developer once; no answer means `none`. Never ask twice
-for one unit of work — a plan inherits its spec's ticket, and artifacts
+for one unit of work — a technical design and a plan inherit their
+design spec's ticket, and artifacts
 of the same session reuse the established value. The branch naming
 convention that produces the names this order reads is the workflow
 rule's, which is where a branch is cut — before any `docs/` file of that
