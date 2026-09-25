@@ -22,7 +22,8 @@ adversary: LGTM     # optional: latest plan-adversary verdict (LGTM | concerns |
 architect-fallback: <model> (degraded <date>)   # optional: verdict above produced below the prescribed tier (adversary-fallback: for plans)
 integrity: <ISO date> (sha: <short-hash>)   # optional: date of the last integrity audit, plus the body hash it certifies
 revises: ./<file>.md   # optional: documents this one departs from; inline list when several
-spec: ../specs/<file>.md   # plans only: the spec this plan implements; inline list when several
+spec: ../specs/<file>.md   # plans and technical designs: the design spec this document descends from; inline list when several, on a plan
+technical-design: ../technical-designs/<file>.md   # optional: on a design spec, the technical design that develops it; on a plan, the technical design of each design spec it descends from that has one — inline list when several, each path relative to the plan
 branch: feature/ABC-123-short-name   # optional: topic branch of the work
 base: master        # optional: branch the topic branch was cut from
 ---
@@ -115,6 +116,30 @@ base: master        # optional: branch the topic branch was cut from
   placeholders (as above) so they never match the list below.
 - `branch` and `base` appear once the topic branch exists — never guessed
   up front, omitted entirely when there is no topic branch.
+- `technical-design:` is optional and appears once the technical design
+  exists, so its absence means there is none rather than one nobody
+  linked. On a design spec it is new in kind: every other pointer
+  records where a document came from, while this one names a document
+  written later, and it gives a reader holding the design spec the
+  structure that develops it. The author who creates the design writes
+  both ends in
+  the same turn — the design's `spec:` and the design spec's
+  `technical-design:`. A plan's `technical-design:` names, for every
+  design spec its `spec:` names that has a technical design, that
+  technical design — an inline list when several, each entry the same
+  document the design spec's own pointer names, its path written
+  relative to the plan's directory rather than copied. A design spec
+  with no technical design contributes no entry, so a plan from specs
+  `a` and `b`, where only `a` names a design, carries that one design.
+  One technical design per design spec.
+- Where a plan's `technical-design:` names documents, those documents
+  define the interfaces. The plan's `**Interfaces:**` blocks reference
+  the contracts they define and say which part of one each task
+  implements or changes; they do not independently redefine those
+  contracts. Where a plan names no technical design, the existing plan
+  convention stands unchanged. This binds how the blocks are filled and
+  changes no plan template — the template belongs to the tool that
+  writes plans.
 
 ## Finding what revises a document
 
