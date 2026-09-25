@@ -79,6 +79,23 @@ disables its suggestion — never the work itself.
    implementer no new responsibility split, placement, or ownership of
    state.
 
+   Accepted, the session opens the `system-designer-session` skill when
+   it is available and reads the technical-design rule, installed beside
+   this one, before drafting — a path-scoped rule loads only when a
+   matching file is read, and none exists yet — then writes the document
+   to `docs/technical-designs/` following it. It writes both
+   ends of the pair in the same turn — the design's `spec:` and the
+   design spec's `technical-design:` — so no audit ever meets a
+   half-written pair. The reviewer is the `architect` agent when that
+   agent is available, whose card admits any judged document dispatched
+   standalone, with the propagation audit gating that dispatch as it
+   gates every verdict dispatch. The plan-adversary stays on plans.
+   The plan written afterwards carries, beside its `spec:`, a
+   `technical-design:` entry for every design spec it descends from that
+   names a technical design — the same document, its path rewritten
+   relative to the plan's own directory — so the plan-adversary always
+   has each design to read.
+
    Where the technical-design offer is accepted, the audit waits: the
    design is the last producer of changes to its design spec, and the
    two are then audited as one target — an audit pair. The gate makes
