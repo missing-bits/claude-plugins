@@ -1,12 +1,14 @@
 ---
 paths:
   - "docs/specs/**"
+  - "docs/technical-designs/**"
   - "docs/plans/**"
 ---
 
-# Specs and plans — frontmatter and lifecycle
+# Judged documents and plans — frontmatter and lifecycle
 
-Specs live in `docs/specs/`, plans in `docs/plans/`. Both open with a
+Design specs live in `docs/specs/`, technical designs in
+`docs/technical-designs/`, plans in `docs/plans/`. All three open with a
 YAML frontmatter block:
 
 ```yaml
@@ -71,8 +73,9 @@ base: master        # optional: branch the topic branch was cut from
   when the developer deliberately dispatched below the prescribed tier
   before any refusal. A dispatch at the prescribed tier gets no field.
 - Both tokens carry a re-review offer at the document's next consumption
-  gate — before plan-writing for a spec, before implementation for a
-  plan. Accepted: a fresh round at the prescribed tier replaces the
+  gate — before plan-writing for a judged document, before
+  implementation for a plan. Accepted: a fresh round at the prescribed
+  tier replaces the
   verdict and removes the field (a fresh round that is itself below the
   prescribed tier refreshes the field's date instead, and the offer
   re-arms at the same gate). Declined: the field gains `, waived <date>`.
@@ -97,10 +100,12 @@ base: master        # optional: branch the topic branch was cut from
   its last edit, and that answer is a comparison rather than a clock. A
   recomputed hash differing from the stamped one means unaudited, same-day
   edits included; any change re-arms the stamp, a typo fix included.
-- A spec's consumption gate owns the recomputation: before plan-writing it
+- A judged document's consumption gate owns the recomputation: before
+  plan-writing it
   recomputes the body hash and compares, a match meaning the standing
   stamp satisfies the gate and a mismatch firing the audit offer. Those
-  are spec-gate semantics — on a plan, a permitted target on explicit
+  are judged-document semantics — on a plan, a permitted target on
+  explicit
   request, the stamp is informational and goes stale silently. Staleness
   joins no Unfinished-work entry: it is a recomputation, not a grep.
 - Verdict agents self-report the model they ran on (family plus version);
@@ -227,7 +232,8 @@ their condition holds.
 Every terminal line carries exactly one authorizer.
 
 A fix one review licenses can land in a document other than the
-reviewed one — a plan review's finding carrying `origin: spec` is the
+reviewed one — a plan review's finding whose `origin` names a judged
+document is the
 case the workflow rule names. The disposition line then lands in the
 ledger of the document that changed, and the reviewed document's line
 points at it in its `<what changed>` clause, naming that document and
@@ -444,7 +450,8 @@ leg, and the entries below that do so say it there.
   Scope: a hit counts only inside a `## Review rounds` section — the
   second entry to re-scope the default guard, for the reason the first
   one does, and carrying `-n` for the same reason.
-  Owner: for a spec, the consumption gate's pair offer; for a plan, the
+  Owner: for a judged document, the consumption gate's pair offer; for a
+  plan, the
   confirming full-document round. On a document already at
   `status: implemented` the debt is discharged by recorded decline
   without any dispatch: completed work is not re-reviewed, so the
@@ -482,11 +489,13 @@ close is a rewrite or an appended annotation: `open` or `held` becomes
 
 Each an offer the developer may decline, and each made
 only when the tool is available: grill a fresh spec (grilling-session);
-architect-review a grilled spec (architect agent dispatch);
+architect-review a grilled design spec, and a technical design, which
+is never grilled (architect agent dispatch);
 adversary-review a plan before implementation (plan-adversary agent
 dispatch); offer the pending re-review of a fallback-recorded verdict at
 its consumption gate (fresh round at the prescribed tier); and when a
-spec or plan moves to `implemented` and the memory-review-session skill
+judged document or plan moves to `implemented` and the
+memory-review-session skill
 is available, offer a Project memory review — released work-state notes
 close, resolved entries sweep to the archive. After any
 review round, relay the report to the developer, then stamp the
@@ -501,12 +510,28 @@ subsection: a plan's diff-scoped LGTM is relayed and its round record
 written, while only the frontmatter stamp waits for the confirming
 full-document round.
 
-A document's consumption gate is the backstop for its ledger: a spec
-does not pass to plan-writing, nor a plan to implementation, while
+A technical design is a judged document and takes the design spec's side
+of every branch in this rule: the same fields, the same
+consumption-gate semantics for a stale stamp, the same owner for an
+unresolved verdict, and the same pair offer against chain debt. It is
+not grilled — grilling stress-tests terminology against the project
+glossary, and a technical design mints none: its vocabulary comes from
+its design spec, which was grilled, and from the domain's own skills.
+The names it does mint are part and component names, checked against
+those skills where one exists and recorded as a vocabulary gap where
+none does.
+
+One mechanism it shares rather than owns: the integrity check is due on
+it like any judged document, and one audit of the audit pair — the
+design spec together with the technical design it names — discharges it,
+so the `integrity:` stamp sits on the design spec and names both.
+
+A document's consumption gate is the backstop for its ledger: no judged
+document passes to plan-writing, nor a plan to implementation, while
 `held` lines stay open — an LGTM can leave the frontmatter clean while a
 decision question still pends, so the gate asks those questions at the
-latest. Writing a plan from a spec is that same seam: the held spec
-questions are asked before the plan is written, whoever writes it.
+latest. Writing a plan from a judged document is that same seam: its
+held questions are asked before the plan is written, whoever writes it.
 
 The process suggests committing the work's documents under `docs/` at
 exactly one point — the implementation-ready gate: the developer has
