@@ -17,7 +17,7 @@ base: develop
 
 **Goal:** Ship the contract for a third document class — the technical
 design — across the `working-process` plugin: one new path-scoped rule,
-six changed rules and skills, four changed agent cards and the plugin
+seven changed rules and skills, four changed agent cards and the plugin
 README, with the glossary and ADR 0004 already landed during spec
 authoring.
 
@@ -56,6 +56,12 @@ verification.
   many times a phrase appears. Where a check must prove a block landed
   once, it counts with `grep -o … | wc -l`, and it anchors on a phrase
   unique to the block rather than one the file already carries.
+- **A width check counts characters, so it sets its locale.** `awk`'s
+  `length` counts bytes in the C locale, and these files carry
+  multi-byte dashes and arrows, so a line of seventy characters can
+  measure past seventy-two. Every check that measures width runs under
+  `LC_ALL=C.UTF-8`; measured on these files, the same check reads 44
+  under the C locale where it reads 20 by character.
 - **Checks are written for GNU grep and name the behaviour they need.**
   `-H` wherever a filename prefix is filtered on, since GNU grep prints
   none for a single named file; `-e` before any pattern that starts with
@@ -327,7 +333,7 @@ tr -s '[:space:]' ' ' < $F | grep -c 'new | changed | retired | unchanged'  # ex
 tr -s '[:space:]' ' ' < $F | grep -c 'when that agent is available, judges the boundary'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'personas carry when the working-process plugin is installed'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'the personas already carry'  # expect 0
-awk 'length > 72' $F | grep -v '^|' | wc -l  # expect 0
+LC_ALL=C.UTF-8 awk 'length > 72' $F | grep -v '^|' | wc -l  # expect 0
 ```
 
 Each expected value is on its line: `7` skeleton rows (1–6 plus the
@@ -785,8 +791,8 @@ git commit -m "feat(working-process): branch the lifecycle on the document class
 **Interfaces:**
 - Consumes: the class branches from Task 5.
 - Produces: `technical-design:` and the widened `spec:`, which Task 9
-  makes the propagation auditor check and Task 11 makes the authoring
-  step write.
+  makes the author check, Task 16 makes the propagation auditor check,
+  and Task 11 makes the authoring step write.
 
 - [ ] **Step 1: Measure the before state**
 
@@ -828,10 +834,11 @@ which ends the last of them, add:
 ```
 - `technical-design:` is optional and appears once the technical design
   exists, so its absence means there is none rather than one nobody
-  linked. It is new in kind: every other pointer records where a
-  document came from, while this one names a document written later,
-  and it gives a reader holding the design spec the structure that
-  develops it. The author who creates the design writes both ends in
+  linked. On a design spec it is new in kind: every other pointer
+  records where a document came from, while this one names a document
+  written later, and it gives a reader holding the design spec the
+  structure that develops it. The author who creates the design writes
+  both ends in
   the same turn — the design's `spec:` and the design spec's
   `technical-design:`. A plan's `technical-design:` names, for every
   design spec its `spec:` names that has a technical design, that
@@ -857,9 +864,9 @@ After the line:
 which is Step 3's last line, add:
 
 ```
-- Where a plan's `technical-design:` names a document, that document
-  defines the interfaces. The plan's `**Interfaces:**` blocks reference
-  the contracts it defines and say which part of one each task
+- Where a plan's `technical-design:` names documents, those documents
+  define the interfaces. The plan's `**Interfaces:**` blocks reference
+  the contracts they define and say which part of one each task
   implements or changes; they do not independently redefine those
   contracts. Where a plan names no technical design, the existing plan
   convention stands unchanged. This binds how the blocks are filled and
@@ -877,9 +884,11 @@ grep -c '^technical-design: ' $F                   # expect 1
 grep -c 'plans and technical designs' $F           # expect 1
 grep -c 'plans only' $F                            # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'they do not independently redefine those contracts'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'names documents, those documents define the interfaces'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'One technical design per design spec'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c "its path written relative to the plan's directory rather than copied"  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'contributes no entry'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'On a design spec it is new in kind'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'carries that `technical-design:` as well as its'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'where it carries both they must agree'  # expect 0
 ```
@@ -904,8 +913,9 @@ git commit -m "feat(working-process): add the technical-design pointer pair"
 
 **Interfaces:**
 - Consumes: the pointers from Task 6.
-- Produces: the `with:` value shape, which Task 14 makes the auditor
-  emit and Task 18 documents in the README's field table.
+- Produces: the `with:` value shape, which the dispatcher writes when it
+  stamps, Task 14 makes the auditor read on a joint target, and Task 18
+  documents in the README's field table.
 
 - [ ] **Step 1: Measure the before state**
 
@@ -2272,7 +2282,7 @@ with:
 
 ```
 Diff the names one document uses against the names its sources define —
-for a plan, the design spec and the technical design its `spec:` and
+for a plan, the design specs and technical designs its `spec:` and
 `technical-design:` name; for a technical design, its design spec and
 the domain skills available to its author. A name a plan uses that no
 source defines is a gap in the source, not a plan error — the invention
@@ -2299,6 +2309,7 @@ grep -c '^### [0-9]' $F                                    # expect 9
 tr -s '[:space:]' ' ' < $F | grep -c 'is not named back is not'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c "the check reads each design spec's pointer"  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'never the names it borrows'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'the design specs and technical designs its'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'A name the plan uses that the spec never defines'  # expect 0
 ```
 
@@ -2741,7 +2752,14 @@ Run:
 claude plugin validate plugins/working-process
 grep -c '^## Unreleased$' plugins/working-process/CHANGELOG.md   # expect 1
 tr -s '[:space:]' ' ' < plugins/working-process/CHANGELOG.md | grep -c 'triages the new values by the old names'  # expect 1
+LC_ALL=C.UTF-8 awk 'FNR==1{f=0} /^[`][`][`]/{f=!f; next} !f && length > 72 && !/^[|]/ && !/^    / && !/^description:/' plugins/working-process/rules/*.md plugins/working-process/agents/*.md plugins/working-process/skills/*/SKILL.md plugins/working-process/README.md CLAUDE.md | wc -l  # expect 102
 ```
+
+The last check is the 72-column constraint over every file the plan
+edits, prose only — fenced blocks, tables, indented literals and
+`description:` lines are exempt. It does not read zero: 106 such lines
+predate this plan, the plan rewraps four of them and adds none, so a
+value above 102 means a line this plan wrote runs past 72 characters.
 
 - [ ] **Step 5: Commit**
 
@@ -3476,3 +3494,70 @@ sweeps silent, the plugin validates.
 - signal 2026-09-25 — the loop reviewer judged another round not worth
   its cost and a resolution annotation sufficient after the wave; the
   developer ruled otherwise for the reason recorded above.
+
+### 2026-09-25 — plan-adversary, fable 5.1, concerns (round 8, full-document)
+
+The full-document round the developer ordered after round seven's wave
+changed the plan's contract. One Important, six Minor. Record:
+`.claude/working-process/2026-09-17-technical-design-step/plan-adversary-round-8.md`.
+The reviewer read the changed contract first and found its producers —
+Task 6's field note and comment, Task 11's authoring sentence — and its
+consumers — the duty-table row, duty 9, dimension 5 and the auditor's
+cases — saying one compatible thing. Every citation held; two phrases
+the dispatcher's plain grep missed wrap across a line.
+
+- held — [Important] the offer has no defeat condition for a design spec
+  that already names a technical design, so a literal session re-offers
+  at every later gate pass, and an accepted re-offer would mint a second
+  design against "one technical design per design spec"; question: does
+  a design spec already carrying `technical-design:` count as having
+  had its first pass, so the offer is not re-made?; options: (a) yes —
+  the pointer is the recorded answer, one clause in Task 10 with a
+  check and a line in the design spec's ledger — recommended, since
+  every other offer in these rules is defeated by a recorded state and
+  this field already exists; (b) no — the offer stands and the session
+  checks the pointer itself. Origin both: the spec's firing table has
+  no row for this case.
+- held — [Minor] over an audit pair where only one document carries
+  chain debt, the round arm as ruled dispatches a full-document round on
+  both, including one that owes nothing; question: does the round arm
+  dispatch only on the documents that carry the debt?; options: (a)
+  yes, with plan-writing waiting for every verdict so dispatched —
+  recommended, since a round on a document with no debt discharges
+  nothing and costs the top tier; (b) no — both, as ruled on
+  2026-09-25. New evidence against that ruling, which did not consider
+  the mixed case, so held rather than folded.
+- fixed 2026-09-25 — [Minor] the Goal counted six changed rules and
+  skills where the tasks change seven — the grilling-session skill added
+  at round five never reached it; license: the count's own derivation;
+  the Goal says seven.
+- fixed 2026-09-25 — [Minor] two Interfaces blocks named the wrong
+  deliverer — the auditor does not emit the `with:` value, and Task 9
+  changes the author-facing rule, not the auditor; license: the tasks'
+  own Files blocks; both name the tasks that deliver.
+- fixed 2026-09-25 — [Minor] "It is new in kind" was true on a design
+  spec and false on a plan, where the field records lineage; license:
+  the note's own plan clause; the sentence is scoped to the design spec.
+- fixed 2026-09-25 — [Minor] two sentences inside the changed contract
+  still spoke of one design per plan; license: the 2026-09-25 list
+  ruling; both are plural.
+- fixed 2026-09-25 — [Minor] the 72-column constraint bound every edited
+  file while the plan published a width check for one; license: the
+  constraint itself; Task 20 publishes a prose-only width check over
+  every file the plan edits. Measuring it found a locale trap: under the
+  C locale `awk` counts bytes, and these files' dashes and arrows made
+  one file read 44 over-wide lines where it has 20. Both width checks
+  set `LC_ALL=C.UTF-8`, and a Global Constraint says why.
+
+The simulation ran after the wave: 146 of 146 annotated checks pass, no
+verify command left uncompared, no step unsimulated, 95 of 96 non-zero
+checks fail on the pre-plan files (the last the deliberate invariant),
+every commit stages what its task edits, no new line past 72 characters,
+both sweeps silent, the plugin validates. The new width check reads 102
+after the plan and 106 before it, so it cannot pass on an untouched tree.
+
+- signal 2026-09-25 — the reviewer judges another round not worth its
+  cost: the confirming full-document read has now been done twice on a
+  contract that changed only in the pointer's cardinality, and the loop
+  should close on this round's disposition once the two held questions
+  are answered.
