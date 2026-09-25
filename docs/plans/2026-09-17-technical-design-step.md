@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-17
 status: draft
-adversary: blocking
+adversary: concerns
 spec: ../specs/2026-09-16-technical-design-step.md
 branch: feature/technical-design-step
 base: develop
@@ -68,11 +68,13 @@ verification.
   such check in Task 2 failed unnoticed for two rounds. The one
   exception is `claude plugin validate`, whose result is its exit
   status.
-- **An inserted block stands on its own.** A block placed with "After
-  the line:" or "After the lines:" — one spelling per line count, the
-  same instruction — is a paragraph or heading of its own, with one
-  blank line before and after it. A table row or list item inserted by
-  its own instruction joins its table or list with no blank line.
+- **Every insertion quotes its anchor.** Each one reads "After the
+  line:" or "After the lines:" on a line of its own — one spelling per
+  line count, the same instruction — followed by the anchor lines in a
+  fenced block and then the block to insert. A block that opens with a
+  list marker or a table pipe joins the list or table it follows
+  directly; any other block is a paragraph or heading of its own, one
+  blank line after its anchor.
 - **Every step states its before value and its after value.** The before
   values in this plan were measured against the files on 2026-09-17, not
   predicted.
@@ -372,7 +374,13 @@ Expected: `0`, and a `paths:` block of five globs, the last
 
 - [ ] **Step 2: Add the glob**
 
-In the frontmatter, after the `"docs/plans/**"` line, insert:
+After the line:
+
+```
+  - "docs/plans/**"
+```
+
+in the frontmatter, add:
 
 ```yaml
   - "docs/technical-designs/**"
@@ -526,7 +534,13 @@ grep -c 'technical-design' $F       # expect 0
 
 - [ ] **Step 2: Widen the rule's scope**
 
-In the frontmatter, after `  - "docs/specs/**"`, insert:
+After the line:
+
+```
+  - "docs/specs/**"
+```
+
+in the frontmatter, add:
 
 ```yaml
   - "docs/technical-designs/**"
@@ -796,14 +810,20 @@ with:
 
 ```
 spec: ../specs/<file>.md   # plans and technical designs: the design spec this document descends from; inline list when several, on a plan
-technical-design: ../technical-designs/<file>.md   # optional, on a design spec and on a plan: the technical design that develops this design spec
+technical-design: ../technical-designs/<file>.md   # optional: on a design spec, the technical design that develops it; on a plan, the technical design of each design spec it descends from that has one — inline list when several, each path relative to the plan
 ```
 
 - [ ] **Step 3: Write the five rules that keep the pair honest**
 
-The field notes are the bullets under the frontmatter example; the last
-of them ends `omitted entirely when there is no topic branch.` Add after
-that line:
+The field notes are the bullets under the frontmatter example.
+
+After the line:
+
+```
+  up front, omitted entirely when there is no topic branch.
+```
+
+which ends the last of them, add:
 
 ```
 - `technical-design:` is optional and appears once the technical design
@@ -813,18 +833,28 @@ that line:
   and it gives a reader holding the design spec the structure that
   develops it. The author who creates the design writes both ends in
   the same turn — the design's `spec:` and the design spec's
-  `technical-design:`. A plan written from a design spec that names a
-  technical design carries that `technical-design:` as well as its
-  `spec:`, and the two name that audit pair; a plan written from a
-  design spec with no technical design carries no `technical-design:`.
+  `technical-design:`. A plan's `technical-design:` names, for every
+  design spec its `spec:` names that has a technical design, that
+  technical design — an inline list when several, each entry the same
+  document the design spec's own pointer names, its path written
+  relative to the plan's directory rather than copied. A design spec
+  with no technical design contributes no entry, so a plan from specs
+  `a` and `b`, where only `a` names a design, carries that one design.
   One technical design per design spec.
 ```
 
 - [ ] **Step 4: Say what the pointer does to a plan's interface blocks**
 
 A plan naming a technical design must not redefine what that design
-already defines. Add after Step 3's block, whose last line is
-`  One technical design per design spec.`:
+already defines.
+
+After the line:
+
+```
+  One technical design per design spec.
+```
+
+which is Step 3's last line, add:
 
 ```
 - Where a plan's `technical-design:` names a document, that document
@@ -848,7 +878,9 @@ grep -c 'plans and technical designs' $F           # expect 1
 grep -c 'plans only' $F                            # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'they do not independently redefine those contracts'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'One technical design per design spec'  # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c 'carries that `technical-design:` as well as its'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "its path written relative to the plan's directory rather than copied"  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'contributes no entry'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'carries that `technical-design:` as well as its'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'where it carries both they must agree'  # expect 0
 ```
 
@@ -904,8 +936,15 @@ integrity: <ISO date> (sha: <short-hash>[; with: <file>@<short-hash>])   # optio
 - [ ] **Step 3: Write the pair clause**
 
 The bullet does not end where that sentence does — it runs twelve more
-lines, through the hash command the pair clause depends on. Anchor on
-the bullet's real last line, `a typo fix included.`, and add after it:
+lines, through the hash command the pair clause depends on.
+
+After the line:
+
+```
+  edits included; any change re-arms the stamp, a typo fix included.
+```
+
+which is the bullet's real last line, add:
 
 ```
   A design spec that names a technical design is audited with it as one
@@ -1137,7 +1176,13 @@ eleven.
 
 - [ ] **Step 2: Widen the rule's scope**
 
-In the frontmatter, after `  - "docs/specs/**"`, insert:
+After the line:
+
+```
+  - "docs/specs/**"
+```
+
+in the frontmatter, add:
 
 ```yaml
   - "docs/technical-designs/**"
@@ -1145,11 +1190,18 @@ In the frontmatter, after `  - "docs/specs/**"`, insert:
 
 - [ ] **Step 3: Add the pointer-pair duty as a table row**
 
-The duties are a table keyed by the edit, not a bullet list. Append a
-row after the `copied a citation out of a review report` row:
+The duties are a table keyed by the edit, not a bullet list.
+
+After the line:
 
 ```
-| added or repointed a `spec:` or `technical-design:` pointer | both targets; on a design spec or a technical design, that each pointer names the document that names it; on a plan, that where its `spec:` target names a technical design the plan names the same one — a plan missing that pointer is a hit | 9 |
+| copied a citation out of a review report | the file and line it names, read at the source | 8 |
+```
+
+which is the table's last row, add:
+
+```
+| added or repointed a `spec:` or `technical-design:` pointer | both targets; on a design spec or a technical design, that each pointer names the document that names it; on a plan, that its `technical-design:` entries resolve, from the plan's own directory, to exactly the technical designs its design specs name — none missing, none extra | 9 |
 ```
 
 - [ ] **Step 4: Re-derive the two counters the row invalidates**
@@ -1213,6 +1265,7 @@ grep -c '"docs/technical-designs/\*\*"' $F      # expect 1
 grep -c '^| ' $F                                 # expect 11: header plus ten edit rows
 grep -c 'nine duties fall due' $F                # expect 1
 grep -c 'on a design spec or a technical design, that each pointer' $F  # expect 1
+grep -c 'none missing, none extra' $F  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'as well as at design specs, technical designs and plans'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'as well as at specs and plans'  # expect 0
 grep -c 'keyed by the ten edits' $F              # expect 1
@@ -1337,8 +1390,9 @@ with:
    names both documents, so declining it releases the chain debt of the
    two it named and nothing besides. Where the audit runs instead, it
    discharges that debt for both documents it read. The other arm stays
-   per-document: a full-document architect round discharges the debt of
-   the one document it read. The brief
+   per-document: choosing it dispatches one full-document architect
+   round on each document, each discharging the debt of the one it read,
+   and plan-writing waits for both verdicts. The brief
    confirms the auditor's two preconditions: every edit from the
 ```
 
@@ -1412,6 +1466,7 @@ tr -s '[:space:]' ' ' < $F | grep -c 'For a judged document whose LGTM'  # expec
 tr -s '[:space:]' ' ' < $F | grep -c 'For a spec whose LGTM'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'every document the stamp names'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c "spec's recomputed body hash"  # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c 'and plan-writing waits for both verdicts'  # expect 1
 grep -c 'designer session' $F    # expect 0 — the glossary bans "session" for a skill
 ```
 
@@ -1453,9 +1508,17 @@ Expected: `0`.
 
 - [ ] **Step 2: Write the authoring step**
 
-The offer paragraph is the block Task 10 Step 2 inserted; its last line
-is `   state.`, directly above the paragraph opening `   Where the
-technical-design offer is accepted`. Add after that line:
+The offer paragraph is the block Task 10 Step 2 inserted, directly above
+the paragraph opening `   Where the technical-design offer is accepted`.
+
+After the lines:
+
+```
+   implementer no new responsibility split, placement, or ownership of
+   state.
+```
+
+which close it, add:
 
 ```
    Accepted, the session opens the `system-designer-session` skill when
@@ -1469,9 +1532,11 @@ technical-design offer is accepted`. Add after that line:
    agent is available, whose card admits any judged document dispatched
    standalone, with the propagation audit gating that dispatch as it
    gates every verdict dispatch. The plan-adversary stays on plans.
-   The plan written afterwards carries both `spec:` and
-   `technical-design:`, the second copied from its design spec, so the
-   plan-adversary always has the design to read.
+   The plan written afterwards carries, beside its `spec:`, a
+   `technical-design:` entry for every design spec it descends from that
+   names a technical design — the same document, its path rewritten
+   relative to the plan's own directory — so the plan-adversary always
+   has each design to read.
 ```
 
 Both tool mentions are conditional, as every neighbouring step in this
@@ -1486,7 +1551,8 @@ Run:
 F=plugins/working-process/rules/workflow.md
 tr -s '[:space:]' ' ' < $F | grep -c 'writes both ends of the pair in the same turn'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'The plan-adversary stays on plans'   # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c 'the second copied from its design spec'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "its path rewritten relative to the plan's own directory"  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'the second copied from its design spec'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'a path-scoped rule loads only when a matching file is read'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'following the technical-design rule that loads there'  # expect 0
 ```
@@ -1608,8 +1674,10 @@ round — and never an offer followed by a re-offer of the option just
 declined. When the `integrity-auditor` agent is absent the offer
 carries the full-document round alone. For an audit pair the gate makes
 one pair offer for both documents: its audit arm reads the two
-together, while its round arm stays per-document, one architect round
-for each document it reviews. The two arms cost differently and the
+together, while choosing its round arm dispatches one full-document
+architect round on each document, and plan-writing waits until both
+verdicts are settled under the rules any verdict follows. The two arms
+cost differently and the
 offer says so: an audit returns material for the dispatcher to dispose
 of and leaves the verdict alone, while a full-document round on a
 judged document is a new loop's first round, since that document's
@@ -1678,7 +1746,8 @@ grep -c '`both`' $F    # expect 0
 grep -cF '(`docs/specs/`, `docs/technical-designs/`, `docs/plans/`) so the' $F  # expect 1
 grep -cF '(`docs/specs/`, `docs/plans/`) so the' $F   # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'For a judged document, the consumption gate'  # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c 'its round arm stays per-document'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'dispatches one full-document architect round on each document'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'its round arm stays per-document'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'For a spec, the consumption gate'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'round on a spec is a new loop'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'bind design specs, technical designs, plans'  # expect 1
@@ -1705,7 +1774,8 @@ git commit -m "feat(working-process): hold a finding from either judged document
 ### Task 13: The architect card takes the class name
 
 **Files:**
-- Modify: `plugins/working-process/agents/architect.md:3`
+- Modify: `plugins/working-process/agents/architect.md:3` and the
+  stamping sentence at `:56`
 
 **Interfaces:**
 - Consumes: `Judged document` from Task 1.
@@ -1736,7 +1806,22 @@ with:
 a grilled design spec (primary target) or any judged document dispatched standalone
 ```
 
-- [ ] **Step 3: Verify**
+- [ ] **Step 3: Name the class in the stamping sentence**
+
+The card's stamping sentence enumerates two classes. Replace:
+
+```
+convention (a YAML block with a `status` field) — spec and plan alike. A
+```
+
+with:
+
+```
+convention (a YAML block with a `status` field) — judged document and
+plan alike. A
+```
+
+- [ ] **Step 4: Verify**
 
 Run:
 
@@ -1745,9 +1830,11 @@ F=plugins/working-process/agents/architect.md
 grep -c 'design document' $F        # expect 0
 grep -c 'any judged document' $F    # expect 1
 grep -c 'a grilled design spec' $F  # expect 1
+grep -c 'spec and plan alike' $F    # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c 'judged document and plan alike'  # expect 1
 ```
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add plugins/working-process/agents/architect.md
@@ -2051,11 +2138,12 @@ which close dimension 4, add:
 ```
 ### 5. Coverage of the technical design's parts
 
-Where the plan's `technical-design:` names a document — or, failing
-that, where its design spec's does — read that document's Parts table.
-A plan whose design spec names a technical design the plan does not
-carry is itself an Important finding whose `origin` is
-`implementation-plan`. The plan must cover every part marked `new`,
+Read the Parts table of every technical design the plan's design
+specs name, reaching each through the plan's `technical-design:`
+entries or, where an entry is missing, through the design spec's own
+pointer. A missing or extra entry is itself an Important finding whose
+`origin` is `implementation-plan`. The plan must cover every part
+marked `new`,
 `changed` or `retired`; one part may span several tasks and one task
 several parts, and a part carried as `unchanged` context needs none. An
 uncovered part is an Important finding whose `origin` is
@@ -2087,7 +2175,7 @@ grep -c '^## Judged documents: decline' $F              # expect 1
 grep -c '^## Specs: decline' $F                         # expect 0
 grep -c 'Specs are out of scope' $F                     # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'Coverage of the technical design'  # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c "or, failing that, where its design spec's does"  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'A missing or extra entry is itself an Important finding'  # expect 1
 grep -c '^### [0-9]' $F                                 # expect 5
 ```
 
@@ -2154,11 +2242,13 @@ reads.
 
 A plan is scoped differently and must not be read as half a pair. Its
 `spec:` names a design spec, which never names the plan back; what is
-checked there starts from the design spec: where the plan's `spec:`
-target names a technical design, the plan must name the same one. A
-plan that omits the pointer or names a different design is a hit — the
-check reads the design spec's pointer, so a missing field is found
-rather than skipped. A plan whose `spec:` is not named back is not.
+checked there starts from the design specs: for every `spec:` target
+that names a technical design, the plan's `technical-design:` must hold
+an entry resolving, from the plan's own directory, to that same
+document. A missing entry, an extra one, or one resolving elsewhere is
+a hit — the check reads each design spec's pointer, so a missing field
+is found rather than skipped. A plan whose `spec:` is not named back is
+not.
 ```
 
 The second paragraph is what keeps this duty from firing on every plan
@@ -2207,7 +2297,7 @@ grep -c 'a spec or plan' $F                                # expect 0
 grep -c '^### 9\. The pointer pair' $F                     # expect 1
 grep -c '^### [0-9]' $F                                    # expect 9
 tr -s '[:space:]' ' ' < $F | grep -c 'is not named back is not'  # expect 1
-tr -s '[:space:]' ' ' < $F | grep -c "the check reads the design spec's pointer"  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "the check reads each design spec's pointer"  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'never the names it borrows'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'A name the plan uses that the spec never defines'  # expect 0
 ```
@@ -2612,6 +2702,9 @@ which is the changelog's preamble, add:
 - The class a design spec and a technical design share is named
   `judged document` on the three agent cards that carried the old
   phrase and in the README; that phrase is retired.
+- Run a rules re-sync after this update: the plan-adversary's `origin`
+  values changed, and until the re-sync an installed workflow rule
+  triages the new values by the old names.
 ```
 
 - [ ] **Step 3: Set the dogfooding version**
@@ -2647,6 +2740,7 @@ Run:
 ```bash
 claude plugin validate plugins/working-process
 grep -c '^## Unreleased$' plugins/working-process/CHANGELOG.md   # expect 1
+tr -s '[:space:]' ' ' < plugins/working-process/CHANGELOG.md | grep -c 'triages the new values by the old names'  # expect 1
 ```
 
 - [ ] **Step 5: Commit**
@@ -2679,14 +2773,16 @@ git commit -m "chore(working-process): changelog and dogfooding version for the 
   divergence stands until that separate change lands. Task 20 follows
   the decision, not the current rule text.
 
-- **A plan's `technical-design:` pointer is mandatory, not
-  conditional.** The design spec says a plan keeps its own `spec:` and
-  `technical-design:` and that, where it carries both, they must agree
-  with the pair. The developer's ruling of 2026-09-24 sharpens that: a
-  plan written from a design spec that names a technical design carries
-  that pointer, and its absence is a hit, found from the design spec's
-  side (Tasks 6, 9, 11, 15 and 16). Where this plan and the spec's
-  sentence differ on that point, the plan follows the ruling.
+- **A plan's `technical-design:` is mandatory, and a list.** The design
+  spec says a plan keeps its own `spec:` and `technical-design:` and
+  that, where it carries both, they must agree with the pair. The
+  developer's rulings of 2026-09-24 and 2026-09-25 sharpen that: a plan
+  carries a `technical-design:` entry for every design spec it names
+  that has a technical design — an inline list when several, each path
+  written relative to the plan — and a missing, extra or misresolving
+  entry is a hit, found from the design specs' side (Tasks 6, 9, 11, 15
+  and 16). Where this plan and the spec's sentence differ, the plan
+  follows the rulings.
 
 - **The technical-design rule words two component mentions
   conditionally where the design spec states them plainly.** The spec
@@ -3296,3 +3392,78 @@ hits, all dismissed:
   full-document round, expected to close on `LGTM` if the simulation is
   re-run rather than restated. `blocking` leaves that round to the
   developer.
+
+### 2026-09-25 — plan-adversary, fable 5.1, concerns (round 7, full-document)
+
+The confirming full-document round. No Important, six Minor. Record:
+`.claude/working-process/2026-09-17-technical-design-step/plan-adversary-round-7.md`.
+An independent review of the same plan version by Codex (GPT-6),
+written to
+`.claude/working-process/2026-09-17-technical-design-step/codex-plan-review-2026-09-25-06-45-13.md`,
+returned `blocking` on two Important findings and one Minor; its lines
+below carry its own grades. The two reviewers overlapped on one finding;
+Codex alone found the only correctness defect of the round, and its
+reproduction was re-run and held. The stamped verdict is the loop
+reviewer's. The developer ruled that one more full-document round
+follows this wave, since it changes the plan's contract — the plan
+pointer's cardinality, coverage completeness and the gate's behaviour —
+and an annotation settles findings without assessing a changed contract.
+
+- fixed 2026-09-25 — [Minor] the architect card's stamping sentence
+  still read "spec and plan alike"; license: ADR 0004's class; Task 13
+  gains a step, with a deletion assertion.
+- fixed 2026-09-25 — [Minor] four insertions used an inline-anchor shape
+  the insertion constraint did not define; license: that constraint's
+  purpose; all eight insertions of any other shape now quote their
+  anchor in a fenced block, the constraint covers every one, and the
+  simulator's handlers for every other shape were removed with no step
+  left unsimulated.
+- fixed 2026-09-25 — [Minor] on an audit pair the round arm read two
+  ways; ruling: 2026-09-25; choosing it dispatches one full-document
+  architect round on each document, and plan-writing waits until both
+  verdicts are settled under the rules any verdict follows (Tasks 10
+  and 12).
+- fixed 2026-09-25 — [Minor] the `technical-design:` example comment
+  described the field in design-spec terms on a plan; license: the
+  pointer semantics in Task 6's own note; the comment names each host.
+- fixed 2026-09-25 — [Minor] Fable, and [Important] Codex: a plan may
+  name several design specs while every sentence about its
+  `technical-design:` assumed one; ruling: 2026-09-25; a plan's
+  `technical-design:` is an inline list holding the design of every
+  design spec it names that has one, and duty 9 checks completeness as
+  well as correctness — none missing, none extra — with a worked example
+  of two specs where one has no design (Tasks 6, 9, 11, 15 and 16, and
+  the Deviations bullet).
+- fixed 2026-09-25 — [Minor] a plugin update opens a window in which the
+  new `origin` values meet an un-synced workflow rule; license: the
+  README's standing re-sync sentence; the changelog names the re-sync.
+- fixed 2026-09-25 — [Important] Codex: the authoring step copied the
+  design spec's relative pointer into the plan, which names a different
+  file wherever the two sit at different depths — reproduced with a
+  nested spec, where the copy resolves outside `docs/`; license: duty 9's
+  requirement that the entry name that same document, and every pointer
+  in this process resolving from its own file; each entry is rewritten
+  relative to the plan's directory, and duty 9 compares resolved
+  targets.
+- held — [Minor] Codex: the code-project validation the spec promises
+  has neither a task nor an owner, so finishing the tasks could be
+  mistaken for evidence that the workflow works on a code project;
+  question: who owns that validation, and where is it tracked?;
+  options: (a) the developer owns it, tracked as an issue in this
+  repository, created only on the developer's explicit order —
+  recommended, since it is durable and visible; (b) the developer owns
+  it, tracked as a Private-memory idea entry; (c) left unassigned for
+  now, with the plan saying so. Whichever is chosen, the plan records
+  the spec's acceptance criteria and states that completing its tasks
+  does not claim the validation happened.
+
+The simulation ran after the wave with every insertion handler but the
+fenced shape removed: 142 of 142 annotated checks pass, no verify
+command left uncompared, no step unsimulated, 91 of 92 non-zero checks
+fail on the pre-plan files (the last the deliberate invariant), every
+commit stages what its task edits, no new line past 72 columns, both
+sweeps silent, the plugin validates.
+
+- signal 2026-09-25 — the loop reviewer judged another round not worth
+  its cost and a resolution annotation sufficient after the wave; the
+  developer ruled otherwise for the reason recorded above.
