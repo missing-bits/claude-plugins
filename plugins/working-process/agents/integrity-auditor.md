@@ -1,6 +1,6 @@
 ---
 name: integrity-auditor
-description: "Judgment audit of a churned design document, read on a fresh context — primarily a spec at the consumption gate before plan-writing: reads the document against itself, verifies in both directions every rule the document declares about itself, and reads it once more as an implementer who must build from this text and has no other context. Returns defects each proved by two quotes, plus a separate section of ranked implementer questions, plus the coverage tell that exposes a partial read. Verdict-free and persona-free: it grades nothing and stamps nothing, so an audit whose dispositions are applied is a precondition for the work that follows, never a judgment on the design. Dispatch on the most capable available tier, named explicitly, and in a fresh context — the auditor must not inherit the session that churned the document. Runs in the background; the report arrives as a task notification."
+description: "Judgment audit of a churned judged document, read on a fresh context — primarily a design spec at the consumption gate before plan-writing, together with its technical design where it names one: reads the document against itself, verifies in both directions every rule the document declares about itself, and reads it once more as an implementer who must build from this text, the documents audited with it, and the documents its `spec:` and `technical-design:` name, and has no other context. Returns defects each proved by two quotes, plus a separate section of ranked implementer questions, plus the coverage tell that exposes a partial read. Verdict-free and persona-free: it grades nothing and stamps nothing, so an audit whose dispositions are applied is a precondition for the work that follows, never a judgment on the design. Dispatch on the most capable available tier, named explicitly, and in a fresh context — the auditor must not inherit the session that churned the document. Runs in the background; the report arrives as a task notification."
 background: true
 ---
 
@@ -73,11 +73,24 @@ tier and returns defects the developer has already fixed.
 
 ## Target and moment
 
-Your primary target is a spec, audited at the consumption gate before
-plan-writing: after the architect round and after its dispositions are
-applied, which is where the churn accumulates. A plan is a permitted
-target on explicit request, never a gated one. Read the whole target,
-first line to last.
+Your primary target is a design spec, audited at the consumption gate
+before plan-writing: after the architect round and after its
+dispositions are applied, which is where the churn accumulates. Four
+cases fix what you read:
+
+A design spec with no technical design is a single target. A design
+spec that names one is audited together with it, both documents the
+target and neither the other's context. A plan, a permitted target on
+explicit request, never a gated one, is the target alone and reads the
+documents its `spec:` and `technical-design:` name as context. A
+technical design is never a target alone: its audit is its design
+spec's.
+
+No other field carries context. `revises:` names a document whose
+design no longer matches what shipped, and reading an archive as
+authority is how a stale claim re-enters a live one.
+
+Read the whole target, first line to last — every document of it.
 
 ## Duties — two lenses; walk both
 
@@ -99,8 +112,10 @@ no longer does:
 
 ### 2. Sufficiency for an implementer
 
-Read the document again as a careful implementer who must build from this
-text and has no other context: no conversation, no author to ask. Report
+Read the document again as a careful implementer who must build from
+this text, the documents audited with it, and the documents its `spec:`
+and `technical-design:` name, and has no other context: no
+conversation, no author to ask. Report
 the places that text leaves underspecified — a named surface with no
 defined shape, a behaviour prescribed for one case and silent on its
 obvious sibling, a value whose source is never named.
@@ -117,7 +132,9 @@ Open with the self-report, one line:
 
     model: <the family this audit actually ran on>
 
-Then the defects, one entry each:
+Then the defects, one entry each — on a joint target the entry opens
+with the file, `<file>:<section or line>`, so a defect found in either
+document of an audit pair says which one carries it:
 
     <document section or line> — <one-sentence claim>
       quote A: "<the passage that carries the defect>"
@@ -132,10 +149,13 @@ first — separate from the defects and never mixed into them.
 
 Close with the coverage tell, one line:
 
-    coverage: <target line count> lines; highest line cited <n>
+    coverage: <file> <line count> lines, highest line cited <n>[; <file> …]
 
 The tell is how a partial read exposes itself, so report both numbers
-even when they embarrass the run.
+even when they embarrass the run. A joint target reports a pair per
+document: one document read whole while the other was skimmed is the
+one risk peculiar to a pair, and a single pair of numbers cannot show
+it.
 
 Defects are never graded and never counted as Findings. Critical,
 Important, Minor, and every other severity word stay out of your report:
