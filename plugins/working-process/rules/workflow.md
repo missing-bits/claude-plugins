@@ -188,12 +188,13 @@ thing in a contribution the developer must decide and the digest
 exists to raise decisions rather than bury them.
 
 When `docs/domain/glossary.md` exists in the project, its canonical
-terms and `_Avoid_` bans bind specs, plans, code identifiers, and
-reviews.
+terms and `_Avoid_` bans bind design specs, technical designs, plans,
+code identifiers, and reviews.
 
 When the `elements-of-style:writing-clearly-and-concisely` skill is
-available, prose artifacts under `docs/` — specs, plans, ADRs, the
-glossary — get its pass: invoke it before drafting a new document, and
+available, prose artifacts under `docs/` — design specs, technical
+designs, plans, ADRs, the glossary — get its pass: invoke it before
+drafting a new document, and
 run an explicit editing pass over the changed prose of an existing one.
 The pass binds wording, never decisions. Without the skill there is no
 substitute pass and no install nagging — the work proceeds normally.
@@ -210,8 +211,9 @@ convention fixes the shape and not the spelling.
 The branch of a worktree created with a generated name is renamed to
 this shape before its first commit, so the branch a reader sees is the
 branch the convention names; the worktree's own directory is a separate
-name and this convention does not govern it. The work's spec and plan
-record the result in their `branch:` field — the topic branch, not the
+name and this convention does not govern it. The work's design spec,
+technical design and plan record the result in their `branch:` field —
+the topic branch, not the
 `<topic>.docs` branch a review loop's per-round commits use, which the
 spec-plan-lifecycle rule names and which is a sibling of it rather than
 a second topic branch. The ticket rule's sourcing order reads the
@@ -231,8 +233,8 @@ available:
   already-stamped document leaves no signal and is accepted as lost —
   never corruption, only a missing re-run.
 - Before dispatch, resolve any undecided Process directory
-  (`docs/specs/`, `docs/plans/`) so the first-create question cannot
-  interrupt the stamp turn.
+  (`docs/specs/`, `docs/technical-designs/`, `docs/plans/`) so the
+  first-create question cannot interrupt the stamp turn.
 - At dispatch, tell the developer the round is running in the
   background and its result will arrive as a task notification, with
   progress visible in the session's task list.
@@ -394,14 +396,16 @@ decision. Consequences the loop states outright:
 - Only written decisions license fixes. A decision settled in
   conversation becomes citable by being written into the document,
   which the fix itself accomplishes.
-- A finding whose `origin` names the spec is held unless a written
-  decision licenses the edit, since editing a spec from inside a plan
-  review is design work; `both` holds the same way, and its `held`
-  line names in `options:` which half is fixable at once. A licensed
-  spec-origin fix lands in the spec's own ledger and the plan's line
-  points at it, by the cross-document clause the spec-plan-lifecycle
-  rule defines — which also leaves the spec's `integrity:` stamp
-  stale, as any body edit does.
+- A finding whose `origin` names a judged document — a design spec or a
+  technical design — is held unless a written decision licenses the
+  edit, since changing either from inside a plan review is design work.
+  `origin` is a list, so a finding naming more than one holds the same
+  way, and its `held` line names in `options:` which part is fixable at
+  once. A licensed fix lands in the ledger of the document that
+  changed, and the plan's line points at it, by the cross-document
+  clause the spec-plan-lifecycle rule defines — which also leaves the
+  design spec's `integrity:` stamp stale, as any body edit to either
+  document of an audit pair does.
 
 A fix wave that deviates from a reviewer's suggestion records the
 deviation and its rationale beside the text they concern — not only in
@@ -587,18 +591,24 @@ read: round 1 read the whole document, and every later wave was
 reviewed by the round that followed it. What that chain still owes
 differs by document.
 
-For a spec, the consumption gate before plan-writing offers the pair as
-one question — an integrity audit or a full-document round — and never
-an offer followed by a re-offer of the option just declined. When the
-`integrity-auditor` agent is absent the offer carries the full-document
-round alone. The two arms cost differently and the offer says so: an
-audit returns material for the dispatcher to dispose of and leaves the
-verdict alone, while a full-document round on a spec is a new loop's
-first round, since the spec's LGTM already closed its loop — it mints
-its own verdict and stamps it, so a `concerns` there flips the field
-back while plan-writing waits. The full-document-round arm therefore
-blocks plan-writing; the audit arm does not, and plan-writing follows
-its dispositions.
+For a judged document, the consumption gate before plan-writing makes
+the pair offer as one question — an integrity audit or a full-document
+round — and never an offer followed by a re-offer of the option just
+declined. When the `integrity-auditor` agent is absent the offer
+carries the full-document round alone. For an audit pair the gate makes
+one pair offer for both documents: its audit arm reads the two
+together, while choosing its round arm dispatches one full-document
+architect round on each document that carries the debt, and
+plan-writing waits until every verdict so dispatched is settled under
+the rules any verdict follows; the joint integrity audit stays a check
+of its own. The two arms cost differently and the
+offer says so: an audit returns material for the dispatcher to dispose
+of and leaves the verdict alone, while a full-document round on a
+judged document is a new loop's first round, since that document's
+LGTM already closed its loop — it mints its own verdict and stamps it,
+so a `concerns` there flips the field back while plan-writing waits.
+The full-document-round arm therefore blocks plan-writing; the audit
+arm does not, and plan-writing follows its dispositions.
 
 Declining is the developer discharging the chain debt by release rather
 than by performance, and the discharge is recorded rather than
