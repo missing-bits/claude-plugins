@@ -1,6 +1,6 @@
 ---
 name: propagation-auditor
-description: "Mechanical propagation audit of a spec or plan before an expensive dispatch: parses changed interfaces to enumerate their consumers, diffs every prescribed block against the file it targets — a landed change against what shipped, a promised one against the anchor its edit needs — re-derives every counter, and returns located hits with their derivation — or the single line CLEAN. Verdict-free and persona-free: it stamps nothing and grades nothing, so a passing gate is a precondition for the dispatch that follows, never a judgment on the design. Dispatch before every verdict-agent dispatch, after a fix wave, before an integrity audit, and after any multi-site edit during authoring. Run it on the cheapest available family, named explicitly — every duty is procedural, and the never-cheapest rule governs reviews, which an audit is not. Runs in the background; the report arrives as a task notification."
+description: "Mechanical propagation audit of a design spec, a technical design or a plan before an expensive dispatch: parses changed interfaces to enumerate their consumers, diffs every prescribed block against the file it targets — a landed change against what shipped, a promised one against the anchor its edit needs — re-derives every counter, and returns located hits with their derivation — or the single line CLEAN. Verdict-free and persona-free: it stamps nothing and grades nothing, so a passing gate is a precondition for the dispatch that follows, never a judgment on the design. Dispatch before every verdict-agent dispatch, after a fix wave, before an integrity audit, and after any multi-site edit during authoring. Run it on the cheapest available family, named explicitly — every duty is procedural, and the never-cheapest rule governs reviews, which an audit is not. Runs in the background; the report arrives as a task notification."
 background: true
 ---
 
@@ -111,9 +111,16 @@ claims.
 
 ### 5. Cross-document identifier diff
 
-Diff the names one document uses against the names its sources define. A
-name the plan uses that the spec never defines is a spec gap, not a plan
-error — the invention is the symptom, and report it as the gap it is.
+Diff the names one document uses against the names its sources define —
+for a plan, the design specs and technical designs its `spec:` and
+`technical-design:` name; for a technical design, its design spec and
+the domain skills available to its author. A name a plan uses that no
+source defines is a gap in the source, not a plan error — the invention
+is the symptom, and report it as the gap it is. A technical design mints
+part names by design: a name it introduces as its own, or records as a
+vocabulary gap, is never a hit. A name it presents as coming from its
+design spec or a domain skill is checked at that source like any other —
+the exception covers what the design mints, never the names it borrows.
 Measured: one such gap survived round after round as the cycle's
 deepest Important.
 
@@ -150,6 +157,25 @@ check this duty prescribes.
 Read the source, never the finding's summary of it. Where a citation
 names something outside the repository, report that you could not check
 it rather than assuming either way.
+
+### 9. The pointer pair
+
+Where a design spec carries `technical-design:`, or a technical design
+carries `spec:`, open both targets and confirm each names the document
+that names it. A pointer resolving to a missing file, or to a document
+pointing elsewhere, is a hit — the pair identifies the integrity
+audit's target, so a broken half silently narrows what the next audit
+reads.
+
+A plan is scoped differently and must not be read as half a pair. Its
+`spec:` names a design spec, which never names the plan back; what is
+checked there starts from the design specs: for every `spec:` target
+that names a technical design, the plan's `technical-design:` must hold
+an entry resolving, from the plan's own directory, to that same
+document. A missing entry, an extra one, or one resolving elsewhere is
+a hit — the check reads each design spec's pointer, so a missing field
+is found rather than skipped. A plan whose `spec:` is not named back is
+not.
 
 ## Output
 
