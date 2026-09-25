@@ -2,6 +2,25 @@
 
 Released versions of this plugin, newest first.
 
+## Unreleased
+
+- New `technical-design` rule: a third document class between the design
+  spec and the plan, saying what a thing is made of — section skeleton,
+  the definitions of part, contract and state, and the closed `change`
+  value set.
+- The consumption gate offers the document where the repository has
+  code, and runs in passes when the offer is accepted.
+- A design spec and its technical design are audited as one target, with
+  one `integrity:` stamp on the design spec naming both.
+- `origin` on a plan-adversary finding is a list of named documents;
+  `both` retires.
+- The class a design spec and a technical design share is named
+  `judged document` on the three agent cards that carried the old
+  phrase and in the README; that phrase is retired.
+- Run a rules re-sync after this update: the plan-adversary's `origin`
+  values changed, and until the re-sync an installed workflow rule
+  triages the new values by the old names.
+
 ## 0.17.0 — 2026-09-15
 
 - A plan's review loop closes only on a full-document round: a
