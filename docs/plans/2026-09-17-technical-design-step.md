@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-17
-status: draft
+status: approved
 adversary: concerns (resolved 2026-09-25)
 spec: ../specs/2026-09-16-technical-design-step.md
 branch: feature/technical-design-step
