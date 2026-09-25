@@ -3276,6 +3276,20 @@ command left uncompared, no step unsimulated, 86 of 87 non-zero checks
 fail on the pre-plan files (the last the deliberate invariant), no new
 line past 72 columns, both sweeps silent, the plugin validates.
 
+The propagation gate before the confirming round returned five located
+hits, all dismissed:
+
+- hit dismissed 2026-09-25 — `design document` still stands in
+  `agents/architect.md`, `agents/integrity-auditor.md`,
+  `agents/plan-adversary.md` (twice) and `README.md`, against checks
+  that expect zero; counter: those checks assert the state after the
+  plan runs, and the plan has not run. The five occurrences in four
+  files are the before-state the Global Constraint names in those
+  words, and the simulated tree after all twenty tasks carries zero.
+- hit dismissed 2026-09-25 — the simulation "did not faithfully apply
+  the prescribed text replacements to disk"; counter: it applies them to
+  copies of the files by design, so that simulating a plan never
+  executes it, and the copies carry every replacement.
 - signal 2026-09-25 — the reviewer judges a further diff-scoped round
   not worth its cost over two one-line repairs and four count and
   wording items; the next reading worth paying for is the confirming
