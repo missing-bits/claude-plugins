@@ -27,6 +27,15 @@ happen (see the plugin-versioning rule). When an isolated workspace is
 used, its git worktree lives at `.claude/worktrees/<short-name>/` —
 one per topic branch, git-ignored.
 
+## Technical designs
+
+This repository does not get the technical-design offer by default. Its
+product is prose: a part's name is its path and behaviour is already the
+shape of the contract, so a technical design here would restate the
+design spec and the plan. The declaration switches the default offer
+off; it is not a ban. Ask for a technical design explicitly and the
+step runs as it would anywhere else.
+
 ## Authoring skills
 
 When creating or editing a skill in any plugin, use the `skill-creator`
