@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-25
 status: draft
 grilled: 2026-09-25
-architect: blocking
+architect: concerns
 decisions: registered
 branch: feature/plan-coverage
 base: develop
@@ -382,15 +382,28 @@ declares the first ones:
 A declaration says how its cells split: a cell may name several rows,
 comma-separated, and `producer → consumer` splits at the arrow before
 it splits at commas. It says which values are not references: a party
-outside the system is written `external: <name>`, and `—` states that
-the cell names nothing; neither is resolved. Every other name resolves
-to exactly one row of the named table: a name matching no row is a
-hit, and so is a name matching several, since a duplicated key makes
-every reference to it ambiguous.
+outside the system is written `external: <name>` and is not resolved.
+An empty cell, or one naming nothing, is a hit in all three relations
+above, since the rule's own definitions give every contract a consumer
+and every state record a writer and a reader. A later declaration that
+admits an empty side says so itself. Every other name resolves to
+exactly one row of the named table: a name matching no row is a hit,
+and so is a name matching several, since a duplicated key makes every
+reference to it ambiguous.
+
+The declarations have one home, the rule that defines the tables, under
+a fixed heading in the shape of the table above. The auditor's card
+names that heading and repeats none of it; the rule loads when the
+auditor reads a technical design, which is the only document these
+relations bind. A project whose rules declare nothing gives the duty
+nothing to cover, and it says so.
 
 A table no rule declares a relation for is not checked by this duty,
 and nothing says it was: the report states what the duty covers, and a
-document's ad-hoc tables are outside it.
+document's ad-hoc tables are outside it. So is a Contracts flow written
+as a numbered sequence rather than a table row: the rule gives the
+sequence no grammar a parse could split, so its steps are not
+references this duty resolves, and the declaration says so.
 
 ## The report
 
@@ -473,7 +486,7 @@ terminal rewrites of it:
 
     - hit held <date> — <the hit's claim>; question: <the missing decision>; options: <the options, with the session's recommendation>
     - hit fixed <date> — <the hit's claim>; <what changed>; ruling: <date>
-    - hit deferred <date> — <the hit's claim>; ruling: <date>; <the plan's **Defers:** line>
+    - hit deferred <date> — <the hit's claim>; ruling: <date>; Defers: <id>
     - hit withdrawn <date> — <the hit's claim>; ruling: <date>; <spec path>#<id>
 
 A `hit held` line is rewritten in place to one of the three terminal
@@ -604,7 +617,7 @@ design spec and its absence is reported, not refused.
 All under `plugins/working-process/` unless noted.
 
 - `agents/propagation-auditor.md` — duties 10 (coverage) and 11 (table
-  closure); the `decision-coverage:` output line; the "exactly two
+  closure, naming the rule heading that holds the declarations); the `decision-coverage:` output line; the "exactly two
   lines" sentence; the coverage exception in *What becomes of your
   hits*.
 - `agents/plan-adversary.md` — the realization-site dimension.
@@ -617,8 +630,9 @@ All under `plugins/working-process/` unless noted.
   pre-round placement; the widened *Unfinished review-loop ledger*
   command.
 - `rules/technical-design.md` — the declared relations of *Table
-  closure*: which columns name rows of Parts, how their cells split,
-  and the `external:` and `—` values.
+  closure*, under one fixed heading: which columns name rows of Parts,
+  how their cells split, the `external:` value, and that a numbered
+  sequence is outside the relation.
 - `rules/workflow.md` — the coverage exception to "hits never wait";
   the `decision-coverage:` line beside the closing-token paragraph; in
   step 4, the duty of a brief delegating plan-writing to name the
@@ -650,3 +664,13 @@ None at the time of writing.
 - fixed 2026-09-25 — [Minor] F7: the re-dispatch-bound hit shares `hit held`'s shape and the spec does not say why it stays out; license: D12 (the exception covers coverage hits alone); *Out of scope* now gives the reason
 - fixed 2026-09-25 — [Minor] F8: two grammars carry one fact; ruling: 2026-09-25; option (a) — a constraint entry opens with `**Realizes:** D9` as its first clause, one shape for both sites
 - signal 2026-09-25 — another round pays only after F1 is decided; then one diff-scoped round should suffice, and the Minors are worth a fix wave rather than a round of their own
+
+### 2026-09-25 — architect, fable 5.1, concerns (round 2, diff-scoped)
+
+- held — [Important] F9: a plan taking over from an earlier one gets a coverage hit for every decision the earlier plan already realized, and only `**Defers:**` can silence it; question: how does a plan account for decisions another plan descending from the same spec realizes?; options: (a) one realizing plan per spec — later work is a new spec with `revises:`, and the "later plan" sentence goes; (b) the counted set excludes identifiers cited by the other plans whose `spec:` names the same spec, found by the auditor itself and listed as "realized by <plan>" in the map; (c) the later plan names its predecessor and excludes what that plan cites — recommended: (b), mechanical and needing no annotation
+- held — [Minor] F11: "beside the Global Constraints section" is no exact place for a `**Defers:**` line; question: where exactly?; options: (a) the last lines of the Global Constraints section; (b) a block of its own directly after it — recommended: (a), one section a reader already scans for cross-cutting facts
+- fixed 2026-09-25 — [Minor] F10: `hit deferred` embeds the whole `**Defers:**` line; license: the `hit withdrawn` shape in *Gate lines for a held hit*, which points by identifier; the shape now ends `Defers: <id>`
+- fixed 2026-09-25 — [Minor] F12: `—` is allowed in relations whose definitions exclude an empty side; license: `rules/technical-design.md`'s definitions of contract and state; an empty cell is now a hit in all three relations, and a later declaration admitting one must say so
+- fixed 2026-09-25 — [Minor] F13: the cell split does not cover a numbered sequence; license: *Table closure* ("A table no rule declares a relation for is not checked"); a numbered sequence is now stated outside the relation, since the rule gives it no grammar to split
+- fixed 2026-09-25 — [Minor] F14: the spec does not say where the auditor reads the declarations; license: D10 (the relation is "declared by the rule that defines the table"); the rule is now their one home under a fixed heading, the card names the heading and repeats nothing, and *Changes by file* says so
+- signal 2026-09-25 — another round pays only after F9 is decided; the Minors are one fix wave, and if one realizing plan per spec is chosen an integrity audit may replace the round
