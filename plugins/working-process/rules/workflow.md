@@ -35,15 +35,62 @@ disables its suggestion — never the work itself.
    carry it.
 4. **Spec → plan.** At the spec's consumption gate, before the plan is
    written, offer an integrity audit when the `integrity-auditor` agent
-   is available: a fresh-context read of the whole spec, returning
-   defects and the questions an implementer would have to ask. The
-   offer fires unless a standing `integrity:` stamp still matches the
-   spec's recomputed body hash — a match means the standing stamp
+   is available: a fresh-context read of the whole design spec, and of
+   its technical design where it names one, returning defects and the
+   questions an implementer would have to ask. The offer fires unless a
+   standing `integrity:` stamp still matches the recomputed body hash of
+   every document the stamp names — a match means the standing stamp
    satisfies the gate, and the spec-plan-lifecycle rule owns that
-   comparison. For a spec whose LGTM came from a diff-scoped chain the
-   offer takes the pair form the verdict-agent dispatch subsection
-   defines, and narrows as that definition says when the auditor is
-   absent. The brief
+   comparison. For a judged document whose LGTM came from a diff-scoped
+   chain the offer takes the pair-offer form the verdict-agent dispatch
+   subsection defines — one pair offer for an audit pair, never one per
+   document — and narrows as that definition says when the auditor is
+   absent.
+
+   At the same gate, and before the integrity audit above, offer the
+   technical design when the repository is one that has code. A
+   declaration the project records binds and is never re-asked, in
+   either direction; a session reads it from the project instructions
+   Claude Code loads at session start — a `CLAUDE.md` at the repository
+   root or in `.claude/` — or from the file such a note points at, which
+   is the shape available until a standing home for a project's process
+   answers exists. Without a declaration, a repository carrying a
+   toolchain manifest — a file a language or platform toolchain reads
+   to build, test or deploy it — gets the offer at every consumption
+   gate and nothing is written; a repository carrying neither gets no
+   offer. The core names no closed list of markers, and a domain's own
+   skill may name the markers of its technology. A marker proves the
+   repository holds code, never that this change needs decomposing, so
+   the declaration is the signal and the marker only raises the
+   question. The offer reads *open the `system-designer-session` skill,
+   when available, and write the technical design?* — never *dispatch*,
+   which names a background agent here. Where no skill covers the
+   technology the document is still written, from generic knowledge and
+   best effort: a tool that is not installed disables its suggestion,
+   never the work. A design spec that already carries
+   `technical-design:` has had its first pass: the pointer answers the
+   offer, and the offer to write a design is not made again. The pointer
+   confirms the link and nothing more — the design it names still takes
+   every check it owes — and a pointer that resolves to no file is a
+   broken link, reported as a finding, never a reason to offer a second
+   design. A session may propose writing the declaration and never
+   writes it unasked. A change may skip the document when it
+   sits inside boundaries and contracts already settled and leaves the
+   implementer no new responsibility split, placement, or ownership of
+   state.
+
+   Where the technical-design offer is accepted, the audit waits: the
+   design is the last producer of changes to its design spec, and the
+   two are then audited as one target — an audit pair. The gate makes
+   one offer for that audit pair rather than one per document, and the
+   offer
+   names both documents, so declining it releases the chain debt of the
+   two it named and nothing besides. Where the audit runs instead, it
+   discharges that debt for both documents it read. The other arm stays
+   per-document: choosing it dispatches one full-document architect
+   round on each document that carries chain debt, each discharging the
+   debt of the one it read, and plan-writing waits for every verdict so
+   dispatched. The brief
    confirms the auditor's two preconditions: every edit from the
    conversation is written to disk, since one unsaved decision
    manufactures a run of false defects; and the propagation gate below
