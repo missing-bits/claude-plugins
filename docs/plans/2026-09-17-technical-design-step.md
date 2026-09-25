@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-17
 status: draft
-adversary: blocking
+adversary: concerns
 spec: ../specs/2026-09-16-technical-design-step.md
 branch: feature/technical-design-step
 base: develop
@@ -277,16 +277,18 @@ text would leave an implementer to decide.
 ## Domain vocabulary
 
 The author takes the part vocabulary — kinds of part, placement rules,
-kinds of contract, homes of state — from the Domain expertise duty the
-personas already carry, which has them scan and load the domain's own
-skills. No discovery convention of its own ships here.
+kinds of contract, homes of state — from the domain's own skills:
+through the Domain expertise duty the personas carry when the
+working-process plugin is installed, which has them scan and load those
+skills, and by reading the skills directly otherwise. No discovery
+convention of its own ships here.
 
 A kind of part, contract, or home of state that no domain skill names is
 recorded in the document as a **vocabulary gap**: the author names the
-kind, writes the gap down, and the architect round judges the boundary,
-which is what it judges in any case. Accumulated vocabulary gaps are
-either the specification of a `<domain>-technical-design` skill or the
-evidence that none is needed.
+kind, writes the gap down, and the architect round, when that agent is
+available, judges the boundary, which is what it judges in any case.
+Accumulated vocabulary gaps are either the specification of a
+`<domain>-technical-design` skill or the evidence that none is needed.
 
 Where no skill covers the technology at all, the document is written
 from generic knowledge, best effort. That degradation path is what
@@ -310,6 +312,9 @@ Run:
 F=plugins/working-process/rules/technical-design.md
 grep -c '^| [0-9]' $F                       # skeleton rows
 grep -c 'new | changed | retired | unchanged' $F
+tr -s '[:space:]' ' ' < $F | grep -c 'when that agent is available, judges the boundary'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'personas carry when the working-process plugin is installed'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'the personas already carry'  # expect 0
 awk 'length > 72' $F | grep -v '^|' | wc -l  # over-wide non-table lines
 ```
 
@@ -402,6 +407,7 @@ git commit -m "feat(working-process): count docs/technical-designs among Process
 
 **Files:**
 - Modify: `plugins/working-process/rules/ticket-frontmatter.md:13-15`
+  and the ticket-sourcing sentence at `:54`
 
 **Interfaces:**
 - Consumes: the directory named in Task 3.
@@ -439,7 +445,22 @@ with:
   spec-plan-lifecycle rule.
 ```
 
-- [ ] **Step 3: Verify the catch-all no longer claims the directory**
+- [ ] **Step 3: Let a technical design inherit its design spec's ticket**
+
+Replace:
+
+```
+for one unit of work — a plan inherits its spec's ticket, and artifacts
+```
+
+with:
+
+```
+for one unit of work — a technical design and a plan inherit their
+design spec's ticket, and artifacts
+```
+
+- [ ] **Step 4: Verify the catch-all no longer claims the directory**
 
 Run:
 
@@ -447,12 +468,14 @@ Run:
 F=plugins/working-process/rules/ticket-frontmatter.md
 tr -s '[:space:]' ' ' < $F | grep -c 'technical designs and plans'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'Every other document under `docs/`'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "a technical design and a plan inherit their design spec's ticket"  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "a plan inherits its spec's ticket"  # expect 0
 ```
 
 The second still stands: it is a catch-all, and the first bullet now
 takes the new directory out of its reach.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add plugins/working-process/rules/ticket-frontmatter.md
@@ -665,7 +688,14 @@ with:
 
 - [ ] **Step 6: State that a technical design is not grilled**
 
-After the offers paragraph, add:
+After the lines:
+
+```
+written, while only the frontmatter stamp waits for the confirming
+full-document round.
+```
+
+which close the offers paragraph, add:
 
 ```
 A technical design is a judged document and takes the design spec's side
@@ -956,7 +986,8 @@ git commit -m "feat(working-process): record a pair audit in one integrity stamp
 **Files:**
 - Modify: `plugins/working-process/rules/spec-plan-lifecycle.md`,
   Lifecycle offers section, after the consumption-gate backstop
-  paragraph
+  paragraph, and the two authoring enumerations at `:513-515` and
+  `:546-547`
 
 **Interfaces:**
 - Consumes: the class branches from Task 5. **Task 5 must land first**
@@ -978,8 +1009,14 @@ Expected: `0`.
 
 - [ ] **Step 2: Write the ordering and the passes**
 
-After the paragraph ending `its held questions are asked before the plan
-is written, whoever writes it.` — Task 5 Step 4's wording — add:
+After the lines:
+
+```
+latest. Writing a plan from a judged document is that same seam: its
+held questions are asked before the plan is written, whoever writes it.
+```
+
+which are Task 5 Step 4's wording, add:
 
 ```
 A technical design's own consumption gate is plan-writing, the same
@@ -1004,7 +1041,40 @@ the same turn and by the same hand, since otherwise the rule freezing an
 implemented document's body never reaches it.
 ```
 
-- [ ] **Step 3: Verify**
+- [ ] **Step 3: Name the technical design in two authoring enumerations**
+
+Two sentences further down the section list the authoring phase as
+spec and plan alone. Replace:
+
+```
+is about to start. During authoring — spec drafting, grilling, review
+rounds, plan writing — it never makes that suggestion; the documents'
+```
+
+with:
+
+```
+is about to start. During authoring — spec drafting, grilling,
+technical-design writing, review rounds, plan writing — it never makes
+that suggestion; the documents'
+```
+
+and replace:
+
+```
+The loop runs on that branch for the whole authoring phase — the spec's
+rounds and the plan's alike — and the topic branch takes it at the
+```
+
+with:
+
+```
+The loop runs on that branch for the whole authoring phase — the design
+spec's rounds, the technical design's and the plan's alike — and the
+topic branch takes it at the
+```
+
+- [ ] **Step 4: Verify**
 
 Run:
 
@@ -1013,9 +1083,13 @@ F=plugins/working-process/rules/spec-plan-lifecycle.md
 tr -s '[:space:]' ' ' < $F | grep -c 'The gate therefore runs in passes'     # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'precedes the joint integrity audit'    # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'in the same turn and by the same hand' # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'technical-design writing, review rounds'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "the technical design's and the plan's alike"  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'spec drafting, grilling, review rounds'  # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c "the spec's rounds and the plan's alike"  # expect 0
 ```
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add plugins/working-process/rules/spec-plan-lifecycle.md
@@ -1028,7 +1102,7 @@ git commit -m "feat(working-process): run the consumption gate in passes"
 
 **Files:**
 - Modify: `plugins/working-process/rules/propagation-duties.md:1-6`
-  (`paths:`) and its duty list
+  (`paths:`), its duty list, and the loads-at sentence at `:38-39`
 
 **Interfaces:**
 - Consumes: the pointers from Task 6.
@@ -1100,7 +1174,25 @@ When the `propagation-auditor` agent is available it walks the same
 nine as a gate, and its card is their definition and keeps the
 ```
 
-- [ ] **Step 5: Verify, both counters against what they count**
+- [ ] **Step 5: Re-state where the rule loads**
+
+Step 2 widens `paths:`, and the rule states its own loading in prose.
+Replace:
+
+```
+shipped occurrence of the banned term — which is why this rule loads at
+the domain directory as well as at specs and plans. And a count asserted
+```
+
+with:
+
+```
+shipped occurrence of the banned term — which is why this rule loads at
+the domain directory as well as at design specs, technical designs and
+plans. And a count asserted
+```
+
+- [ ] **Step 6: Verify, both counters against what they count**
 
 Run:
 
@@ -1110,6 +1202,8 @@ grep -c '"docs/technical-designs/\*\*"' $F      # expect 1
 grep -c '^| ' $F                                 # expect 11: header plus ten edit rows
 grep -c 'nine duties fall due' $F                # expect 1
 grep -c 'on a design spec or a technical design, that each pointer' $F  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'as well as at design specs, technical designs and plans'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'as well as at specs and plans'  # expect 0
 grep -c 'keyed by the ten edits' $F              # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'walks the same nine'  # expect 1
 grep -c 'eight duties\|the nine edits\|same eight' $F   # expect 0
@@ -1119,7 +1213,7 @@ The last line is the deletion assertion, and it is the one that matters:
 the old counters read as true prose and nothing but a recount catches
 them.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add plugins/working-process/rules/propagation-duties.md
@@ -1327,10 +1421,11 @@ git commit -m "feat(working-process): offer the technical design at the consumpt
 
 **Interfaces:**
 - Consumes: the offer from Task 10, the pointers from Task 6, and the
-  architect card sentence Task 13 writes. **Task 13 must land first** —
-  this task quotes that card, and quoting a phrase the card does not yet
-  carry is the propagation duty on prescribed blocks failing by our own
-  hand. Execute 13 before 11, or swap their numbers.
+  architect card as Task 13 leaves it. The block paraphrases that card
+  rather than quoting it, and the two tasks edit different files with
+  no shared anchor, so numbering order is safe: between them the rule
+  describes a card one task ahead of it, and nothing reads the card in
+  that interval.
 - Produces: the one turn in which both ends of the pair are written, so
   Task 9's duty never finds a half-written pair.
 
@@ -1399,7 +1494,8 @@ git commit -m "feat(working-process): name the technical design's author and rev
 **Files:**
 - Modify: `plugins/working-process/rules/workflow.md:333-339` (the
   triage clause), `:169-171` (the Process directories resolved before a
-  verdict dispatch), `:526-537` (the chain-debt pair offer)
+  verdict dispatch), `:526-537` (the chain-debt pair offer), and three
+  enumerations at `:127-128`, `:131-132` and `:149-150`
 
 **Interfaces:**
 - Consumes: `Origin` in its list form from Task 1.
@@ -1512,7 +1608,55 @@ The full-document-round arm therefore blocks plan-writing; the audit
 arm does not, and plan-writing follows its dispositions.
 ```
 
-- [ ] **Step 5: Verify the retired value and the old branches are gone**
+- [ ] **Step 5: Name the technical design in three enumerations**
+
+None is a branch, but each reads as a complete list, and the technical
+design belongs in all three: the glossary binds it, it is prose under
+`docs/`, and Task 4 gives it the branch fields. Replace:
+
+```
+terms and `_Avoid_` bans bind specs, plans, code identifiers, and
+reviews.
+```
+
+with:
+
+```
+terms and `_Avoid_` bans bind design specs, technical designs, plans,
+code identifiers, and reviews.
+```
+
+Replace:
+
+```
+available, prose artifacts under `docs/` — specs, plans, ADRs, the
+glossary — get its pass: invoke it before drafting a new document, and
+```
+
+with:
+
+```
+available, prose artifacts under `docs/` — design specs, technical
+designs, plans, ADRs, the glossary — get its pass: invoke it before
+drafting a new document, and
+```
+
+Replace:
+
+```
+name and this convention does not govern it. The work's spec and plan
+record the result in their `branch:` field — the topic branch, not the
+```
+
+with:
+
+```
+name and this convention does not govern it. The work's design spec,
+technical design and plan record the result in their `branch:` field —
+the topic branch, not the
+```
+
+- [ ] **Step 6: Verify the retired value and the old branches are gone**
 
 Run:
 
@@ -1526,13 +1670,19 @@ tr -s '[:space:]' ' ' < $F | grep -c 'For a judged document, the consumption gat
 tr -s '[:space:]' ' ' < $F | grep -c 'its round arm stays per-document'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'For a spec, the consumption gate'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'round on a spec is a new loop'  # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c 'bind design specs, technical designs, plans'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'bind specs, plans, code identifiers'  # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c 'design specs, technical designs, plans, ADRs'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'specs, plans, ADRs, the glossary'  # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c "The work's design spec, technical design and plan"  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c "The work's spec and plan"  # expect 0
 ```
 
 The second check is the deletion assertion: `both` retires with the
 value, and a surviving mention would send triage down a branch the
 adversary can no longer emit.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add plugins/working-process/rules/workflow.md
@@ -1604,7 +1754,7 @@ auditor hunts.
 **Files:**
 - Modify: `plugins/working-process/agents/integrity-auditor.md:3`
   (description), `:76-81` (Target and moment), `:101-103` (the second
-  lens), `:133-137` (the coverage tell)
+  lens), `:120-122` (the defect entry), `:133-137` (the coverage tell)
 
 **Interfaces:**
 - Consumes: the pointers from Task 6 and the stamp from Task 7.
@@ -1726,7 +1876,25 @@ one risk peculiar to a pair, and a single pair of numbers cannot show
 it.
 ```
 
-- [ ] **Step 6: Verify all three edits landed and the old text is gone**
+- [ ] **Step 6: Let a defect entry name its file on a joint target**
+
+The coverage tell reports per document; a defect entry must too, or a
+defect found in either document of an audit pair cannot say which one
+carries it. Replace:
+
+```
+Then the defects, one entry each:
+```
+
+with:
+
+```
+Then the defects, one entry each — on a joint target the entry opens
+with the file, `<file>:<section or line>`, so a defect found in either
+document of an audit pair says which one carries it:
+```
+
+- [ ] **Step 7: Verify all three edits landed and the old text is gone**
 
 Run:
 
@@ -1737,13 +1905,14 @@ tr -s '[:space:]' ' ' < $F | grep -c 'Four cases fix what you read'        # exp
 tr -s '[:space:]' ' ' < $F | grep -c 'never a target alone'                # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'the documents audited with it'       # expect 1
 grep -c 'coverage: <file>' $F                                 # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'document of an audit pair says which one carries it'  # expect 1
 grep -c 'coverage: <target line count>' $F                    # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'Your primary target is a spec,'      # expect 0
 ```
 
 The last two are deletion assertions.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add plugins/working-process/agents/integrity-auditor.md
@@ -1859,7 +2028,14 @@ licenses the edit.
 
 - [ ] **Step 5: Add the coverage read of the `change` column**
 
-Append to the generic dimensions:
+After the lines:
+
+```
+  broke?* Name it — the plan should have pre-empted it. Record it as a
+  finding.
+```
+
+which close dimension 4, add:
 
 ```
 ### 5. Coverage of the technical design's parts
@@ -1947,8 +2123,13 @@ a technical design or a plan before an expensive dispatch`.
 - [ ] **Step 3: Add the pointer-pair duty as a ninth numbered duty**
 
 The card's duties are `### 1.` through `### 8.` headings, not bullets,
-and the rule's table numbers its rows against them. Add after duty 8's
-last paragraph:
+and the rule's table numbers its rows against them. After the line:
+
+```
+it rather than assuming either way.
+```
+
+which closes duty 8, add:
 
 ```
 ### 9. The pointer pair
@@ -2087,6 +2268,8 @@ git commit -m "feat(working-process): cover technical designs in the status pass
   integrity-auditor paraphrase), `:133` (the `integrity` field row),
   `:184-192` (the Rules payload enumeration and its count), `:243-244`
   (the directories the plugin creates)
+- Modify: `plugins/working-process/skills/grilling-session/SKILL.md:8-13`
+  (its copy of the flow line and its scope sentence)
 
 **Interfaces:**
 - Consumes: every earlier task. This is the reader-facing summary and it
@@ -2238,7 +2421,37 @@ designs, written when a project accepts the offer) and
 `docs/code-review/` (Review reports — one per
 ```
 
-- [ ] **Step 8: Verify, and sweep the plugin for the retired phrase**
+- [ ] **Step 8: Bring the grilling-session skill's copy of the flow along**
+
+The skill carries its own copy of the flow line and a scope sentence;
+after Step 2 the two copies would disagree, and neither says that a
+technical design is not grilled. In
+`plugins/working-process/skills/grilling-session/SKILL.md`, replace:
+
+```
+idea → brainstorming (spec) → **grilling-session on the spec** →
+architect review (an `architect` agent dispatch) → writing-plans (plan) →
+plan-adversary on the plan → implementation → code review. Offer a
+grilling once a spec
+exists and before its implementation plan is written. Specs are the
+primary target; plans and raw ideas are in scope too.
+```
+
+with:
+
+```
+idea → brainstorming (design spec) → **grilling-session on the spec** →
+architect review (an `architect` agent dispatch) → technical design
+(when the repository has code) → writing-plans (plan) → plan-adversary
+on the plan → implementation → code review. Offer a grilling once a
+design spec exists and before its implementation plan is written.
+Design specs are the primary target; plans and raw ideas are in scope
+too. A technical design is not a grilling target: it mints no
+terminology, and its vocabulary comes from the design spec, which was
+grilled.
+```
+
+- [ ] **Step 9: Verify, and sweep the plugin for the retired phrase**
 
 Run:
 
@@ -2251,6 +2464,9 @@ grep -c 'creates three directories' plugins/working-process/README.md   # expect
 grep -c 'creates two directories' plugins/working-process/README.md     # expect 0
 grep -c 'recomputes the hash of every document the stamp names' plugins/working-process/README.md  # expect 1
 grep -c "a spec's consumption gate recomputes the hash" plugins/working-process/README.md  # expect 0
+tr -s '[:space:]' ' ' < plugins/working-process/skills/grilling-session/SKILL.md | grep -c 'A technical design is not a grilling target'  # expect 1
+tr -s '[:space:]' ' ' < plugins/working-process/skills/grilling-session/SKILL.md | grep -c 'technical design (when the repository has code)'  # expect 1
+tr -s '[:space:]' ' ' < plugins/working-process/skills/grilling-session/SKILL.md | grep -c 'agent dispatch) → writing-plans'  # expect 0
 grep -rcH 'a spec or plan\|build from that text alone\|handed a spec' \
   plugins/working-process/README.md | grep -v ':0$'
 ```
@@ -2260,7 +2476,7 @@ count and the directory listing must agree — a README that counts its
 own payload wrong is the failure this check exists for. The first and
 last lines are the Global Constraint's closing sweep.
 
-- [ ] **Step 9: Commit**
+- [ ] **Step 10: Commit**
 
 ```bash
 git add plugins/working-process/README.md
@@ -2299,7 +2515,13 @@ grep -n '^## ' CLAUDE.md
 
 - [ ] **Step 2: Write the declaration**
 
-Add a section after `## Worktrees and topic branches`:
+After the line:
+
+```
+one per topic branch, git-ignored.
+```
+
+which closes the `## Worktrees and topic branches` section, add:
 
 ```markdown
 ## Technical designs
@@ -2354,7 +2576,13 @@ grep '"version"' plugins/working-process/.claude-plugin/plugin.json
 
 - [ ] **Step 2: Write the `## Unreleased` entry**
 
-Add at the top of the changelog, under its one-line preamble:
+After the line:
+
+```
+Released versions of this plugin, newest first.
+```
+
+which is the changelog's preamble, add:
 
 ```markdown
 ## Unreleased
@@ -2447,6 +2675,22 @@ git commit -m "chore(working-process): changelog and dogfooding version for the 
   that pointer, and its absence is a hit, found from the design spec's
   side (Tasks 6, 9, 11, 15 and 16). Where this plan and the spec's
   sentence differ on that point, the plan follows the ruling.
+
+- **The technical-design rule words two component mentions
+  conditionally where the design spec states them plainly.** The spec
+  says the author takes vocabulary from "the Domain expertise duty the
+  personas already carry" and that "the architect round judges the
+  boundary". The spec describes a design; the rule Task 2 writes is a
+  committed project-level rule that loads for people without the
+  plugin, and the repository's plugin-authoring rule requires skill and
+  agent mentions in such text to be conditional. The rule says "when the
+  working-process plugin is installed" and "when that agent is
+  available"; the design is unchanged.
+- **The grilling-session skill is edited though the spec's Parts table
+  names no row for it.** It carries a copy of the flow line the README
+  carries, and once Task 18 changes one copy the two would disagree, so
+  Task 18 changes both. The spec's own Lifecycle sentence — a technical
+  design is not grilled — supplies the one sentence the skill gains.
 
 ## What this plan does not do
 
@@ -2893,3 +3137,71 @@ which is what this round's two Important findings were.
   to close on `LGTM` or `concerns`. It reads both Important findings as
   a class earlier rounds met too: a consumer no task enumerated, and a
   delivery mechanism assumed rather than read.
+
+### 2026-09-25 — plan-adversary, fable 5.1, concerns (round 5, full-document)
+
+Full-document read, briefed to enumerate the consumers of every contract
+the plan changes across the whole repository before reporting findings.
+The enumeration covers ten contracts over all four plugins, personas,
+skills, scripts and CI, each consumer mapped to a task or shown
+unaffected; it is in the record. One Important, six Minor. Record:
+`.claude/working-process/2026-09-17-technical-design-step/plan-adversary-round-5.md`.
+Every citation held.
+
+- fixed 2026-09-25 — [Important] the new rule's text named plugin
+  components unconditionally — the personas' Domain expertise duty and
+  the architect round — in a committed project-level rule that loads for
+  people without the plugin, the class round one fixed in Tasks 10 and
+  11 and left in Task 2; license: the repository's plugin-authoring
+  rule; both mentions are conditional, Task 2's checks assert it, and a
+  Deviations bullet records why the rule words them differently from the
+  spec's prose.
+- fixed 2026-09-25 — [Minor] the grilling-session skill carries its own
+  copy of the flow line and a scope sentence, which would disagree with
+  the README once Task 18 changed its copy; license: the design spec's
+  Lifecycle sentence that a technical design is not grilled; Task 18
+  gains a step for the skill, and a Deviations bullet records that the
+  spec's Parts table names no row for it.
+- fixed 2026-09-25 — [Minor] the propagation-duties rule's own sentence
+  about where it loads stayed "specs and plans" after Task 9 widens its
+  `paths:`; license: that widening; Task 9 gains a step and a deletion
+  assertion.
+- fixed 2026-09-25 — [Minor] six enumerations read as complete lists of
+  spec and plan though the technical design belongs in each — the
+  glossary's binding, the style pass, the branch field, two authoring
+  enumerations, and ticket inheritance; license: ADR 0004's class and
+  the fields Task 4 gives the technical design; Tasks 4, 8 and 12 each
+  gain a step, every site with a deletion assertion.
+- fixed 2026-09-25 — [Minor] on an audit pair a defect entry named no
+  file, so a defect in either document could not say which; license: the
+  design spec's "it may report defects in either", and the coverage tell
+  already reporting per document; Task 14 gains a step.
+- fixed 2026-09-25 — [Minor] four insertion instructions still named a
+  position, and one, read literally, would put the declaration inside
+  the section it was meant to follow; license: the propagation duty that
+  an anchor is byte-exact; all five insertions of that shape — the four
+  named and the changelog's — now quote the lines they follow in a
+  fenced block. The reviewer's own suggested anchor for the offers
+  paragraph, `full-document round.`, occurs three times in that file,
+  so the block quotes two lines instead.
+- fixed 2026-09-25 — [Minor] Task 11 left the implementer to choose
+  whether to run Task 13 first; license: the plan's own anchors, which
+  show no shared text between the two tasks; the Interfaces block says
+  numbering order is safe and why.
+
+The simulation ran after the wave: 127 of 127 after-checks pass, no step
+unsimulated, 83 of 84 non-zero checks fail on the pre-plan files (the
+last the deliberate invariant), no new line past 72 columns once one
+glued tail was rewrapped, both sweeps silent, the plugin validates. The
+finding about positional anchors exposed a fault in the simulator as
+well: it had carried special cases that encoded what those instructions
+meant rather than what they said, so it passed text an implementer
+reading literally would have misapplied. Those cases are removed; the
+simulator now accepts one explicit shape, "After the lines:" with the
+anchor quoted in a block, and applies it byte-exactly.
+
+- signal 2026-09-25 — the reviewer judges another round worth its cost
+  only as a diff-scoped pass over this wave, followed by the confirming
+  full-document round, which it expects to close on `LGTM`; the consumer
+  surface has now been walked plugin-wide, and a further full read for
+  its own sake would find no more than this round did.
