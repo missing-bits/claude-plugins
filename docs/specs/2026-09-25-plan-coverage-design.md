@@ -71,9 +71,9 @@ What stands today:
   identifiers on the specific Global Constraints entries that realize a
   constraint. Argued in *The plan's annotations*.
 - **D8** — The lifecycle rule's sentence "changes no plan template"
-  is revised: working-process adds exactly the D7 and D18 annotations,
-  and the
-  tool that writes plans keeps the rest of the template. Argued in *The
+  is revised: working-process adds exactly the D7, D18 and D19
+  annotations, and the tool that writes plans keeps the rest of the
+  template. Argued in *The
   plan's annotations*.
 - **D9** — A new propagation duty derives coverage: every leaf
   identifier of every registered spec that is neither withdrawn nor
@@ -118,6 +118,10 @@ What stands today:
   in a `**Defers:**` line, one per decision, carrying the developer's
   ruling; the deferral binds that plan alone, and the spec names no
   plan. Argued in *Deferral*.
+- **D19** — A plan continuing work an `implemented` plan began names
+  that plan in a `**Follows:**` line and inherits the decisions its
+  `**Realizes:**` annotations cite, never its deferrals. Argued in
+  *Sequential plans*.
 
 ## The register
 
@@ -266,9 +270,10 @@ This extends the plan template, and the lifecycle rule currently says
 the plugin does not: "This binds how the blocks are filled and changes
 no plan template — the template belongs to the tool that writes plans."
 The sentence is revised to name the exception: working-process adds the
-`**Realizes:**` annotation on tasks and constraint entries and the
-`**Defers:**` lines of *Deferral*, and the rest of the template stays
-with the tool that writes plans.
+`**Realizes:**` annotation on tasks and constraint entries, the
+`**Defers:**` lines of *Deferral* and the `**Follows:**` lines of
+*Sequential plans*, and the rest of the template stays with the tool
+that writes plans.
 
 The plan's author writes the annotations, whoever that author is, and
 the requirement lives in the lifecycle rule; the tool that writes plans
@@ -289,17 +294,20 @@ deferred by the plan, not by the spec:
 
     **Defers:** D6 — <why>; ruling: <date>
 
-The line sits beside the Global Constraints section, one line per
-deferred identifier, qualified as the plan's `**Realizes:**`
-annotations are. It carries the developer's ruling, and the session
-writes it only on the developer's explicit decision.
+The lines close the Global Constraints section, after its last entry,
+one line per deferred identifier, qualified as the plan's
+`**Realizes:**` annotations are. They state facts about the whole plan,
+never about the constraint entry above them. Each carries the
+developer's ruling, and the session writes it only on the developer's
+explicit decision.
 
 The plan is the right home for three reasons. The deferral is a fact
 about this plan — the decision still stands — so it binds this plan
 alone by construction: auditing any other plan descending from the same
 spec, the decision counts, and a later plan meant to take it over and
-not doing so gets the coverage hit. The spec names no plan, which keeps
-pointers running from the plan to the spec as they always do. And an
+not doing so gets the coverage hit (see *Sequential plans*). The spec
+names no plan, which keeps pointers running from the plan to the spec
+as they always do. And an
 `implemented` spec, whose body is frozen, never needs editing for a
 later plan to defer one of its decisions.
 
@@ -309,6 +317,42 @@ and cited by a `**Realizes:**` annotation in the same plan: the plan
 cannot both realize and defer it. The plan-adversary does not judge a
 deferral the developer ruled; it judges a plan whose other tasks quietly
 depend on the deferred decision anyway.
+
+## Sequential plans
+
+Work on one spec can run through several plans in sequence: a later
+plan picks up where an earlier one stopped. The later plan names each
+such predecessor on a line of its own, closing the Global Constraints
+section beside its `**Defers:**` lines:
+
+    **Follows:** ../plans/<file>.md
+
+The path is written relative to the plan. A predecessor must name the
+same spec in its own `spec:` and carry `status: implemented`: an
+implemented plan's body is frozen, so what it realized is settled, and
+a draft cannot lend coverage it may still lose. A `**Follows:**` line
+naming a missing file, a plan of another spec, or a plan not yet
+implemented is a hit.
+
+The later plan inherits every identifier its predecessors'
+`**Realizes:**` annotations cite, and nothing else: a predecessor's
+`**Defers:**` lines are never inherited, so a decision an earlier plan
+deferred counts in the later one until that plan realizes or defers it
+itself. The coverage map shows an inherited identifier with the plan it
+comes from — `D3 → ../plans/<file>.md (Task 4)`.
+
+The automatic alternative — excluding whatever any other plan of the
+same spec cites — was refused: two draft plans could each exempt the
+other from one decision, and a plan's result would change when an
+unrelated draft appeared. Splitting one spec's decisions across plans
+written in parallel needs a contract of its own, and this spec does not
+design one.
+
+Inherited coverage is taken as settled, not re-judged. A predecessor
+passed its own review and shipped, and the plan-adversary reads plans,
+not the code that implemented them, so it cannot re-verify that work.
+What it judges is the later plan: a task that changes or undoes what an
+inherited decision required is a finding against the plan under review.
 
 ## The coverage duty
 
@@ -327,7 +371,9 @@ A tenth propagation duty runs on a plan. For each spec the plan's
    stop for that spec.
 3. Collect the counted set: the leaf identifiers that are not
    withdrawn, less those the audited plan's `**Defers:**` lines name.
-   The `**Defers:**` lines are checked as *Deferral* says.
+   The `**Defers:**` lines are checked as *Deferral* says, and the
+   `**Follows:**` lines as *Sequential plans* says; identifiers a
+   predecessor realized count as cited, from that predecessor.
 4. Collect every identifier the plan's `**Realizes:**` annotations
    cite, on tasks and constraint entries. A cited withdrawn identifier
    and a cited group are hits, and so is a cited identifier the
@@ -569,8 +615,9 @@ most expensive tier.
 made, and gains three things:
 
 - a row for the coverage duty — *added, changed or withdrawn a register
-  entry, or added, split, merged or deferred in a plan* → the register
-  against every `**Realizes:**` annotation and `**Defers:**` line;
+  entry, or added, split, merged, deferred or followed in a plan* → the
+  register against every `**Realizes:**` annotation, `**Defers:**` line
+  and `**Follows:**` predecessor;
 - a row for the table-closure duty — *written a column naming rows of
   another table* → every name against that table;
 - the third anchor case the duty-2 row omits, which the card states:
@@ -617,16 +664,17 @@ design spec and its absence is reported, not refused.
 All under `plugins/working-process/` unless noted.
 
 - `agents/propagation-auditor.md` — duties 10 (coverage) and 11 (table
-  closure, naming the rule heading that holds the declarations); the `decision-coverage:` output line; the "exactly two
-  lines" sentence; the coverage exception in *What becomes of your
-  hits*.
+  closure, naming the rule heading that holds the declarations); the
+  `decision-coverage:` output line; the "exactly two lines" sentence;
+  the coverage exception in *What becomes of your hits*.
 - `agents/plan-adversary.md` — the realization-site dimension.
 - `agents/integrity-auditor.md` — one sentence naming the register as a
   declared rule for lens 1.
 - `rules/spec-plan-lifecycle.md` — the `decisions:` field in the
   frontmatter contract; the register's grammar, states and declared
-  rule; the revised template sentence; the `**Realizes:**` and
-  `**Defers:**` annotations; the four gate-line shapes and the
+  rule; the revised template sentence; the `**Realizes:**`,
+  `**Defers:**` and `**Follows:**` annotations; the four gate-line
+  shapes and the
   pre-round placement; the widened *Unfinished review-loop ledger*
   command.
 - `rules/technical-design.md` — the declared relations of *Table
@@ -667,8 +715,8 @@ None at the time of writing.
 
 ### 2026-09-25 — architect, fable 5.1, concerns (round 2, diff-scoped)
 
-- held — [Important] F9: a plan taking over from an earlier one gets a coverage hit for every decision the earlier plan already realized, and only `**Defers:**` can silence it; question: how does a plan account for decisions another plan descending from the same spec realizes?; options: (a) one realizing plan per spec — later work is a new spec with `revises:`, and the "later plan" sentence goes; (b) the counted set excludes identifiers cited by the other plans whose `spec:` names the same spec, found by the auditor itself and listed as "realized by <plan>" in the map; (c) the later plan names its predecessor and excludes what that plan cites — recommended: (b), mechanical and needing no annotation
-- held — [Minor] F11: "beside the Global Constraints section" is no exact place for a `**Defers:**` line; question: where exactly?; options: (a) the last lines of the Global Constraints section; (b) a block of its own directly after it — recommended: (a), one section a reader already scans for cross-cutting facts
+- fixed 2026-09-25 — [Important] F9: a plan taking over from an earlier one gets a coverage hit for every decision the earlier plan already realized; ruling: 2026-09-25; option (c), narrowed to `implemented` predecessors — new D19 and section *Sequential plans*: a `**Follows:**` line names each predecessor of the same spec, the later plan inherits its `**Realizes:**` identifiers and never its deferrals, the map names the source plan, and step 3 counts inherited identifiers as cited; option (b) refused in the section, since two drafts could exempt each other; deviation: *Sequential plans* — the plan-adversary judges the later plan against inherited decisions, not the predecessor's implementation, which it cannot read
+- fixed 2026-09-25 — [Minor] F11: no exact place for a `**Defers:**` line; ruling: 2026-09-25; option (a) — the lines close the Global Constraints section and state facts about the whole plan, not the entry above them; `**Follows:**` lines sit beside them
 - fixed 2026-09-25 — [Minor] F10: `hit deferred` embeds the whole `**Defers:**` line; license: the `hit withdrawn` shape in *Gate lines for a held hit*, which points by identifier; the shape now ends `Defers: <id>`
 - fixed 2026-09-25 — [Minor] F12: `—` is allowed in relations whose definitions exclude an empty side; license: `rules/technical-design.md`'s definitions of contract and state; an empty cell is now a hit in all three relations, and a later declaration admitting one must say so
 - fixed 2026-09-25 — [Minor] F13: the cell split does not cover a numbered sequence; license: *Table closure* ("A table no rule declares a relation for is not checked"); a numbered sequence is now stated outside the relation, since the rule gives it no grammar to split
