@@ -2811,6 +2811,17 @@ git commit -m "chore(working-process): changelog and dogfooding version for the 
   today — a `CLAUDE.md` note, or a file it points at — and Task 19 uses
   it for this repository. When the wider question is settled, the
   declaration moves with every other standing answer.
+- **It does not validate the step on a code project.** The design
+  spec calls its own justification a hypothesis, and its validation
+  paragraph says what settles it: on one code project, cost — elapsed
+  time, tokens by model tier, rounds per document, and the interruptions
+  that needed a developer decision — against the structural decisions
+  still discovered during implementation and the rework they caused,
+  read against a comparison arm named before measuring starts. This
+  repository cannot run that, since it declines the offer. The
+  validation is a separate, open step the developer owns. Completing
+  this plan's tasks shows the contract landed; it claims nothing about
+  whether the step earns its cost.
 - It renames no existing spec to `-spec.md`, and adds no
   `<domain>-technical-design` skill. Both are out of scope in the spec.
 - **It changes no plan template.** The `**Interfaces:**` block shape
@@ -3445,17 +3456,15 @@ and an annotation settles findings without assessing a changed contract.
   in this process resolving from its own file; each entry is rewritten
   relative to the plan's directory, and duty 9 compares resolved
   targets.
-- held — [Minor] Codex: the code-project validation the spec promises
-  has neither a task nor an owner, so finishing the tasks could be
-  mistaken for evidence that the workflow works on a code project;
-  question: who owns that validation, and where is it tracked?;
-  options: (a) the developer owns it, tracked as an issue in this
-  repository, created only on the developer's explicit order —
-  recommended, since it is durable and visible; (b) the developer owns
-  it, tracked as a Private-memory idea entry; (c) left unassigned for
-  now, with the plan saying so. Whichever is chosen, the plan records
-  the spec's acceptance criteria and states that completing its tasks
-  does not claim the validation happened.
+- fixed 2026-09-25 — [Minor] Codex: the code-project validation the
+  spec promises had neither a task nor an owner, so finishing the tasks
+  could be mistaken for evidence that the workflow works on a code
+  project; ruling: 2026-09-25; the developer owns the validation and
+  tracks it outside this repository, and a not-done bullet records it
+  as open, restates the spec's acceptance criteria, and says completing
+  the tasks claims nothing about it. The plan does not say where it is
+  tracked, since that store is per-user and a committed document must
+  not point at it.
 
 The simulation ran after the wave with every insertion handler but the
 fenced shape removed: 142 of 142 annotated checks pass, no verify
