@@ -294,10 +294,12 @@ deferred by the plan, not by the spec:
 
     **Defers:** D6 — <why>; ruling: <date>
 
-The lines close the Global Constraints section, after its last entry,
-one line per deferred identifier, qualified as the plan's
-`**Realizes:**` annotations are. They state facts about the whole plan,
-never about the constraint entry above them. Each carries the
+The lines form a block of their own directly after the Global
+Constraints section, outside it, one line per deferred identifier,
+qualified as the plan's `**Realizes:**` annotations are. They stay out
+of that section because the plan template makes every task's
+requirements include it, and these lines state facts about the whole
+plan rather than requirements of any task. Each carries the
 developer's ruling, and the session writes it only on the developer's
 explicit decision.
 
@@ -322,8 +324,8 @@ depend on the deferred decision anyway.
 
 Work on one spec can run through several plans in sequence: a later
 plan picks up where an earlier one stopped. The later plan names each
-such predecessor on a line of its own, closing the Global Constraints
-section beside its `**Defers:**` lines:
+such predecessor on a line of its own, in the same block as its
+`**Defers:**` lines, after the Global Constraints section:
 
     **Follows:** ../plans/<file>.md
 
@@ -345,8 +347,9 @@ The later plan inherits every identifier its predecessors'
 deferred counts in the later one until that plan realizes or defers it
 itself. Nor are its `**Follows:**` lines: inheritance is not
 transitive, so a plan drawing on a chain names every implemented
-predecessor whose citations it relies on. The coverage map shows an inherited identifier with the plan it
-comes from — `D3 → ../plans/<file>.md (Task 4)`.
+predecessor whose citations it relies on. The coverage map shows an
+inherited identifier with the plan it comes from —
+`D3 → ../plans/<file>.md (Task 4)`.
 
 The automatic alternative — excluding whatever any other plan of the
 same spec cites — was refused: two draft plans could each exempt the
@@ -735,7 +738,7 @@ None at the time of writing.
 
 ### 2026-09-26 — architect, fable 5.1, concerns (round 3, diff-scoped)
 
-- held — [Minor] F18: the `**Defers:**` and `**Follows:**` lines closing Global Constraints fall under the template's "Every task's requirements implicitly include this section"; counter: re-raises the F11 line carrying `ruling: 2026-09-25` with new evidence — round 2 cited only the section heading, not that sentence; question: add a clause exempting both kinds of line from that implicit inclusion, keeping the placement?; options: (a) yes — one clause in the revised template sentence (D8, *The plan's annotations*); (b) move both kinds of line into a block of their own after Global Constraints instead — recommended: (a), placement stays as ruled
+- fixed 2026-09-26 — [Minor] F18: the `**Defers:**` and `**Follows:**` lines closing Global Constraints fall under the template's "Every task's requirements implicitly include this section"; ruling: 2026-09-26; option (b), which replaces the placement ruled under F11 in round 2, on new evidence — both kinds of line now form a block of their own directly after the Global Constraints section, outside it (*Deferral*, *Sequential plans*)
 - fixed 2026-09-26 — [Minor] F15: inheritance does not say whether it is transitive; license: *Sequential plans* ("and nothing else"); a predecessor's `**Follows:**` lines are now stated as not inherited, so a plan names every predecessor it relies on
 - fixed 2026-09-26 — [Minor] F16: "what it realized is settled" claims more than a frozen body gives; license: `rules/spec-plan-lifecycle.md` (an implemented document "is the archive, not the specification of what stands today"); the sentence now rests on what the predecessor cited, and whether the realization still stands is sent to the lifecycle rule's diff
 - fixed 2026-09-26 — [Minor] F17: the glossary's **Decision coverage** ignores inherited citations; license: D19; the entry now covers citations in an implemented predecessor, and *Changes by file* records the review-round amendments to the glossary
