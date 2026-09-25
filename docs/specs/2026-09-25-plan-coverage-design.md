@@ -59,12 +59,10 @@ What stands today:
   cross-cutting constraints and "leave X unchanged" rulings included —
   the latter realized as constraints. Rejected alternatives stay out.
   Argued in *What enters the register*.
-- **D5** — An entry carries at most one of two state tokens:
-  `deferred from <plan>[ to <where>], ruling: <date>` or
-  `withdrawn <reason>, ruling: <date>[; replaced by <id>]`. A
-  deferral excludes the decision from the named plan's count alone.
-  Only a leaf carries a token. The session writes either only on the
-  developer's explicit decision. Argued in *Entry states*.
+- **D5** — An entry carries one state token or none:
+  `withdrawn <reason>, ruling: <date>[; replaced by <id>]`. Only a leaf
+  carries it, and the session writes it only on the developer's
+  explicit decision. Argued in *Entry states*.
 - **D6** — The spec author creates the register, with or without a
   grilling session; the grilling session updates it as decisions land.
   Argued in *Who writes the register*.
@@ -73,17 +71,19 @@ What stands today:
   identifiers on the specific Global Constraints entries that realize a
   constraint. Argued in *The plan's annotations*.
 - **D8** — The lifecycle rule's sentence "changes no plan template"
-  is revised: working-process adds exactly the D7 annotations, and the
+  is revised: working-process adds exactly the D7 and D18 annotations,
+  and the
   tool that writes plans keeps the rest of the template. Argued in *The
   plan's annotations*.
 - **D9** — A new propagation duty derives coverage: every leaf
   identifier of every registered spec that is neither withdrawn nor
-  deferred from the audited plan needs a realizing task or constraint,
+  deferred by the audited plan needs a realizing task or constraint,
   and the register itself must be well formed. Argued in *The coverage
   duty*.
-- **D10** — A second new propagation duty checks table closure: a
-  column naming another table's rows names only rows that exist.
-  Argued in *Table closure*.
+- **D10** — A second new propagation duty checks table closure: where
+  the rule defining a table declares that a column names rows of
+  another table, every name resolves to exactly one row. Argued in
+  *Table closure*.
 - **D11** — The auditor's report gains one `decision-coverage:` block
   per spec the audited plan names — a summary line and, where the
   register could be counted, the map from identifier to citing sites —
@@ -114,6 +114,10 @@ What stands today:
 - **D17** — A spec without the `decisions:` field is reported as
   `not checked` and yields no hit; existing specs migrate at a
   substantive revision, never in a sweep. Argued in *Legacy specs*.
+- **D18** — A plan that leaves a registered decision unrealized says so
+  in a `**Defers:**` line, one per decision, carrying the developer's
+  ruling; the deferral binds that plan alone, and the spec names no
+  plan. Argued in *Deferral*.
 
 ## The register
 
@@ -159,8 +163,8 @@ element a child identifier. Registering that table as one decision
 would let one task citing it pass as 8/8 while realizing six rows,
 which is the failure this spec exists to catch. The parent of children
 is a group: it enters no count, citing it covers none of its children,
-and it carries no state token. A deferral or a withdrawal of the whole
-group is written on each of its leaves, since the leaves are what the
+and it carries no state token. A withdrawal or a deferral of the whole
+group is written for each of its leaves, since the leaves are what the
 count reads.
 
 ## What enters the register
@@ -178,24 +182,16 @@ not taken*.
 
 ## Entry states
 
-An entry without a token is active. Two state tokens exist, a leaf
-carries at most one, and a group carries none. Whether a leaf enters a
-plan's count is decided against the audited plan, not by the token's
-presence alone:
+An entry without a token is active. One state token exists, a leaf
+carries it or not, and a group never does:
 
-- `deferred from <plan>[ to <where>], ruling: <date>` — the developer
-  decided the decision stands but the named plan does not realize it.
-  `<plan>` is that plan's path relative to the spec, an inline list
-  where several plans defer the same decision; `<where>`, optional,
-  names the later plan, spec or ticket expected to take it. The
-  exclusion is scoped to the named plans: auditing any other plan, the
-  decision counts as active. A later plan that takes the decision over
-  therefore meets it in its own count with no token to remove, and one
-  that should take it over and does not gets the coverage hit.
-- `withdrawn <reason>, ruling: <date>[; replaced by <id>]` — the
-  decision no longer stands. The entry stays as a tombstone that
-  reserves its identifier; `replaced by` names the successor where one
-  exists.
+    withdrawn <reason>, ruling: <date>[; replaced by <id>]
+
+The decision no longer stands. The entry stays as a tombstone that
+reserves its identifier; `replaced by` names the successor where one
+exists. A decision that still stands but one plan does not realize is
+not a state of the entry at all — that is a deferral, and the plan
+records it (see *Deferral*).
 
 A tombstone keeps the identifier visibly taken, so a reuse shows up as
 a duplicate, and a plan still citing it gets a hit that says why. Two
@@ -203,19 +199,18 @@ constraints bind `replaced by`: it names an identifier that exists in
 the same register and differs from its own, and a chain of successors
 never forms a cycle. A successor may itself be withdrawn.
 
-Deferral and withdrawal never combine: a decision deferred and later
-dropped is rewritten from `deferred` to `withdrawn`. Neither is a
-disposition of a hit — both change what the spec decides, so the session
-writes either token only on the developer's explicit decision, and the
-edit lands in the spec's own ledger. That edit leaves the spec's
-`integrity:` stamp stale, as any body edit does, and correctly so.
+A withdrawal is not a disposition of a hit: it changes what the spec
+decides, so the session writes the token only on the developer's
+explicit decision, and the edit lands in the spec's own ledger. That
+edit leaves the spec's `integrity:` stamp stale, as any body edit does,
+and correctly so. Withdrawing a decision of a spec already
+`implemented` is no edit of its frozen body but a revision: a newer
+design spec carries `revises:` and the register that stands.
 
-Each token's `ruling:` is a Ruling in the glossary's sense, dated with
+The token's `ruling:` is a Ruling in the glossary's sense, dated with
 the developer's decision rather than with the edit that recorded it.
 It protects that decision from a reviewer's re-raise, never from the
-developer: a later ruling may rewrite a deferral as a withdrawal, or
-remove a deferral and return the decision to its active state, each
-change recorded in the spec's ledger like the first.
+developer, whose later ruling may revise it like any other.
 
 The duplicate check does not catch an author who overwrites a tombstone
 with a new active decision under the same identifier; only a comparison
@@ -250,8 +245,11 @@ housekeeping task from an author who forgot, and it would either report
 a false hit or miss a real one.
 
 A cross-cutting constraint is realized by the Global Constraints entry
-that states it, and that entry carries the identifier in its first
-line — `(realizes D9)`. Citing the section as a whole realizes nothing.
+that states it, and that entry opens with the same annotation, as its
+first clause — `**Realizes:** D9`. One shape serves both sites: the
+values, the qualification of identifiers and the wrapping rules are
+shared, and only the place differs. Citing the section as a whole
+realizes nothing.
 
 A plan descending from one spec uses bare identifiers. A plan descending
 from several qualifies each identifier with that spec's path exactly as
@@ -268,8 +266,9 @@ This extends the plan template, and the lifecycle rule currently says
 the plugin does not: "This binds how the blocks are filled and changes
 no plan template — the template belongs to the tool that writes plans."
 The sentence is revised to name the exception: working-process adds the
-`**Realizes:**` line and the constraint identifiers, and the rest of the
-template stays with the tool that writes plans.
+`**Realizes:**` annotation on tasks and constraint entries and the
+`**Defers:**` lines of *Deferral*, and the rest of the template stays
+with the tool that writes plans.
 
 The plan's author writes the annotations, whoever that author is, and
 the requirement lives in the lifecycle rule; the tool that writes plans
@@ -283,6 +282,34 @@ caught at its first gate, and the missing lines take the triage of
 where the task's text actually realizes the decision, never
 mechanically.
 
+## Deferral
+
+A decision that stands, but that this plan does not realize, is
+deferred by the plan, not by the spec:
+
+    **Defers:** D6 — <why>; ruling: <date>
+
+The line sits beside the Global Constraints section, one line per
+deferred identifier, qualified as the plan's `**Realizes:**`
+annotations are. It carries the developer's ruling, and the session
+writes it only on the developer's explicit decision.
+
+The plan is the right home for three reasons. The deferral is a fact
+about this plan — the decision still stands — so it binds this plan
+alone by construction: auditing any other plan descending from the same
+spec, the decision counts, and a later plan meant to take it over and
+not doing so gets the coverage hit. The spec names no plan, which keeps
+pointers running from the plan to the spec as they always do. And an
+`implemented` spec, whose body is frozen, never needs editing for a
+later plan to defer one of its decisions.
+
+A `**Defers:**` line naming an identifier the register does not define,
+a withdrawn one or a group is a hit. So is one identifier both deferred
+and cited by a `**Realizes:**` annotation in the same plan: the plan
+cannot both realize and defer it. The plan-adversary does not judge a
+deferral the developer ruled; it judges a plan whose other tasks quietly
+depend on the deferred decision anyway.
+
 ## The coverage duty
 
 A tenth propagation duty runs on a plan. For each spec the plan's
@@ -293,21 +320,22 @@ A tenth propagation duty runs on a plan. For each spec the plan's
    other than `registered`, report a hit and `not counted`, and stop.
 2. Check the register is well formed. Each of these is a hit: the field
    set with no `## Decisions` section; an identity paragraph that does
-   not parse; a duplicate identifier; an entry carrying both state
-   tokens; a group carrying a state token; a `replaced by` naming a
+   not parse; a duplicate identifier; an unknown state token; a group
+   carrying a state token; a `replaced by` naming a
    missing identifier, its own, or closing a cycle. Where any of them
    fires, the counted set cannot be trusted: report `not counted` and
    stop for that spec.
-3. Collect the counted set: the leaf identifiers that are neither
-   withdrawn nor deferred from the audited plan. A deferral naming
-   another plan does not exclude.
-4. Collect every identifier the plan's `**Realizes:**` lines and
-   constraint entries cite. A cited withdrawn identifier and a cited
-   group are hits, and so is a cited identifier the register does not
-   define. That last is an error in the plan, never a gap in the spec:
-   identifiers are minted only in the register, so a plan citing one the
-   register lacks has mistyped or invented it. Duty 5 does not take it,
-   since duty 5 reads an undefined name as a gap in its source.
+3. Collect the counted set: the leaf identifiers that are not
+   withdrawn, less those the audited plan's `**Defers:**` lines name.
+   The `**Defers:**` lines are checked as *Deferral* says.
+4. Collect every identifier the plan's `**Realizes:**` annotations
+   cite, on tasks and constraint entries. A cited withdrawn identifier
+   and a cited group are hits, and so is a cited identifier the
+   register does not define. That last is an error in the plan, never
+   a gap in the spec: identifiers are minted only in the register, so a
+   plan citing one the register lacks has mistyped or invented it.
+   Duty 5 does not take it, since duty 5 reads an undefined name as a
+   gap in its source.
 5. Report every counted identifier that no task and no constraint
    cites: one hit per identifier.
 
@@ -329,16 +357,40 @@ belongs to the integrity auditor (see *Readers*).
 
 ## Table closure
 
-An eleventh propagation duty, independent of coverage: where a document
-writes a table whose column names rows of another table, every name
-resolves to a row. It answers "does the named element exist?", where
-coverage answers "does every required element have an owner?" —
-correct references can coexist with a missed decision, so neither
-subsumes the other. Measured on 2026-09-16: walked duty by duty, none of
-the nine current duties checks referential integrity between two tables
-of one document. The duty generalises past its first case: it also
-reads the task-to-part mapping the plan-adversary's dimension 5 relies
-on.
+An eleventh propagation duty, independent of coverage. It answers "does
+the named element exist?", where coverage answers "does every required
+element have an owner?" — correct references can coexist with a missed
+decision, so neither subsumes the other. Measured on 2026-09-16: walked
+duty by duty, none of the nine current duties checks referential
+integrity between two tables of one document.
+
+The duty checks declared relations only, never guessed ones. Matching
+cell values would be a false detector: two unrelated columns can share
+names by chance, and a relation whose every reference is wrong would
+match nothing and go unseen. The relation is declared by the rule that
+defines the table's columns, which is also the rule that closes them,
+so the auditor knows the relation before it compares a single cell and
+no document needs an annotation of its own. The technical-design rule
+declares the first ones:
+
+| column | names rows of |
+|---|---|
+| Contracts `producer → consumer`, each side | Parts `part` |
+| State `written by` | Parts `part` |
+| State `read by` | Parts `part` |
+
+A declaration says how its cells split: a cell may name several rows,
+comma-separated, and `producer → consumer` splits at the arrow before
+it splits at commas. It says which values are not references: a party
+outside the system is written `external: <name>`, and `—` states that
+the cell names nothing; neither is resolved. Every other name resolves
+to exactly one row of the named table: a name matching no row is a
+hit, and so is a name matching several, since a duplicated key makes
+every reference to it ambiguous.
+
+A table no rule declares a relation for is not checked by this duty,
+and nothing says it was: the report states what the duty covers, and a
+document's ad-hoc tables are outside it.
 
 ## The report
 
@@ -360,9 +412,8 @@ follows it, one indented line per counted identifier, naming every task
 and constraint that cites it; an uncovered identifier maps to nothing
 and is also a hit above. The map is what the fraction summarises, so a
 reader can check the one against the other. The fraction's denominator
-is the counted set of step 3; identifiers deferred from the audited
-plan are listed apart and never counted as covered, while a deferral
-naming another plan leaves its identifier in the count. `not counted`
+is the counted set of step 3; identifiers the audited plan defers are
+listed apart and never counted as covered. `not counted`
 follows a malformed register, whose hits stand above it, and carries no
 map, since its denominator cannot be derived.
 
@@ -404,11 +455,12 @@ dispatcher classifies its fix by license:
   is already established. The hit is held for the developer.
 
 A held hit blocks the dispatch its gate guards, as a held finding
-already blocks a fresh round. The answer lands in the spec — a new or a
-sharpened register entry — or, where the developer defers or drops the
-decision, as its `deferred` or `withdrawn` token. The plan is then
-fixed and the gate re-run, and the plan-adversary dispatches only once
-the gate passes.
+already blocks a fresh round. The answer lands where the decision
+belongs: in the spec as a new or a sharpened register entry, or as the
+entry's `withdrawn` token where the developer drops the decision; in
+the plan as a `**Defers:**` line where the developer defers it. The
+plan is then fixed and the gate re-run, and the plan-adversary
+dispatches only once the gate passes.
 
 The workflow rule's "hits never wait for the developer" gains one named
 exception, for coverage hits alone. Every other hit keeps a fix
@@ -421,7 +473,7 @@ terminal rewrites of it:
 
     - hit held <date> — <the hit's claim>; question: <the missing decision>; options: <the options, with the session's recommendation>
     - hit fixed <date> — <the hit's claim>; <what changed>; ruling: <date>
-    - hit deferred <date> — <the hit's claim>; ruling: <date>; <spec path>#<id>
+    - hit deferred <date> — <the hit's claim>; ruling: <date>; <the plan's **Defers:** line>
     - hit withdrawn <date> — <the hit's claim>; ruling: <date>; <spec path>#<id>
 
 A `hit held` line is rewritten in place to one of the three terminal
@@ -429,7 +481,8 @@ shapes, so the state always has one home. The rewrite happens after the
 gate re-runs over the changed spec and plan, never on the developer's
 answer alone. `hit fixed … ruling:` records that the developer settled
 the missing decision and the plan now realizes it. `hit deferred`
-records an approved deferral, and `hit withdrawn` a decision the
+records an approved deferral, now a `**Defers:**` line in the plan, and
+`hit withdrawn` a decision the
 developer dropped, its register entry now a tombstone. Neither is
 `hit dismissed`, because the gap was real when the hit fired. The
 ordinary `hit fixed` shape, without `ruling:`, stays as it is for every
@@ -479,9 +532,8 @@ is the decision, never the single site: one decision split across
 several tasks is legal, so the question is whether all the tasks and
 constraints citing it realize it in full together. A decision they
 realize only in part — six rows of eight — is an Important finding with
-`origin` naming the plan. A decision the developer deferred from the
-plan under review is not the adversary's to judge; one deferred from
-another plan is judged like any other.
+`origin` naming the plan. The plan's own deferrals are judged as
+*Deferral* says.
 
 The integrity auditor needs no new lens. Its first lens verifies every
 rule a document declares about itself, in both directions, and a
@@ -503,9 +555,9 @@ most expensive tier.
 `propagation-duties.md` keys the duties by the edit an author has just
 made, and gains three things:
 
-- a row for the coverage duty — *added, changed, deferred or withdrawn a
-  register entry, or added, split or merged a plan task* → the register
-  against every `**Realizes:**` line and constraint entry;
+- a row for the coverage duty — *added, changed or withdrawn a register
+  entry, or added, split, merged or deferred in a plan* → the register
+  against every `**Realizes:**` annotation and `**Defers:**` line;
 - a row for the table-closure duty — *written a column naming rows of
   another table* → every name against that table;
 - the third anchor case the duty-2 row omits, which the card states:
@@ -560,9 +612,13 @@ All under `plugins/working-process/` unless noted.
   declared rule for lens 1.
 - `rules/spec-plan-lifecycle.md` — the `decisions:` field in the
   frontmatter contract; the register's grammar, states and declared
-  rule; the revised template sentence; the four gate-line shapes and
-  the pre-round placement; the widened *Unfinished review-loop ledger*
+  rule; the revised template sentence; the `**Realizes:**` and
+  `**Defers:**` annotations; the four gate-line shapes and the
+  pre-round placement; the widened *Unfinished review-loop ledger*
   command.
+- `rules/technical-design.md` — the declared relations of *Table
+  closure*: which columns name rows of Parts, how their cells split,
+  and the `external:` and `—` values.
 - `rules/workflow.md` — the coverage exception to "hits never wait";
   the `decision-coverage:` line beside the closing-token paragraph; in
   step 4, the duty of a brief delegating plan-writing to name the
@@ -585,12 +641,12 @@ None at the time of writing.
 
 ### 2026-09-25 — architect, fable 5.1, blocking (round 1, full-document)
 
-- held — [Important] F1: the deferral lives in the spec, against the token's own meaning and the pointer direction; an implemented spec's frozen body leaves a later plan's deferral nowhere to land; question: where does a deferral live — the spec's register entry, or the plan that does not realize the decision?; options: (a) keep the `deferred from <plan>` token in the spec, argued by ADR 0004, and accept that an implemented spec cannot take a later plan's deferral; (b) move it to the plan as `**Defers:** D6 — <why>; ruling: <date>`, scoped to that plan by construction, the spec naming no plans — recommended: (b)
-- held — [Important] F2: the table-closure duty names no detector for a column naming another table's rows; question: what detects a column that names another table's rows?; options: (a) a column whose cells match the key column of another table in the same document, a cell matching none being the hit; (b) a column whose header names another table; (c) both, either sufficing — recommended: (a), since it needs no naming convention and derives by comparison
+- fixed 2026-09-25 — [Important] F1: the deferral lives in the spec, against the token's own meaning and the pointer direction; ruling: 2026-09-25; option (b) — the deferral moved to the plan as a `**Defers:**` line (D18, new section *Deferral*), the spec keeping `withdrawn` as its only state token (D5, *Entry states*), counted set in step 3, `hit deferred` and the glossary's **Decision coverage** and **Ruling** updated; a plan both deferring and realizing one identifier is a hit
+- fixed 2026-09-25 — [Important] F2: the table-closure duty names no detector; ruling: 2026-09-25; deviation: *Table closure* — none of the offered options: relations are declared by the rule that defines the table's columns (the technical-design rule: Contracts and State columns → Parts), with cell splitting, `external:` and `—` values, and a duplicated key as a hit; value matching refused as a false detector; the unsupported task-to-part claim deleted; `rules/technical-design.md` added to *Changes by file*
 - fixed 2026-09-25 — [Important] F3: an undefined cited identifier goes to duty 5, whose disposition treats it as a gap in the spec; license: *The register* (identifiers are the register's literal tokens, so none is minted elsewhere) and the propagation-auditor card's duty 5 ("a gap in the source, not a plan error"); step 4 of *The coverage duty* now reports it as a plan error of the coverage duty, and the *Readers* table's first row names that duty
 - fixed 2026-09-25 — [Minor] F4: adding `decisions` to the Misplaced stamp command contradicts the glossary's definition of that term; license: glossary **Misplaced stamp** ("a process field … where the stamping steps put it"); the addition is dropped from *Changes by file*
 - fixed 2026-09-25 — [Minor] F5: D2's "one sentence" has no reader; license: *The register*'s identity-paragraph grammar; D2 and *The register* now say "a short statement" and that the grammar enforces the paragraph's shape, not a sentence count
 - fixed 2026-09-25 — [Minor] F6: a pre-round gate episode's lines land in two homes; license: *Gate lines for a held hit* ("no round produced it"); a pre-round episode holding a hit now writes all its lines before the first round heading
 - fixed 2026-09-25 — [Minor] F7: the re-dispatch-bound hit shares `hit held`'s shape and the spec does not say why it stays out; license: D12 (the exception covers coverage hits alone); *Out of scope* now gives the reason
-- held — [Minor] F8: two grammars carry one fact — `**Realizes:**` on a task and `(realizes D9)` on a constraint; question: one shape for both sites?; options: (a) `**Realizes:** D9` as the constraint entry's first clause too; (b) keep `(realizes D9)` on constraints; (c) `Realizes: D9` without bold in both — recommended: (a), one pattern for the cheapest family to parse
+- fixed 2026-09-25 — [Minor] F8: two grammars carry one fact; ruling: 2026-09-25; option (a) — a constraint entry opens with `**Realizes:** D9` as its first clause, one shape for both sites
 - signal 2026-09-25 — another round pays only after F1 is decided; then one diff-scoped round should suffice, and the Minors are worth a fix wave rather than a round of their own
