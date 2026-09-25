@@ -583,11 +583,33 @@ decision question still pends, so the gate asks those questions at the
 latest. Writing a plan from a judged document is that same seam: its
 held questions are asked before the plan is written, whoever writes it.
 
+A technical design's own consumption gate is plan-writing, the same
+moment as its design spec's, and one ordering binds the two: writing
+the design and applying its review dispositions precedes the joint
+integrity audit, because the design is the last producer of changes to
+the design spec and certifying that body before the design's questions
+are answered stamps a body about to change. The dependency reaches no
+further — every other item of the two gates stays unordered.
+
+The gate therefore runs in passes. The first pass decides whether a
+technical design is written at all. Where the offer is accepted, the
+gate suspends until the design exists and its review dispositions are
+applied, then resumes and collects the questions the documents' current
+state raises. Answers already given stay binding unless the basis they
+rested on changed. Each pass asks its questions in one batch, as a
+review round does — a batch being every question answerable at that
+pass, never every question the gate will ever ask.
+
+A technical design's `status` reaches `implemented` with its plan's, in
+the same turn and by the same hand, since otherwise the rule freezing an
+implemented document's body never reaches it.
+
 The process suggests committing the work's documents under `docs/` at
 exactly one point — the implementation-ready gate: the developer has
 approved the plan (the `status` flip to `approved`) and implementation
-is about to start. During authoring — spec drafting, grilling, review
-rounds, plan writing — it never makes that suggestion; the documents'
+is about to start. During authoring — spec drafting, grilling,
+technical-design writing, review rounds, plan writing — it never makes
+that suggestion; the documents'
 uncommitted state is deliberate, not dirt in the process-artifacts
 sense, and the developer may commit sooner on their own call. The
 suggestion covers only paths git tracks or would track; deliberately
@@ -618,8 +640,9 @@ does; the
 suffix takes a dot because the branch convention already spends hyphens
 on name parts, where `-docs` would read as a topic about documenting.
 
-The loop runs on that branch for the whole authoring phase — the spec's
-rounds and the plan's alike — and the topic branch takes it at the
+The loop runs on that branch for the whole authoring phase — the design
+spec's rounds, the technical design's and the plan's alike — and the
+topic branch takes it at the
 implementation-ready gate: by fast-forward where the history is wanted
 whole, by squash where it is not. That choice belongs to the project
 rather than the session, so a `CLAUDE.md` note — at the repo root or
