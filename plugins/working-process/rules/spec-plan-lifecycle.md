@@ -20,7 +20,7 @@ grilled: grilling   # optional: `grilling` while outcomes are pending; the ISO d
 architect: LGTM     # optional: latest architect verdict (LGTM | concerns | blocking)
 adversary: LGTM     # optional: latest plan-adversary verdict (LGTM | concerns | blocking)
 architect-fallback: <model> (degraded <date>)   # optional: verdict above produced below the prescribed tier (adversary-fallback: for plans)
-integrity: <ISO date> (sha: <short-hash>)   # optional: date of the last integrity audit, plus the body hash it certifies
+integrity: <ISO date> (sha: <short-hash>[; with: <file>@<short-hash>])   # optional: date of the last integrity audit, the body hash it certifies, and — where a technical design was audited with it — that document and its hash
 revises: ./<file>.md   # optional: documents this one departs from; inline list when several
 spec: ../specs/<file>.md   # plans and technical designs: the design spec this document descends from; inline list when several, on a plan
 technical-design: ../technical-designs/<file>.md   # optional: on a design spec, the technical design that develops it; on a plan, the technical design of each design spec it descends from that has one — inline list when several, each path relative to the plan
@@ -101,6 +101,21 @@ base: master        # optional: branch the topic branch was cut from
   its last edit, and that answer is a comparison rather than a clock. A
   recomputed hash differing from the stamped one means unaudited, same-day
   edits included; any change re-arms the stamp, a typo fix included.
+  A design spec that names a technical design is audited with it as one
+  target — an **audit pair** — and one stamp records it. The stamp
+  lives on the design spec, names both documents and both body hashes,
+  and the technical
+  design carries no `integrity:` of its own — it owes the check like any
+  judged document and discharges it jointly. The value takes the form
+  `integrity: <date> (sha: <own-hash>; with: <file>@<their-hash>)`,
+  where `<file>` is exactly the value the design spec's
+  `technical-design:` pointer carries, read relative to the design
+  spec's directory, so the gate can check that the recorded value still
+  equals the pointer. Changing either document unsettles the pair, and
+  the gate
+  recomputes both hashes to see it; because the two pointers are what
+  identify the pair, an added, removed or repointed `technical-design:`
+  unsettles it too.
 - A judged document's consumption gate owns the recomputation: before
   plan-writing it
   recomputes the body hash and compares, a match meaning the standing
@@ -307,8 +322,17 @@ by a different actor, about a different event.
 Three paths discharge the debt, all three write the same token, and the
 dispatcher writes it in every case: the developer declining the gate's
 pair offer, written in the decline turn before the work that decline
-licenses begins; an integrity audit, written once its dispositions are
-applied and before the `integrity:` stamp; and any later full-document
+licenses begins, and written for every document that offer named — a
+declined offer over an audit pair discharges the chain debt of both.
+What a decline never does is stand in for the audit itself: it writes
+no `integrity:` stamp, leaves every other open finding open, and closes
+no `blocking` verdict. "Do not run the audit" is a release from the
+chain debt the offer named and from nothing else; an integrity audit,
+written once its dispositions are
+applied and before the `integrity:` stamp — and where that audit read an
+audit pair, it discharges the debt of both documents it read, annotating
+each document's own unannotated diff-scoped `LGTM` headings; and any
+later full-document
 round, at its stamping turn, whatever its verdict — the debt is
 discharged by the reading, not by the grade. A full-document round reads
 the whole document, so it annotates every unannotated diff-scoped `LGTM`
