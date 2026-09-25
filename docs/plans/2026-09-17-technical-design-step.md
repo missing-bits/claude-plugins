@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-17
 status: draft
-adversary: concerns
+adversary: blocking
 spec: ../specs/2026-09-16-technical-design-step.md
 branch: feature/technical-design-step
 base: develop
@@ -63,6 +63,16 @@ verification.
   example `env -i PATH=/usr/bin:/bin bash --noprofile --norc` — because
   a wrapper that resolves to a different implementation answers a
   different question.
+- **Every check carries its expected value as `# expect N`.** A check
+  whose expectation is stated only in prose is a check no tool runs; one
+  such check in Task 2 failed unnoticed for two rounds. The one
+  exception is `claude plugin validate`, whose result is its exit
+  status.
+- **An inserted block stands on its own.** A block placed with "After
+  the line:" or "After the lines:" — one spelling per line count, the
+  same instruction — is a paragraph or heading of its own, with one
+  blank line before and after it. A table row or list item inserted by
+  its own instruction joins its table or list with no blank line.
 - **Every step states its before value and its after value.** The before
   values in this plan were measured against the files on 2026-09-17, not
   predicted.
@@ -310,16 +320,17 @@ Run:
 
 ```bash
 F=plugins/working-process/rules/technical-design.md
-grep -c '^| [0-9]' $F                       # skeleton rows
-grep -c 'new | changed | retired | unchanged' $F
+grep -c '^| [0-9]' $F                       # expect 7
+tr -s '[:space:]' ' ' < $F | grep -c 'new | changed | retired | unchanged'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'when that agent is available, judges the boundary'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'personas carry when the working-process plugin is installed'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'the personas already carry'  # expect 0
-awk 'length > 72' $F | grep -v '^|' | wc -l  # over-wide non-table lines
+awk 'length > 72' $F | grep -v '^|' | wc -l  # expect 0
 ```
 
-Expected: `7` skeleton rows (1–6 plus the `7–8` row), `1` for the closed
-set, `0` over-wide prose lines.
+Each expected value is on its line: `7` skeleton rows (1–6 plus the
+`7–8` row), `1` for the closed set, which wraps in the rule text and so
+is counted through `tr`, and `0` over-wide prose lines.
 
 - [ ] **Step 4: Validate the plugin**
 
@@ -2447,8 +2458,9 @@ on the plan → implementation → code review. Offer a grilling once a
 design spec exists and before its implementation plan is written.
 Design specs are the primary target; plans and raw ideas are in scope
 too. A technical design is not a grilling target: it mints no
-terminology, and its vocabulary comes from the design spec, which was
-grilled.
+terminology, its vocabulary coming from the design spec, which was
+grilled, and from the domain's own skills; the part and component names
+it does mint are checked against those skills.
 ```
 
 - [ ] **Step 9: Verify, and sweep the plugin for the retired phrase**
@@ -2456,7 +2468,7 @@ grilled.
 Run:
 
 ```bash
-grep -rcH 'design document' plugins/working-process/ | grep -v ':0$'
+grep -rcH 'design document' plugins/working-process/ | grep -v ':0$' | wc -l  # expect 0
 grep -c 'seven rule files' plugins/working-process/README.md   # expect 1
 grep -c 'six rule files' plugins/working-process/README.md     # expect 0
 ls plugins/working-process/rules/*.md | wc -l                  # expect 7
@@ -2465,13 +2477,13 @@ grep -c 'creates two directories' plugins/working-process/README.md     # expect
 grep -c 'recomputes the hash of every document the stamp names' plugins/working-process/README.md  # expect 1
 grep -c "a spec's consumption gate recomputes the hash" plugins/working-process/README.md  # expect 0
 tr -s '[:space:]' ' ' < plugins/working-process/skills/grilling-session/SKILL.md | grep -c 'A technical design is not a grilling target'  # expect 1
+tr -s '[:space:]' ' ' < plugins/working-process/skills/grilling-session/SKILL.md | grep -c "and from the domain's own skills"  # expect 1
 tr -s '[:space:]' ' ' < plugins/working-process/skills/grilling-session/SKILL.md | grep -c 'technical design (when the repository has code)'  # expect 1
 tr -s '[:space:]' ' ' < plugins/working-process/skills/grilling-session/SKILL.md | grep -c 'agent dispatch) → writing-plans'  # expect 0
-grep -rcH 'a spec or plan\|build from that text alone\|handed a spec' \
-  plugins/working-process/README.md | grep -v ':0$'
+grep -rcH 'a spec or plan\|build from that text alone\|handed a spec' plugins/working-process/README.md | grep -v ':0$' | wc -l  # expect 0
 ```
 
-Expected: no output from the first and last, `1`, `0`, `7`. The stated
+Each expected value is on its line. The stated
 count and the directory listing must agree — a README that counts its
 own payload wrong is the failure this check exists for. The first and
 last lines are the Global Constraint's closing sweep.
@@ -2479,8 +2491,8 @@ last lines are the Global Constraint's closing sweep.
 - [ ] **Step 10: Commit**
 
 ```bash
-git add plugins/working-process/README.md
-git commit -m "docs(working-process): put the technical design in the README flow"
+git add plugins/working-process/README.md plugins/working-process/skills/grilling-session/SKILL.md
+git commit -m "docs(working-process): put the technical design in the README and grilling flow"
 ```
 
 ---
@@ -3183,7 +3195,9 @@ Every citation held.
   named and the changelog's — now quote the lines they follow in a
   fenced block. The reviewer's own suggested anchor for the offers
   paragraph, `full-document round.`, occurs three times in that file,
-  so the block quotes two lines instead.
+  so the block quotes two lines instead. Corrected at round six: six
+  insertions changed shape, not five — Task 8 Step 2's inline anchor was
+  reshaped too, for uniformity rather than because it named a position.
 - fixed 2026-09-25 — [Minor] Task 11 left the implementer to choose
   whether to run Task 13 first; license: the plan's own anchors, which
   show no shared text between the two tasks; the Interfaces block says
@@ -3200,8 +3214,71 @@ reading literally would have misapplied. Those cases are removed; the
 simulator now accepts one explicit shape, "After the lines:" with the
 anchor quoted in a block, and applies it byte-exactly.
 
+Corrected at round six, and the correction matters more than the
+figure it corrects. "127 of 127 after-checks pass" counted only the
+checks annotated `# expect`. Seven verify commands stated their
+expectation in prose, and the simulator never compared them; one of the
+seven, Task 2's closed-set check, returned 0 against an expected 1. The
+paragraph claimed coverage the tool did not have — the failure recorded
+four times against the propagation gate. The shape it accepts is also
+spelled two ways, "After the line:" and "After the lines:", and both
+were simulated.
+
 - signal 2026-09-25 — the reviewer judges another round worth its cost
   only as a diff-scoped pass over this wave, followed by the confirming
   full-document round, which it expects to close on `LGTM`; the consumer
   surface has now been walked plugin-wide, and a further full read for
   its own sake would find no more than this round did.
+
+### 2026-09-25 — plan-adversary, fable 5.1, blocking (round 6, diff-scoped)
+
+Diff-scoped over round five's fix wave. Two Important, four Minor.
+Record:
+`.claude/working-process/2026-09-17-technical-design-step/plan-adversary-round-6.md`.
+Every citation held. The reviewer ran Task 2's checks itself and found
+one that the dispatcher's simulation had reported as passing without
+ever running it.
+
+- fixed 2026-09-25 — [Important] Task 18's new step edited the
+  grilling-session skill while its commit staged only the README, so
+  the skill edit would have shipped in no commit; license: the step's
+  own edit; the commit stages both files under a widened subject.
+- fixed 2026-09-25 — [Important] Task 2's closed-set check was a plain
+  grep over a phrase the rule text wraps, so it returns 0 against an
+  expected 1, while the round-five paragraph said every after-check
+  passed; license: the plan's Global Constraint that prose checks
+  normalize whitespace; the check runs through `tr`, every one of the
+  seven verify commands that stated its expectation in prose now carries
+  `# expect`, a Global Constraint requires it of every check, and the
+  round-five paragraph carries a correction naming what the simulator
+  had not compared.
+- fixed 2026-09-25 — [Minor] the grilling-session skill's new sentence
+  named the design spec as a technical design's only vocabulary source,
+  dropping the domain's own skills and the part names it does mint;
+  license: the design spec's Lifecycle section and Task 5's block, which
+  carry both; the sentence carries both, with a check.
+- fixed 2026-09-25 — [Minor] the "After the lines:" shape never said
+  whether a blank line separates an inserted block, and no check could
+  catch a glued insert; license: the plan's own purpose for the shape,
+  a block that lands where it is meant to; a Global Constraint states
+  the convention, and the simulator applies the same one.
+- fixed 2026-09-25 — [Minor] the round-five ledger counted five
+  insertions reshaped where six were; license: the commit that changed
+  them; a dated correction on that line.
+- fixed 2026-09-25 — [Minor] the round-five paragraph named one
+  spelling of the insertion shape where the plan uses two; license: the
+  plan's text; a dated correction on that paragraph, and the Global
+  Constraint names both spellings as one instruction.
+
+The simulation ran after the wave, now reporting what it did not check
+as well as what passed: 133 of 133 annotated checks pass, no verify
+command left uncompared, no step unsimulated, 86 of 87 non-zero checks
+fail on the pre-plan files (the last the deliberate invariant), no new
+line past 72 columns, both sweeps silent, the plugin validates.
+
+- signal 2026-09-25 — the reviewer judges a further diff-scoped round
+  not worth its cost over two one-line repairs and four count and
+  wording items; the next reading worth paying for is the confirming
+  full-document round, expected to close on `LGTM` if the simulation is
+  re-run rather than restated. `blocking` leaves that round to the
+  developer.
