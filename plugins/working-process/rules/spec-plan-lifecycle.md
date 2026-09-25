@@ -101,6 +101,7 @@ base: master        # optional: branch the topic branch was cut from
   its last edit, and that answer is a comparison rather than a clock. A
   recomputed hash differing from the stamped one means unaudited, same-day
   edits included; any change re-arms the stamp, a typo fix included.
+
   A design spec that names a technical design is audited with it as one
   target — an **audit pair** — and one stamp records it. The stamp
   lives on the design spec, names both documents and both body hashes,
