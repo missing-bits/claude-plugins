@@ -1,12 +1,14 @@
 ---
 paths:
   - "docs/specs/**"
+  - "docs/technical-designs/**"
   - "docs/plans/**"
 ---
 
-# Specs and plans — frontmatter and lifecycle
+# Judged documents and plans — frontmatter and lifecycle
 
-Specs live in `docs/specs/`, plans in `docs/plans/`. Both open with a
+Design specs live in `docs/specs/`, technical designs in
+`docs/technical-designs/`, plans in `docs/plans/`. All three open with a
 YAML frontmatter block:
 
 ```yaml
@@ -18,9 +20,10 @@ grilled: grilling   # optional: `grilling` while outcomes are pending; the ISO d
 architect: LGTM     # optional: latest architect verdict (LGTM | concerns | blocking)
 adversary: LGTM     # optional: latest plan-adversary verdict (LGTM | concerns | blocking)
 architect-fallback: <model> (degraded <date>)   # optional: verdict above produced below the prescribed tier (adversary-fallback: for plans)
-integrity: <ISO date> (sha: <short-hash>)   # optional: date of the last integrity audit, plus the body hash it certifies
+integrity: <ISO date> (sha: <short-hash>[; with: <file>@<short-hash>])   # optional: date of the last integrity audit, the body hash it certifies, and — where a technical design was audited with it — that document and its hash
 revises: ./<file>.md   # optional: documents this one departs from; inline list when several
-spec: ../specs/<file>.md   # plans only: the spec this plan implements; inline list when several
+spec: ../specs/<file>.md   # plans and technical designs: the design spec this document descends from; inline list when several, on a plan
+technical-design: ../technical-designs/<file>.md   # optional: on a design spec, the technical design that develops it; on a plan, the technical design of each design spec it descends from that has one — inline list when several, each path relative to the plan
 branch: feature/ABC-123-short-name   # optional: topic branch of the work
 base: master        # optional: branch the topic branch was cut from
 ---
@@ -71,8 +74,9 @@ base: master        # optional: branch the topic branch was cut from
   when the developer deliberately dispatched below the prescribed tier
   before any refusal. A dispatch at the prescribed tier gets no field.
 - Both tokens carry a re-review offer at the document's next consumption
-  gate — before plan-writing for a spec, before implementation for a
-  plan. Accepted: a fresh round at the prescribed tier replaces the
+  gate — before plan-writing for a judged document, before
+  implementation for a plan. Accepted: a fresh round at the prescribed
+  tier replaces the
   verdict and removes the field (a fresh round that is itself below the
   prescribed tier refreshes the field's date instead, and the offer
   re-arms at the same gate). Declined: the field gains `, waived <date>`.
@@ -97,10 +101,28 @@ base: master        # optional: branch the topic branch was cut from
   its last edit, and that answer is a comparison rather than a clock. A
   recomputed hash differing from the stamped one means unaudited, same-day
   edits included; any change re-arms the stamp, a typo fix included.
-- A spec's consumption gate owns the recomputation: before plan-writing it
+
+  A design spec that names a technical design is audited with it as one
+  target — an **audit pair** — and one stamp records it. The stamp
+  lives on the design spec, names both documents and both body hashes,
+  and the technical
+  design carries no `integrity:` of its own — it owes the check like any
+  judged document and discharges it jointly. The value takes the form
+  `integrity: <date> (sha: <own-hash>; with: <file>@<their-hash>)`,
+  where `<file>` is exactly the value the design spec's
+  `technical-design:` pointer carries, read relative to the design
+  spec's directory, so the gate can check that the recorded value still
+  equals the pointer. Changing either document unsettles the pair, and
+  the gate
+  recomputes both hashes to see it; because the two pointers are what
+  identify the pair, an added, removed or repointed `technical-design:`
+  unsettles it too.
+- A judged document's consumption gate owns the recomputation: before
+  plan-writing it
   recomputes the body hash and compares, a match meaning the standing
   stamp satisfies the gate and a mismatch firing the audit offer. Those
-  are spec-gate semantics — on a plan, a permitted target on explicit
+  are judged-document semantics — on a plan, a permitted target on
+  explicit
   request, the stamp is informational and goes stale silently. Staleness
   joins no Unfinished-work entry: it is a recomputation, not a grep.
 - Verdict agents self-report the model they ran on (family plus version);
@@ -110,6 +132,30 @@ base: master        # optional: branch the topic branch was cut from
   placeholders (as above) so they never match the list below.
 - `branch` and `base` appear once the topic branch exists — never guessed
   up front, omitted entirely when there is no topic branch.
+- `technical-design:` is optional and appears once the technical design
+  exists, so its absence means there is none rather than one nobody
+  linked. On a design spec it is new in kind: every other pointer
+  records where a document came from, while this one names a document
+  written later, and it gives a reader holding the design spec the
+  structure that develops it. The author who creates the design writes
+  both ends in
+  the same turn — the design's `spec:` and the design spec's
+  `technical-design:`. A plan's `technical-design:` names, for every
+  design spec its `spec:` names that has a technical design, that
+  technical design — an inline list when several, each entry the same
+  document the design spec's own pointer names, its path written
+  relative to the plan's directory rather than copied. A design spec
+  with no technical design contributes no entry, so a plan from specs
+  `a` and `b`, where only `a` names a design, carries that one design.
+  One technical design per design spec.
+- Where a plan's `technical-design:` names documents, those documents
+  define the interfaces. The plan's `**Interfaces:**` blocks reference
+  the contracts they define and say which part of one each task
+  implements or changes; they do not independently redefine those
+  contracts. Where a plan names no technical design, the existing plan
+  convention stands unchanged. This binds how the blocks are filled and
+  changes no plan template — the template belongs to the tool that
+  writes plans.
 
 ## Finding what revises a document
 
@@ -227,7 +273,8 @@ their condition holds.
 Every terminal line carries exactly one authorizer.
 
 A fix one review licenses can land in a document other than the
-reviewed one — a plan review's finding carrying `origin: spec` is the
+reviewed one — a plan review's finding whose `origin` names a judged
+document is the
 case the workflow rule names. The disposition line then lands in the
 ledger of the document that changed, and the reviewed document's line
 points at it in its `<what changed>` clause, naming that document and
@@ -276,8 +323,17 @@ by a different actor, about a different event.
 Three paths discharge the debt, all three write the same token, and the
 dispatcher writes it in every case: the developer declining the gate's
 pair offer, written in the decline turn before the work that decline
-licenses begins; an integrity audit, written once its dispositions are
-applied and before the `integrity:` stamp; and any later full-document
+licenses begins, and written for every document that offer named — a
+declined offer over an audit pair discharges the chain debt of both.
+What a decline never does is stand in for the audit itself: it writes
+no `integrity:` stamp, leaves every other open finding open, and closes
+no `blocking` verdict. "Do not run the audit" is a release from the
+chain debt the offer named and from nothing else; an integrity audit,
+written once its dispositions are
+applied and before the `integrity:` stamp — and where that audit read an
+audit pair, it discharges the debt of both documents it read, annotating
+each document's own unannotated diff-scoped `LGTM` headings; and any
+later full-document
 round, at its stamping turn, whatever its verdict — the debt is
 discharged by the reading, not by the grade. A full-document round reads
 the whole document, so it annotates every unannotated diff-scoped `LGTM`
@@ -444,7 +500,8 @@ leg, and the entries below that do so say it there.
   Scope: a hit counts only inside a `## Review rounds` section — the
   second entry to re-scope the default guard, for the reason the first
   one does, and carrying `-n` for the same reason.
-  Owner: for a spec, the consumption gate's pair offer; for a plan, the
+  Owner: for a judged document, the consumption gate's pair offer; for a
+  plan, the
   confirming full-document round. On a document already at
   `status: implemented` the debt is discharged by recorded decline
   without any dispatch: completed work is not re-reviewed, so the
@@ -482,11 +539,13 @@ close is a rewrite or an appended annotation: `open` or `held` becomes
 
 Each an offer the developer may decline, and each made
 only when the tool is available: grill a fresh spec (grilling-session);
-architect-review a grilled spec (architect agent dispatch);
+architect-review a grilled design spec, and a technical design, which
+is never grilled (architect agent dispatch);
 adversary-review a plan before implementation (plan-adversary agent
 dispatch); offer the pending re-review of a fallback-recorded verdict at
 its consumption gate (fresh round at the prescribed tier); and when a
-spec or plan moves to `implemented` and the memory-review-session skill
+judged document or plan moves to `implemented` and the
+memory-review-session skill
 is available, offer a Project memory review — released work-state notes
 close, resolved entries sweep to the archive. After any
 review round, relay the report to the developer, then stamp the
@@ -501,18 +560,56 @@ subsection: a plan's diff-scoped LGTM is relayed and its round record
 written, while only the frontmatter stamp waits for the confirming
 full-document round.
 
-A document's consumption gate is the backstop for its ledger: a spec
-does not pass to plan-writing, nor a plan to implementation, while
+A technical design is a judged document and takes the design spec's side
+of every branch in this rule: the same fields, the same
+consumption-gate semantics for a stale stamp, the same owner for an
+unresolved verdict, and the same pair offer against chain debt. It is
+not grilled — grilling stress-tests terminology against the project
+glossary, and a technical design mints none: its vocabulary comes from
+its design spec, which was grilled, and from the domain's own skills.
+The names it does mint are part and component names, checked against
+those skills where one exists and recorded as a vocabulary gap where
+none does.
+
+One mechanism it shares rather than owns: the integrity check is due on
+it like any judged document, and one audit of the audit pair — the
+design spec together with the technical design it names — discharges it,
+so the `integrity:` stamp sits on the design spec and names both.
+
+A document's consumption gate is the backstop for its ledger: no judged
+document passes to plan-writing, nor a plan to implementation, while
 `held` lines stay open — an LGTM can leave the frontmatter clean while a
 decision question still pends, so the gate asks those questions at the
-latest. Writing a plan from a spec is that same seam: the held spec
-questions are asked before the plan is written, whoever writes it.
+latest. Writing a plan from a judged document is that same seam: its
+held questions are asked before the plan is written, whoever writes it.
+
+A technical design's own consumption gate is plan-writing, the same
+moment as its design spec's, and one ordering binds the two: writing
+the design and applying its review dispositions precedes the joint
+integrity audit, because the design is the last producer of changes to
+the design spec and certifying that body before the design's questions
+are answered stamps a body about to change. The dependency reaches no
+further — every other item of the two gates stays unordered.
+
+The gate therefore runs in passes. The first pass decides whether a
+technical design is written at all. Where the offer is accepted, the
+gate suspends until the design exists and its review dispositions are
+applied, then resumes and collects the questions the documents' current
+state raises. Answers already given stay binding unless the basis they
+rested on changed. Each pass asks its questions in one batch, as a
+review round does — a batch being every question answerable at that
+pass, never every question the gate will ever ask.
+
+A technical design's `status` reaches `implemented` with its plan's, in
+the same turn and by the same hand, since otherwise the rule freezing an
+implemented document's body never reaches it.
 
 The process suggests committing the work's documents under `docs/` at
 exactly one point — the implementation-ready gate: the developer has
 approved the plan (the `status` flip to `approved`) and implementation
-is about to start. During authoring — spec drafting, grilling, review
-rounds, plan writing — it never makes that suggestion; the documents'
+is about to start. During authoring — spec drafting, grilling,
+technical-design writing, review rounds, plan writing — it never makes
+that suggestion; the documents'
 uncommitted state is deliberate, not dirt in the process-artifacts
 sense, and the developer may commit sooner on their own call. The
 suggestion covers only paths git tracks or would track; deliberately
@@ -543,8 +640,9 @@ does; the
 suffix takes a dot because the branch convention already spends hyphens
 on name parts, where `-docs` would read as a topic about documenting.
 
-The loop runs on that branch for the whole authoring phase — the spec's
-rounds and the plan's alike — and the topic branch takes it at the
+The loop runs on that branch for the whole authoring phase — the design
+spec's rounds, the technical design's and the plan's alike — and the
+topic branch takes it at the
 implementation-ready gate: by fast-forward where the history is wanted
 whole, by squash where it is not. That choice belongs to the project
 rather than the session, so a `CLAUDE.md` note — at the repo root or

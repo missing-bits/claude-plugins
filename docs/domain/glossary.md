@@ -135,12 +135,13 @@ model-capability ladder.
 _Avoid_: severity tier
 
 **Origin**:
-The document a review finding traces to — `plan`, `spec`, or `both` —
-named by the reviewer that found it rather than derived at triage. A
-finding originating in the spec is held unless a written decision
-licenses the edit, since editing a spec from inside a plan review is
-design work.
-_Avoid_: owner (for a document), source
+The documents a review finding traces to, as a list naming one or more
+of the process's document classes — named by the reviewer that found it
+rather than derived at triage. A finding originating in a judged
+document — a design spec or a technical design — is held unless a
+written decision licenses the edit, since editing one from inside a
+plan review is design work.
+_Avoid_: owner (for a document), source, `both`
 
 **Rule tag**:
 The inline parenthesized annotation at a rule's (or sub-rule's)
@@ -182,6 +183,68 @@ exists) or report it upstream, generalized. Never cited with an
 invented rule id; the `rule: none` citation is the report's only
 candidate-gap marker.
 _Avoid_: uncited observation, unmatched finding
+
+**Design spec**:
+The judged document saying what a change must do and why — its
+behaviour, its decisions and its boundaries — written before any
+technical design and read next by whoever turns it into structure. Short
+form: spec, which every existing sentence and the `spec:` frontmatter
+field still use. A project's own document plays this part only if it
+carries the decisions and boundaries the later steps read; one that
+states behaviour alone is an input to a design spec rather than one.
+_Avoid_: requirements document, functional spec
+
+**Judged document**:
+A document a reader who still judges it will read next — a design spec
+or a technical design, each read next by the plan-writer and the
+plan-adversary — as against an implementation plan, whose next reader
+only executes it. The class decides which ceremonies a document owes
+(ADR 0004), so the lifecycle rule branches on it rather than on a
+filename.
+_Avoid_: design document
+
+**Part**:
+A unit of a design with a resolvable identity, an explicit
+responsibility and its exclusions, and a contract that lets its
+implementation change without changing its consumers. It earns a row of
+its own when leaving it out would make an implementer decide a
+responsibility boundary, a contract between parts, or the ownership of
+state; details that only carry out decisions already made stay inside
+the part that owns them. A public method is usually a row in its part's
+contracts rather than a part of its own — the construct decides nothing,
+the boundary does.
+
+**Contract**:
+What a consumer of a part may rely on without reading the producer's
+body — a name it resolves, a grammar it parses, a field it reads, a
+pattern it discovers. Where the consumer must read that body there is no
+contract but a coupling, and the technical design says so or cuts it.
+Part and contract are two questions about one thing rather than
+competing labels: a file may be a part, its signature a contract, and
+the record it writes state.
+
+**Technical design**:
+The judged document saying what a system is made of — its parts, the
+contracts between them, and the state they keep — written between the
+design spec and the plan, and read next by the plan-writer.
+_Avoid_: detailed design
+
+**Audit pair**:
+A design spec and the technical design it names, audited together as one
+target, with one integrity record on the design spec identifying both
+documents and their body hashes. Where both senses of "pair" stand close
+together, write the full name — an audit pair is two documents, a pair
+offer is the two-armed question a diff-scoped chain earns.
+_Avoid_: pair (bare, where a pair offer is also in view), document pair
+
+**Vocabulary gap**:
+A kind of part, contract, or home of state that no domain skill
+available to the author names, recorded in the technical design where it
+had to be invented. Its producer is the author rather than a reviewer,
+so it carries no severity and enters no report; accumulated gaps are
+what decide whether a technology earns a vocabulary skill of its own.
+_Avoid_: candidate gap (a review finding, graded and counted), missing
+term
 
 **Sub-rule**:
 A dot-suffixed, tagged refinement of a rule whose violations grade
@@ -255,12 +318,19 @@ _Avoid_: sub-tier record
 
 **Consumption gate**:
 The workflow step at which a document's review verdict is about to be
-relied on as the basis of further work — plan-writing for a spec,
-implementation for a plan. Four things fire or come due there: the
-re-review offer on a fallback-recorded verdict, the integrity audit
-offered when a spec's body hash no longer matches its stamp, the pair
-question a diff-scoped chain earns, and the chain debt itself. Nothing
-orders them against each other yet.
+relied on as the basis of further work: for a judged document — a
+design spec or a technical design — the gate precedes plan-writing; for
+a plan, it precedes implementation. Five things fire or come due
+there: the re-review offer on a fallback-recorded verdict, the
+integrity audit offered when a document's body, or that of the
+document audited with it,
+no longer matches its stamp, the pair question a diff-scoped chain earns, the chain debt
+itself, and the offer of a technical design. Only one ordering is fixed:
+writing the technical design and applying its review dispositions
+precede the joint integrity audit. The gate runs in passes where that
+offer is accepted, and each pass reaches the developer in one batch —
+every question answerable at that pass, never every question the gate
+will ever ask.
 _Avoid_: usage point
 
 **Unfinished-work list**:

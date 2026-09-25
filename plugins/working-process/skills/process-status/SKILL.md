@@ -1,6 +1,6 @@
 ---
 name: process-status
-description: "Report what the working process left unfinished in this repo — a pending grilling, an unresolved verdict, a re-review nobody ran, a stamp in the wrong place. Use when the developer asks what is unfinished, what the process still owes, or for a status pass over docs/specs and docs/plans."
+description: "Report what the working process left unfinished in this repo — a pending grilling, an unresolved verdict, a re-review nobody ran, a stamp in the wrong place. Use when the developer asks what is unfinished, what the process still owes, or for a status pass over docs/specs, docs/technical-designs and docs/plans."
 ---
 
 # process-status — what the process left unfinished

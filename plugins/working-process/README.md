@@ -3,8 +3,9 @@
 Tech-agnostic tooling for a spec-driven working process on top of the
 `superpowers` plugin:
 
-idea → brainstorming (spec) → grilling-session → architect review →
-integrity audit → writing-plans (plan) → plan-adversary →
+idea → brainstorming (design spec) → grilling-session → architect
+review → technical design (when the repository has code) → integrity
+audit → writing-plans (plan) → plan-adversary →
 implementation → code review — with a propagation audit gating every
 verdict dispatch and the integrity audit itself.
 
@@ -15,7 +16,7 @@ verdict dispatch and the integrity audit itself.
   (`docs/domain/glossary.md`), sharpens terminology, and records
   decisions as ADRs. Triggers: "grill me" / "grilling session".
 - **`architect` agent** — formal design-quality review of a grilled spec
-  or any design document dispatched standalone; verdict
+  or any judged document dispatched standalone; verdict
   `LGTM | concerns | blocking`, stamped into the reviewed document's
   `architect:` frontmatter field by the dispatcher. Dispatched in the
   background on the most capable available model; the verdict arrives
@@ -45,13 +46,15 @@ verdict dispatch and the integrity audit itself.
   `architect` dispatch. Triggers: "ask the designer" / "system designer
   session".
 - **`plan-adversary` agent** — adversarial review of implementation
-  plans (plans only; handed a spec it declines toward the `architect`
-  agent). Generic failure-mode dimensions live here; domain specifics
+  plans (plans only; handed a judged document it declines toward the
+  `architect` agent). Generic failure-mode dimensions live here; domain
+  specifics
   come from `*-plan-review` checklist skills. Dispatched in the
   background, scaled to the plan's size and risk; the verdict arrives
   as a task notification and is stamped after relay.
-- **`propagation-auditor` agent** — the mechanical audit of a spec or
-  plan: it parses every changed interface to enumerate its consumers,
+- **`propagation-auditor` agent** — the mechanical audit of a design
+  spec, a technical design or a plan: it parses every changed interface
+  to enumerate its consumers,
   diffs every prescribed block against the file it targets — a landed
   change against what shipped, a promised one against the anchor its
   edit needs — re-derives every counter, and runs the document's own
@@ -65,7 +68,8 @@ verdict dispatch and the integrity audit itself.
   offers the same audit at authoring time after any multi-site edit.
 - **`integrity-auditor` agent** — the judgment audit of a churned
   document, read on a fresh context: the document against itself, then
-  the document as an implementer who must build from that text alone.
+  the document as an implementer who must build from that text and
+  whatever was audited with it.
   It reports defects, each proved by two located quotes, beside a ranked
   list of the questions an implementer would have to ask; it grades
   nothing and ends in no verdict. Dispatched in the background on the
@@ -130,7 +134,7 @@ containing a `status` field:
 | `architect` | `LGTM` \| `concerns` \| `blocking` | latest architect verdict |
 | `adversary` | `LGTM` \| `concerns` \| `blocking` | latest plan-adversary verdict |
 | `architect-fallback` / `adversary-fallback` | `<model> (degraded <date>)` \| `<model> (chosen <date>)` \| `…, waived <date>` | verdict produced below the prescribed tier (`degraded` = unchosen, `chosen` = deliberate); re-review pending until re-reviewed or waived |
-| `integrity` | `<ISO date> (sha: <short-hash>)` | last integrity audit — the date for the reader, the body hash for the check; the dispatcher writes it once the audit's dispositions land, and a spec's consumption gate recomputes the hash to decide whether the stamp still holds |
+| `integrity` | `<ISO date> (sha: <short-hash>[; with: <file>@<short-hash>])` | last integrity audit — the date for the reader, the body hash for the check; the dispatcher writes it once the audit's dispositions land, and a judged document's consumption gate recomputes the hash of every document the stamp names to decide whether the stamp still holds; where a design spec names a technical design the two are audited as one target — an audit pair — and one stamp on the design spec records both |
 
 A round ending in `concerns` or `blocking` records its findings in the
 document body. Concerns later resolved without a fresh round keep the
@@ -181,11 +185,13 @@ new gates merely stay silent.
 
 ## Process rules
 
-The plugin ships six rule files in `rules/` — the preferred workflow
-(always loaded once installed), spec/plan frontmatter and lifecycle,
-Process directory conventions, ticket frontmatter, the propagation
-duties keyed by the edit that triggers them (`propagation-duties.md`,
-loaded while a spec, plan or domain document is open), and the
+The plugin ships seven rule files in `rules/` — the preferred workflow
+(always loaded once installed), frontmatter and lifecycle for judged
+documents and plans, what a technical design must contain
+(`technical-design.md`, loaded while one is open), Process directory
+conventions, ticket frontmatter, the propagation duties keyed by the
+edit that triggers them (`propagation-duties.md`, loaded while a design
+spec, technical design, plan or domain document is open), and the
 review-report contract (`review-reports.md`: where a code-review run
 writes its Review report and what shape it takes; domain review skills
 locate the installed contract via its contract probe — the
@@ -240,8 +246,10 @@ needs no allow entry.
 
 ## Process directories
 
-This plugin creates two directories in a project repo: `docs/domain/`
-(glossary + ADRs) and `docs/code-review/` (Review reports — one per
+This plugin creates three directories in a project repo:
+`docs/domain/` (glossary + ADRs), `docs/technical-designs/` (technical
+designs, written when a project accepts the offer) and
+`docs/code-review/` (Review reports — one per
 code-review run, shape defined by the review-reports rule). On first
 creation the developer is asked whether the directory should be
 git-ignored (a `.gitignore` containing exactly `*`) or committed; an

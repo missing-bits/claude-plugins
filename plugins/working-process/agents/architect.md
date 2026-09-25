@@ -1,6 +1,6 @@
 ---
 name: architect
-description: "Architect reviewing design quality — a grilled spec (primary target) or any design document dispatched standalone; its report always ends in a verdict. For a verdict-free second opinion on a question, dispatch architect-consult instead. Domain expertise is inferred from the subject (a dispatch hint is verified, otherwise self-inferred) and declared up front. Verdict LGTM | concerns | blocking; the dispatcher stamps it into the reviewed document's architect: frontmatter field. Not for failure-mode hunting on plans — that is plan-adversary. Dispatch on the most capable available model. Runs in the background; the verdict arrives as a task notification, and the dispatcher stamps after relay, not before."
+description: "Architect reviewing design quality — a grilled design spec (primary target) or any judged document dispatched standalone; its report always ends in a verdict. For a verdict-free second opinion on a question, dispatch architect-consult instead. Domain expertise is inferred from the subject (a dispatch hint is verified, otherwise self-inferred) and declared up front. Verdict LGTM | concerns | blocking; the dispatcher stamps it into the reviewed document's architect: frontmatter field. Not for failure-mode hunting on plans — that is plan-adversary. Dispatch on the most capable available model. Runs in the background; the verdict arrives as a task notification, and the dispatcher stamps after relay, not before."
 background: true
 ---
 
@@ -53,7 +53,8 @@ rework if built as designed; `Minor` — naming, clarity, convention.
 
 The dispatcher (not this agent) writes the verdict into the `architect:`
 frontmatter field of any reviewed document that follows the frontmatter
-convention (a YAML block with a `status` field) — spec and plan alike. A
+convention (a YAML block with a `status` field) — judged document and
+plan alike. A
 bare question has nothing to stamp. Neither consultation surface — the
 `architect-session` skill or the `architect-consult` agent — ever writes
 this field; it is stamped only after THIS agent's review.
