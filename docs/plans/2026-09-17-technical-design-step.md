@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-17
 status: draft
-adversary: concerns
+adversary: concerns (resolved 2026-09-25)
 spec: ../specs/2026-09-16-technical-design-step.md
 branch: feature/technical-design-step
 base: develop
@@ -1359,8 +1359,14 @@ with:
    which names a background agent here. Where no skill covers the
    technology the document is still written, from generic knowledge and
    best effort: a tool that is not installed disables its suggestion,
-   never the work. A session may propose writing the declaration
-   and never writes it unasked. A change may skip the document when it
+   never the work. A design spec that already carries
+   `technical-design:` has had its first pass: the pointer answers the
+   offer, and the offer to write a design is not made again. The pointer
+   confirms the link and nothing more — the design it names still takes
+   every check it owes — and a pointer that resolves to no file is a
+   broken link, reported as a finding, never a reason to offer a second
+   design. A session may propose writing the declaration and never
+   writes it unasked. A change may skip the document when it
    sits inside boundaries and contracts already settled and leaves the
    implementer no new responsibility split, placement, or ownership of
    state.
@@ -1401,8 +1407,9 @@ with:
    two it named and nothing besides. Where the audit runs instead, it
    discharges that debt for both documents it read. The other arm stays
    per-document: choosing it dispatches one full-document architect
-   round on each document, each discharging the debt of the one it read,
-   and plan-writing waits for both verdicts. The brief
+   round on each document that carries chain debt, each discharging the
+   debt of the one it read, and plan-writing waits for every verdict so
+   dispatched. The brief
    confirms the auditor's two preconditions: every edit from the
 ```
 
@@ -1476,7 +1483,10 @@ tr -s '[:space:]' ' ' < $F | grep -c 'For a judged document whose LGTM'  # expec
 tr -s '[:space:]' ' ' < $F | grep -c 'For a spec whose LGTM'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'every document the stamp names'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c "spec's recomputed body hash"  # expect 0
-tr -s '[:space:]' ' ' < $F | grep -c 'and plan-writing waits for both verdicts'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'has had its first pass: the pointer answers the offer'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'never a reason to offer a second design'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'plan-writing waits for every verdict so dispatched'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'and plan-writing waits for both verdicts'  # expect 0
 grep -c 'designer session' $F    # expect 0 — the glossary bans "session" for a skill
 ```
 
@@ -1685,9 +1695,10 @@ declined. When the `integrity-auditor` agent is absent the offer
 carries the full-document round alone. For an audit pair the gate makes
 one pair offer for both documents: its audit arm reads the two
 together, while choosing its round arm dispatches one full-document
-architect round on each document, and plan-writing waits until both
-verdicts are settled under the rules any verdict follows. The two arms
-cost differently and the
+architect round on each document that carries the debt, and
+plan-writing waits until every verdict so dispatched is settled under
+the rules any verdict follows; the joint integrity audit stays a check
+of its own. The two arms cost differently and the
 offer says so: an audit returns material for the dispatcher to dispose
 of and leaves the verdict alone, while a full-document round on a
 judged document is a new loop's first round, since that document's
@@ -1758,6 +1769,8 @@ grep -cF '(`docs/specs/`, `docs/plans/`) so the' $F   # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'For a judged document, the consumption gate'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'dispatches one full-document architect round on each document'  # expect 1
 tr -s '[:space:]' ' ' < $F | grep -c 'its round arm stays per-document'  # expect 0
+tr -s '[:space:]' ' ' < $F | grep -c 'on each document that carries the debt'  # expect 1
+tr -s '[:space:]' ' ' < $F | grep -c 'until both verdicts are settled'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'For a spec, the consumption gate'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'round on a spec is a new loop'  # expect 0
 tr -s '[:space:]' ' ' < $F | grep -c 'bind design specs, technical designs, plans'  # expect 1
@@ -3506,27 +3519,26 @@ consumers — the duty-table row, duty 9, dimension 5 and the auditor's
 cases — saying one compatible thing. Every citation held; two phrases
 the dispatcher's plain grep missed wrap across a line.
 
-- held — [Important] the offer has no defeat condition for a design spec
-  that already names a technical design, so a literal session re-offers
-  at every later gate pass, and an accepted re-offer would mint a second
-  design against "one technical design per design spec"; question: does
-  a design spec already carrying `technical-design:` count as having
-  had its first pass, so the offer is not re-made?; options: (a) yes —
-  the pointer is the recorded answer, one clause in Task 10 with a
-  check and a line in the design spec's ledger — recommended, since
-  every other offer in these rules is defeated by a recorded state and
-  this field already exists; (b) no — the offer stands and the session
-  checks the pointer itself. Origin both: the spec's firing table has
-  no row for this case.
-- held — [Minor] over an audit pair where only one document carries
-  chain debt, the round arm as ruled dispatches a full-document round on
-  both, including one that owes nothing; question: does the round arm
-  dispatch only on the documents that carry the debt?; options: (a)
-  yes, with plan-writing waiting for every verdict so dispatched —
-  recommended, since a round on a document with no debt discharges
-  nothing and costs the top tier; (b) no — both, as ruled on
-  2026-09-25. New evidence against that ruling, which did not consider
-  the mixed case, so held rather than folded.
+- fixed 2026-09-25 — [Important] the offer had no defeat condition for
+  a design spec that already names a technical design, so a literal
+  session would re-offer at every later gate pass and an accepted
+  re-offer would mint a second design; ruling: 2026-09-25; the pointer
+  answers the offer, which is not made again, and it confirms the link
+  and nothing more — the design still takes every check it owes, and a
+  pointer resolving to no file is a broken link reported as a finding,
+  never a reason for a second design (Task 10's block, with checks). The
+  design spec's firing section gains the same sentence, recorded in its
+  ledger under
+  `### 2026-09-24 — fix from docs/plans/2026-09-17-technical-design-step.md`.
+- fixed 2026-09-25 — [Minor] over an audit pair where only one document
+  carries chain debt, the round arm dispatched a full-document round on
+  both; ruling: 2026-09-25; the round arm dispatches only on the
+  documents that carry the debt, plan-writing waits for every verdict so
+  dispatched, and the joint integrity audit stays a check of its own
+  (Tasks 10 and 12). This corrects the ruling of the same day recorded
+  under round seven — one round on each document — rather than
+  clarifying it: that ruling did not consider a pair where only one
+  document is indebted.
 - fixed 2026-09-25 — [Minor] the Goal counted six changed rules and
   skills where the tasks change seven — the grilling-session skill added
   at round five never reached it; license: the count's own derivation;
@@ -3561,3 +3573,23 @@ after the plan and 106 before it, so it cannot pass on an untouched tree.
   contract that changed only in the pointer's cardinality, and the loop
   should close on this round's disposition once the two held questions
   are answered.
+
+The loop closes on this round. The developer resolved the verdict
+without a ninth round, on the condition that the transitions the two
+rulings touch were checked in the text the plan produces rather than
+argued. They were, against the simulated tree after all twenty tasks,
+each by the sentence that decides it:
+
+| case | outcome | decided by |
+|---|---|---|
+| no technical design | the offer follows the declaration and the markers | workflow step 4: "Without a declaration, a repository carrying a toolchain manifest … gets the offer at every consumption gate … a repository carrying neither gets no offer" |
+| a technical design already named | no second offer to write one | workflow step 4: "has had its first pass: the pointer answers the offer, and the offer to write a design is not made again" |
+| a pointer resolving to no file | a finding | workflow step 4: "a broken link, reported as a finding, never a reason to offer a second design"; duty 9: "A pointer resolving to a missing file … is a hit" |
+| chain debt on the design spec only, the technical design only, or both | one, one or two full-document rounds | the pair offer: "one full-document architect round on each document that carries the debt" |
+| no chain debt | no round from this offer | the pair offer exists only "For a judged document whose LGTM came from a diff-scoped chain" |
+
+With that, and the plan's own width check over every edited file, the
+developer's ruling closes the loop at `concerns (resolved 2026-09-25)`:
+the verdict stays what the reviewer returned, and every finding of all
+eight rounds and of the independent review is disposed above.
+

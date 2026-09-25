@@ -79,6 +79,12 @@ both directions.
 | no declaration, but the repository carries a toolchain manifest | the offer fires at every consumption gate; nothing is written |
 | no declaration, no marker | no offer |
 
+A design spec that already names a technical design has had its first
+pass: the offer to write one is not made again. The pointer confirms the
+link and nothing more — the design still takes every check it owes — and
+a pointer that resolves to no file is reported as a broken link, never
+answered with a second design.
+
 A marker is a file a language or platform toolchain reads to build, test
 or deploy the repository — the file a developer would point at to say
 what kind of project this is. The core defines that test and names no
@@ -925,6 +931,15 @@ scope is the class, not the ledger's grammar.
   relative to the design spec's directory, and the example now shows
   both lines. Raised by the plan-adversary's round four against the
   plan.
+- fixed 2026-09-25 — [Important] the firing table had no row for a
+  design spec that already names a technical design, so the offer to
+  write one had no recorded state to defeat it, and an accepted re-offer
+  would mint a second design against one technical design per design
+  spec; ruling: 2026-09-25; a sentence after the table says the pointer
+  answers the offer, confirms the link and nothing more, and that a
+  pointer resolving to no file is a broken link rather than a reason for
+  a second design. Raised by the plan-adversary's round eight against
+  the plan.
 
 This heading takes the cross-document fix shape the lifecycle rule
 defines, which that rule scopes to a document whose loop closed at
