@@ -2,6 +2,7 @@
 paths:
   - "docs/specs/**"
   - "docs/plans/**"
+  - "docs/technical-designs/**"
   - "docs/domain/**"
   - "docs/code-review/**"
   - ".superpowers/**"
@@ -10,8 +11,9 @@ paths:
 # Process directories and artifacts
 
 A Process directory is a directory the working process creates in a
-project repo to hold work artifacts: `docs/specs/`, `docs/plans/`,
-`docs/domain/`, `docs/code-review/`, `docs/memory/` (Team memory — when the
+project repo to hold work artifacts: `docs/specs/`,
+`docs/technical-designs/`, `docs/plans/`, `docs/domain/`,
+`docs/code-review/`, `docs/memory/` (Team memory — when the
 project-memory plugin's rules are installed), and the `.superpowers/` family
 at the repo root.
 
