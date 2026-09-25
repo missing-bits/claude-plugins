@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-25
 status: draft
 grilled: 2026-09-25
-architect: concerns
+architect: concerns (resolved 2026-09-26)
 decisions: registered
 branch: feature/plan-coverage
 base: develop
@@ -744,3 +744,12 @@ None at the time of writing.
 - fixed 2026-09-26 — [Minor] F17: the glossary's **Decision coverage** ignores inherited citations; license: D19; the entry now covers citations in an implemented predecessor, and *Changes by file* records the review-round amendments to the glossary
 - fixed 2026-09-26 — [Minor] F19: a multi-spec plan gets a false "plan of another spec" hit in the pass for a spec its predecessor does not name; license: step 3 of *The coverage duty*, which runs per spec; a predecessor now shares at least one spec, lends identifiers only for shared specs, and is out of scope in the other passes
 - signal 2026-09-26 — another round does not pay; the five Minors are one fix wave, and an integrity audit at the consumption gate — especially the two integrity-class questions the round named — is worth more than a fourth round
+
+### Loop closed — 2026-09-26
+
+The developer closed the loop without a fourth round on 2026-09-26,
+after round 3's Minors were fixed, a propagation gate returned clean
+and no ledger line stayed `open` or `held`. Round 3's own stop signal
+judged another round not worth its cost; the integrity audit at the
+consumption gate takes the two integrity-class questions that round
+named.
