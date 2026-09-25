@@ -327,18 +327,25 @@ section beside its `**Defers:**` lines:
 
     **Follows:** ../plans/<file>.md
 
-The path is written relative to the plan. A predecessor must name the
-same spec in its own `spec:` and carry `status: implemented`: an
-implemented plan's body is frozen, so what it realized is settled, and
-a draft cannot lend coverage it may still lose. A `**Follows:**` line
-naming a missing file, a plan of another spec, or a plan not yet
-implemented is a hit.
+The path is written relative to the plan. A predecessor must share at
+least one spec with the later plan's `spec:` and carry
+`status: implemented`: an implemented plan's body is frozen, so what it
+cited is settled and the owner of a decision cannot move, while a draft
+could lose a citation it lent. Whether that realization still stands
+in the code is not coverage's question; the lifecycle rule's diff
+against the named surfaces answers it. A predecessor lends identifiers
+only for the specs both plans name: in the pass for a spec it does not
+name, its `**Follows:**` line is out of scope rather than a hit. A
+`**Follows:**` line naming a missing file, a plan sharing no spec with
+the later plan, or a plan not yet implemented is a hit.
 
 The later plan inherits every identifier its predecessors'
 `**Realizes:**` annotations cite, and nothing else: a predecessor's
 `**Defers:**` lines are never inherited, so a decision an earlier plan
 deferred counts in the later one until that plan realizes or defers it
-itself. The coverage map shows an inherited identifier with the plan it
+itself. Nor are its `**Follows:**` lines: inheritance is not
+transitive, so a plan drawing on a chain names every implemented
+predecessor whose citations it relies on. The coverage map shows an inherited identifier with the plan it
 comes from — `D3 → ../plans/<file>.md (Task 4)`.
 
 The automatic alternative — excluding whatever any other plan of the
@@ -692,7 +699,10 @@ All under `plugins/working-process/` unless noted.
 - `docs/domain/glossary.md` (repo) — applied at the grilling of
   2026-09-25: new **Decision register** and **Decision coverage**
   entries; **Ruling** widened to held hits and register state changes;
-  **Hit** gained the held coverage hit.
+  **Hit** gained the held coverage hit. Amended by the review rounds:
+  **Ruling** also covers a plan's deferral, and **Decision coverage**
+  counts deferrals by the audited plan and citations inherited from an
+  implemented predecessor.
 - `README.md`, `CHANGELOG.md` — the new duties and the convention.
 
 ## Open questions
@@ -722,3 +732,12 @@ None at the time of writing.
 - fixed 2026-09-25 — [Minor] F13: the cell split does not cover a numbered sequence; license: *Table closure* ("A table no rule declares a relation for is not checked"); a numbered sequence is now stated outside the relation, since the rule gives it no grammar to split
 - fixed 2026-09-25 — [Minor] F14: the spec does not say where the auditor reads the declarations; license: D10 (the relation is "declared by the rule that defines the table"); the rule is now their one home under a fixed heading, the card names the heading and repeats nothing, and *Changes by file* says so
 - signal 2026-09-25 — another round pays only after F9 is decided; the Minors are one fix wave, and if one realizing plan per spec is chosen an integrity audit may replace the round
+
+### 2026-09-26 — architect, fable 5.1, concerns (round 3, diff-scoped)
+
+- held — [Minor] F18: the `**Defers:**` and `**Follows:**` lines closing Global Constraints fall under the template's "Every task's requirements implicitly include this section"; counter: re-raises the F11 line carrying `ruling: 2026-09-25` with new evidence — round 2 cited only the section heading, not that sentence; question: add a clause exempting both kinds of line from that implicit inclusion, keeping the placement?; options: (a) yes — one clause in the revised template sentence (D8, *The plan's annotations*); (b) move both kinds of line into a block of their own after Global Constraints instead — recommended: (a), placement stays as ruled
+- fixed 2026-09-26 — [Minor] F15: inheritance does not say whether it is transitive; license: *Sequential plans* ("and nothing else"); a predecessor's `**Follows:**` lines are now stated as not inherited, so a plan names every predecessor it relies on
+- fixed 2026-09-26 — [Minor] F16: "what it realized is settled" claims more than a frozen body gives; license: `rules/spec-plan-lifecycle.md` (an implemented document "is the archive, not the specification of what stands today"); the sentence now rests on what the predecessor cited, and whether the realization still stands is sent to the lifecycle rule's diff
+- fixed 2026-09-26 — [Minor] F17: the glossary's **Decision coverage** ignores inherited citations; license: D19; the entry now covers citations in an implemented predecessor, and *Changes by file* records the review-round amendments to the glossary
+- fixed 2026-09-26 — [Minor] F19: a multi-spec plan gets a false "plan of another spec" hit in the pass for a spec its predecessor does not name; license: step 3 of *The coverage duty*, which runs per spec; a predecessor now shares at least one spec, lends identifiers only for shared specs, and is out of scope in the other passes
+- signal 2026-09-26 — another round does not pay; the five Minors are one fix wave, and an integrity audit at the consumption gate — especially the two integrity-class questions the round named — is worth more than a fourth round
