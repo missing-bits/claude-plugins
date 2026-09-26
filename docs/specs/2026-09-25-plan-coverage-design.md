@@ -188,6 +188,11 @@ What stands today:
   predecessor shipped is skipped — neither counted nor a hit — and
   listed apart in the report as `withdrawn since`. Argued in
   *Sequential plans*.
+- **D31** — The coverage duty's derivation is a script the plugin ships,
+  `scripts/decision-coverage.py`, run by the auditor, whose output is
+  the duty's hits and `decision-coverage:` lines; the auditor reports
+  that output and never derives the sets itself. Argued in *The
+  coverage duty*.
 
 ## The register
 
@@ -538,6 +543,22 @@ On a design spec audited on its own — the gate before its
 architect round — the duty runs steps 1 and 2 alone (D22), so a
 malformed register is found before any plan depends on it; *The
 report* gives the line it writes.
+
+The derivation runs as a script the plugin ships (D31). Measured on
+2026-09-26, the cheapest family walking these steps from prose read the
+same plan three times as 39/39, 34/37 and — on a copy missing one
+annotation — 31/32: it missed the annotations opening Global
+Constraints entries and miscounted the register's leaves wherever the
+harness denied the compound commands it reached for. Bounding the
+section, telling groups from leaves and taking set differences are
+exactly the operations it got wrong, and a parse settles them. The
+script reads the document it is given — a plan, or a design spec audited
+alone — with the specs and predecessors it names, performs the steps
+above, and prints the duty's hits and `decision-coverage:` lines in the
+report's shapes; it reports a document it cannot parse rather than
+guessing. The auditor runs it once per audited document, copies its
+output into the report, and never derives the sets itself. The steps
+stay the duty's definition; the script is their one implementation.
 
 The duty proves that every *declared* decision has an owner. Whether
 the register faithfully lists the spec's decisions is judgment, and
@@ -908,7 +929,8 @@ All under `plugins/working-process/` unless noted.
   `decision-coverage:` block, its `inherited [..]` slot, its
   `withdrawn since` listing and the three outcomes on a spec audited
   alone (`register well formed`, `not counted`, `not checked`); the
-  `table-closure:` line; the "exactly two lines" sentence; the
+  `table-closure:` line; the "exactly two lines" sentence; running
+  `scripts/decision-coverage.py` for duty 10; the
   coverage exception in *What becomes of your hits*.
 - `agents/plan-adversary.md` — the realization-site dimension.
 - `agents/integrity-auditor.md` — one sentence naming the register as a
@@ -944,6 +966,9 @@ All under `plugins/working-process/` unless noted.
   second integrity audit: **Hit** holds any hit of the coverage duty
   whose fix needs a decision, and **Audit agent**'s disposed audit
   admits a hit closed by the developer's ruling.
+- `scripts/decision-coverage.py` — new: the coverage duty's derivation
+  (D31); its tests live outside the plugin, in the repository's
+  `tests/working-process/`.
 - `README.md`, `CHANGELOG.md` — the new duties and the convention.
 
 ## Open questions
@@ -1063,4 +1088,12 @@ nothing; the template always carries `**Files:**`; and the second
 audit's questions 1 and 2 were disposed as its D26 and D3 lines.
 
 - fixed 2026-09-26 — implementer question 8: where a withdrawal the developer rules outside any hit lands in the ledger once the spec's loop has closed; ruling: 2026-09-26; option (b) — on a closed loop, for a spec not `implemented` and a withdrawal tied to no hit or finding, the tombstone is the record and no ledger line is written (*Entry states*)
+
+### 2026-09-26 — fix from ../plans/2026-09-26-plan-coverage.md
+
+The plan's Task 13 ran the changed auditor card on controlled cases and
+measured duty 10 unstable on the cheapest family. The developer ruled
+that the derivation becomes a script in this change.
+
+- fixed 2026-09-26 — the coverage duty's derivation, walked from prose on the cheapest family, read one plan as 39/39, 34/37 and 31/32 across runs; ruling: 2026-09-26; D31 added, *The coverage duty* gives the script and the measurement, *Changes by file* lists the script and its tests — the plan's line under its Task 13 record points here
 

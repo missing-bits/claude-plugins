@@ -158,7 +158,9 @@ Modified, all under `plugins/working-process/`:
 - `skills/grilling-session/SKILL.md` — Task 10: updating the register.
 - `README.md`, `CHANGELOG.md` — Task 11.
 
-Created: nothing. Not modified: `agents/architect.md` (D28.1), the
+Created: `plugins/working-process/scripts/decision-coverage.py` and
+`tests/working-process/test_decision_coverage.py` (Task 14). Not
+modified: `agents/architect.md` (D28.1), the
 glossary (already applied — Deviation 6), and `process-status`, which
 runs the Unfinished-work commands as the lifecycle rule publishes them
 and names none itself.
@@ -178,7 +180,10 @@ and names none itself.
 - Tasks 7, 8 and 10 depend on nothing else in this plan.
 - `claude plugin validate` runs once, in Task 12, after every file has
   changed. Task 13 runs the changed auditor card on fixtures and needs
-  every earlier task landed.
+  every earlier task landed. Tasks 14–16 were added during
+  implementation, after Task 13 measured duty 10 unstable: Task 14
+  writes the script, Task 15 points the card at it, and Task 16 re-runs
+  Task 13 twice on the script-backed card.
 
 ---
 
@@ -2160,7 +2165,7 @@ for f in docs/plans/2026-09-26-plan-coverage.md docs/plans/fixture-uncovered.md 
     --add-dir "$R/plugins/working-process" \
     --disallowedTools "Bash(claude *)" \
     --tools "Agent,Read,Grep,Glob,Bash" \
-    --allowedTools "Bash(git rev-parse:*)" \
+    --allowedTools "Bash(git rev-parse:*)" "Bash(python3 */scripts/decision-coverage.py *)" \
     --output-format stream-json --verbose \
     "Dispatch the working-process:propagation-auditor agent on the haiku model over $f, in the foreground, and wait for its report. Tell it to walk only duties 10 and 11 of its card and to report in the card's output shape.") \
     > "$W/run-$k.jsonl" 2> "$W/run-$k.err"
@@ -2276,6 +2281,335 @@ developer, and leave `sync-rules`, the version and both documents'
 
 ---
 
+### Task 14: The coverage derivation script and its tests
+
+**Files:**
+- Create: `plugins/working-process/scripts/decision-coverage.py`
+- Create: `tests/working-process/test_decision_coverage.py`
+
+**Interfaces:**
+- Consumes: the grammar Tasks 1 and 2 wrote into
+  `rules/spec-plan-lifecycle.md` (*Decision register*, *Plan
+  annotations*) and the report shapes Task 5 wrote into the auditor card
+  (duty 10 and `## Output`).
+- Produces: the command
+  `python3 plugins/working-process/scripts/decision-coverage.py <document>`,
+  which Task 15's card text runs as
+  `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/decision-coverage.py <document>`.
+
+**Realizes:** D31
+
+This task is code, so its steps are test-driven rather than
+Find/Replace. The contract below is the requirement; the tests encode
+it, and the script is written to pass them. Python 3.9 or later, the
+standard library only, no third-party package.
+
+**The contract.**
+
+- Invocation: one positional argument, the path of a plan or a design
+  spec, relative to the working directory or absolute. Paths the
+  document names (`spec:`, `**Follows:**`) resolve against the
+  document's own directory. Output goes to stdout; exit code 0 whenever
+  the derivation ran, hits or not; 2 on a usage error or an unreadable
+  file, with a one-line message on stderr.
+- A plan is a document whose frontmatter carries `spec:`; a design spec
+  is one that does not. Frontmatter is the block between the `---` on
+  the first line and the next `---`. `spec:` is a single path or an
+  inline list `[a, b]`.
+- Fenced code blocks — a line opening with three backticks toggles a
+  fence — are skipped everywhere: nothing inside one is an entry, an
+  annotation or a heading.
+- **Register** (per spec): the `decisions:` field absent → the block
+  line `decision-coverage: <spec> not checked — no decision register`
+  and nothing else for that spec. Any value other than `registered` → a
+  hit and `not counted — malformed register`. Otherwise the register is
+  the `## Decisions` section, up to the next line opening `## `; no such
+  section → a hit and `not counted`. An entry is a line matching
+  `^(\s*)- \*\*(D\d+(?:\.\d+)?)\*\*`; indentation of two or more spaces
+  marks a child. Its identity paragraph is that line plus the
+  continuation lines up to a blank line, the next line opening a list
+  item, or the section's end, joined with single spaces. Malformed, each
+  a hit: a numbered-list entry (`^\s*\d+\.\s+\*\*D`), a duplicate
+  identifier, a child `D<n>.<m>` not nested under entry `D<n>` or whose
+  parent does not exist, a group carrying a state token, a state token
+  not matching the grammar, a `replaced by` naming a missing
+  identifier, itself or a group, and a `replaced by` chain closing a
+  cycle. Any malformation → `not counted` for that spec, and its other
+  checks stop.
+- **State token**: the first segment of the identity paragraph that
+  begins with `withdrawn` right after a full stop and whitespace; it
+  runs to the paragraph's end and must match
+  `withdrawn <reason>, ruling: <YYYY-MM-DD>[; replaced by <id>]`,
+  optionally ending with a full stop. A group is an entry with children;
+  a leaf is every other entry.
+- **Plan annotations**: tasks are `### Task <n>` headings; a task's
+  `**Realizes:**` line is a line opening `**Realizes:** ` between its
+  heading and the next line opening `#`; its value is `none` or a
+  comma-separated list. Global Constraints entries are lines opening
+  `- **Realizes:** ` inside `## Global Constraints`; the identifiers
+  run up to the first ` — `. `**Defers:** <id> — <why>; ruling: <date>`
+  and `**Follows:** <path>` lines count only inside
+  `## Deferrals and predecessors`.
+- **Qualification**: where `spec:` names two or more specs, every
+  identifier is written `<spec path as spec: writes it>#<id>`; a bare
+  one is a hit. Each spec's pass reads only the identifiers qualified
+  with its path; a `**Defers:**` line for another spec is out of scope
+  there.
+- **Steps**, per registered spec, in order — the duty's steps 3 to 7:
+  check each `**Follows:**` line (missing file, no shared spec, or
+  `status` other than `implemented` → a hit, and the line lends
+  nothing); collect the cited set from local annotations and from each
+  accepted predecessor's annotations for the specs both name (an
+  identifier cited locally and inherited counts as local); a cited
+  withdrawn identifier, group or undefined identifier is a hit, except
+  an inherited citation of an identifier withdrawn since, which is
+  skipped and listed; check each `**Defers:**` line (undefined,
+  withdrawn, group, or in the cited set → a hit, and it subtracts
+  nothing); the counted set is the leaves not withdrawn less the
+  accepted deferrals; every counted identifier the cited set lacks is a
+  hit. A task with no `**Realizes:**` line, in a plan whose `spec:`
+  names a registered spec, is a hit.
+- **A design spec audited alone** runs the register checks only and
+  prints `register well formed`, `not counted — malformed register` or
+  `not checked — no decision register`.
+- **Output**, in this order: every hit, one line each,
+  `<path>:<line> — <claim> — derivation: decision-coverage.py, <step>`;
+  then, per spec in `spec:` order, its block, exactly as the auditor
+  card's `## Output` shows it:
+
+      decision-coverage: <spec> <c>/<n> covered; inherited [..]; deferred [..]; uncovered [..]
+        <id> → <site>, <site>
+        withdrawn since: <id> ← <predecessor path> (<site>)
+
+  `<spec>` is the path as `spec:` writes it. Map lines follow the
+  register's order, one per counted identifier; an uncovered one maps to
+  `—`. A site is `Task <n>`, or
+  `Global Constraints, line <line>: "<words>"` where `<words>` are the
+  first six words after the annotation clause with `**` and backticks
+  removed, or `<predecessor path> (<site>)`. Local sites come before
+  inherited ones. Every slot is always present, an empty one `[]`, and
+  identifiers inside slots follow register order. The script prints no
+  `CLEAN`: other duties may still hit.
+
+- [ ] **Step 1: Write the failing tests**
+
+`tests/working-process/test_decision_coverage.py`, `unittest`, each
+test building its documents in a `tempfile.TemporaryDirectory()` and
+running the script with `subprocess.run([sys.executable, SCRIPT,
+path], capture_output=True, text=True)`, where `SCRIPT` is resolved
+from the test file's location. One test per case, asserting the exact
+lines named:
+
+1. A registered spec with `D1`, `D2` and a group `D3` with `D3.1`,
+   `D3.2`; a plan whose three tasks cite `D1`, `D3.1`, `D3.2` and whose
+   Global Constraints entry `- **Realizes:** D2 — **No code** anywhere.`
+   → `decision-coverage: ../specs/s.md 4/4 covered; inherited []; deferred []; uncovered []`,
+   map line `  D2 → Global Constraints, line <n>: "No code anywhere."`
+   with `<n>` that entry's line, and no hit line.
+2. The same plan with one task's `D3.1` replaced by `none` → a hit
+   naming `D3.1`, `3/4 covered`, `uncovered [D3.1]`, `  D3.1 → —`.
+3. A plan quoting `**Realizes:** D9` and `**Defers:** D1 — x; ruling: 2026-01-01`
+   inside a fenced block, while citing `D1` in a task → no hit, and no
+   `D9` anywhere in the output.
+4. A task with no `**Realizes:**` line → a hit naming that task.
+5. A register entry `D2` ending
+   `. withdrawn superseded by D1. See notes, ruling: 2026-01-01; replaced by D1.`
+   → `D2` absent from the counted set, a plan citing `D2` gets a hit.
+6. Malformed registers, one test each: a duplicate `D1`; a child `D4.1`
+   with no `D4`; a group carrying a token; `replaced by` naming itself;
+   `D1 → D2 → D1` as a cycle; a numbered list → each a hit and
+   `not counted — malformed register`, no map.
+7. A spec with no `decisions:` → `not checked — no decision register`,
+   and a plan descending from it alone needs no `**Realizes:**` lines.
+8. A plan whose `spec:` names two registered specs, citing a bare `D1`
+   → a hit on the bare identifier.
+9. A valid `**Defers:** D2 — later; ruling: 2026-01-01` → `D2` out of
+   the counted set and in `deferred [D2]`; a `**Defers:**` naming a
+   cited identifier → a hit, and the identifier still counted.
+10. `**Follows:** ../plans/p0.md` naming an implemented predecessor that
+    cites `D2` → `D2` covered, `inherited [D2]`,
+    `  D2 → ../plans/p0.md (Task 1)`; the predecessor at `status: draft`
+    → a hit and `D2` uncovered; the predecessor citing a `D2` the
+    register has since withdrawn → a `withdrawn since:` line and no hit.
+11. A registered spec audited alone → `register well formed`; with a
+    duplicate → `not counted — malformed register`.
+12. The repository's own documents: the script over
+    `docs/plans/2026-09-26-plan-coverage.md` prints no hit and a summary
+    whose two counts equal the register's leaves; over
+    `docs/specs/2026-09-25-plan-coverage-design.md`, `register well formed`.
+
+- [ ] **Step 2: Run the tests to see them fail**
+
+Run: `python3 -m unittest discover -s tests/working-process -v`
+Expected: every test fails or errors, the script not existing yet.
+
+- [ ] **Step 3: Write the script**
+
+`plugins/working-process/scripts/decision-coverage.py`, executable,
+opening with `#!/usr/bin/env python3` and a docstring naming the
+contract's home — the spec-plan-lifecycle rule's *Decision register*
+and *Plan annotations*, and duty 10 of the propagation-auditor card.
+Match the contract above; add nothing it does not name.
+
+- [ ] **Step 4: Run the tests to see them pass**
+
+Run: `python3 -m unittest discover -s tests/working-process -v`
+Expected: every test passes, output pristine.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add plugins/working-process/scripts/decision-coverage.py tests/working-process/test_decision_coverage.py
+git commit -m "feat(working-process): decision coverage derivation script"
+```
+
+---
+
+### Task 15: The auditor runs the script
+
+**Files:**
+- Modify: `plugins/working-process/agents/propagation-auditor.md` — the
+  opening paragraph of duty 10.
+- Modify: `plugins/working-process/README.md` — the `## Decision
+  register` section.
+- Modify: `plugins/working-process/CHANGELOG.md` — one bullet under
+  `## Unreleased`.
+
+**Interfaces:**
+- Consumes: the command Task 14 produces.
+- Produces: nothing a later task reads.
+
+**Realizes:** D31
+
+- [ ] **Step 1: Record the before values**
+
+```bash
+C=plugins/working-process/agents/propagation-auditor.md
+R=plugins/working-process/README.md
+L=plugins/working-process/CHANGELOG.md
+n() { tr -s '[:space:]' ' ' < "$1"; }
+echo "A $(n $C | grep -oF 'scripts/decision-coverage.py <document>' | wc -l)"
+echo "B $(n $C | grep -oF 'never walk it by hand' | wc -l)"
+echo "C $(n $R | grep -oF 'scripts/decision-coverage.py' | wc -l)"
+echo "D $(n $L | grep -oF 'scripts/decision-coverage.py' | wc -l)"
+```
+
+Expected: `A 0`, `B 0`, `C 0`, `D 0`.
+
+- [ ] **Step 2: Duty 10 runs the script**
+
+Find in `plugins/working-process/agents/propagation-auditor.md`:
+
+```
+place *Plan annotations* gives it: a code block or a quoted example
+describes the grammar. For each spec the plan's `spec:` names:
+```
+
+Replace with:
+
+```
+place *Plan annotations* gives it: a code block or a quoted example
+describes the grammar.
+
+Run the derivation, never walk it by hand:
+`python3 ${CLAUDE_PLUGIN_ROOT}/scripts/decision-coverage.py <document>`,
+once per audited document, as a single command from the repository
+root. It performs the steps below and prints this duty's hits and
+`decision-coverage:` lines in the report's shapes; copy its output into
+your report unchanged, neither recounting nor reordering it. If it exits
+non-zero, or you cannot run it, report that as a hit naming the command
+and its message, and write no `decision-coverage:` line — never derive
+the sets yourself. The steps below define what the script does. For
+each spec the plan's `spec:` names:
+```
+
+- [ ] **Step 3: The README names the script**
+
+Find in `plugins/working-process/README.md`:
+
+```
+the field is reported as not checked. The grammar lives in the
+spec-plan-lifecycle rule.
+```
+
+Replace with:
+
+```
+the field is reported as not checked. The grammar lives in the
+spec-plan-lifecycle rule. The auditor derives the decision coverage by
+running `scripts/decision-coverage.py` with `python3`, so a session
+that asks before running a command asks once for it.
+```
+
+- [ ] **Step 4: The CHANGELOG names the script**
+
+Find in `plugins/working-process/CHANGELOG.md`:
+
+```
+- The propagation duties checklist gains rows for the two duties and
+  the duty-2 anchor an earlier task has already rewritten.
+```
+
+Replace with:
+
+```
+- The propagation duties checklist gains rows for the two duties and
+  the duty-2 anchor an earlier task has already rewritten.
+- The decision coverage is derived by `scripts/decision-coverage.py`,
+  which the auditor runs with `python3` (3.9 or later, standard library
+  only), rather than by the auditor walking the steps itself.
+```
+
+- [ ] **Step 5: Verify**
+
+Run the Step 1 command again, then `claude plugin validate
+plugins/working-process`.
+
+Expected: `A 1`, `B 1`, `C 1`, `D 1`, and validation passes.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add plugins/working-process/agents/propagation-auditor.md plugins/working-process/README.md plugins/working-process/CHANGELOG.md
+git commit -m "feat(working-process): the propagation auditor runs the coverage script"
+```
+
+---
+
+### Task 16: Run Task 13 twice more on the script-backed card
+
+**Files:**
+- Test: the Task 13 fixture, and the evidence files
+  `.claude/working-process/2026-09-26-plan-coverage/task-13-auditor-runs-<k>.md`.
+
+**Interfaces:**
+- Consumes: Tasks 14 and 15, and Task 13's steps.
+- Produces: nothing.
+
+**Realizes:** none
+
+- [ ] **Step 1: Run Task 13 in full, twice**
+
+Run Task 13's Steps 1–4 two times in a row, asking the developer once
+before the first — the plugin is disabled and restored around each.
+After each run, rename the evidence file and streams directory to carry
+the run's number, `-2` and `-3`, so neither overwrites the other.
+
+- [ ] **Step 2: Compare**
+
+Expected: both runs meet every expectation of Task 13 Step 3 with the
+numbers exact — `N/N` on this plan, `N-1/N` with `uncovered [D15]` on
+the copy, `register well formed` on the spec, `3 relations checked`
+and the `reder` hit on the technical design — and each report's
+`decision-coverage:` lines equal the script's own output over the same
+document, run directly. Two agreeing runs are the acceptance criterion,
+not a statistical proof of reliability; a single departure fails the
+task and goes to the developer with both reports.
+
+- [ ] **Step 3: Report**
+
+No commit. Report both runs to the developer.
+
 ## Review rounds
 
 ### 2026-09-26 — plan-adversary, fable 5.1, blocking (round 1, full-document)
@@ -2343,4 +2677,5 @@ evidence is the run's record in the dispatcher's store.
 - fixed 2026-09-26 — the haiku auditor counted the Contracts relation once per side, wrote a `table-closure:` line on a plan's report, and opened reports with narration; license: D27 and the spec's *Table closure* ("3 relations checked", "A document other than a technical design gets no line"), and the card's own "Open with the self-report"; the card now counts one relation per declaration row, forbids the line on any other document, and puts `model:` first with nothing before it (`f8e743b`)
 - fixed 2026-09-26 — Task 13's harness: `--setting-sources project` dropped the agents `--plugin-dir` loads, the extractor failed on an event whose `message` is a string, `grep -c` exits 1 on a zero count, and the step overstated the run's permission limits; ruling: 2026-09-26; the run now denies `Bash(claude *)` instead, the extractor skips such events, the count takes `|| true`, and Step 2 states the real limits
 - fixed 2026-09-26 — Task 13 failed any denial, or on the draft wording passed any complete report; ruling: 2026-09-26; a denial fails the test unless the stream shows the same operation completed through an allowed alternative, since a complete report does not prove its check ran (Codex's second opinion)
+- fixed 2026-09-26 — Task 13's second run measured duty 10 unstable on the cheapest family (34/37 and 31/32 where 39 leaves stand), each miss following a denied compound command; ruling: 2026-09-26; the derivation becomes a script — spec D31, recorded in the spec under `### 2026-09-26 — fix from ../plans/2026-09-26-plan-coverage.md` — and Tasks 14–16 add it, point the card at it and re-run Task 13 twice; Task 13's run allows that one script, and the narration before `model:` is accepted as a known departure of the cheapest family, the workflow rule's reading of the body guarding it
 
