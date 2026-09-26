@@ -4,6 +4,7 @@ date: 2026-09-25
 status: draft
 grilled: 2026-09-25
 architect: concerns (resolved 2026-09-26)
+integrity: 2026-09-26 (sha: e66d89e)
 decisions: registered
 branch: feature/plan-coverage
 base: develop
