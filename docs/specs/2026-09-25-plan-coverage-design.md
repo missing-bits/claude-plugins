@@ -103,7 +103,9 @@ What stands today:
 - **D12** — A coverage hit stays a hit, but its fix is triaged by
   license, and a fix needing a decision the spec does not make waits
   for the developer. The exception to "hits never wait" covers the
-  coverage duty's hits alone. Argued in *Disposing of a coverage hit*.
+  coverage duty's hits alone. A held hit ends its gate episode, and the
+  re-run after the developer's answer is a fresh episode. Argued in
+  *Disposing of a coverage hit*.
 - **D13** — The lifecycle rule records a held hit in two independent
   ways. Argued in *Gate lines for a held hit*.
   - **D13.1** — Four gate-line shapes: `hit held`, and its three
@@ -115,8 +117,11 @@ What stands today:
 - **D14** — The plan-adversary gains a dimension judging each
   decision's realization: do the tasks and constraints citing it
   realize it in full together, and does a cited constraint actually
-  bind. A decision realized only in part is an Important finding.
-  Argued in *Readers*.
+  bind. A decision realized only in part is an Important finding. The
+  dimension also judges a task that quietly depends on a deferred
+  decision, one that changes or undoes what an inherited decision
+  required, and whether a withdrawn inherited decision must be undone.
+  Argued in *Readers*, *Deferral* and *Sequential plans*.
 - **D15** — The integrity auditor checks the register's completeness
   through its existing first lens, prompted by one sentence in its card.
   Argued in *Readers*.
@@ -128,7 +133,9 @@ What stands today:
     and the row omits.
 - **D17** — A spec without the `decisions:` field is reported as
   `not checked` and yields no hit; existing specs migrate at a
-  substantive revision, never in a sweep. Argued in *Legacy specs*.
+  substantive revision, never in a sweep. Every new design spec is
+  expected to set the field, and its absence is reported, not refused.
+  Argued in *Legacy specs*.
 - **D18** — A plan that leaves a registered decision unrealized says so
   in a `**Defers:**` line, one per decision, carrying the developer's
   ruling; the deferral binds that plan alone, and the spec names no
@@ -143,15 +150,17 @@ What stands today:
 - **D21** — The technical-design rule carries the table-closure
   declarations, under one fixed heading, as their only home. Argued in
   *Table closure*.
-- **D22** — On a registered design spec audited on its own, the coverage
-  duty checks the register alone and the report says whether it is well
-  formed. Argued in *The coverage duty* and *The report*.
+- **D22** — On a design spec audited on its own, the coverage duty
+  checks the register alone, and the report says whether it is well
+  formed, not counted, or not checked. Argued in *The coverage duty*
+  and *The report*.
 - **D23** — A pre-round gate episode that holds a hit writes all its
   lines before the first round heading, where they stay. Argued in
   *Gate lines for a held hit*.
-- **D24** — Withdrawing a decision of an `implemented` spec is a
-  revision through a newer spec's `revises:`, never an edit of the
-  frozen body. Argued in *Entry states*.
+- **D24** — Withdrawing, repairing, sharpening or adding a decision of
+  an `implemented` spec is a revision through a newer spec's
+  `revises:`, never an edit of the frozen body. Argued in *Entry
+  states* and *Disposing of a coverage hit*.
 - **D25** — A plan whose `spec:` names two or more specs, registered or
   legacy, qualifies every identifier with its spec's path. Argued in
   *The plan's annotations*.
@@ -203,10 +212,10 @@ across lines keeps its state token, which stands at the paragraph's
 end. Prose beneath, after the blank line, is free.
 
 A state token is recognized by its reserved opening word alone: the
-paragraph's final segment, after the full stop that ends the decision's
-statement — and after any "Argued in" pointer, which belongs to the
-statement — beginning with `withdrawn`. The token runs from that word to
-the paragraph's end, so its `<reason>` may hold a full stop. A segment
+first segment after the full stop that ends the decision's statement —
+and after any "Argued in" pointer, which belongs to the statement — that
+begins with `withdrawn`. The token runs from that word to the
+paragraph's end, so its `<reason>` may hold a full stop. A segment
 so opening that does not match the token's grammar is a hit, never
 prose. Any other text is
 prose, so a statement whose own words happen to end in "withdrawn"
@@ -327,7 +336,7 @@ shared, and only the place differs. Only an entry that realizes a
 decision carries the annotation; an entry without one is no hit, and
 `none` is never written there, since a constraint that realizes nothing
 needs no statement of it. Citing the section as a whole realizes
-nothing.
+nothing. `none` names no identifier, so it is never qualified.
 
 A plan whose `spec:` names one spec uses bare identifiers. A plan whose
 `spec:` names two or more — registered or legacy alike — qualifies each
@@ -348,10 +357,10 @@ This extends the plan template, and the lifecycle rule currently says
 the plugin does not: "This binds how the blocks are filled and changes
 no plan template — the template belongs to the tool that writes plans."
 The sentence is revised to name the exception: working-process adds the
-`**Realizes:**` annotation on tasks and constraint entries, the
-`**Defers:**` lines of *Deferral* and the `**Follows:**` lines of
-*Sequential plans*, and the rest of the template stays with the tool
-that writes plans.
+`**Realizes:**` annotation on tasks and constraint entries, and the
+`## Deferrals and predecessors` heading with the `**Defers:**` lines of
+*Deferral* and the `**Follows:**` lines of *Sequential plans*; the rest
+of the template stays with the tool that writes plans.
 
 The plan's author writes the annotations, whoever that author is, and
 the requirement lives in the lifecycle rule; the tool that writes plans
@@ -382,7 +391,9 @@ of that section because the plan template makes every task's
 requirements include it, and these lines state facts about the whole
 plan rather than requirements of any task. Each carries the
 developer's ruling, and the session writes it only on the developer's
-explicit decision.
+explicit decision. A plan with neither kind of line carries no such
+section. In the pass for one spec, a `**Defers:**` line naming another
+spec's identifier is out of scope, as a `**Follows:**` line is.
 
 The plan is the right home for three reasons. The deferral is a fact
 about this plan — the decision still stands — so it binds this plan
@@ -444,7 +455,7 @@ hidden either — the report lists it after the map, outside the counted
 identifiers and the fraction, as `withdrawn since: D4 ←
 ../plans/<file>.md (Task 2)`. The exception covers inheritance alone: a
 `**Realizes:**` in the later plan that cites the withdrawn identifier
-directly is still a hit. A `replaced by` successor inherits no coverage;
+directly is still a hit. A `replaced by` successor inherits nothing;
 it is counted and needs its own realization. Whether the later plan
 must undo what the predecessor built for the withdrawn decision is not
 decided by the withdrawal itself: the plan-adversary judges the later
@@ -484,24 +495,30 @@ A tenth propagation duty runs on a plan. For each spec the plan's
    a state token; a `replaced by` naming a missing identifier, its own,
    or a group, or closing a cycle. Where any of them fires, the counted
    set cannot be trusted: report `not counted` and stop for that spec.
-3. Collect the counted set: the leaf identifiers that are not
-   withdrawn, less those the audited plan's `**Defers:**` lines name.
+3. Check the plan's `**Follows:**` lines as *Sequential plans* says. A
+   line that is a hit lends nothing to the steps below.
 4. Collect the cited set: every identifier the plan's `**Realizes:**`
    annotations cite, on tasks and constraint entries, and every
-   identifier inherited through the plan's `**Follows:**` lines, each
-   with the plan it comes from. A cited withdrawn identifier and a
-   cited group are hits — except an inherited citation of an identifier
-   withdrawn since, which *Sequential plans* skips — and so is a cited
-   identifier the register does not define. That last is an error in
-   the plan, never a gap in the spec: identifiers are minted only in
-   the register, so a plan citing one the register lacks has mistyped
-   or invented it. Duty 5 does not take it, since duty 5 reads an
-   undefined name as a gap in its source.
-5. Check the plan's `**Defers:**` lines as *Deferral* says and its
-   `**Follows:**` lines as *Sequential plans* says, against the cited
-   set of step 4.
-6. Report every counted identifier the cited set lacks: one hit per
+   identifier inherited through the `**Follows:**` lines step 3
+   accepted, each with the plan it comes from. A cited withdrawn
+   identifier and a cited group are hits — except an inherited citation
+   of an identifier withdrawn since, which *Sequential plans* skips —
+   and so is a cited identifier the register does not define. That
+   last is an error in the plan, never a gap in the spec: identifiers
+   are minted only in the register, so a plan citing one the register
+   lacks has mistyped or invented it. Duty 5 does not take it, since
+   duty 5 reads an undefined name as a gap in its source.
+5. Check the plan's `**Defers:**` lines as *Deferral* says, against the
+   register and the cited set of step 4. A line that is a hit subtracts
+   nothing.
+6. Collect the counted set: the leaf identifiers that are not
+   withdrawn, less those the `**Defers:**` lines step 5 accepted name.
+7. Report every counted identifier the cited set lacks: one hit per
    identifier.
+
+A line that is a hit gains the plan nothing: an invalid predecessor
+covers no decision, and an invalid deferral excuses none, while the hit
+itself stays in the report.
 
 The decision coverage map is derived, never tallied. The auditor writes
 the map from identifier to citing sites, and the fraction is that map's
@@ -511,7 +528,7 @@ a hit. An identifier cited by several tasks is legal — one decision,
 many tasks — and a task split or merged in a fix wave passes as long as
 the union of its identifiers survives.
 
-On a registered design spec audited on its own — the gate before its
+On a design spec audited on its own — the gate before its
 architect round — the duty runs steps 1 and 2 alone (D22), so a
 malformed register is found before any plan depends on it; *The
 report* gives the line it writes.
@@ -522,12 +539,12 @@ belongs to the integrity auditor (see *Readers*).
 
 ## Table closure
 
-An eleventh propagation duty, independent of coverage. It answers "does
-the named element exist?", where coverage answers "does every required
-element have an owner?" — correct references can coexist with a missed
-decision, so neither subsumes the other. Measured on 2026-09-16: walked
-duty by duty, none of the nine current duties checks referential
-integrity between two tables of one document.
+An eleventh propagation duty, independent of the coverage duty. It
+answers "does the named element exist?", where the coverage duty answers
+"does every required element have an owner?" — correct references can
+coexist with a missed decision, so neither subsumes the other. Measured
+on 2026-09-16: walked duty by duty, none of the nine current duties
+checks referential integrity between two tables of one document.
 
 The duty checks declared relations only, never guessed ones. Matching
 cell values would be a false detector: two unrelated columns can share
@@ -573,7 +590,9 @@ The count names the declared relations the duty resolved in that
 document — those whose tables it carries; a relation whose table is
 absent, as a conditional State section may be, is not applicable there
 and is not counted. The hits, if any, stand above. A document other
-than a technical design gets no line, since no relation binds it.
+than a technical design gets no line, since no relation binds it — a
+plan included, whatever technical design its `technical-design:`
+names.
 
 A table no rule declares a relation for is not checked by this duty,
 and nothing says it was: the report states what the duty covers, and a
@@ -594,29 +613,35 @@ and before the token, and present whether or not any hit fired:
       D2 → ../plans/<file>.md (Task 3)
       D3 → Task 4, Task 6
       D4.2 → —
-      D9 → Global Constraints: "No code"
-      D10 → ../plans/<file>.md (Global Constraints: "No code")
+      D9 → Global Constraints, line 42: "No code"
+      D10 → ../plans/<file>.md (Global Constraints, line 38: "No code")
       …
     decision-coverage: <spec path> not counted — malformed register
     decision-coverage: <spec path> not checked — no decision register
 
 The summary line opens the block, and under a counted spec the map
 follows it, one indented line per counted identifier, naming every task
-and constraint that cites it. A task is named by its heading's number;
-a Global Constraints entry, which the template gives no key, by its
-opening words in quotes; an inherited site, by its plan's path with the
-site in parentheses. An uncovered identifier maps to `—` and is also a
-hit above. The map is what the fraction summarises, so a
-reader can check the one against the other. The fraction's denominator
-is the counted set of step 3, and its numerator every counted
-identifier in the cited set of step 4. `inherited [..]` lists the
-covered identifiers whose only citation comes from a predecessor — an
-identifier realized locally as well counts as local and is not listed
-there — so the fraction can be checked without the map. Identifiers the
-audited plan defers are listed apart and never counted as covered.
-Every identifier in the block is qualified as the plan's annotations
-are. `not counted` follows a malformed register, whose hits stand above
-it, and carries no map, since its denominator cannot be derived.
+and constraint that cites it. A task is named by its heading's number; a
+Global Constraints entry, which the template gives no key, by the line
+it opens on and its opening words after the annotation, in quotes; an
+inherited site, by its plan's path with the site in parentheses. The
+line number tells two entries apart, and since the report is derived
+afresh on every run it need not be a stable identifier. An uncovered
+identifier maps to `—` and is also a hit above. The map is what the
+fraction summarises, so a reader can check the one against the other.
+The fraction's denominator is the counted set of step 6, and its
+numerator every counted identifier in the cited set of step 4. The
+summary line always carries every slot, in the example's order, an empty
+one written `[]`; a counted set of zero reads `0/0 covered`, the result
+of an empty check, never a claim that the register is complete.
+`inherited [..]` lists the covered identifiers whose only citation comes
+from a predecessor — an identifier realized locally as well counts as
+local and is not listed there — so the fraction can be checked without
+the map. Identifiers the audited plan defers are listed apart and never
+counted as covered. Every identifier in the block is qualified as the
+plan's annotations are. `not counted` follows a malformed register,
+whose hits stand above it, and carries no map, since its denominator
+cannot be derived.
 
 On a design spec audited on its own, the block is one line (D22) and no
 map follows, since no plan cites anything yet — `register well formed`
@@ -744,19 +769,20 @@ as it treats any line carrying `ruling:`.
 
 Placement follows the existing rule, with one exception. A gate after a
 round writes its lines under that round's heading. A gate before a
-plan's first round has no heading to write under, and the existing rule
-makes its lines wait for that round's stamp — which a held hit cannot
-do, since the round it waits for cannot start. A pre-round gate
+document's first round has no heading to write under, and the existing
+rule makes its lines wait for that round's stamp — which a held hit
+cannot do, since the round it waits for cannot start. A pre-round gate
 episode that holds at least one hit therefore writes every one of its
-lines — the `hit held` line and its siblings alike — in the
-`## Review rounds` section before the first round heading, and they
-stay there, rewrites included: no round produced them, and one episode
-keeps one home (D23). Once such lines stand there, every later
-pre-round episode writes there too, holding or not, so the document's
-pre-round gate history stays in one place. A pre-round episode on a
-document with no pre-round lines, holding nothing, keeps the existing
-rule. A plan that has no `## Review rounds` section yet gains one, at
-its end, when its first gate line is written.
+lines — the `hit held` line and its siblings alike — in the `## Review
+rounds` section before the first round heading, and they stay there,
+rewrites included: no round produced them, and one episode keeps one
+home (D23). Once such lines stand there, every later pre-round episode
+writes there too, holding or not, so the document's pre-round gate
+history stays in one place. A pre-round episode on a document with no
+pre-round lines, holding nothing, keeps the existing rule. A document
+that has no `## Review rounds` section yet gains one, at its end, when
+its first gate line is written — a design spec audited alone as well as
+a plan.
 
 `hit held` joins the Unfinished-work list by widening the *Unfinished
 review-loop ledger* entry (D13.2): its description becomes "a
@@ -847,19 +873,25 @@ design spec and its absence is reported, not refused.
 
 ## Out of scope
 
-- The technical design's side of coverage — a Scope table mapping
-  decisions to parts, contracts or state. It needs row keys the
+- The technical design's side of decision coverage — a Scope table
+  mapping decisions to parts, contracts or state. It needs row keys the
   Contracts table and the Failure section do not have, and no measured
   failure calls for it yet. Dimension 5 stays as it is.
 - Enforcing the register project-wide (see *Legacy specs*).
 - A shape for a hit left outstanding when the gate's re-dispatch bound
   stops an episode. The lifecycle rule names that gap already; `hit
-  held` is scoped to coverage hits by D12 and does not close it. The
-  two share a shape but not a question: a held coverage hit waits on a
-  decision the spec lacks, while an outstanding hit marks a gate that
-  failed to converge, and folding the second in would widen D12's
-  exception beyond the case it was argued for.
+  held` is scoped to the coverage duty's hits by D12 and D26 and does
+  not close it. The two share a shape but not a question: a held hit
+  waits on a decision the spec lacks, while an outstanding hit marks a
+  gate that failed to converge, and folding the second in would widen
+  D12's exception beyond the case it was argued for.
 - Migrating this repository's existing specs.
+- Carrying decision coverage across a revision. A spec revised through
+  `revises:` is a new register: a plan of the newer spec shares no spec
+  with a plan of the older one, so it inherits nothing, and repeating an
+  identifier in the newer register does not establish that it is the
+  same decision. Carrying identity across a revision needs a contract
+  of its own.
 
 ## Changes by file
 
@@ -867,10 +899,10 @@ All under `plugins/working-process/` unless noted.
 
 - `agents/propagation-auditor.md` — duties 10 (coverage) and 11 (table
   closure, naming the rule heading that holds the declarations); the
-  `decision-coverage:` block, its `inherited [..]` slot and the three
-  outcomes on a spec audited alone (`register well formed`, `not
-  counted`, `not checked`); the `table-closure:` line; the "exactly
-  two lines" sentence; the
+  `decision-coverage:` block, its `inherited [..]` slot, its
+  `withdrawn since` listing and the three outcomes on a spec audited
+  alone (`register well formed`, `not counted`, `not checked`); the
+  `table-closure:` line; the "exactly two lines" sentence; the
   coverage exception in *What becomes of your hits*.
 - `agents/plan-adversary.md` — the realization-site dimension.
 - `agents/integrity-auditor.md` — one sentence naming the register as a
@@ -888,10 +920,10 @@ All under `plugins/working-process/` unless noted.
   how their cells split, the `external:` value, and that a numbered
   sequence is outside the relation.
 - `rules/workflow.md` — the coverage duty's exception to "hits never
-  wait"; the `decision-coverage:` and `table-closure:` lines beside the
-  closing-token paragraph; in
-  step 4, the duty of a brief delegating plan-writing to name the
-  lifecycle rule and require reading it.
+  wait", and a held hit ending its gate episode; the
+  `decision-coverage:` and `table-closure:` lines beside the
+  closing-token paragraph; in step 4, the duty of a brief delegating
+  plan-writing to name the lifecycle rule and require reading it.
 - `rules/propagation-duties.md` — the rows and counters of *The
   author's checklist*.
 - `skills/grilling-session/SKILL.md` — updating the register as
@@ -997,3 +1029,31 @@ unaudited. Eight defects and twelve implementer questions.
 - fixed 2026-09-26 — a non-coverage hit of the coverage duty needing a decision had no shape to wait in; ruling: 2026-09-26; D26 now holds any hit of the coverage duty whose fix needs a decision no derivation settles, the held line lives in the audited document's ledger, `hit fixed … ruling:` covers a repaired register, and the re-run gate covers the changed document and what depends on it
 - fixed 2026-09-26 — implementer question 3, an inherited citation of an identifier withdrawn since; ruling: 2026-09-26; D30 added — skipped, listed apart as `withdrawn since`, never covering, a direct citation still a hit, a successor needing its own realization, undoing judged against the standing decisions, and a `revises:` withdrawal kept out of the case
 - fixed 2026-09-26 — implementer questions 4–12; license: the report contract, the lifecycle rule's gate lines and ledger section, and the template's task shape; map line shapes, the clean shape of every audited document class, the relation count, the annotation's place before the first step, the section a plan gains at its first gate line, the widened Unfinished-work entry, the token's place after the pointer, later pre-round episodes and the `table-closure:` placement are now stated
+
+### 2026-09-26 — integrity audit, fable, at the consumption gate (third)
+
+Coverage tell: 999 lines read, highest line cited 999 — a
+whole-document read after the D13.2 edit left the second audit's stamp
+stale. Twelve defects and fourteen implementer questions; the quotes
+were checked against the spec before disposition. The plan changes they
+cause are recorded in `../plans/2026-09-26-plan-coverage.md`.
+
+- fixed 2026-09-26 — the template sentence in *The plan's annotations* omitted the `## Deferrals and predecessors` heading D8 names; license: D8; the heading is named
+- fixed 2026-09-26 — a Global Constraints entry was named by opening words that are the annotation itself; ruling: 2026-09-26; the map names the entry by its line and its words after the annotation (implementer question 5)
+- fixed 2026-09-26 — step 4 inherited through `**Follows:**` lines step 5 had not yet accepted, and step 3 subtracted `**Defers:**` lines step 5 might reject; ruling: 2026-09-26; the steps now run predecessors, citations, deferrals, counted set, report, and a line that is a hit lends or subtracts nothing (implementer question 1)
+- fixed 2026-09-26 — the state-token recognizer named the final segment while the reason may hold a full stop; license: *The register* ("The token runs from that word to the paragraph's end"); the first segment after the statement that begins with `withdrawn` (implementer question 2)
+- fixed 2026-09-26 — D22 and *The coverage duty* scoped the spec-alone run to a registered spec while the report lists `not checked`; license: D11.3; both now say any design spec
+- fixed 2026-09-26 — *Out of scope* scoped `hit held` to coverage hits while D26 holds any hit of the coverage duty; license: D26; reworded
+- fixed 2026-09-26 — D12, D14, D17 and D24 did not carry parts of the decisions the text assigns them; license: the register's declared rule; each entry sharpened under its own identifier — the held hit's episode, the adversary's three further judgments, the field expected in new specs, every register change to an implemented spec by revision
+- fixed 2026-09-26 — *Changes by file* omitted the `withdrawn since` listing and the held hit's episode in the workflow rule; license: D30 and D12; both named
+- fixed 2026-09-26 — bare "coverage" named the duty or the map in three places; license: glossary **Decision coverage** `_Avoid_`; reworded
+- fixed 2026-09-26 — implementer questions 3, 6, 9, 13; license: Deviation 9's ruling in the plan, *Deferral*, *Table closure*, the per-spec pass; a document of either kind gains the section, an empty section is absent, a plan gets no `table-closure:` line, `none` is never qualified and another spec's `**Defers:**` line is out of scope
+- fixed 2026-09-26 — implementer questions 4 and 7; ruling: 2026-09-26; the summary line carries every slot, empty ones as `[]`, and `0/0 covered` for an empty counted set; carrying decision coverage across a revision is out of scope
+Implementer questions 10, 11, 12 and 14 need no change to the text: D1
+and D15, like D12 and D26, name different surfaces of one decision and
+a plan may cite both; the `←` arrow marks a citation that covers
+nothing; the template always carries `**Files:**`; and the second
+audit's questions 1 and 2 were disposed as its D26 and D3 lines.
+
+- held — implementer question 8: where a withdrawal the developer rules outside any hit lands in the ledger once the spec's loop has closed; question: record it only as the tombstone on a closed loop, not in the ledger?; options: (b) on a closed loop, not `implemented`, and for a withdrawal tied to no hit or finding, the tombstone is the record and no ledger line is written, an open line still closing on its own — a new loop reads the whole document, and the stale stamp signals the change (recommended, and Codex's second opinion agrees); (a) a new heading `### <date> — ruling`; (c) `fix from` the spec's own path
+

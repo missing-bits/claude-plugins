@@ -315,13 +315,13 @@ reserves its identifier, so a reuse shows up as a duplicate.
 `replaced by` names an identifier of the same register other than its
 own, and a chain of successors never forms a cycle; a successor may
 itself be withdrawn. The token is recognized by its opening word alone:
-the paragraph's final segment — after the full stop that ends the
-statement and after any "Argued in" pointer — beginning with
-`withdrawn`, and running to the paragraph's end, so its reason may hold
-a full stop. A segment so opening that does not match the grammar is
-malformed, never prose. Withdrawing a group is written on each of its
-leaves. A decision that still stands but one plan does not realize is
-no state of the entry: that plan defers it (see *Plan annotations*).
+the first segment after the full stop that ends the statement, and after
+any "Argued in" pointer, that begins with `withdrawn`; it runs to the
+paragraph's end, so its reason may hold a full stop. A segment so
+opening that does not match the grammar is malformed, never prose.
+Withdrawing a group is written on each of its leaves. A decision that
+still stands but one plan does not realize is no state of the entry:
+that plan defers it (see *Plan annotations*).
 
 A withdrawal changes what the spec decides, so the session writes the
 token only on the developer's explicit decision. Its `ruling:` is dated
@@ -450,7 +450,7 @@ and that entry opens with the same annotation as its first clause —
 `**Realizes:** D9`. Only an entry that realizes a decision carries one,
 and `none` is never written there. Citing the section as a whole
 realizes nothing, and neither does citing a group: its leaves are what
-a plan cites.
+a plan cites. `none` names no identifier, so it is never qualified.
 
 A plan whose `spec:` names one spec writes bare identifiers. A plan
 whose `spec:` names two or more — registered or legacy alike — qualifies
@@ -477,7 +477,9 @@ its `ruling:` dates. The deferral binds this plan alone: auditing any
 other plan of the same spec, the decision counts, and the spec names no
 plan. Deferring an undefined, withdrawn or group identifier is
 malformed, and so is deferring one the plan also cites, locally or by
-inheritance.
+inheritance. A plan with neither kind of line carries no such
+section, and in the pass for one spec a `**Defers:**` line naming
+another spec's identifier is out of scope.
 
 A `**Follows:**` line names a plan this one continues, by a path
 relative to the plan. The predecessor shares at least one spec with
@@ -1065,26 +1067,29 @@ describes the grammar. For each spec the plan's `spec:` names:
    carrying a state token; a `replaced by` naming a missing identifier,
    its own, or a group, or closing a cycle. Where any fires, the counted
    set cannot be trusted: write `not counted` and stop.
-3. Collect the counted set: the leaf identifiers not withdrawn, less
-   those the plan's `**Defers:**` lines name.
+3. Check the plan's `**Follows:**` lines. One naming a missing file, a
+   plan sharing no spec with the audited plan, or a plan not at
+   `status: implemented` is a hit, and lends nothing to the steps
+   below. A predecessor lends identifiers only for the specs both plans
+   name; in the pass for a spec it does not name, its line is out of
+   scope rather than a hit.
 4. Collect the cited set: every identifier the plan's `**Realizes:**`
    annotations cite, on tasks and Global Constraints entries, and every
-   identifier inherited through its `**Follows:**` lines, each with the
-   plan and site it comes from. A cited withdrawn identifier, a cited
-   group and a cited identifier the register does not define are hits.
-   The last is an error in the plan, never a gap in the spec —
-   identifiers are minted only in the register — so duty 5 does not
-   take it. An inherited citation of an identifier withdrawn since its
-   predecessor shipped is skipped: not counted, not a hit, and listed
-   apart in the report.
-5. Check the plan's other lines. A `**Defers:**` line naming an
-   undefined, withdrawn or group identifier, or one also in the cited
-   set, is a hit. A `**Follows:**` line naming a missing file, a plan
-   sharing no spec with the audited plan, or a plan not at
-   `status: implemented` is a hit. A predecessor lends identifiers only
-   for the specs both plans name; in the pass for a spec it does not
-   name, its line is out of scope rather than a hit.
-6. Report every counted identifier the cited set lacks, one hit per
+   identifier inherited through the `**Follows:**` lines step 3
+   accepted, each with the plan and site it comes from. A cited
+   withdrawn identifier, a cited group and a cited identifier the
+   register does not define are hits. The last is an error in the plan,
+   never a gap in the spec — identifiers are minted only in the
+   register — so duty 5 does not take it. An inherited citation of an
+   identifier withdrawn since its predecessor shipped is skipped: not
+   counted, not a hit, and listed apart in the report.
+5. Check the plan's `**Defers:**` lines. One naming an undefined,
+   withdrawn or group identifier, or one in the cited set, is a hit and
+   subtracts nothing. In the pass for one spec, a line naming another
+   spec's identifier is out of scope.
+6. Collect the counted set: the leaf identifiers not withdrawn, less
+   those the `**Defers:**` lines step 5 accepted name.
+7. Report every counted identifier the cited set lacks, one hit per
    identifier. A task with no `**Realizes:**` line, in a plan whose
    `spec:` names a registered spec, is a hit too, and so is a bare
    identifier in a plan whose `spec:` names two or more specs.
@@ -1159,8 +1164,8 @@ On a plan, one `decision-coverage:` block per spec its `spec:` names:
       D2 → ../plans/<file>.md (Task 3)
       D3 → Task 4, Task 6
       D4.2 → —
-      D9 → Global Constraints: "No code"
-      D10 → ../plans/<file>.md (Global Constraints: "No code")
+      D9 → Global Constraints, line 42: "No code"
+      D10 → ../plans/<file>.md (Global Constraints, line 38: "No code")
       …
       withdrawn since: D4 ← ../plans/<file>.md (Task 2)
     decision-coverage: <spec path> not counted — malformed register
@@ -1169,17 +1174,20 @@ On a plan, one `decision-coverage:` block per spec its `spec:` names:
 The summary line opens the block. Under a counted spec the map follows,
 one indented line per counted identifier naming every task and
 constraint that cites it: a task by its heading's number, a Global
-Constraints entry by its opening words in quotes, an inherited site by
-its plan's path with the site in parentheses. An uncovered identifier
-maps to `—` and is a hit above as well. The fraction's denominator is
-duty 10's counted set, and its numerator the counted identifiers in the
-cited set. `inherited [..]` lists the covered identifiers whose only
-citation is a predecessor's; one also cited locally counts as local,
-and its map line names both sites. `deferred [..]` lists what the plan
-defers, never counted as covered. A skipped inherited citation follows
-the map on a `withdrawn since:` line, outside the fraction. Qualify
-every identifier as the plan's annotations are. `not counted` carries no
-map, since its denominator cannot be derived.
+Constraints entry by the line it opens on and its opening words after
+the annotation, in quotes, and an inherited site by its plan's path with
+the site in parentheses. An uncovered identifier maps to `—` and is a
+hit above as well. The fraction's denominator is duty 10's counted set,
+and its numerator the counted identifiers in the cited set; a counted
+set of zero reads `0/0 covered`. The summary line carries every slot, in
+the example's order, an empty one written `[]`. `inherited [..]` lists
+the covered identifiers whose only citation is a predecessor's; one also
+cited locally counts as local, and its map line names both sites.
+`deferred [..]` lists what the plan defers, never counted as covered. A
+skipped inherited citation follows the map on a `withdrawn since:` line,
+outside the fraction. Qualify every identifier as the plan's annotations
+are. `not counted` carries no map, since its denominator cannot be
+derived.
 
 On a design spec audited alone, one line and no map:
 
@@ -2144,7 +2152,7 @@ for f in docs/plans/2026-09-26-plan-coverage.md docs/plans/fixture-uncovered.md 
     --tools "Agent,Read,Grep,Glob,Bash" \
     --allowedTools "Bash(git rev-parse:*)" \
     --output-format stream-json --verbose \
-    "Dispatch the working-process:propagation-auditor agent on the haiku model over $f. Tell it to walk only duties 10 and 11 of its card and to report in the card's output shape.") \
+    "Dispatch the working-process:propagation-auditor agent on the haiku model over $f, in the foreground, and wait for its report. Tell it to walk only duties 10 and 11 of its card and to report in the card's output shape.") \
     > "$W/run-$k.jsonl" 2> "$W/run-$k.err"
   echo "$f" > "$W/run-$k.target"
 done
@@ -2156,22 +2164,30 @@ Expected: the last line shows the status the plugin had before the run.
 
 - [ ] **Step 3: Extract each report and compare it with its expectation**
 
-The report is the result of the agent dispatch inside each stream, not
-the outer session's text. The extractor names the dispatch it found,
-its agent type and model, every tool result that reports a denial, and
-the report:
+The report comes from the agent dispatch inside each stream, not from
+the outer session's text. The card runs in the background by default,
+so the dispatch's own tool result may only acknowledge the launch: the
+extractor takes the report from the dispatched agent's last message,
+marked by its `parent_tool_use_id`, and falls back to the tool result.
+It names the dispatch it found, its agent type and model, every tool
+result that reports a denial, and the report:
 
 ```bash
 W=${TMPDIR:-/tmp}/plan-coverage-dogfood
 cat > "$W/extract.py" <<'EOF'
 import json, sys
-calls, report, denials = {}, None, []
+calls, report, own, denials = {}, None, None, []
 for line in open(sys.argv[1]):
     try:
-        m = json.loads(line).get('message') or {}
+        e = json.loads(line)
     except ValueError:
         continue
+    m = e.get('message') or {}
     content = m.get('content')
+    if e.get('parent_tool_use_id') in calls and m.get('role') == 'assistant':
+        text = ' '.join(c.get('text', '') for c in content or [] if isinstance(c, dict))
+        if text.strip():
+            own = text
     for c in content if isinstance(content, list) else []:
         if c.get('type') == 'tool_use' and c.get('name') in ('Agent', 'Task'):
             i = c.get('input') or {}
@@ -2187,7 +2203,7 @@ for line in open(sys.argv[1]):
 print('dispatches:', calls)
 print('denials:', denials)
 print('report:')
-print(report)
+print(own or report)
 EOF
 for k in 1 2 3 4; do
   echo "##### $(cat "$W/run-$k.target")"
@@ -2291,4 +2307,13 @@ adversary round has read them; the propagation gate that followed did.
 - fixed 2026-09-26 — [Important] Task 13's `--allowedTools` only pre-approves and forbids nothing, so the user settings' `Bash(claude plugin *)` still reached the auditor; ruling: 2026-09-26; the run now takes `--setting-sources project`, `--tools` and `--add-dir` for the plugin directory the card reads, and Step 2 says the guard is the permission set
 - fixed 2026-09-26 — [Important] Task 13 kept the outer session's printed text, not evidence that the changed card ran; ruling: 2026-09-26; each run saves its `stream-json` event stream, and Step 3 extracts the dispatch's agent type, model, denials and report from it, keeping the streams as evidence
 - fixed 2026-09-26 — [Important] Task 7 dropped part of D30: the spec has the plan-adversary judge whether a withdrawn inherited decision must be undone, and send it to the developer where nothing settles it; ruling: 2026-09-26; dimension 6 now says so, Task 7 cites D30, check D added
+
+The spec's third integrity audit changed three prescribed texts, all
+recorded in the spec's ledger under
+`### 2026-09-26 — integrity audit, fable, at the consumption gate (third)`:
+
+- fixed 2026-09-26 — the state-token recognizer named the paragraph's final segment; license: the spec's *The register*, as fixed there; Task 1 now names the first segment after the statement that begins with `withdrawn`
+- fixed 2026-09-26 — duty 10 inherited through unvalidated `**Follows:**` lines and subtracted unvalidated `**Defers:**` lines, and the map keyed a Global Constraints entry by the annotation; ruling: 2026-09-26; Task 5 reorders the steps, keys the entry by its line and its words after the annotation, and states the summary slots and `0/0 covered`
+- fixed 2026-09-26 — the plan annotations did not say that `none` is never qualified, that an empty section is absent, or that another spec's `**Defers:**` line is out of scope; license: the spec's *The plan's annotations* and *Deferral*, as fixed there; Task 2 says so
+- fixed 2026-09-26 — Task 13's extractor took the report from the dispatch's tool result, which for a background card may only acknowledge the launch; license: Task 13's stated purpose; the prompt asks for a foreground dispatch and the extractor reads the dispatched agent's last message, falling back to the tool result
 
