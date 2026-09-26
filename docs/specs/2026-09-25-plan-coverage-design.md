@@ -565,7 +565,9 @@ On a registered design spec audited on its own, the block is one line
 beside `not counted` and `not checked`, and the card states all three.
 
 A clean audit of a plan therefore runs to the self-report, one block
-per spec, and `CLEAN`. `CLEAN` means no hit in the checks that ran,
+per spec, and `CLEAN`; a clean audit of a technical design, to the
+self-report, its `table-closure:` line (see *Table closure*), and
+`CLEAN`. `CLEAN` means no hit in the checks that ran,
 and a `not checked` line bounds that guarantee in the report itself, so
 a dispatcher never re-reads a spec to learn what the audit covered.
 
@@ -893,3 +895,9 @@ against the spec before disposition.
 - fixed 2026-09-26 — "coverage hit" had two scopes: the glossary named only the uncovered identifier, and *Disposing of a coverage hit* still said every other hit's fix is licensed by its derivation; ruling: 2026-09-26; the glossary's **Decision coverage** names both coverage hits, and the sentence now routes other hits as D26 does
 - fixed 2026-09-26 — the `**Defers:**`/`**Follows:**` block had no boundary a Markdown reader sees; ruling: 2026-09-26; it is now the section `## Deferrals and predecessors` at the Global Constraints heading's level (*Deferral*, *Sequential plans*, *Changes by file*)
 - fixed 2026-09-26 — the table-closure duty promised a report of what it covered with no line to carry it; ruling: 2026-09-26; *Table closure* now gives the `table-closure:` line per technical design, on clean runs too, and the card's entry in *Changes by file* names it
+- hit dismissed 2026-09-26 — duties 10 and 11 absent from `agents/propagation-auditor.md`; counter: the spec prescribes them — *Changes by file* lists the card as a target not yet edited, and a prescribed change absent from its target is the document working as intended (the card's duty 2)
+- hit dismissed 2026-09-26 — the coverage exception absent from `rules/workflow.md`; counter: prescribed, not landed, as above
+- hit dismissed 2026-09-26 — `## Deferrals and predecessors` absent from `rules/spec-plan-lifecycle.md`; counter: prescribed, not landed, as above
+- hit dismissed 2026-09-26 — the counters in `rules/propagation-duties.md` not yet recounted; counter: D16.2 prescribes the recount with the edit, not landed, as above
+- hit dismissed 2026-09-26 — the card's "exactly two lines" sentence not yet updated; counter: prescribed, not landed, as above
+- hit fixed 2026-09-26 — the clean-audit sentence in *The report* named only plans; the `table-closure:` line binds technical designs alone, so the claim was sound, and the sentence now states the technical design's clean shape too
