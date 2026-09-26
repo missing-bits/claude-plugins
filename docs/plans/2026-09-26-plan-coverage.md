@@ -210,9 +210,10 @@ echo "E $(n $F | grep -oF 'the register lists every decision in this spec that n
 echo "F $(n $F | grep -oF 'never in a sweep' | wc -l)"
 echo "G $(n $F | grep -oF 'a newer design spec carrying `revises:`' | wc -l)"
 echo "H $(grep -c '^## Finding what revises a document$' $F)"
+echo "I $(n $F | grep -oF 'the tombstone is its record' | wc -l)"
 ```
 
-Expected: `A 0`, `B 0`, `C 0`, `D 0`, `E 0`, `F 0`, `G 0`, `H 1`.
+Expected: `A 0`, `B 0`, `C 0`, `D 0`, `E 0`, `F 0`, `G 0`, `H 1`, `I 0`.
 
 - [ ] **Step 2: Add the field to the frontmatter block**
 
@@ -326,9 +327,12 @@ that plan defers it (see *Plan annotations*).
 A withdrawal changes what the spec decides, so the session writes the
 token only on the developer's explicit decision. Its `ruling:` is dated
 with that decision; the edit lands in the spec's own ledger and leaves
-the `integrity:` stamp stale, as any body edit does. A spec already
-`implemented` takes no such edit: the decision is withdrawn by a newer
-design spec carrying `revises:` and the register that stands.
+the `integrity:` stamp stale, as any body edit does. On a spec whose
+loop has closed, a withdrawal ruled outside any hit or finding writes
+no ledger line: the tombstone is its record, since no diff-scoped round
+follows a close. A spec already `implemented` takes no such edit: the
+decision is withdrawn by a newer design spec carrying `revises:` and the
+register that stands.
 
 The spec's author creates the register while writing the spec, so a
 design that never meets a grilling session still has one, and a
@@ -352,7 +356,7 @@ refused.
 
 Run the Step 1 command again.
 
-Expected: `A 1`, `B 1`, `C 1`, `D 1`, `E 1`, `F 1`, `G 1`, `H 1`.
+Expected: `A 1`, `B 1`, `C 1`, `D 1`, `E 1`, `F 1`, `G 1`, `H 1`, `I 1`.
 
 - [ ] **Step 6: Commit**
 
@@ -2315,5 +2319,6 @@ recorded in the spec's ledger under
 - fixed 2026-09-26 — the state-token recognizer named the paragraph's final segment; license: the spec's *The register*, as fixed there; Task 1 now names the first segment after the statement that begins with `withdrawn`
 - fixed 2026-09-26 — duty 10 inherited through unvalidated `**Follows:**` lines and subtracted unvalidated `**Defers:**` lines, and the map keyed a Global Constraints entry by the annotation; ruling: 2026-09-26; Task 5 reorders the steps, keys the entry by its line and its words after the annotation, and states the summary slots and `0/0 covered`
 - fixed 2026-09-26 — the plan annotations did not say that `none` is never qualified, that an empty section is absent, or that another spec's `**Defers:**` line is out of scope; license: the spec's *The plan's annotations* and *Deferral*, as fixed there; Task 2 says so
+- fixed 2026-09-26 — the withdrawal ruled outside any hit had no ledger home on a closed loop; ruling: 2026-09-26; Task 1 says the tombstone is its record there, check I added
 - fixed 2026-09-26 — Task 13's extractor took the report from the dispatch's tool result, which for a background card may only acknowledge the launch; license: Task 13's stated purpose; the prompt asks for a foreground dispatch and the extractor reads the dispatched agent's last message, falling back to the tool result
 

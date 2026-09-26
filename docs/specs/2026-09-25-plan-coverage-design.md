@@ -285,9 +285,15 @@ A withdrawal is not a disposition of a hit: it changes what the spec
 decides, so the session writes the token only on the developer's
 explicit decision, and the edit lands in the spec's own ledger. That
 edit leaves the spec's `integrity:` stamp stale, as any body edit does,
-and correctly so. Withdrawing a decision of a spec already
-`implemented` is no edit of its frozen body but a revision (D24): a
-newer design spec carries `revises:` and the register that stands.
+and correctly so. One case writes no ledger line: on a spec whose loop
+has closed, a withdrawal the developer rules outside any hit or finding
+is recorded by its tombstone alone, which carries the reason, the
+ruling's date and any successor. No diff-scoped round follows a close,
+since a new loop reads the whole document, and the stale stamp signals
+the change; a line already open under the closed loop still closes on
+its own. Withdrawing a decision of a spec already `implemented` is no
+edit of its frozen body but a revision (D24): a newer design spec
+carries `revises:` and the register that stands.
 
 The token's `ruling:` is a Ruling in the glossary's sense, dated with
 the developer's decision rather than with the edit that recorded it.
@@ -1056,5 +1062,5 @@ a plan may cite both; the `←` arrow marks a citation that covers
 nothing; the template always carries `**Files:**`; and the second
 audit's questions 1 and 2 were disposed as its D26 and D3 lines.
 
-- held — implementer question 8: where a withdrawal the developer rules outside any hit lands in the ledger once the spec's loop has closed; question: record it only as the tombstone on a closed loop, not in the ledger?; options: (b) on a closed loop, not `implemented`, and for a withdrawal tied to no hit or finding, the tombstone is the record and no ledger line is written, an open line still closing on its own — a new loop reads the whole document, and the stale stamp signals the change (recommended, and Codex's second opinion agrees); (a) a new heading `### <date> — ruling`; (c) `fix from` the spec's own path
+- fixed 2026-09-26 — implementer question 8: where a withdrawal the developer rules outside any hit lands in the ledger once the spec's loop has closed; ruling: 2026-09-26; option (b) — on a closed loop, for a spec not `implemented` and a withdrawal tied to no hit or finding, the tombstone is the record and no ledger line is written (*Entry states*)
 
