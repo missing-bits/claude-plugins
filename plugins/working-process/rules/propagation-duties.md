@@ -8,15 +8,15 @@ paths:
 
 # Propagation duties — the author's checklist
 
-Before a document goes to an expensive reader, nine duties fall due,
-keyed by the ten edits that trigger them — one duty answers two
+Before a document goes to an expensive reader, eleven duties fall due,
+keyed by the twelve edits that trigger them — one duty answers two
 different edits. This rule lists them by the edit an author has just
 made, so the enumeration can be done at the desk instead of paid
 for at the gate. The list below is complete as it stands and needs
 nothing else to be usable.
 
 When the `propagation-auditor` agent is available it walks the same
-nine as a gate, and its card is their definition and keeps the
+eleven as a gate, and its card is their definition and keeps the
 measurement behind each; the numbers in the last column are that card's,
 so a hit it reports can be read back to the row that would have caught
 it. Without the agent the rows still hold — what is lost is the second
@@ -25,7 +25,7 @@ pair of eyes, not the duties.
 | You have just… | Enumerate | Duty |
 |---|---|---|
 | changed an interface — a signature, a name, a heading, an anchor, a field | every consumer, by parsing the structure that defines them, never by text match | 1 |
-| prescribed a verbatim block | the anchor it targets — the text it replaces must exist in that file byte-exactly, and once | 2 |
+| prescribed a verbatim block | the anchor it targets — the text it replaces must exist in that file byte-exactly, and once, and not be one an earlier task in the same document has already rewritten | 2 |
 | reported a change already made | that block against the shipped file, both ways: one that never landed, and shipped text a block no longer matches | 2 |
 | added a field, label or state | both ends of its chain — what writes it, and what reads it | 3 |
 | asserted a count | the count itself, re-derived from what the tool prints or what the list holds | 4 |
@@ -34,6 +34,8 @@ pair of eyes, not the duties.
 | written a verification command | the command, run against your own replacement text | 7 |
 | copied a citation out of a review report | the file and line it names, read at the source | 8 |
 | added or repointed a `spec:` or `technical-design:` pointer | both targets; on a design spec or a technical design, that each pointer names the document that names it; on a plan, that its `technical-design:` entries resolve, from the plan's own directory, to exactly the technical designs its design specs name — none missing, none extra | 9 |
+| added, changed or withdrawn a register entry, or added, split or merged a plan task, or written a `**Defers:**` or `**Follows:**` line | the register against every `**Realizes:**` annotation, `**Defers:**` line and `**Follows:**` predecessor | 10 |
+| written a column naming rows of another table | every name in it against that table | 11 |
 
 Two of these fire where an author does not expect them. A newly minted
 glossary `_Avoid_` ban is a changed interface, so duty 1 reaches every
