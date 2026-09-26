@@ -114,7 +114,11 @@ disables its suggestion — never the work itself.
    has passed, leaving no confirmed hit, when that agent is available.
    Then write the
    implementation plan with superpowers:writing-plans when available;
-   plans live in `docs/plans/`.
+   plans live in `docs/plans/`. A brief that delegates plan-writing to a
+   separate context names the spec-plan-lifecycle rule and requires
+   reading it before the plan is written: that rule carries the
+   annotations a plan owes a registered design spec, and a separate
+   context cannot count on it loading.
 5. **Plan → adversary review.** Before implementing a non-trivial plan,
    offer a working-process plan-adversary agent dispatch (when
    available); dispatch and stamping follow the verdict-agent dispatch
@@ -439,7 +443,30 @@ verdict-agent dispatch, first rounds included — authoring errors exist
 before any repair; after a fix wave, before the next round; and before
 an integrity audit. A hit's fix is licensed by its own derivation — a
 recounted counter and an enumerated missed call site decide
-themselves — so hits never wait for the developer.
+themselves — so hits never wait for the developer, with one named
+exception, for the coverage duty's hits alone.
+
+The two coverage hits — a registered decision no task cites, and a task
+lacking its `**Realizes:**` line — are triaged by license. Where a task
+already does the work and lacks only its annotation, the task's text
+licenses adding the identifier. Where no task realizes the decision and
+the decision's text settles every choice the missing task requires, the
+decision licenses writing it, and the next round's brief names it among
+the previous wave's fixes. Where writing the task needs a choice the
+decision does not make, the hit is held: its question is that missing
+decision, not the gap, which is already established. Any other hit of
+the coverage duty is fixed where its derivation settles the fix and held
+where it does not, as when breaking a `replaced by` cycle means choosing
+which entry stands. No other duty's hit is ever held.
+
+A held hit ends its gate episode and blocks the dispatch the gate
+guards, as a held finding blocks a fresh round, and the session puts its
+question to the developer. The answer lands where the decision belongs —
+in the spec's register, or as the plan's `**Defers:**` line — and the
+gate re-runs over the changed document and whatever depends on it, as a
+fresh episode; the dispatch goes out once that episode passes. The
+spec-plan-lifecycle rule defines the `hit held` line and its terminal
+shapes.
 
 A report's body governs, never its closing token. Where a report lists
 located hits and also carries `CLEAN`, the hits are the report and the
@@ -448,14 +475,17 @@ family, and once under a brief that ruled the combination out in as
 many words — so emphasis on the writing side is spent, and the guard
 belongs to the dispatcher who reads. The rule is stated here rather
 than generalised, because `CLEAN` is this agent's token and no other
-report carries one.
+report carries one. A `decision-coverage:` or `table-closure:` line is
+neither a hit nor a breach of the token's position: the card writes
+those lines on every run, clean ones included, between the hits and the
+token.
 
 A hit the session believes is wrong is dismissed, never silently: the
 session writes the `dismissed` line the spec-plan-lifecycle rule
 defines and reports the dismissal in the next report it relays to the
-developer. A hit is a report, not a question, so it never enters the
-held batch and never spends the round's one interruption — the
-developer reads the dismissal and keeps their standing veto over it.
+developer. A dismissed hit is a report, not a question, so it never
+enters the held batch and never spends the round's one interruption —
+the developer reads the dismissal and keeps their standing veto over it.
 The written line is what makes the gate terminate: a dismissed hit
 recurs on every re-dispatch, so a gate waiting on a hitless audit would
 wait forever, and a dismissal nobody wrote down would be re-derived
