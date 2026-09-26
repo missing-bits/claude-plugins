@@ -1940,20 +1940,21 @@ print(len(leaves), 'leaves;', len(set(leaves) & cited), 'cited;',
 EOF
 ```
 
-Expected: `39 leaves; 39 cited; uncovered [] unknown []`.
+Expected: `N leaves; N cited; uncovered [] unknown []`, the two counts
+equal. `N` read 39 when this plan was written; a register edit since
+changes it, and the line is right whatever `N` is.
 
 - [ ] **Step 6: Carry the count forward**
 
-No commit. Write down the leaf count Step 5 printed; Task 13 expects it
-as `N`, derived from the register as it stands rather than fixed here.
+No commit. Write down `N`; Task 13 expects it.
 
 ---
 
 ### Task 13: Run the changed auditor card on controlled cases
 
 **Files:**
-- Test: a fixture project outside the repository, and the dispatch
-  record `.claude/working-process/2026-09-26-plan-coverage/dogfood-auditor.md`.
+- Test: a fixture project outside the repository, and the evidence file
+  `.claude/working-process/2026-09-26-plan-coverage/task-13-auditor-runs.md`.
 
 **Interfaces:**
 - Consumes: every task above, and `N` from Task 12 Step 5.
@@ -1962,28 +1963,35 @@ as `N`, derived from the register as it stands rather than fixed here.
 **Realizes:** none
 
 The greps prove the text landed; only a run proves the card detects what
-it claims. Four targets: this plan, which must come out fully covered
-although it quotes `**Defers:** D6` in a code block while citing D6; a
-copy with one annotation removed, which must report exactly that gap;
-the spec alone; and a technical design with one wrong reference.
+it claims. The run is scoped to duties 10 and 11, the two this plan
+adds: they read documents and nothing else, so the auditor needs no
+shell beyond resolving the repo root, and it never executes the
+commands this plan quotes. Four cases: this plan, which must come out
+fully covered although it quotes `**Defers:** D6` in a code block while
+citing D6; a copy with one annotation removed, which must report exactly
+that gap; the spec alone; and a technical design with one wrong
+reference.
+
+A tool denial, a file the auditor could not read, or a report missing
+its expected lines fails the test. None of them is a clean result.
 
 - [ ] **Step 1: Build the fixture project**
 
-The fixture carries the plugin files at `develop`, before this plan, so
-the plan's Find anchors still match there and duty 2 stays quiet; the
-card and the rules come from the changed checkout.
+The fixture holds the inputs the two duties read and nothing more. The
+card and the rule copies it reads through `${CLAUDE_PLUGIN_ROOT}` come
+from the changed checkout; the installed user-scope rules still load in
+the inner session, and the expectations rest on the card reading the
+plugin's copy, as Deviation 8 prescribes. `git init` is there because
+the card resolves the repo root with `git rev-parse --show-toplevel`.
 
 ```bash
 R=$(git rev-parse --show-toplevel)
 W=${TMPDIR:-/tmp}/plan-coverage-dogfood
-command rm -rf "$W"; mkdir -p "$W"
-git -C "$R" archive develop plugins | tar -x -C "$W"
-mkdir -p "$W/docs/specs" "$W/docs/plans" "$W/docs/domain" \
-  "$W/docs/technical-designs" "$W/.claude/rules/working-process"
+command rm -rf "$W"
+mkdir -p "$W/docs/specs" "$W/docs/plans" "$W/docs/domain" "$W/docs/technical-designs"
 command cp -f "$R/docs/specs/2026-09-25-plan-coverage-design.md" "$W/docs/specs/"
 command cp -f "$R/docs/plans/2026-09-26-plan-coverage.md" "$W/docs/plans/"
 command cp -f "$R/docs/domain/glossary.md" "$W/docs/domain/"
-command cp -f "$R"/plugins/working-process/rules/*.md "$W/.claude/rules/working-process/"
 sed 's/^\*\*Realizes:\*\* D15$/**Realizes:** none/' \
   "$W/docs/plans/2026-09-26-plan-coverage.md" > "$W/docs/plans/fixture-uncovered.md"
 grep -c '^\*\*Realizes:\*\* D15$' "$W/docs/plans/fixture-uncovered.md"
@@ -1993,7 +2001,7 @@ Expected: `0` — Task 8's only annotation is gone from the copy, so D15
 is cited nowhere else.
 
 Then write the table-closure pair, whose Contracts row names a part
-`reder` that Parts does not carry:
+`reder` that Parts does not carry, and commit the fixture:
 
 ```bash
 W=${TMPDIR:-/tmp}/plan-coverage-dogfood
@@ -2058,32 +2066,45 @@ EOF
   && git -c user.name=fixture -c user.email=fixture@example.invalid commit -qm fixture)
 ```
 
-- [ ] **Step 2: Disable the installed plugin — ask the developer first**
+- [ ] **Step 2: Run the four audits — ask the developer first**
 
 A `--plugin-dir` session collides with the installed plugin of the same
-name. Disabling it changes the developer's own configuration, so ask
-before running:
+name, so the script disables it for the run and restores the state it
+found, whatever the run prints. Disabling changes the developer's own
+configuration: ask before running.
 
-```bash
-claude plugin disable working-process
-```
-
-- [ ] **Step 3: Run the four audits**
+The inner session may dispatch an agent, read and search, and resolve
+the repo root — nothing else. It runs with `--allowedTools` rather than
+a broad grant, because the auditor would otherwise be free to execute
+commands this plan quotes, `claude plugin disable` and `rm -rf` among
+them.
 
 ```bash
 R=$(git rev-parse --show-toplevel)
 W=${TMPDIR:-/tmp}/plan-coverage-dogfood
+was=$(claude plugin list | grep -A3 'working-process@missing-bits' | grep -c 'Status: .*enabled')
+restore() { [ "$was" = 1 ] && claude plugin enable working-process; }
+trap restore EXIT
+[ "$was" = 1 ] && claude plugin disable working-process
 for f in docs/plans/2026-09-26-plan-coverage.md docs/plans/fixture-uncovered.md \
   docs/specs/2026-09-25-plan-coverage-design.md \
   docs/technical-designs/fixture-technical-design.md; do
   echo "##### $f"
   (cd "$W" && claude -p --plugin-dir "$R/plugins/working-process" \
-    "Dispatch the working-process:propagation-auditor agent on the haiku model over $f and print its report verbatim, nothing else.")
-done > "$W/reports.txt"
+    --allowedTools "Agent Read Grep Glob Bash(git rev-parse:*)" \
+    "Dispatch the working-process:propagation-auditor agent on the haiku model over $f. Tell it to walk only duties 10 and 11 of its card and to report in the card's output shape. Print its report verbatim, nothing else.")
+done > "$W/reports.txt" 2>&1
+restore; trap - EXIT
 cat "$W/reports.txt"
+claude plugin list | grep -A3 'working-process@missing-bits' | grep 'Status:'
 ```
 
-Expected, with `N` from Task 12 Step 5:
+Expected: the last line shows the status the plugin had before the run.
+
+- [ ] **Step 3: Compare each report with its expectation**
+
+`CLEAN` here means no hit in duties 10 and 11 — the only checks that
+ran. With `N` from Task 12 Step 5:
 
 - **this plan** — a summary line beginning
   `decision-coverage: ../specs/2026-09-25-plan-coverage-design.md N/N covered`,
@@ -2098,30 +2119,31 @@ Expected, with `N` from Task 12 Step 5:
   `table-closure: <document path> 3 relations checked`, and no `CLEAN`.
 
 Every report opens with a `model:` line naming the haiku family. A
-report that departs from its expectation is a defect in the card or in
-the rules it reads: report it to the developer with the report text, and
-do not adjust the expectation to fit.
+report that departs from its expectation, or that mentions a denied tool
+or an unread file, fails the test: report it to the developer with the
+report text, and do not adjust the expectation to fit.
 
-- [ ] **Step 4: Re-enable the plugin, keep the evidence, clean up**
+- [ ] **Step 4: Keep the evidence, clean up**
 
 ```bash
 R=$(git rev-parse --show-toplevel)
 W=${TMPDIR:-/tmp}/plan-coverage-dogfood
-claude plugin enable working-process
 D="$R/.claude/working-process/2026-09-26-plan-coverage"
-{ printf '%s\n' 'date: 2026-09-26' 'agent: propagation-auditor (dogfood, --plugin-dir)' \
-    'model: see each report' 'subject: Task 13 controlled cases'; echo; cat "$W/reports.txt"; } \
-  > "$D/dogfood-auditor.md"
+{ echo '# Task 13 — auditor runs on controlled cases, 2026-09-26'; echo; cat "$W/reports.txt"; } \
+  > "$D/task-13-auditor-runs.md"
 command rm -rf "$W"
 ```
 
-Expected: `claude plugin list` shows `working-process` enabled again.
+The file is the test's evidence, not a dispatch record: audits write
+none. It lives in the store, whose `*` `.gitignore` keeps it local.
 
 - [ ] **Step 5: Report**
 
 No commit. Report the results of Task 12 and of this task to the
 developer, and leave `sync-rules`, the version and both documents'
 `status` to them.
+
+---
 
 ## Review rounds
 
@@ -2135,3 +2157,15 @@ developer, and leave `sync-rules`, the version and both documents'
 - fixed 2026-09-26 — [Minor] "A plan with no `## Review rounds` section gains one", while a held line can land in a design spec audited alone; ruling: 2026-09-26; "A document", recorded as Deviation 9, check O added
 - fixed 2026-09-26 — [Minor] duty 10 has no guard against a document quoting the annotation grammar, and this plan quotes `**Defers:** D6` while citing D6; ruling: 2026-09-26; Task 2 states that a line counts only at its defined place — Global Constraints entries included — and that a code block or quoted example instantiates nothing, and duty 10 reads lines only there; Deviation 10, checks J (Task 2) and O (Task 5) added, and Task 13 runs the case
 - fixed 2026-09-26 — [Minor] the commit constraint "no trailers, `Co-Authored-By` included" reads two ways; license: the developer's commit rule (`.claude/rules/commit-messages.md`); reworded to "no body and no trailer, not even `Co-Authored-By`"
+- signal 2026-09-26 — another round pays only after the four Important findings land; it can be diff-scoped, and the leftovers were one fix wave plus one batch of held questions, not a fresh full read
+
+### 2026-09-26 — plan-adversary, fable 5.1, blocking (round 2, diff-scoped)
+
+- fixed 2026-09-26 — [Important] Task 13's `claude -p` runs grant the auditor no Bash, so duty 7's commands are denied and a clean expectation certifies a run that never simulated; ruling: 2026-09-26; option (b) — the run walks duties 10 and 11 only, the inner session gets `--allowedTools "Agent Read Grep Glob Bash(git rev-parse:*)"`, `CLEAN` there means no hit in those two duties, and a tool denial, an unread file or a missing expected line fails the test; deviation: Task 13 — none of the suggested grants, since a broad Bash grant would let the auditor execute the commands this plan quotes
+- fixed 2026-09-26 — [Important] Task 13's fixture has no `develop` ref and no history, so the plan's own `git diff … develop` commands and the commit Deviation 6 names fail there; ruling: 2026-09-26; with duties 6 and 7 out of the run, the fixture carries only the inputs duties 10 and 11 read, plus `git init` for the card's `git rev-parse`; the `git archive develop` step is gone
+- fixed 2026-09-26 — [Minor] Task 13 claims the rules come from the checkout, while the installed user-scope rules still load, and the project-scope copy only doubles them; license: Deviation 8 (the card reads `${CLAUDE_PLUGIN_ROOT}/rules/`); the project-scope copy is dropped and Step 1 says the user-scope rules still load and the expectations rest on the plugin's copy
+- fixed 2026-09-26 — [Minor] Task 13's evidence file is called a dispatch record and given its header, though audits write none; license: glossary **Dispatch record** and the workflow rule ("Audits write none"); the file is `task-13-auditor-runs.md`, called the test's evidence, with a plain heading
+- fixed 2026-09-26 — [Minor] Task 13's plugin re-enable runs only on the success path; ruling: 2026-09-26; the script records the plugin's status before the run and restores exactly that state from an `EXIT` trap, then prints the status to compare
+- fixed 2026-09-26 — [Minor] Task 12 Step 6 says `N` is not fixed while Step 5 fixes it at 39; license: Step 6's own sentence; Step 5 now expects the two counts equal, noting 39 as the value at writing
+- signal 2026-09-26 — another round pays only after the two Important findings land; it can stay diff-scoped and narrow, then the confirming full-document round follows
+
