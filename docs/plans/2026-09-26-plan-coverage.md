@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-26
 status: draft
-adversary: blocking
+adversary: concerns
 spec: ../specs/2026-09-25-plan-coverage-design.md
 branch: feature/plan-coverage
 base: develop
@@ -2104,7 +2104,9 @@ Expected: the last line shows the status the plugin had before the run.
 - [ ] **Step 3: Compare each report with its expectation**
 
 `CLEAN` here means no hit in duties 10 and 11 — the only checks that
-ran. With `N` from Task 12 Step 5:
+ran. The text compared is the auditor's report, from its `model:` line
+to its last line; any wrapper text the outer session prints before or
+after it is discarded, not judged. With `N` from Task 12 Step 5:
 
 - **this plan** — a summary line beginning
   `decision-coverage: ../specs/2026-09-25-plan-coverage-design.md N/N covered`,
@@ -2168,4 +2170,10 @@ developer, and leave `sync-rules`, the version and both documents'
 - fixed 2026-09-26 — [Minor] Task 13's plugin re-enable runs only on the success path; ruling: 2026-09-26; the script records the plugin's status before the run and restores exactly that state from an `EXIT` trap, then prints the status to compare
 - fixed 2026-09-26 — [Minor] Task 12 Step 6 says `N` is not fixed while Step 5 fixes it at 39; license: Step 6's own sentence; Step 5 now expects the two counts equal, noting 39 as the value at writing
 - signal 2026-09-26 — another round pays only after the two Important findings land; it can stay diff-scoped and narrow, then the confirming full-document round follows
+
+### 2026-09-26 — plan-adversary, fable 5.1, concerns (round 3, full-document)
+
+- held — [Minor] the new `hit held` state has an anchor and an owner but no reader at the consumption gate: the lifecycle rule's backstop sentence blocks plan-writing and implementation on open `held` lines alone, and no step of Task 3 widens it; question: should the backstop also block on an open `hit held` line?; options: (a) add "or `hit held`" to that sentence in Task 3, recorded as a deviation with ruling — the spec says a held hit blocks the dispatch its gate guards, and a developer who declines that dispatch would otherwise pass the gate over an unanswered decision (recommended); (b) leave the sentence, and state in the spec that the Unfinished-work entry is the held hit's only reader beyond the blocked dispatch
+- fixed 2026-09-26 — [Minor] Task 13 compares "each report" with its expectation, while `claude -p` prints the outer session's text, so a wrapper line before `model:` would fail a correct run; license: Task 13's stated purpose (the run proves what the card detects); Step 3 now compares the auditor's report from its `model:` line to its last line and discards wrapper text
+- signal 2026-09-26 — another round does not earn its cost; both leftovers are Minor, one held for the developer and one licensable, together one small fix wave rather than a re-read
 
