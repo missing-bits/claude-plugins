@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-09-26
 status: draft
+adversary: blocking
 spec: ../specs/2026-09-25-plan-coverage-design.md
 branch: feature/plan-coverage
 base: develop
@@ -67,8 +68,9 @@ Claude Code plugin and Rules payload; `tr`, `grep`, `awk`, `python3` and
 - **Public repo hygiene**: no machine-specific paths, no company or
   client names, all committed text in English.
 - **Commit messages are one line** — a conventional-commit subject, no
-  body, no trailers, `Co-Authored-By` included. A subagent implementer's
-  brief says so outright, since subagents add the trailer by default.
+  body and no trailer, not even `Co-Authored-By`. A subagent
+  implementer's brief says so outright, since subagents add the trailer
+  by default.
 - **Commits land on `feature/plan-coverage`.** The document branch
   `feature/plan-coverage.docs` merges into it at the implementation-ready
   gate, before Task 1.
@@ -108,7 +110,24 @@ Recorded here and beside the text they concern.
 7. **This plan carries `**Realizes:**` annotations although the
    convention ships with it.** The installed propagation auditor has no
    duty 10 yet, so Task 12 derives this plan's decision coverage with a
-   script instead of relying on the gate.
+   script instead of relying on the gate; Task 13 then runs the changed
+   card itself.
+8. **Duties 10 and 11 read the grammar from the plugin's own copy of
+   each rule, `${CLAUDE_PLUGIN_ROOT}/rules/…`.** The spec says the rule
+   loads when the auditor reads the document, but Task 6 writes the
+   premise that a separate context cannot count on a rule loading, and
+   an installed copy may lag the card after an update. The path repeats
+   none of the grammar, so D21 and Deviation 5 stand. Adversary round 1
+   raised it; the developer ruled on 2026-09-26.
+9. **Task 3 grants a `## Review rounds` section to "a document", where
+   the spec says "a plan".** The spec also places a `hit held` line in a
+   design spec audited alone, before its first round, and such a spec
+   has no section yet either. Ruled on 2026-09-26.
+10. **Task 2 and Task 5 state that an annotation counts only at its
+    defined place.** The spec defines each line's place without saying
+    that the same text elsewhere instantiates nothing, and this plan
+    quotes `**Defers:** D6` in a code block while citing D6 — a false
+    hit waiting for a text-matching auditor. Ruled on 2026-09-26.
 
 ## File structure
 
@@ -153,7 +172,8 @@ and names none itself.
   Task 9's rows cite the duty numbers Task 5 creates.
 - Tasks 7, 8 and 10 depend on nothing else in this plan.
 - `claude plugin validate` runs once, in Task 12, after every file has
-  changed.
+  changed. Task 13 runs the changed auditor card on fixtures and needs
+  every earlier task landed.
 
 ---
 
@@ -368,9 +388,11 @@ echo "F $(grep -c '^    \*\*Follows:\*\* \.\./plans/<file>\.md$' $F)"
 echo "G $(n $F | grep -oF 'so inheritance is not transitive' | wc -l)"
 echo "H $(n $F | grep -oF '`../specs/<file>.md#D3`' | wc -l)"
 echo "I $(n $F | grep -oF 'names this rule and requires reading it first' | wc -l)"
+echo "J $(n $F | grep -oF 'describes the grammar and instantiates nothing' | wc -l)"
 ```
 
-Expected: `A 0`, `B 1`, `C 0`, `D 0`, `E 0`, `F 0`, `G 0`, `H 0`, `I 0`.
+Expected: `A 0`, `B 1`, `C 0`, `D 0`, `E 0`, `F 0`, `G 0`, `H 0`, `I 0`,
+`J 0`.
 
 - [ ] **Step 2: Revise the template sentence**
 
@@ -466,6 +488,12 @@ citation of it still does. Whether the predecessor's realization still
 stands in the code is not this line's question: the diff the
 implemented-document bullet above prescribes answers it.
 
+An annotation, a `**Defers:**` line or a `**Follows:**` line counts
+only at the place this section gives it: a task's line before its first
+step, the opening clause of a Global Constraints entry, a line of
+`## Deferrals and predecessors`. The same text inside a code block, or
+quoted as an example, describes the grammar and instantiates nothing.
+
 The plan's author writes these lines, whoever that author is. A session
 writing a plan meets this rule by reading the design spec, and a brief
 that delegates plan-writing to a separate context names this rule and
@@ -481,7 +509,8 @@ the decision, never mechanically.
 
 Run the Step 1 command again.
 
-Expected: `A 1`, `B 0`, `C 1`, `D 1`, `E 1`, `F 1`, `G 1`, `H 1`, `I 1`.
+Expected: `A 1`, `B 0`, `C 1`, `D 1`, `E 1`, `F 1`, `G 1`, `H 1`, `I 1`,
+`J 1`.
 
 - [ ] **Step 5: Commit**
 
@@ -526,10 +555,14 @@ echo "I $(n $F | grep -oF 'the only two disposition states the Unfinished-work l
 echo "J $(n $F | grep -oF 'every later pre-round episode writes there too' | wc -l)"
 echo "K $(n $F | grep -oF 'The same heading serves a register edit' | wc -l)"
 echo "L $(n $F | grep -oF 'The ordinary `hit fixed` shape, without `ruling:`, stays' | wc -l)"
+echo "M $(n $F | grep -oF 'writes two shapes of its own' | wc -l)"
+echo "N $(n $F | grep -oF 'Both are written at gate time' | wc -l)"
+echo "O $(n $F | grep -oF 'A document with no `## Review rounds` section gains one' | wc -l)"
+echo "P $(n $F | grep -oF 'never joins a resolution note' | wc -l)"
 ```
 
 Expected: `A 0`, `B 0`, `C 0`, `D 0`, `E 0`, `F 1`, `G 1`, `H 0`, `I 0`,
-`J 0`, `K 0`, `L 0`.
+`J 0`, `K 0`, `L 0`, `M 1`, `N 1`, `O 0`, `P 0`.
 
 - [ ] **Step 2: Amend the non-terminal sentence**
 
@@ -570,10 +603,32 @@ stops certifying the words that changed. The same heading serves a
 register edit that a plan's held gate line licensed, on a design spec
 whose loop has closed at whatever verdict: the heading then names the
 plan whose gate held the hit, and that plan's terminal gate line names
-the heading and the line under it.
+the heading and the line under it. Unlike a review-licensed fix, such an
+edit never joins a resolution note, even on a `concerns (resolved)`
+spec: that note records what resolved the verdict, and this edit
+resolves none.
 ```
 
 - [ ] **Step 4: Add the held shape to *Gate lines***
+
+Find in `plugins/working-process/rules/spec-plan-lifecycle.md`:
+
+```
+The propagation gate, when that agent is available, writes two shapes of
+its own. They carry their own leading token and never a severity, because
+a hit is a located detection the dispatcher confirms or dismisses, never
+a graded finding:
+```
+
+Replace with:
+
+```
+The propagation gate, when that agent is available, writes gate lines of
+its own: the two ordinary shapes here, and the held shape and its three
+terminal rewrites below. Each carries its own leading token and never a
+severity, because a hit is a located detection the dispatcher confirms
+or dismisses, never a graded finding:
+```
 
 Find in `plugins/working-process/rules/spec-plan-lifecycle.md`:
 
@@ -628,6 +683,21 @@ revision instead, and the held hit waits for it.
 Find in `plugins/working-process/rules/spec-plan-lifecycle.md`:
 
 ```
+Both are written at gate time, under the last round's heading. The `hit`
+```
+
+Replace with:
+
+```
+Each is written at gate time, under the last round's heading. The `hit`
+```
+
+The held paragraphs Step 4 inserts now stand between the shapes and
+this sentence, so "Both" would name two of six shapes.
+
+Find in `plugins/working-process/rules/spec-plan-lifecycle.md`:
+
+```
 diff-scoped brief is composed before its own round is stamped. A gate
 before a document's first round has no heading to write under; its lines
 wait for that round and are written at its stamp, the one case where
@@ -647,7 +717,7 @@ alike, in the `## Review rounds` section before the first round
 heading, and they stay there, rewrites included: no round produced
 them, and one episode keeps one home. Once such lines stand there,
 every later pre-round episode writes there too, holding or not, so the
-document's pre-round gate history keeps one place. A plan with no
+document's pre-round gate history keeps one place. A document with no
 `## Review rounds` section gains one, at its end, with its first gate
 line.
 ```
@@ -748,7 +818,7 @@ Replace with:
 Run the Step 1 command again.
 
 Expected: `A 1`, `B 1`, `C 1`, `D 1`, `E 1`, `F 0`, `G 0`, `H 1`, `I 1`,
-`J 1`, `K 1`, `L 1`.
+`J 1`, `K 1`, `L 1`, `M 0`, `N 0`, `O 1`, `P 1`.
 
 Then run the widened command over a fixture, to prove it matches both a
 disposition line and a held gate line and nothing terminal:
@@ -899,10 +969,12 @@ echo "J $(n $F | grep -oF 'is held for the developer' | wc -l)"
 echo "K $(n $F | grep -oF 'means no hit in the checks that ran' | wc -l)"
 echo "L $(awk '/^### /{c++} END{print c}' $F)"
 echo "M $(head -n 5 $F | grep -c '^description: "')"
+echo "N $(n $F | grep -oF '${CLAUDE_PLUGIN_ROOT}/rules/' | wc -l)"
+echo "O $(n $F | grep -oF 'a code block or a quoted example describes the grammar' | wc -l)"
 ```
 
 Expected: `A 0`, `B 0`, `C 1`, `D 1`, `E 0`, `F 0`, `G 0`, `H 0`, `I 0`,
-`J 0`, `K 0`, `L 9`, `M 1`.
+`J 0`, `K 0`, `L 9`, `M 1`, `N 0`, `O 0`.
 
 - [ ] **Step 2: Rewrite the description**
 
@@ -942,8 +1014,11 @@ not a hit: no design spec names its plans.
 Runs on a plan, and on a design spec audited alone. The register's
 grammar, its state token and the plan's annotations are defined in the
 spec-plan-lifecycle rule, under *Decision register* and *Plan
-annotations*; read them there rather than recalling them. For each
-spec the plan's `spec:` names:
+annotations*. Read them in the plugin's own copy,
+`${CLAUDE_PLUGIN_ROOT}/rules/spec-plan-lifecycle.md`, which matches this
+card's version, rather than recalling them. Read a line only at the
+place *Plan annotations* gives it: a code block or a quoted example
+describes the grammar. For each spec the plan's `spec:` names:
 
 1. Read the spec's `decisions:` field. Absent: the spec is legacy —
    write `not checked` for it and stop. Any value other than
@@ -1005,7 +1080,8 @@ the tables declares, never relations guessed from matching values: two
 unrelated columns can share names by chance, and a relation whose every
 reference is wrong would match nothing. The technical-design rule
 declares them under its heading `## Declared table relations`, with how
-each cell splits and which values are not references; read them there.
+each cell splits and which values are not references; read them in the
+plugin's own copy, `${CLAUDE_PLUGIN_ROOT}/rules/technical-design.md`.
 For each declared relation whose tables the document carries, every
 name in the column resolves to exactly one row of the named table: a
 name matching no row is a hit, and so is a name matching several. An
@@ -1145,7 +1221,7 @@ Replace with:
 Run the Step 1 command again.
 
 Expected: `A 1`, `B 1`, `C 0`, `D 0`, `E 6`, `F 2`, `G 1`, `H 1`, `I 1`,
-`J 1`, `K 1`, `L 11`, `M 1`.
+`J 1`, `K 1`, `L 11`, `M 1`, `N 2`, `O 1`.
 
 `E 6` is the three summary lines of a plan's block plus the three of a
 spec audited alone; the map lines are indented six spaces and do not
@@ -1866,7 +1942,196 @@ EOF
 
 Expected: `39 leaves; 39 cited; uncovered [] unknown []`.
 
-- [ ] **Step 6: Report**
+- [ ] **Step 6: Carry the count forward**
 
-No commit. Report the results of Steps 1–5 to the developer, and leave
-`sync-rules`, the version and both documents' `status` to them.
+No commit. Write down the leaf count Step 5 printed; Task 13 expects it
+as `N`, derived from the register as it stands rather than fixed here.
+
+---
+
+### Task 13: Run the changed auditor card on controlled cases
+
+**Files:**
+- Test: a fixture project outside the repository, and the dispatch
+  record `.claude/working-process/2026-09-26-plan-coverage/dogfood-auditor.md`.
+
+**Interfaces:**
+- Consumes: every task above, and `N` from Task 12 Step 5.
+- Produces: nothing.
+
+**Realizes:** none
+
+The greps prove the text landed; only a run proves the card detects what
+it claims. Four targets: this plan, which must come out fully covered
+although it quotes `**Defers:** D6` in a code block while citing D6; a
+copy with one annotation removed, which must report exactly that gap;
+the spec alone; and a technical design with one wrong reference.
+
+- [ ] **Step 1: Build the fixture project**
+
+The fixture carries the plugin files at `develop`, before this plan, so
+the plan's Find anchors still match there and duty 2 stays quiet; the
+card and the rules come from the changed checkout.
+
+```bash
+R=$(git rev-parse --show-toplevel)
+W=${TMPDIR:-/tmp}/plan-coverage-dogfood
+command rm -rf "$W"; mkdir -p "$W"
+git -C "$R" archive develop plugins | tar -x -C "$W"
+mkdir -p "$W/docs/specs" "$W/docs/plans" "$W/docs/domain" \
+  "$W/docs/technical-designs" "$W/.claude/rules/working-process"
+command cp -f "$R/docs/specs/2026-09-25-plan-coverage-design.md" "$W/docs/specs/"
+command cp -f "$R/docs/plans/2026-09-26-plan-coverage.md" "$W/docs/plans/"
+command cp -f "$R/docs/domain/glossary.md" "$W/docs/domain/"
+command cp -f "$R"/plugins/working-process/rules/*.md "$W/.claude/rules/working-process/"
+sed 's/^\*\*Realizes:\*\* D15$/**Realizes:** none/' \
+  "$W/docs/plans/2026-09-26-plan-coverage.md" > "$W/docs/plans/fixture-uncovered.md"
+grep -c '^\*\*Realizes:\*\* D15$' "$W/docs/plans/fixture-uncovered.md"
+```
+
+Expected: `0` — Task 8's only annotation is gone from the copy, so D15
+is cited nowhere else.
+
+Then write the table-closure pair, whose Contracts row names a part
+`reder` that Parts does not carry:
+
+```bash
+W=${TMPDIR:-/tmp}/plan-coverage-dogfood
+cat > "$W/docs/specs/fixture-design.md" <<'EOF'
+---
+ticket: none
+date: 2026-09-26
+status: draft
+technical-design: ../technical-designs/fixture-technical-design.md
+---
+
+# Fixture
+
+A fixture design spec for the table-closure duty.
+EOF
+cat > "$W/docs/technical-designs/fixture-technical-design.md" <<'EOF'
+---
+ticket: none
+date: 2026-09-26
+status: draft
+spec: ../specs/fixture-design.md
+---
+
+# Fixture technical design
+
+## Scope
+
+The fixture spec's single behaviour.
+
+## Parts
+
+| part | kind | change | placement | owns | deliberately excludes |
+|---|---|---|---|---|---|
+| reader | rule | new | rules/ | reading | writing |
+| writer | rule | new | rules/ | writing | reading |
+
+## Contracts
+
+| producer → consumer | crosses | guarantee | breaks when | check |
+|---|---|---|---|---|
+| writer → reder | file | a record | the file is missing | grep |
+
+## State
+
+| record | home | written by | read by | lifecycle | visible through |
+|---|---|---|---|---|---|
+| log | docs/ | writer | reader | per run | grep |
+
+## Failure and repetition
+
+Not applicable, because the fixture never runs.
+
+## Cuts not taken
+
+Not applicable, because nothing was cut.
+
+## Open questions
+
+None.
+EOF
+(cd "$W" && git init -q && git add -A \
+  && git -c user.name=fixture -c user.email=fixture@example.invalid commit -qm fixture)
+```
+
+- [ ] **Step 2: Disable the installed plugin — ask the developer first**
+
+A `--plugin-dir` session collides with the installed plugin of the same
+name. Disabling it changes the developer's own configuration, so ask
+before running:
+
+```bash
+claude plugin disable working-process
+```
+
+- [ ] **Step 3: Run the four audits**
+
+```bash
+R=$(git rev-parse --show-toplevel)
+W=${TMPDIR:-/tmp}/plan-coverage-dogfood
+for f in docs/plans/2026-09-26-plan-coverage.md docs/plans/fixture-uncovered.md \
+  docs/specs/2026-09-25-plan-coverage-design.md \
+  docs/technical-designs/fixture-technical-design.md; do
+  echo "##### $f"
+  (cd "$W" && claude -p --plugin-dir "$R/plugins/working-process" \
+    "Dispatch the working-process:propagation-auditor agent on the haiku model over $f and print its report verbatim, nothing else.")
+done > "$W/reports.txt"
+cat "$W/reports.txt"
+```
+
+Expected, with `N` from Task 12 Step 5:
+
+- **this plan** — a summary line beginning
+  `decision-coverage: ../specs/2026-09-25-plan-coverage-design.md N/N covered`,
+  `N` map lines under it, no hit, and `CLEAN` last. No hit names
+  `**Defers:**` or D6: the quoted grammar instantiates nothing.
+- **the uncovered copy** — a hit naming D15, a summary line with
+  `N-1/N covered` and `uncovered [D15]`, a map line `D15 → —`, and no
+  `CLEAN`.
+- **the spec alone** — one `decision-coverage:` line ending
+  `register well formed`, and `CLEAN`.
+- **the technical design** — a hit naming `reder`, the line
+  `table-closure: <document path> 3 relations checked`, and no `CLEAN`.
+
+Every report opens with a `model:` line naming the haiku family. A
+report that departs from its expectation is a defect in the card or in
+the rules it reads: report it to the developer with the report text, and
+do not adjust the expectation to fit.
+
+- [ ] **Step 4: Re-enable the plugin, keep the evidence, clean up**
+
+```bash
+R=$(git rev-parse --show-toplevel)
+W=${TMPDIR:-/tmp}/plan-coverage-dogfood
+claude plugin enable working-process
+D="$R/.claude/working-process/2026-09-26-plan-coverage"
+{ printf '%s\n' 'date: 2026-09-26' 'agent: propagation-auditor (dogfood, --plugin-dir)' \
+    'model: see each report' 'subject: Task 13 controlled cases'; echo; cat "$W/reports.txt"; } \
+  > "$D/dogfood-auditor.md"
+command rm -rf "$W"
+```
+
+Expected: `claude plugin list` shows `working-process` enabled again.
+
+- [ ] **Step 5: Report**
+
+No commit. Report the results of Task 12 and of this task to the
+developer, and leave `sync-rules`, the version and both documents'
+`status` to them.
+
+## Review rounds
+
+### 2026-09-26 — plan-adversary, fable 5.1, blocking (round 1, full-document)
+
+- fixed 2026-09-26 — [Important] D13.2 realized only in part: the spec's leaf widens the Unfinished review-loop ledger entry's name, description and command, and Task 3 keeps the name; ruling: 2026-09-26; option (a) — the spec's register contradicted its argued section, and D13.2 now keeps the name: the line sits in `../specs/2026-09-25-plan-coverage-design.md` under `### Loop closed — 2026-09-26`
+- fixed 2026-09-26 — [Important] duties 10 and 11 send the auditor to rules by name with no path, while Task 6 states a separate context cannot count on the rule loading; license: Task 6's Replace ("a separate context cannot count on it loading") and the `${CLAUDE_PLUGIN_ROOT}` precedent in `plan-adversary.md`; deviation: *Deviations from the spec* 8 — both duties read the plugin's copy always, not only when the installed rule is absent, since an installed copy may lag the card
+- fixed 2026-09-26 — [Important] Task 3 leaves *Gate lines* opening with "writes two shapes of its own" and "Both are written at gate time" beside the new held shape; license: propagation duty 4 and Deviation 3's own reason; Task 3 Step 4 rewrites the opener, Step 5 turns "Both" into "Each", checks M–N added
+- fixed 2026-09-26 — [Important] the changed auditor card ships with no named test that runs it; ruling: 2026-09-26; new Task 13 runs the card from the checkout on four targets — this plan, a copy missing D15, the spec alone, a technical design with a wrong reference — with the expected count `N` derived by Task 12 rather than fixed
+- fixed 2026-09-26 — [Minor] Task 3 Step 3 routes a gate-licensed register edit to the fix heading at whatever closing verdict, while a review-licensed fix on a `concerns (resolved)` document joins the resolution note; license: D29 ("where the spec's loop is closed, under the cross-document fix heading"); the sentence now states the divergence and its reason, check P added
+- fixed 2026-09-26 — [Minor] "A plan with no `## Review rounds` section gains one", while a held line can land in a design spec audited alone; ruling: 2026-09-26; "A document", recorded as Deviation 9, check O added
+- fixed 2026-09-26 — [Minor] duty 10 has no guard against a document quoting the annotation grammar, and this plan quotes `**Defers:** D6` while citing D6; ruling: 2026-09-26; Task 2 states that a line counts only at its defined place — Global Constraints entries included — and that a code block or quoted example instantiates nothing, and duty 10 reads lines only there; Deviation 10, checks J (Task 2) and O (Task 5) added, and Task 13 runs the case
+- fixed 2026-09-26 — [Minor] the commit constraint "no trailers, `Co-Authored-By` included" reads two ways; license: the developer's commit rule (`.claude/rules/commit-messages.md`); reworded to "no body and no trailer, not even `Co-Authored-By`"

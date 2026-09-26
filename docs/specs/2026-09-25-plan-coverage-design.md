@@ -109,9 +109,9 @@ What stands today:
   - **D13.1** — Four gate-line shapes: `hit held`, and its three
     terminal rewrites `hit fixed …; ruling:`, `hit deferred …; ruling:`
     and `hit withdrawn …; ruling:`.
-  - **D13.2** — The *Unfinished review-loop ledger* entry widens — its
-    name, its description and its command — to take the `hit held`
-    line.
+  - **D13.2** — The *Unfinished review-loop ledger* entry widens its
+    description and its command to take the `hit held` line; its name
+    stays.
 - **D14** — The plan-adversary gains a dimension judging each
   decision's realization: do the tasks and constraints citing it
   realize it in full together, and does a cited constraint actually
@@ -957,6 +957,8 @@ and no ledger line stayed `open` or `held`. Round 3's own stop signal
 judged another round not worth its cost; the integrity audit at the
 consumption gate takes the two integrity-class questions that round
 named.
+
+- fixed 2026-09-26 — [Important] D13.2 widened the entry's name as well, while *Gate lines for a held hit* widens only its description and command; ruling: 2026-09-26; D13.2 now keeps the name, which still covers a held gate line in the ledger — raised by `../plans/2026-09-26-plan-coverage.md`, plan-adversary round 1
 
 ### 2026-09-26 — integrity audit, fable, at the consumption gate
 
