@@ -160,8 +160,12 @@ base: master        # optional: branch the topic branch was cut from
   implements or changes; they do not independently redefine those
   contracts. Where a plan names no technical design, the existing plan
   convention stands unchanged. This binds how the blocks are filled and
-  changes no plan template — the template belongs to the tool that
-  writes plans.
+  changes no plan template. The template belongs to the tool that
+  writes plans, with one exception, defined under *Plan annotations*
+  below: this rule adds the `**Realizes:**` annotation on tasks and
+  Global Constraints entries, and the `## Deferrals and predecessors`
+  section with its `**Defers:**` and `**Follows:**` lines. The rest of
+  the template stays with that tool.
 
 ## Decision register
 
@@ -249,6 +253,83 @@ legacy specs alone carries no annotations. An existing spec migrates
 when it is next substantively revised, never in a sweep. Every new
 design spec is expected to set the field; its absence is reported, not
 refused.
+
+## Plan annotations
+
+A plan whose `spec:` names at least one registered design spec carries,
+on every task, one line after its `**Files:**` block — after its
+`**Interfaces:**` block where it has one — and before its first step:
+
+    **Realizes:** D3, D5
+    **Realizes:** none
+
+`none` is a value, not an omission: without it a housekeeping task
+cannot be told from an author who forgot. One decision may be cited by
+several tasks, and a task split or merged in a fix wave stays covered as
+long as the union of its identifiers survives. A cross-cutting
+constraint is realized by the Global Constraints entry that states it,
+and that entry opens with the same annotation as its first clause —
+`**Realizes:** D9`. Only an entry that realizes a decision carries one,
+and `none` is never written there. Citing the section as a whole
+realizes nothing, and neither does citing a group: its leaves are what
+a plan cites. `none` names no identifier, so it is never qualified.
+
+A plan whose `spec:` names one spec writes bare identifiers. A plan
+whose `spec:` names two or more — registered or legacy alike — qualifies
+every identifier with its spec's path exactly as `spec:` writes it,
+`../specs/<file>.md#D3`, wherever the plan or its audit names one. The
+count of entries decides, never the count of registered ones, so
+migrating a second spec out of legacy changes no annotation already
+written.
+
+Two more kinds of line form a section of their own, headed
+`## Deferrals and predecessors` at the Global Constraints heading's
+level and placed directly after that section. They state facts about
+the whole plan rather than requirements of any task, so they stay out of
+Global Constraints, which the plan template makes part of every task's
+requirements:
+
+    **Defers:** D6 — <why>; ruling: <date>
+    **Follows:** ../plans/<file>.md
+
+A `**Defers:**` line records that this plan leaves a standing decision
+unrealized, one line per identifier, qualified as the annotations are.
+The session writes it only on the developer's explicit decision, which
+its `ruling:` dates. The deferral binds this plan alone: auditing any
+other plan of the same spec, the decision counts, and the spec names no
+plan. Deferring an undefined, withdrawn or group identifier is
+malformed, and so is deferring one the plan also cites, locally or by
+inheritance. A plan with neither kind of line carries no such
+section, and in the pass for one spec a `**Defers:**` line naming
+another spec's identifier is out of scope.
+
+A `**Follows:**` line names a plan this one continues, by a path
+relative to the plan. The predecessor shares at least one spec with
+this plan's `spec:` and carries `status: implemented`, since only a
+frozen body's citations cannot move. This plan inherits every
+identifier the predecessor's `**Realizes:**` annotations cite for the
+specs both plans name, and nothing else — never its `**Defers:**`
+lines, and never its `**Follows:**` lines, so inheritance is not
+transitive and a plan names every predecessor whose citations it relies
+on. An inherited citation of an identifier the register withdrew after
+the predecessor shipped covers nothing and raises no hit; a local
+citation of it still does. Whether the predecessor's realization still
+stands in the code is not this line's question: the diff the
+implemented-document bullet above prescribes answers it.
+
+An annotation, a `**Defers:**` line or a `**Follows:**` line counts
+only at the place this section gives it: a task's line before its first
+step, the opening clause of a Global Constraints entry, a line of
+`## Deferrals and predecessors`. The same text inside a code block, or
+quoted as an example, describes the grammar and instantiates nothing.
+
+The plan's author writes these lines, whoever that author is. A session
+writing a plan meets this rule by reading the design spec, and a brief
+that delegates plan-writing to a separate context names this rule and
+requires reading it first, as the workflow rule's step 4 says. A plan
+lacking an annotation is caught at its first propagation gate, and an
+identifier is added there only where the task's text actually realizes
+the decision, never mechanically.
 
 ## Finding what revises a document
 
