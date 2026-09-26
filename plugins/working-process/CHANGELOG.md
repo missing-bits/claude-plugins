@@ -17,9 +17,31 @@ Released versions of this plugin, newest first.
 - The class a design spec and a technical design share is named
   `judged document` on the three agent cards that carried the old
   phrase and in the README; that phrase is retired.
+- A design spec may carry a decision register: `decisions: registered`
+  and a `## Decisions` section listing, under stable identifiers, every
+  decision that needs realization, with `withdrawn` as its one state
+  token.
+- A plan descending from a registered spec marks every task with
+  `**Realizes:**`, and records deferrals and predecessor plans in a
+  `## Deferrals and predecessors` section.
+- The propagation auditor gains two duties: decision coverage, reported
+  in a `decision-coverage:` block per design spec, and table closure
+  over the relations the technical-design rule declares, reported in a
+  `table-closure:` line. A clean report carries those lines before
+  `CLEAN`.
+- A coverage hit whose fix needs a decision the spec does not make is
+  held for the developer as a `hit held` gate line with three terminal
+  shapes, and the Unfinished review-loop ledger command finds it.
+- The plan-adversary judges whether the tasks citing a decision realize
+  it in full, and the integrity auditor checks that the register lists
+  every decision its spec makes.
+- The propagation duties checklist gains rows for the two duties and
+  the duty-2 anchor an earlier task has already rewritten.
 - Run a rules re-sync after this update: the plan-adversary's `origin`
   values changed, and until the re-sync an installed workflow rule
-  triages the new values by the old names.
+  triages the new values by the old names. The re-sync also installs
+  the decision register, the plan annotations and the held gate line,
+  which the updated agents expect.
 
 ## 0.17.0 — 2026-09-15
 
