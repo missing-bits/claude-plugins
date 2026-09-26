@@ -175,6 +175,10 @@ What stands today:
   ledger; where the spec's loop is closed, under the cross-document fix
   heading, which now serves a gate-licensed fix as well. Argued in
   *Disposing of a coverage hit*.
+- **D30** — An inherited citation of an identifier withdrawn after its
+  predecessor shipped is skipped — neither counted nor a hit — and
+  listed apart in the report as `withdrawn since`. Argued in
+  *Sequential plans*.
 
 ## The register
 
@@ -431,6 +435,24 @@ shows an inherited identifier with the plan it comes from —
 locally and inherited counts once, as local, and its map line names
 both sites.
 
+A predecessor may cite an identifier the spec's register has since
+withdrawn — the spec, still open to edits, took the `withdrawn` token
+after the predecessor shipped (D30). The frozen predecessor cannot
+change, so that inherited citation is skipped: it is not counted, it
+covers nothing, and it raises no hit against the later plan. It is not
+hidden either — the report lists it after the map, outside the counted
+identifiers and the fraction, as `withdrawn since: D4 ←
+../plans/<file>.md (Task 2)`. The exception covers inheritance alone: a
+`**Realizes:**` in the later plan that cites the withdrawn identifier
+directly is still a hit. A `replaced by` successor inherits no coverage;
+it is counted and needs its own realization. Whether the later plan
+must undo what the predecessor built for the withdrawn decision is not
+decided by the withdrawal itself: the plan-adversary judges the later
+plan against the decisions that stand, and where neither the withdrawal
+nor a successor decision settles it, that is a question for the
+developer. A decision withdrawn through a newer spec's `revises:`
+(D24) leaves the old register untouched and is not this case.
+
 The automatic alternative — excluding whatever any other plan of the
 same spec cites — was refused: two draft plans could each exempt the
 other from one decision, and a plan's result would change when an
@@ -468,8 +490,9 @@ A tenth propagation duty runs on a plan. For each spec the plan's
    annotations cite, on tasks and constraint entries, and every
    identifier inherited through the plan's `**Follows:**` lines, each
    with the plan it comes from. A cited withdrawn identifier and a
-   cited group are hits, and so is a cited identifier the register does
-   not define. That last is an error in the plan, never a gap in the
+   cited group are hits — except an inherited citation of an identifier
+   withdrawn since, which *Sequential plans* skips — and so is a cited
+   identifier the register does not define. That last is an error in the plan, never a gap in the
    spec: identifiers are minted only in the register, so a plan citing
    one the register lacks has mistyped or invented it. Duty 5 does not
    take it, since duty 5 reads an undefined name as a gap in its
@@ -958,3 +981,17 @@ against the spec before disposition.
 - hit dismissed 2026-09-26 — the counters in `rules/propagation-duties.md` not yet recounted; counter: D16.2 prescribes the recount with the edit, not landed, as above
 - hit dismissed 2026-09-26 — the card's "exactly two lines" sentence not yet updated; counter: prescribed, not landed, as above
 - hit fixed 2026-09-26 — the clean-audit sentence in *The report* named only plans; the `table-closure:` line binds technical designs alone, so the claim was sound, and the sentence now states the technical design's clean shape too
+
+### 2026-09-26 — integrity audit, fable, at the consumption gate (second)
+
+Coverage tell: 903 lines read, highest line cited 897 — a
+whole-document read of the body the first audit's stale stamp left
+unaudited. Eight defects and twelve implementer questions.
+
+- fixed 2026-09-26 — decisions the text makes had no register entry: the `table-closure:` line, the fix heading serving a gate-licensed fix, and four stay-as-is rulings; license: the register's declared rule and D4; D27, D29 and the group D28 added
+- fixed 2026-09-26 — D11 and D13 bundled independently realizable changes; license: D3; both split into children (D11.1–D11.4, D13.1–D13.2)
+- fixed 2026-09-26 — D8 admitted annotations only while *Deferral* adds a heading, the workflow closing-token paragraph was amended for `decision-coverage:` alone, and the spec-alone block's trigger excluded the `not checked` outcome it lists; license: the document itself; each now matches its section
+- fixed 2026-09-26 — the glossary's **Audit agent** required every hit fixed or dismissed; license: D13.1; a hit closed by the developer's ruling now counts as disposed, and *Changes by file* lists the amendment
+- fixed 2026-09-26 — a non-coverage hit of the coverage duty needing a decision had no shape to wait in; ruling: 2026-09-26; D26 now holds any hit of the coverage duty whose fix needs a decision no derivation settles, the held line lives in the audited document's ledger, `hit fixed … ruling:` covers a repaired register, and the re-run gate covers the changed document and what depends on it
+- fixed 2026-09-26 — implementer question 3, an inherited citation of an identifier withdrawn since; ruling: 2026-09-26; D30 added — skipped, listed apart as `withdrawn since`, never covering, a direct citation still a hit, a successor needing its own realization, undoing judged against the standing decisions, and a `revises:` withdrawal kept out of the case
+- fixed 2026-09-26 — implementer questions 4–12; license: the report contract, the lifecycle rule's gate lines and ledger section, and the template's task shape; map line shapes, the clean shape of every audited document class, the relation count, the annotation's place before the first step, the section a plan gains at its first gate line, the widened Unfinished-work entry, the token's place after the pointer, later pre-round episodes and the `table-closure:` placement are now stated
