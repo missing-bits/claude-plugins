@@ -1049,6 +1049,7 @@ cause are recorded in `../plans/2026-09-26-plan-coverage.md`.
 - fixed 2026-09-26 — bare "coverage" named the duty or the map in three places; license: glossary **Decision coverage** `_Avoid_`; reworded
 - fixed 2026-09-26 — implementer questions 3, 6, 9, 13; license: Deviation 9's ruling in the plan, *Deferral*, *Table closure*, the per-spec pass; a document of either kind gains the section, an empty section is absent, a plan gets no `table-closure:` line, `none` is never qualified and another spec's `**Defers:**` line is out of scope
 - fixed 2026-09-26 — implementer questions 4 and 7; ruling: 2026-09-26; the summary line carries every slot, empty ones as `[]`, and `0/0 covered` for an empty counted set; carrying decision coverage across a revision is out of scope
+
 Implementer questions 10, 11, 12 and 14 need no change to the text: D1
 and D15, like D12 and D26, name different surfaces of one decision and
 a plan may cite both; the `←` arrow marks a citation that covers
