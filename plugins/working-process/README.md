@@ -119,6 +119,9 @@ exist, so it speaks the project's language from its first message.
       /plugin marketplace add obra/superpowers-marketplace
       /plugin install elements-of-style@superpowers-marketplace
 
+- `python3` 3.9 or later, standard library only, for the propagation
+  auditor's coverage duty.
+
 ## Extending with a domain checklist
 
 Ship a skill named `<domain>-plan-review` in your domain plugin. Its
@@ -167,7 +170,8 @@ that the register lists every decision the spec makes. A spec without
 the field is reported as not checked. The grammar lives in the
 spec-plan-lifecycle rule. The auditor derives the decision coverage by
 running `scripts/decision-coverage.py` with `python3`, so a session
-that asks before running a command asks once for it.
+that asks before running a command asks once for it; the permission
+entry for the plugin cache below covers it.
 
 ## Model selection
 

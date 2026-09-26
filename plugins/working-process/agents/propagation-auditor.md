@@ -195,7 +195,9 @@ which this duty does not cover — as a single command from the
 repository root. It performs the steps below and prints this duty's
 hits and `decision-coverage:` lines in the report's shapes; copy its
 output into your report unchanged, below your `model:` line, which
-stays the report's first line, neither recounting nor reordering it. If
+stays the report's first line, neither recounting nor reordering it;
+where other duties hit too, their hits come first and the script's
+output follows them as one unit. If
 it exits
 non-zero, or you cannot run it, report that as a hit naming the command
 and its message, and write no `decision-coverage:` line — never derive
