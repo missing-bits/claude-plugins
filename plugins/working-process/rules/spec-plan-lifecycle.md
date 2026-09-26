@@ -21,6 +21,7 @@ architect: LGTM     # optional: latest architect verdict (LGTM | concerns | bloc
 adversary: LGTM     # optional: latest plan-adversary verdict (LGTM | concerns | blocking)
 architect-fallback: <model> (degraded <date>)   # optional: verdict above produced below the prescribed tier (adversary-fallback: for plans)
 integrity: <ISO date> (sha: <short-hash>[; with: <file>@<short-hash>])   # optional: date of the last integrity audit, the body hash it certifies, and — where a technical design was audited with it — that document and its hash
+decisions: registered   # optional, design specs only: the body carries a decision register
 revises: ./<file>.md   # optional: documents this one departs from; inline list when several
 spec: ../specs/<file>.md   # plans and technical designs: the design spec this document descends from; inline list when several, on a plan
 technical-design: ../technical-designs/<file>.md   # optional: on a design spec, the technical design that develops it; on a plan, the technical design of each design spec it descends from that has one — inline list when several, each path relative to the plan
@@ -148,6 +149,11 @@ base: master        # optional: branch the topic branch was cut from
   with no technical design contributes no entry, so a plan from specs
   `a` and `b`, where only `a` names a design, carries that one design.
   One technical design per design spec.
+- `decisions:` is optional, on design specs only, and takes one value,
+  `registered`: the spec carries a decision register, defined under
+  *Decision register* below. It is a convention field rather than a
+  process stamp — no review step writes it, and no Unfinished-work
+  command reads it.
 - Where a plan's `technical-design:` names documents, those documents
   define the interfaces. The plan's `**Interfaces:**` blocks reference
   the contracts they define and say which part of one each task
@@ -156,6 +162,93 @@ base: master        # optional: branch the topic branch was cut from
   convention stands unchanged. This binds how the blocks are filled and
   changes no plan template — the template belongs to the tool that
   writes plans.
+
+## Decision register
+
+A design spec that sets `decisions: registered` carries a `## Decisions`
+section — the decision register, the enumerable list of the decisions
+the spec makes that need realization. The propagation auditor, when
+that agent is available, derives a plan's decision coverage from it.
+
+The register is an index, never a copy. An entry is one identity
+paragraph — the identifier and a short statement of the decision — and
+may name the section that argues it:
+
+    - **D3** — <a short statement of the decision>. Argued in *<section>*. [state token]
+
+      <optional prose, indented, after a blank line>
+
+The identity paragraph is the list item's first paragraph: its opening
+line and the continuation lines after it, up to the first of a blank
+line, a nested list item, the next list item at the same or a higher
+level, or the end of the section. A reader joins those lines,
+normalising whitespace, before parsing, so a statement wrapped across
+lines keeps its state token at the paragraph's end. Prose beneath the
+blank line is free. The grammar enforces the paragraph's shape, never a
+sentence count: restating the argument in the register would give the
+decision two homes, and the first fix wave would leave the register
+describing the decision's old form.
+
+The identifier is the literal token `**D<n>**`, or `**D<n>.<m>**` for a
+child, at the start of a list item under `## Decisions`; a child's item
+nests under its parent's. Identifiers are unique within the spec and
+never positional, renumbered or reused: a decision added mid-loop takes
+the next free number. A Markdown numbered list is refused, because its
+numbers are positions and move when an item is inserted above. An
+element of a list that needs realization on its own takes a child
+identifier. The parent of children is a group: it enters no count, a
+citation of it covers none of its children, and it carries no state
+token.
+
+Every decision that needs realization enters, cross-cutting constraints
+included. A ruling that something stays as it is enters too, since an
+implementer can break it, and a plan realizes it as a constraint; no
+kind of entry is exempt. A rejected alternative never enters: nobody
+realizes it, and it already has homes — a spec's out-of-scope section,
+a technical design's *Cuts not taken*.
+
+An entry without a token is active. One state token exists, carried by
+a leaf or not at all, and never by a group:
+
+    withdrawn <reason>, ruling: <date>[; replaced by <id>]
+
+The decision no longer stands. The entry stays as a tombstone that
+reserves its identifier, so a reuse shows up as a duplicate.
+`replaced by` names an identifier of the same register other than its
+own, and a chain of successors never forms a cycle; a successor may
+itself be withdrawn. The token is recognized by its opening word alone:
+the first segment after the full stop that ends the statement, and after
+any "Argued in" pointer, that begins with `withdrawn`; it runs to the
+paragraph's end, so its reason may hold a full stop. A segment so
+opening that does not match the grammar is malformed, never prose.
+Withdrawing a group is written on each of its leaves. A decision that
+still stands but one plan does not realize is no state of the entry:
+that plan defers it (see *Plan annotations*).
+
+A withdrawal changes what the spec decides, so the session writes the
+token only on the developer's explicit decision. Its `ruling:` is dated
+with that decision; the edit lands in the spec's own ledger and leaves
+the `integrity:` stamp stale, as any body edit does. On a spec whose
+loop has closed, a withdrawal ruled outside any hit or finding writes
+no ledger line: the tombstone is its record, since no diff-scoped round
+follows a close. A spec already `implemented` takes no such edit: the
+decision is withdrawn by a newer design spec carrying `revises:` and the
+register that stands.
+
+The spec's author creates the register while writing the spec, so a
+design that never meets a grilling session still has one, and a
+grilling session updates it as its decisions land. A spec carrying the
+field declares a rule about itself: *the register lists every decision
+in this spec that needs realization.* The integrity audit's first lens
+verifies a document's declared rules in both directions, which gives
+the register's completeness its reader.
+
+A design spec without the field is legacy: the propagation audit
+reports it as not checked and raises no hit, and a plan descending from
+legacy specs alone carries no annotations. An existing spec migrates
+when it is next substantively revised, never in a sweep. Every new
+design spec is expected to set the field; its absence is reported, not
+refused.
 
 ## Finding what revises a document
 
