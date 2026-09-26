@@ -128,6 +128,11 @@ Recorded here and beside the text they concern.
     that the same text elsewhere instantiates nothing, and this plan
     quotes `**Defers:** D6` in a code block while citing D6 — a false
     hit waiting for a text-matching auditor. Ruled on 2026-09-26.
+11. **Task 3 Step 9 lets an open `hit held` line block the consumption
+    gate.** The spec says a held hit blocks the dispatch its gate
+    guards and is silent on the gate, so a developer who declined that
+    dispatch would pass plan-writing over an unanswered decision.
+    Adversary round 3 raised it; ruled on 2026-09-26.
 
 ## File structure
 
@@ -527,7 +532,7 @@ git commit -m "feat(working-process): plan annotations for decision coverage"
 - Modify: `plugins/working-process/rules/spec-plan-lifecycle.md` — the
   non-terminal sentence and the cross-document fix heading paragraph in
   `## The disposition ledger`; `### Gate lines`; the *Unfinished
-  review-loop ledger* entry.
+  review-loop ledger* entry; the consumption-gate backstop sentence.
 
 **Interfaces:**
 - Consumes: the `**Defers:**` line and the `withdrawn` token from Tasks 1
@@ -559,10 +564,11 @@ echo "M $(n $F | grep -oF 'writes two shapes of its own' | wc -l)"
 echo "N $(n $F | grep -oF 'Both are written at gate time' | wc -l)"
 echo "O $(n $F | grep -oF 'A document with no `## Review rounds` section gains one' | wc -l)"
 echo "P $(n $F | grep -oF 'never joins a resolution note' | wc -l)"
+echo "Q $(n $F | grep -oF '`held` lines or `hit held` gate lines stay open' | wc -l)"
 ```
 
 Expected: `A 0`, `B 0`, `C 0`, `D 0`, `E 0`, `F 1`, `G 1`, `H 0`, `I 0`,
-`J 0`, `K 0`, `L 0`, `M 1`, `N 1`, `O 0`, `P 0`.
+`J 0`, `K 0`, `L 0`, `M 1`, `N 1`, `O 0`, `P 0`, `Q 0`.
 
 - [ ] **Step 2: Amend the non-terminal sentence**
 
@@ -813,12 +819,39 @@ Replace with:
   developer.
 ```
 
-- [ ] **Step 9: Verify**
+- [ ] **Step 9: Let an open held hit block the consumption gate**
+
+Find in `plugins/working-process/rules/spec-plan-lifecycle.md`:
+
+```
+A document's consumption gate is the backstop for its ledger: no judged
+document passes to plan-writing, nor a plan to implementation, while
+`held` lines stay open — an LGTM can leave the frontmatter clean while a
+decision question still pends, so the gate asks those questions at the
+latest. Writing a plan from a judged document is that same seam: its
+held questions are asked before the plan is written, whoever writes it.
+```
+
+Replace with:
+
+```
+A document's consumption gate is the backstop for its ledger: no judged
+document passes to plan-writing, nor a plan to implementation, while
+`held` lines or `hit held` gate lines stay open — an LGTM can leave the
+frontmatter clean while a decision question still pends, so the gate
+asks those questions at the latest. A `hit held` line blocks until the
+gate has re-run and rewritten it to a terminal shape, since declining
+the dispatch it guarded decides nothing; a closed gate line blocks
+nothing. Writing a plan from a judged document is that same seam: its
+held questions are asked before the plan is written, whoever writes it.
+```
+
+- [ ] **Step 10: Verify**
 
 Run the Step 1 command again.
 
 Expected: `A 1`, `B 1`, `C 1`, `D 1`, `E 1`, `F 0`, `G 0`, `H 1`, `I 1`,
-`J 1`, `K 1`, `L 1`, `M 0`, `N 0`, `O 1`, `P 1`.
+`J 1`, `K 1`, `L 1`, `M 0`, `N 0`, `O 1`, `P 1`, `Q 1`.
 
 Then run the widened command over a fixture, to prove it matches both a
 disposition line and a held gate line and nothing terminal:
@@ -835,7 +868,7 @@ rm -rf "$d"
 
 Expected: `2`.
 
-- [ ] **Step 10: Commit**
+- [ ] **Step 11: Commit**
 
 ```bash
 git add plugins/working-process/rules/spec-plan-lifecycle.md
@@ -2173,7 +2206,7 @@ developer, and leave `sync-rules`, the version and both documents'
 
 ### 2026-09-26 — plan-adversary, fable 5.1, concerns (round 3, full-document)
 
-- held — [Minor] the new `hit held` state has an anchor and an owner but no reader at the consumption gate: the lifecycle rule's backstop sentence blocks plan-writing and implementation on open `held` lines alone, and no step of Task 3 widens it; question: should the backstop also block on an open `hit held` line?; options: (a) add "or `hit held`" to that sentence in Task 3, recorded as a deviation with ruling — the spec says a held hit blocks the dispatch its gate guards, and a developer who declines that dispatch would otherwise pass the gate over an unanswered decision (recommended); (b) leave the sentence, and state in the spec that the Unfinished-work entry is the held hit's only reader beyond the blocked dispatch
+- fixed 2026-09-26 — [Minor] the new `hit held` state has an anchor and an owner but no reader at the consumption gate: the lifecycle rule's backstop sentence blocks plan-writing and implementation on open `held` lines alone, and no step of Task 3 widens it; ruling: 2026-09-26; option (a) — new Task 3 Step 9 adds `hit held` gate lines to the backstop, blocking until the gate re-runs and rewrites the line to a terminal shape, a closed gate line blocking nothing; Deviation 11, check Q added
 - fixed 2026-09-26 — [Minor] Task 13 compares "each report" with its expectation, while `claude -p` prints the outer session's text, so a wrapper line before `model:` would fail a correct run; license: Task 13's stated purpose (the run proves what the card detects); Step 3 now compares the auditor's report from its `model:` line to its last line and discards wrapper text
 - signal 2026-09-26 — another round does not earn its cost; both leftovers are Minor, one held for the developer and one licensable, together one small fix wave rather than a re-read
 
