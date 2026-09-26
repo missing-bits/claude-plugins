@@ -2045,11 +2045,12 @@ command cp -f "$R/docs/plans/2026-09-26-plan-coverage.md" "$W/docs/plans/"
 command cp -f "$R/docs/domain/glossary.md" "$W/docs/domain/"
 sed 's/^\*\*Realizes:\*\* D15$/**Realizes:** none/' \
   "$W/docs/plans/2026-09-26-plan-coverage.md" > "$W/docs/plans/fixture-uncovered.md"
-grep -c '^\*\*Realizes:\*\* D15$' "$W/docs/plans/fixture-uncovered.md"
+grep -c '^\*\*Realizes:\*\* D15$' "$W/docs/plans/fixture-uncovered.md" || true
 ```
 
 Expected: `0` — Task 8's only annotation is gone from the copy, so D15
-is cited nowhere else.
+is cited nowhere else. `grep -c` exits 1 on a zero count, hence the
+`|| true`.
 
 Then write the table-closure pair, whose Contracts row names a part
 `reder` that Parts does not carry, and commit the fixture:
@@ -2125,15 +2126,20 @@ found, whatever the run prints. Disabling changes the developer's own
 configuration: ask before running.
 
 The guard is the inner session's permission set, not a list of allowed
-tools, because `--allowedTools` only pre-approves and never forbids.
-`--setting-sources project` keeps the developer's user settings, and
-every allow rule in them, out of the run; the fixture carries no
-project settings, so the only pre-approval is the `git rev-parse` the
-command line grants, and in print mode every other prompt is denied.
-`--tools` narrows the built-in set to what the dispatch needs, and
-`--add-dir` admits the plugin directory the card reads its rules from.
-The auditor therefore cannot execute the commands this plan quotes,
-`claude plugin disable` and `rm -rf` among them.
+tools, because `--allowedTools` only pre-approves and never forbids. The
+developer's user settings stay in the run: `--setting-sources project`
+would keep them out, but it also drops the agents `--plugin-dir` loads,
+so the dispatch finds no auditor (measured on 2026-09-26, one flag at a
+time). Their one risky allow rule is `Bash(claude plugin *)`, and
+`--disallowedTools "Bash(claude *)"` denies that family, since a deny
+rule wins over an allow rule. The harness itself pre-approves read-only
+commands; in print mode every other prompt is denied, writes and
+compound commands among them. `--tools` narrows the built-in set to
+what the dispatch needs, and `--add-dir` admits the plugin directory the
+card reads its rules from. These are the run's real limits: they block
+the commands this plan quotes that change state, `claude plugin
+disable` and `rm -rf` among them, and they isolate nothing else from
+the developer's settings.
 
 Each run's full event stream is kept, so the evidence is the dispatch
 itself rather than what the outer session chose to print.
@@ -2152,7 +2158,7 @@ for f in docs/plans/2026-09-26-plan-coverage.md docs/plans/fixture-uncovered.md 
   k=$((k+1))
   (cd "$W" && claude -p --plugin-dir "$R/plugins/working-process" \
     --add-dir "$R/plugins/working-process" \
-    --setting-sources project \
+    --disallowedTools "Bash(claude *)" \
     --tools "Agent,Read,Grep,Glob,Bash" \
     --allowedTools "Bash(git rev-parse:*)" \
     --output-format stream-json --verbose \
@@ -2186,7 +2192,8 @@ for line in open(sys.argv[1]):
         e = json.loads(line)
     except ValueError:
         continue
-    m = e.get('message') or {}
+    m = e.get('message')
+    m = m if isinstance(m, dict) else {}
     content = m.get('content')
     if e.get('parent_tool_use_id') in calls and m.get('role') == 'assistant':
         text = ' '.join(c.get('text', '') for c in content or [] if isinstance(c, dict))
@@ -2216,9 +2223,12 @@ done | tee "$W/reports.txt"
 ```
 
 For every run, expected: exactly one dispatch, of
-`working-process:propagation-auditor` with model `haiku`; `denials: []`;
-and a report. No dispatch, a denial, or no report fails the test, and
-the stream stays for inspection. The event shapes are the CLI's own; an
+`working-process:propagation-auditor` with model `haiku`, and a report.
+No dispatch or no report fails the test, and the stream stays for
+inspection. A denial fails it too, unless the stream shows the auditor
+completing the same operation through an allowed alternative — the
+denied `cat` followed by a `Read` of that file — since a complete report
+does not prove the check behind it ran. The event shapes are the CLI's own; an
 extractor that finds nothing in a stream that plainly holds a dispatch
 is a test defect to fix, never a pass.
 
@@ -2324,3 +2334,13 @@ The fifth line, on Task 13, comes from Codex's second opinion instead:
 - fixed 2026-09-26 — the withdrawal ruled outside any hit had no ledger home on a closed loop; ruling: 2026-09-26; Task 1 says the tombstone is its record there, check I added
 - fixed 2026-09-26 — Task 13's extractor took the report from the dispatch's tool result, which for a background card may only acknowledge the launch; license: Task 13's stated purpose; the prompt asks for a foreground dispatch and the extractor reads the dispatched agent's last message, falling back to the tool result
 - hit fixed 2026-09-26 — the sentence opening this block counted three changed texts over five lines; it now names Tasks 1, 2 and 5 in four lines and gives the fifth its own source
+
+Task 13's first run, during implementation, found three departures in
+the card and four defects in the task's own harness. The card fix
+landed as `f8e743b`; the harness fixes are in Task 13 above, and the
+evidence is the run's record in the dispatcher's store.
+
+- fixed 2026-09-26 — the haiku auditor counted the Contracts relation once per side, wrote a `table-closure:` line on a plan's report, and opened reports with narration; license: D27 and the spec's *Table closure* ("3 relations checked", "A document other than a technical design gets no line"), and the card's own "Open with the self-report"; the card now counts one relation per declaration row, forbids the line on any other document, and puts `model:` first with nothing before it (`f8e743b`)
+- fixed 2026-09-26 — Task 13's harness: `--setting-sources project` dropped the agents `--plugin-dir` loads, the extractor failed on an event whose `message` is a string, `grep -c` exits 1 on a zero count, and the step overstated the run's permission limits; ruling: 2026-09-26; the run now denies `Bash(claude *)` instead, the extractor skips such events, the count takes `|| true`, and Step 2 states the real limits
+- fixed 2026-09-26 — Task 13 failed any denial, or on the draft wording passed any complete report; ruling: 2026-09-26; a denial fails the test unless the stream shows the same operation completed through an allowed alternative, since a complete report does not prove its check ran (Codex's second opinion)
+
