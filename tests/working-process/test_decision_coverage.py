@@ -307,6 +307,81 @@ class CoverageTest(unittest.TestCase):
             2. **D2** — Two.
             """, "1. **D1**")
 
+    def test_06g_unsupported_nesting_depth(self):
+        self.assert_malformed("""\
+            - **D1** — One.
+            - **D2** — Two.
+              - **D2.1** — Child.
+                - **D2.1.1** — x.
+            """, "D2.1.1")
+
+    def test_06h_bullet_without_identifier(self):
+        self.assert_malformed("""\
+            - **D1** — One.
+            - note
+            """, "- note")
+
+    def test_06i_decisions_field_not_registered(self):
+        spec = "---\ndecisions: draft\n---\n\n## Decisions\n\n- **D1** — One.\n"
+        self.write("specs/s.md", spec)
+        self.write("plans/p.md", dedent("""\
+            ---
+            spec: ../specs/s.md
+            ---
+
+            ### Task 1: one
+
+            **Realizes:** D1
+            """))
+        result = self.run_script("plans/p.md")
+        self.assertEqual(len(result.hits), 1, result.lines)
+        self.assert_hit_at(result, "s.md", line_of(spec, "decisions: draft"), "not `registered`")
+        self.assertEqual(result.blocks,
+                         ["decision-coverage: ../specs/s.md not counted — malformed register"])
+
+    def test_06j_child_nested_under_wrong_parent(self):
+        self.assert_malformed("""\
+            - **D1** — One.
+              - **D1.1** — Child of D1.
+            - **D2** — Two.
+              - **D1.2** — Wrongly placed.
+            """, "Wrongly placed")
+
+    def test_06k_withdrawn_segment_malformed(self):
+        self.assert_malformed("""\
+            - **D1** — One.
+            - **D2** — Two. withdrawn reason without a ruling date.
+            """, "withdrawn reason")
+
+    def test_06l_replaced_by_missing_identifier(self):
+        self.assert_malformed("""\
+            - **D1** — One. withdrawn old, ruling: 2026-01-01; replaced by D9
+            """, "One.")
+
+    def test_06m_replaced_by_group(self):
+        self.assert_malformed("""\
+            - **D1** — One. withdrawn old, ruling: 2026-01-01; replaced by D2
+            - **D2** — Group.
+              - **D2.1** — Child.
+            """, "One.")
+
+    def test_06n_legal_nested_list_in_free_prose_is_not_a_hit(self):
+        spec = "---\ndecisions: registered\n---\n\n## Decisions\n\n" + dedent("""\
+            - **D1** — One.
+
+              Some prose about D1.
+
+              - a legal nested note
+              - another legal note
+
+            - **D2** — Two.
+            """)
+        self.write("specs/s.md", spec)
+        result = self.run_script("specs/s.md")
+        self.assertEqual(len(result.lines), 1, result.lines)
+        self.assertTrue(result.lines[0].startswith("decision-coverage: "))
+        self.assertTrue(result.lines[0].endswith("s.md register well formed"), result.lines)
+
     # 7
     def test_07_legacy_spec(self):
         self.write("specs/s.md", "---\nstatus: draft\n---\n\n# S\n\n## Decisions\n\n- **D1** — x.\n")
@@ -436,6 +511,25 @@ class CoverageTest(unittest.TestCase):
             "  withdrawn since: D2 ← ../plans/p0.md (Task 1)",
         ])
 
+    def test_10d_follows_missing_file(self):
+        self.write("specs/s.md", "---\ndecisions: registered\n---\n\n## Decisions\n\n- **D1** — One.\n")
+        plan = dedent("""\
+            ---
+            spec: ../specs/s.md
+            ---
+
+            ## Deferrals and predecessors
+
+            **Follows:** ../plans/missing.md
+
+            ### Task 1: one
+
+            **Realizes:** D1
+            """)
+        self.write("plans/p.md", plan)
+        result = self.run_script("plans/p.md")
+        self.assert_hit_at(result, "p.md", line_of(plan, "**Follows:**"), "missing.md")
+
     # 11
     def test_11_spec_audited_alone(self):
         self.write("specs/s.md", SPEC_BASIC)
@@ -454,9 +548,12 @@ class CoverageTest(unittest.TestCase):
     def test_12_repository_documents(self):
         spec = REPO / "docs" / "specs" / "2026-09-25-plan-coverage-design.md"
         plan = REPO / "docs" / "plans" / "2026-09-26-plan-coverage.md"
-        ids = []
-        in_register = False
-        in_fence = False
+
+        # Count the register's leaves independently of the script,
+        # excluding an entry whose identity paragraph carries a segment
+        # beginning `withdrawn` after a full stop — the same rule the
+        # contract gives the counted set, derived from scratch here.
+        in_register, in_fence, entries, current = False, False, [], None
         for line in spec.read_text(encoding="utf-8").splitlines():
             if line.startswith("```"):
                 in_fence = not in_fence
@@ -465,12 +562,28 @@ class CoverageTest(unittest.TestCase):
                 continue
             if line.startswith("## "):
                 in_register = line.strip() == "## Decisions"
+                current = None
                 continue
-            match = re.match(r"^\s*- \*\*(D\d+(?:\.\d+)?)\*\*", line)
-            if in_register and match:
-                ids.append(match.group(1))
+            if not in_register:
+                continue
+            match = re.match(r"^(\s*)- \*\*(D\d+(?:\.\d+)?)\*\*(.*)$", line)
+            if match:
+                current = [match.group(2), match.group(3).strip()]
+                entries.append(current)
+                continue
+            if current is None:
+                continue
+            if (not line.strip() or re.match(r"^\s*(?:[-*+]|\d+\.)\s", line)):
+                current = None
+                continue
+            current[1] += " " + line.strip()
+
+        ids = [ident for ident, _ in entries]
+        withdrawn = {ident for ident, paragraph in entries
+                     if re.search(r"\.\s+withdrawn\b", paragraph)}
         leaves = [i for i in ids if not any(j.startswith(i + ".") for j in ids)]
-        self.assertGreater(len(leaves), 0)
+        counted = [i for i in leaves if i not in withdrawn]
+        self.assertGreater(len(counted), 0)
 
         proc = subprocess.run([sys.executable, SCRIPT, str(plan)], capture_output=True, text=True)
         self.assertEqual(proc.returncode, 0, proc.stderr)
@@ -479,7 +592,8 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(len(result.blocks), 1, result.lines)
         match = re.match(r"^decision-coverage: \S+ (\d+)/(\d+) covered;", result.blocks[0])
         self.assertIsNotNone(match, result.blocks[0])
-        self.assertEqual((int(match.group(1)), int(match.group(2))), (len(leaves), len(leaves)))
+        self.assertEqual((int(match.group(1)), int(match.group(2))),
+                          (len(counted), len(counted)))
 
         proc = subprocess.run([sys.executable, SCRIPT, str(spec)], capture_output=True, text=True)
         self.assertEqual(proc.returncode, 0, proc.stderr)
@@ -523,6 +637,54 @@ class CoverageTest(unittest.TestCase):
         match = re.match(r"^decision-coverage: \S+ (\d+)/(\d+) covered;", result.blocks[0])
         self.assertIsNotNone(match, result.blocks[0])
         self.assertEqual(match.group(1), match.group(2))
+
+    # 15
+    def test_15_stdout_encoding_survives_non_utf8_env(self):
+        self.write("specs/s.md", SPEC_BASIC)
+        self.write("plans/p.md", PLAN_BASIC)
+        env = dict(os.environ)
+        env["PYTHONIOENCODING"] = "ascii"
+        proc = subprocess.run(
+            [sys.executable, SCRIPT, str(self.root / "plans" / "p.md")],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            env=env,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(proc.stderr, "")
+        result = Result(proc)
+        self.assertEqual(result.hits, [])
+        self.assertIn(
+            "decision-coverage: ../specs/s.md 4/4 covered; inherited []; deferred []; uncovered []",
+            result.lines)
+        self.assertIn("  D1 → Task 1", result.lines)
+
+    # 16
+    def test_16_realizes_after_first_step_not_counted(self):
+        self.write("specs/s.md",
+                    "---\ndecisions: registered\n---\n\n## Decisions\n\n- **D1** — One.\n")
+        plan = dedent("""\
+            ---
+            spec: ../specs/s.md
+            ---
+
+            ### Task 1: one
+
+            **Files:** a
+
+            - [ ] **Step 1: do**
+
+            **Realizes:** D1
+            """)
+        self.write("plans/p.md", plan)
+        result = self.run_script("plans/p.md")
+        self.assert_hit_at(result, "p.md", line_of(plan, "### Task 1"),
+                            "carries no `**Realizes:**` line")
+        self.assertIn(
+            "decision-coverage: ../specs/s.md 0/1 covered; inherited []; deferred []; uncovered [D1]",
+            result.lines)
+        self.assertIn("  D1 → —", result.lines)
 
 
 class UsageTest(unittest.TestCase):

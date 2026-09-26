@@ -25,6 +25,8 @@ TOOL = "decision-coverage.py"
 ENTRY_RE = re.compile(r"^(\s*)- \*\*(D\d+(?:\.\d+)?)\*\*")
 NUMBERED_RE = re.compile(r"^\s*\d+\.\s+\*\*D")
 LIST_ITEM_RE = re.compile(r"^\s*(?:[-*+]|\d+\.)\s")
+ATTEMPTED_ID_RE = re.compile(r"^\s*(?:[-*+]|\d+\.)\s+\*\*D\d")
+STEP_RE = re.compile(r"^\s*-\s\[.\]")
 TOKEN_START_RE = re.compile(r"\.\s+(withdrawn\b.*)$")
 TOKEN_RE = re.compile(
     r"^withdrawn (.+), ruling: (\d{4}-\d{2}-\d{2})"
@@ -165,6 +167,10 @@ def parse_register(display, section):
             continue
         match = ENTRY_RE.match(text)
         if not match:
+            if LIST_ITEM_RE.match(text):
+                indent = len(text) - len(text.lstrip())
+                if indent == 0 or ATTEMPTED_ID_RE.match(text):
+                    bad(number, "list item does not parse as a register entry")
             continue
         indent, ident = len(match.group(1)), match.group(2)
         child = indent >= 2
@@ -261,7 +267,7 @@ class Plan:
         self.specs = spec_paths(fields["spec"][0]) if "spec" in fields else []
         self.status = fields.get("status", ("", 0))[0]
         self.citations = []   # Citation, in document order
-        self.tasks = []       # (number, heading line, has a Realizes line)
+        self.tasks = []       # (number, heading line, has a Realizes line, past first step)
         self.defers = []      # (line, token)
         self.follows = []     # (line, written path)
         self._parse(unfenced(lines, body_start))
@@ -273,17 +279,21 @@ class Plan:
                 task = None
                 match = TASK_RE.match(text)
                 if match:
-                    task = [match.group(1), number, False]
+                    task = [match.group(1), number, False, False]
                     self.tasks.append(task)
                 if text.startswith("## "):
                     section = text[3:].strip()
                 continue
+            if task is not None and STEP_RE.match(text):
+                task[3] = True
+                continue
             if task is not None and text.startswith("**Realizes:** "):
-                task[2] = True
-                value = text[len("**Realizes:** "):].strip()
-                if value != "none":
-                    for token in split_ids(value):
-                        self.citations.append(Citation(token, number, f"Task {task[0]}"))
+                if not task[3]:
+                    task[2] = True
+                    value = text[len("**Realizes:** "):].strip()
+                    if value != "none":
+                        for token in split_ids(value):
+                            self.citations.append(Citation(token, number, f"Task {task[0]}"))
                 continue
             if section == "Global Constraints" and text.startswith("- **Realizes:** "):
                 rest = text[len("- **Realizes:** "):]
@@ -476,7 +486,7 @@ class Audit:
         """Step 7's plan-wide hits: missing annotations and bare identifiers."""
         plan = self.plan
         if registered:
-            for number, heading_line, has_line in plan.tasks:
+            for number, heading_line, has_line, _ in plan.tasks:
                 if not has_line:
                     self.add(hit(plan.display, heading_line,
                                  f"Task {number} carries no `**Realizes:**` line", "step 7"))
@@ -521,6 +531,8 @@ def is_technical_design(display):
 
 
 def main(argv):
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     if len(argv) != 2:
         print("decision-coverage: usage: decision-coverage.py <plan or design spec>",
               file=sys.stderr)
