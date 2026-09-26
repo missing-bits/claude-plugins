@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-26
-status: draft
+status: approved
 adversary: concerns (resolved 2026-09-26)
 spec: ../specs/2026-09-25-plan-coverage-design.md
 branch: feature/plan-coverage
