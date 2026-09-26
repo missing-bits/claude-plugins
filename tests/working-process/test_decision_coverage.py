@@ -487,6 +487,42 @@ class CoverageTest(unittest.TestCase):
                          [f"decision-coverage: {spec} register well formed"])
 
 
+    # 13
+    def test_13_technical_design_produces_no_output(self):
+        (self.root / "docs" / "specs").mkdir(parents=True)
+        (self.root / "docs" / "technical-designs").mkdir(parents=True)
+        self.write("docs/specs/s.md", SPEC_BASIC)
+        design = dedent("""\
+            ---
+            spec: ../specs/s.md
+            ---
+
+            # S — technical design
+
+            Text.
+            """)
+        self.write("docs/technical-designs/s-technical-design.md", design)
+        proc = subprocess.run(
+            [sys.executable, SCRIPT,
+             str(self.root / "docs" / "technical-designs" / "s-technical-design.md")],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(proc.stdout, "")
+        self.assertEqual(proc.stderr, "")
+
+    # 14
+    def test_14_plan_under_plans_is_still_counted(self):
+        self.write("specs/s.md", SPEC_BASIC)
+        self.write("plans/p.md", PLAN_BASIC)
+        result = self.run_script("plans/p.md")
+        self.assertEqual(result.hits, [])
+        match = re.match(r"^decision-coverage: \S+ (\d+)/(\d+) covered;", result.blocks[0])
+        self.assertIsNotNone(match, result.blocks[0])
+        self.assertEqual(match.group(1), match.group(2))
+
+
 class UsageTest(unittest.TestCase):
     def test_usage_error(self):
         proc = subprocess.run([sys.executable, SCRIPT], capture_output=True, text=True)

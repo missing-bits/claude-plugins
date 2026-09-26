@@ -10,7 +10,10 @@ card. Where this script and those texts disagree, the texts govern.
 
 Output goes to stdout: every hit, one line each, then one
 `decision-coverage:` block per spec. Exit 0 whenever the derivation ran,
-hits or not; 2 on a usage error or an unreadable file.
+hits or not; 2 on a usage error or an unreadable file. A technical
+design — a document under a `technical-designs` directory directly
+under a `docs` directory — produces no output; this duty does not cover
+it.
 """
 
 import os
@@ -510,12 +513,21 @@ def audit_spec(display, lines):
     return register.hits + [f"decision-coverage: {display} {outcome}"]
 
 
+def is_technical_design(display):
+    """The resolved path has `docs/technical-designs/` among its parents."""
+    parts = os.path.abspath(display).split(os.sep)
+    return any(a == "docs" and b == "technical-designs"
+               for a, b in zip(parts, parts[1:]))
+
+
 def main(argv):
     if len(argv) != 2:
         print("decision-coverage: usage: decision-coverage.py <plan or design spec>",
               file=sys.stderr)
         return 2
     display = argv[1]
+    if is_technical_design(display):
+        return 0
     try:
         lines = read_lines(display)
         fields, _ = frontmatter(lines)
