@@ -73,8 +73,9 @@ What stands today:
   constraint. Argued in *The plan's annotations*.
 - **D8** — The lifecycle rule's sentence "changes no plan template"
   is revised: working-process adds exactly the D7, D18 and D19
-  annotations, and the tool that writes plans keeps the rest of the
-  template. Argued in *The plan's annotations*.
+  annotations and the `## Deferrals and predecessors` heading, and the
+  tool that writes plans keeps the rest of the template. Argued in *The
+  plan's annotations*.
 - **D9** — A new propagation duty derives decision coverage: every leaf
   identifier of every registered spec that is neither withdrawn nor
   deferred by the audited plan needs a realizing task or constraint,
@@ -84,20 +85,33 @@ What stands today:
   the rule defining a table declares that a column names rows of
   another table, every name resolves to exactly one row. Argued in
   *Table closure*.
-- **D11** — The auditor's report gains one `decision-coverage:` block
-  per spec the audited plan names — a summary line and, where the
-  register could be counted, the map from identifier to citing sites —
-  before the closing token, on clean runs too; `CLEAN` means no hit in
-  the checks that ran. Argued in *The report*.
+- **D11** — The auditor's report changes in four independent ways.
+  Argued in *The report*.
+  - **D11.1** — It gains one `decision-coverage:` block per spec the
+    audited plan names: a summary line and, where the register could be
+    counted, the map from identifier to citing sites, before the
+    closing token, on clean runs too.
+  - **D11.2** — The summary line carries an `inherited [..]` slot for
+    identifiers covered only by a predecessor.
+  - **D11.3** — A design spec audited alone gets a one-line block with
+    one of three outcomes: `register well formed`, `not counted`,
+    `not checked`.
+  - **D11.4** — `CLEAN` means no hit in the checks that ran, and the
+    card's "exactly two lines" sentence and the workflow rule's
+    closing-token paragraph change together to admit the report's
+    non-hit lines.
 - **D12** — A coverage hit stays a hit, but its fix is triaged by
   license, and a fix needing a decision the spec does not make waits
-  for the developer. The exception to "hits never wait" covers coverage
-  hits alone. Argued in *Disposing of a coverage hit*.
-- **D13** — Four gate-line shapes record that wait: `hit held`, and
-  its three terminal rewrites `hit fixed …; ruling:`,
-  `hit deferred …; ruling:` and `hit withdrawn …; ruling:`. `hit held`
-  joins the Unfinished-work list. Argued in *Gate lines for a held
-  hit*.
+  for the developer. The exception to "hits never wait" covers the
+  coverage duty's hits alone. Argued in *Disposing of a coverage hit*.
+- **D13** — The lifecycle rule records a held hit in two independent
+  ways. Argued in *Gate lines for a held hit*.
+  - **D13.1** — Four gate-line shapes: `hit held`, and its three
+    terminal rewrites `hit fixed …; ruling:`, `hit deferred …; ruling:`
+    and `hit withdrawn …; ruling:`.
+  - **D13.2** — The *Unfinished review-loop ledger* entry widens — its
+    name, its description and its command — to take the `hit held`
+    line.
 - **D14** — The plan-adversary gains a dimension judging each
   decision's realization: do the tasks and constraints citing it
   realize it in full together, and does a cited constraint actually
@@ -141,9 +155,26 @@ What stands today:
 - **D25** — A plan whose `spec:` names two or more specs, registered or
   legacy, qualifies every identifier with its spec's path. Argued in
   *The plan's annotations*.
-- **D26** — Only an uncovered identifier and a task lacking its
-  `**Realizes:**` line may be held; every other hit of the coverage duty
-  takes the ordinary path. Argued in *Disposing of a coverage hit*.
+- **D26** — A hit of the coverage duty whose fix needs a decision no
+  derivation settles is held for the developer; every other hit of that
+  duty is fixed by its derivation. No other duty's hit is ever held.
+  Argued in *Disposing of a coverage hit*.
+- **D27** — The report carries one `table-closure:` line per audited
+  technical design, stating how many declared relations it resolved or
+  that none are declared. Argued in *Table closure*.
+- **D28** — Four surfaces stay as they are. Argued in *Readers*,
+  *Out of scope*, *The plan's annotations* and *Gate lines for a held
+  hit*.
+  - **D28.1** — The architect agent's card gains nothing.
+  - **D28.2** — The plan-adversary's dimension 5 is unchanged.
+  - **D28.3** — The tool that writes plans, `superpowers:writing-plans`,
+    is not changed.
+  - **D28.4** — The ordinary `hit fixed` shape, without `ruling:`, stays
+    for every hit whose fix its derivation licensed.
+- **D29** — A held hit's register edit is recorded in the spec's own
+  ledger; where the spec's loop is closed, under the cross-document fix
+  heading, which now serves a gate-licensed fix as well. Argued in
+  *Disposing of a coverage hit*.
 
 ## The register
 
@@ -169,8 +200,11 @@ end. Prose beneath, after the blank line, is free.
 
 A state token is recognized by its reserved opening word alone: the
 paragraph's final segment, after the full stop that ends the decision's
-statement, beginning with `withdrawn`. A segment so opening that does
-not match the token's grammar is a hit, never prose. Any other text is
+statement — and after any "Argued in" pointer, which belongs to the
+statement — beginning with `withdrawn`. The token runs from that word to
+the paragraph's end, so its `<reason>` may hold a full stop. A segment
+so opening that does not match the token's grammar is a hit, never
+prose. Any other text is
 prose, so a statement whose own words happen to end in "withdrawn"
 before its full stop is no token.
 
@@ -270,8 +304,9 @@ gets a reader (see *Readers*).
 ## The plan's annotations
 
 A plan whose `spec:` names at least one registered spec carries, on
-every task, a line beside its `**Files:**` block — after the
-`**Interfaces:**` block where the task has one:
+every task, a line after its `**Files:**` block — after the
+`**Interfaces:**` block where the task has one — and before the task's
+first step:
 
     **Realizes:** D3, D5
     **Realizes:** none
@@ -505,16 +540,17 @@ auditor reads a technical design, which is the only document these
 relations bind. A project whose rules declare nothing gives the duty
 nothing to cover, and it says so.
 
-The report carries one line for this duty per audited technical design,
-beside the `decision-coverage:` blocks and before the closing token,
-on clean runs too:
+The report carries one line for this duty per audited technical design
+(D27), after any hits and before the closing token, on clean runs too:
 
     table-closure: <document path> 3 relations checked
     table-closure: <document path> no declared relations
 
 The count names the declared relations the duty resolved in that
-document; the hits, if any, stand above. A document other than a
-technical design gets no line, since no relation binds it.
+document — those whose tables it carries; a relation whose table is
+absent, as a conditional State section may be, is not applicable there
+and is not counted. The hits, if any, stand above. A document other
+than a technical design gets no line, since no relation binds it.
 
 A table no rule declares a relation for is not checked by this duty,
 and nothing says it was: the report states what the duty covers, and a
@@ -534,15 +570,20 @@ and before the token, and present whether or not any hit fired:
       D1 → Task 2
       D2 → ../plans/<file>.md (Task 3)
       D3 → Task 4, Task 6
-      D9 → Global Constraints: No code
+      D4.2 → —
+      D9 → Global Constraints: "No code"
+      D10 → ../plans/<file>.md (Global Constraints: "No code")
       …
     decision-coverage: <spec path> not counted — malformed register
     decision-coverage: <spec path> not checked — no decision register
 
 The summary line opens the block, and under a counted spec the map
 follows it, one indented line per counted identifier, naming every task
-and constraint that cites it; an uncovered identifier maps to nothing
-and is also a hit above. The map is what the fraction summarises, so a
+and constraint that cites it. A task is named by its heading's number;
+a Global Constraints entry, which the template gives no key, by its
+opening words in quotes; an inherited site, by its plan's path with the
+site in parentheses. An uncovered identifier maps to `—` and is also a
+hit above. The map is what the fraction summarises, so a
 reader can check the one against the other. The fraction's denominator
 is the counted set of step 3, and its numerator every counted
 identifier in the cited set of step 4. `inherited [..]` lists the
@@ -554,8 +595,10 @@ Every identifier in the block is qualified as the plan's annotations
 are. `not counted` follows a malformed register, whose hits stand above
 it, and carries no map, since its denominator cannot be derived.
 
-On a registered design spec audited on its own, the block is one line
-(D22) and no map follows, since no plan cites anything yet:
+On a design spec audited on its own, the block is one line (D22) and no
+map follows, since no plan cites anything yet — `register well formed`
+or `not counted` for a registered spec, `not checked` for a legacy
+one:
 
     decision-coverage: <spec path> register well formed
     decision-coverage: <spec path> not counted — malformed register
@@ -565,17 +608,18 @@ On a registered design spec audited on its own, the block is one line
 beside `not counted` and `not checked`, and the card states all three.
 
 A clean audit of a plan therefore runs to the self-report, one block
-per spec, and `CLEAN`; a clean audit of a technical design, to the
-self-report, its `table-closure:` line (see *Table closure*), and
-`CLEAN`. `CLEAN` means no hit in the checks that ran,
+per spec, and `CLEAN`; of a design spec alone, to the self-report, its
+one-line block and `CLEAN`; of a technical design, to the self-report,
+its `table-closure:` line (see *Table closure*) and `CLEAN`. `CLEAN`
+means no hit in the checks that ran,
 and a `not checked` line bounds that guarantee in the report itself, so
 a dispatcher never re-reads a spec to learn what the audit covered.
 
 The contract changes in two places edited together: the card's
 sentence "a clean audit runs to exactly two lines", and the workflow
 rule's paragraph saying a report's body governs, never its closing
-token — which gains that a `decision-coverage:` line is neither a hit
-nor a violation of the token's position.
+token — which gains that a `decision-coverage:` or `table-closure:`
+line is neither a hit nor a violation of the token's position.
 
 The name differs from the integrity auditor's `coverage:` line on
 purpose: that line reports how much of a document the audit read, and
@@ -584,15 +628,15 @@ dispatcher to read one as the other.
 
 ## Disposing of a coverage hit
 
-Two hits of the coverage duty are coverage hits in this sense (D26): an
-identifier the cited set lacks, and a task lacking its `**Realizes:**`
-line in a plan the convention binds. Only these may be held. Every
-other hit of the duty — a malformed register, a bad `**Defers:**` or
-`**Follows:**` line, a cited identifier that is withdrawn, a group or
-undefined — takes the ordinary path: fixed where its derivation settles
-the fix, and put to the developer through the loop's usual questions
-where it does not, as when breaking a `replaced by` cycle means
-choosing which entry stands.
+Two hits of the coverage duty are coverage hits in the glossary's sense:
+an identifier the cited set lacks, and a task lacking its
+`**Realizes:**` line in a plan the convention binds. They take the
+triage below. Every other hit of the duty — a malformed register, a bad
+`**Defers:**` or `**Follows:**` line, a cited identifier that is
+withdrawn, a group or undefined — is fixed where its derivation settles
+the fix and held where it does not (D26), as when breaking a
+`replaced by` cycle means choosing which entry stands. No other duty's
+hit is ever held.
 
 The detection is mechanical and runs where the measured failure slipped
 through: at the gate, on the cheapest family, before the plan-adversary.
@@ -615,19 +659,21 @@ dispatcher classifies its fix by license:
 
 A held hit blocks the dispatch its gate guards, as a held finding
 already blocks a fresh round. The answer lands where the decision
-belongs: in the spec as a new or a sharpened register entry, or as the
-entry's `withdrawn` token where the developer drops the decision; in
-the plan as a `**Defers:**` line where the developer defers it. The
-plan is then fixed and the gate re-run, and the plan-adversary
-dispatches only once the gate passes.
+belongs: in the spec as a new, a sharpened or a repaired register
+entry, or as the entry's `withdrawn` token where the developer drops
+the decision; in the plan as a `**Defers:**` line where the developer
+defers it. The document the answer changed is then fixed, and the gate
+re-runs over it and over whatever depends on it — the plan, where the
+spec changed. The dispatch the gate guards goes out only once it
+passes.
 
 A held hit ends its gate episode: the gate has not passed, and the
 dispatch it guards waits. The re-run after the developer's answer is a
 fresh episode, with its own re-dispatch bound.
 
-A register edit the answer causes is recorded in the spec's own ledger.
-Where the spec's loop is closed, it goes under the cross-document fix
-heading the lifecycle rule already defines —
+A register edit the answer causes is recorded in the spec's own ledger
+(D29). Where the spec's loop is closed, it goes under the
+cross-document fix heading the lifecycle rule already defines —
 `### <date> — fix from <plan path>` — which serves a gate-licensed fix
 as it serves a review-licensed one, and the plan's `hit fixed` line
 names that heading and the line under it. A spec already `implemented`
@@ -635,10 +681,9 @@ takes no such edit: the answer becomes a revision through a newer
 spec's `revises:` (D24), and the held hit waits for it.
 
 The workflow rule's "hits never wait for the developer" gains one named
-exception, for coverage hits alone. Every other hit is fixed where its
-derivation licenses the fix and put to the developer through the loop's
-ordinary questions where it does not, as D26 says; only a coverage hit
-takes the `hit held` line.
+exception, for the coverage duty's hits alone (D26); only such a hit
+takes the `hit held` line. Every other duty's hit keeps a fix licensed
+by its own derivation.
 
 ## Gate lines for a held hit
 
@@ -652,21 +697,23 @@ terminal rewrites of it:
 
 A `hit held` line is rewritten in place to one of the three terminal
 shapes, so the state always has one home. The rewrite happens after the
-gate re-runs over the changed spec and plan, never on the developer's
-answer alone. `hit fixed … ruling:` records that the developer settled
-the missing decision and the plan now realizes it. `hit deferred`
-records an approved deferral, now a `**Defers:**` line in the plan, and
-`hit withdrawn` a decision the developer dropped, its register entry
-now a tombstone.
+gate re-runs over the changed document and what depends on it, never on
+the developer's answer alone. `hit fixed … ruling:` records that the
+developer settled the missing decision and the document now carries
+it — a plan that realizes the decision, or a register the developer's
+ruling repaired. `hit deferred` records an approved deferral, now a
+`**Defers:**` line in the plan, and `hit withdrawn` a decision the
+developer dropped, its register entry now a tombstone; each is written
+only where it names what actually happened. Neither is `hit dismissed`,
+because the gap was real when the hit fired. The ordinary `hit fixed`
+shape, without `ruling:`, stays as it is for every hit whose fix its
+derivation licensed (D28.4).
 
 A `hit held` line lives in the ledger of the document whose gate raised
-it — the audited plan. Its leading date is the gate's, as on every gate
-line, where `open` and `held` disposition lines carry none; the
-terminal rewrite replaces it with the date the line reached its
-terminal state. Neither is
-`hit dismissed`, because the gap was real when the hit fired. The
-ordinary `hit fixed` shape, without `ruling:`, stays as it is for every
-hit whose fix its derivation licensed.
+it — the audited plan, or the design spec where the spec was audited
+alone. Its leading date is the gate's, as on every gate line, where
+`open` and `held` disposition lines carry none; the terminal rewrite
+replaces it with the date the line reached its terminal state.
 
 `ruling:` on a gate line means what it means on a disposition line: the
 developer decided. A diff-scoped round treats such a line as settled,
@@ -681,11 +728,17 @@ episode that holds at least one hit therefore writes every one of its
 lines — the `hit held` line and its siblings alike — in the
 `## Review rounds` section before the first round heading, and they
 stay there, rewrites included: no round produced them, and one episode
-keeps one home (D23). A pre-round episode that holds nothing keeps the
-existing rule.
+keeps one home (D23). Once such lines stand there, every later
+pre-round episode writes there too, holding or not, so the document's
+pre-round gate history stays in one place. A pre-round episode on a
+document with no pre-round lines, holding nothing, keeps the existing
+rule. A plan that has no `## Review rounds` section yet gains one, at
+its end, when its first gate line is written.
 
 `hit held` joins the Unfinished-work list by widening the *Unfinished
-review-loop ledger* entry's command to match it, within that entry's
+review-loop ledger* entry (D13.2): its description becomes "a
+disposition line or a held gate line nobody closed", and its command
+widens to match the gate line, within that entry's
 existing scope — inside a `## Review rounds` section, where the
 pre-round line also sits. Because a gate line's date stands between its
 token and its dash, the widened command gains an alternative rather than
@@ -811,8 +864,9 @@ All under `plugins/working-process/` unless noted.
   closure*, under one fixed heading: which columns name rows of Parts,
   how their cells split, the `external:` value, and that a numbered
   sequence is outside the relation.
-- `rules/workflow.md` — the coverage exception to "hits never wait";
-  the `decision-coverage:` line beside the closing-token paragraph; in
+- `rules/workflow.md` — the coverage duty's exception to "hits never
+  wait"; the `decision-coverage:` and `table-closure:` lines beside the
+  closing-token paragraph; in
   step 4, the duty of a brief delegating plan-writing to name the
   lifecycle rule and require reading it.
 - `rules/propagation-duties.md` — the rows and counters of *The
@@ -825,7 +879,10 @@ All under `plugins/working-process/` unless noted.
   **Hit** gained the held coverage hit. Amended by the review rounds:
   **Ruling** also covers a plan's deferral, and **Decision coverage**
   counts deferrals by the audited plan and citations inherited from an
-  implemented predecessor.
+  implemented predecessor and names both coverage hits. Amended at the
+  second integrity audit: **Hit** holds any hit of the coverage duty
+  whose fix needs a decision, and **Audit agent**'s disposed audit
+  admits a hit closed by the developer's ruling.
 - `README.md`, `CHANGELOG.md` — the new duties and the convention.
 
 ## Open questions
