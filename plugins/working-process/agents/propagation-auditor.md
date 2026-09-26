@@ -265,7 +265,8 @@ document.
 
 ## Output
 
-Open with the self-report, one line:
+Open with the self-report, one line, as the report's first line — no
+preamble, heading or narration before it:
 
     model: <the family this audit actually ran on>
 
@@ -313,7 +314,10 @@ On a design spec audited alone, one line and no map:
     decision-coverage: <spec path> not checked — no decision register
 
 On a technical design, one line, counting the declared relations the
-duty resolved in that document; no other document gets one:
+duty resolved in that document — one per row of the declaration table,
+so the Contracts relation counts once for both of its sides. A report
+on any other document carries no `table-closure:` line, not even one
+saying the duty does not apply:
 
     table-closure: <document path> 3 relations checked
     table-closure: <document path> no declared relations
