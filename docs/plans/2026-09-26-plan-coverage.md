@@ -2312,13 +2312,15 @@ adversary round has read them; the propagation gate that followed did.
 - fixed 2026-09-26 — [Important] Task 13 kept the outer session's printed text, not evidence that the changed card ran; ruling: 2026-09-26; each run saves its `stream-json` event stream, and Step 3 extracts the dispatch's agent type, model, denials and report from it, keeping the streams as evidence
 - fixed 2026-09-26 — [Important] Task 7 dropped part of D30: the spec has the plan-adversary judge whether a withdrawn inherited decision must be undone, and send it to the developer where nothing settles it; ruling: 2026-09-26; dimension 6 now says so, Task 7 cites D30, check D added
 
-The spec's third integrity audit changed three prescribed texts, all
-recorded in the spec's ledger under
-`### 2026-09-26 — integrity audit, fable, at the consumption gate (third)`:
+The spec's third integrity audit changed the prescribed texts of
+Tasks 1, 2 and 5, in four lines below, each recorded in the spec's
+ledger under
+`### 2026-09-26 — integrity audit, fable, at the consumption gate (third)`.
+The fifth line, on Task 13, comes from Codex's second opinion instead:
 
 - fixed 2026-09-26 — the state-token recognizer named the paragraph's final segment; license: the spec's *The register*, as fixed there; Task 1 now names the first segment after the statement that begins with `withdrawn`
 - fixed 2026-09-26 — duty 10 inherited through unvalidated `**Follows:**` lines and subtracted unvalidated `**Defers:**` lines, and the map keyed a Global Constraints entry by the annotation; ruling: 2026-09-26; Task 5 reorders the steps, keys the entry by its line and its words after the annotation, and states the summary slots and `0/0 covered`
 - fixed 2026-09-26 — the plan annotations did not say that `none` is never qualified, that an empty section is absent, or that another spec's `**Defers:**` line is out of scope; license: the spec's *The plan's annotations* and *Deferral*, as fixed there; Task 2 says so
 - fixed 2026-09-26 — the withdrawal ruled outside any hit had no ledger home on a closed loop; ruling: 2026-09-26; Task 1 says the tombstone is its record there, check I added
 - fixed 2026-09-26 — Task 13's extractor took the report from the dispatch's tool result, which for a background card may only acknowledge the launch; license: Task 13's stated purpose; the prompt asks for a foreground dispatch and the extractor reads the dispatched agent's last message, falling back to the tool result
-
+- hit fixed 2026-09-26 — the sentence opening this block counted three changed texts over five lines; it now names Tasks 1, 2 and 5 in four lines and gives the fifth its own source
