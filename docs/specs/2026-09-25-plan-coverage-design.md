@@ -334,8 +334,10 @@ deferred by the plan, not by the spec:
 
     **Defers:** D6 — <why>; ruling: <date>
 
-The lines form a block of their own directly after the Global
-Constraints section, outside it, one line per deferred identifier,
+The lines form a section of their own, headed `## Deferrals and
+predecessors` at the level of the Global Constraints heading and placed
+directly after that section, so a heading — not a blank line — ends
+Global Constraints before them. One line per deferred identifier,
 qualified as the plan's `**Realizes:**` annotations are. They stay out
 of that section because the plan template makes every task's
 requirements include it, and these lines state facts about the whole
@@ -365,8 +367,8 @@ depend on the deferred decision anyway.
 
 Work on one spec can run through several plans in sequence: a later
 plan picks up where an earlier one stopped. The later plan names each
-such predecessor on a line of its own, in the same block as its
-`**Defers:**` lines, after the Global Constraints section:
+such predecessor on a line of its own, in the same
+`## Deferrals and predecessors` section as its `**Defers:**` lines:
 
     **Follows:** ../plans/<file>.md
 
@@ -503,6 +505,17 @@ auditor reads a technical design, which is the only document these
 relations bind. A project whose rules declare nothing gives the duty
 nothing to cover, and it says so.
 
+The report carries one line for this duty per audited technical design,
+beside the `decision-coverage:` blocks and before the closing token,
+on clean runs too:
+
+    table-closure: <document path> 3 relations checked
+    table-closure: <document path> no declared relations
+
+The count names the declared relations the duty resolved in that
+document; the hits, if any, stand above. A document other than a
+technical design gets no line, since no relation binds it.
+
 A table no rule declares a relation for is not checked by this duty,
 and nothing says it was: the report states what the duty covers, and a
 document's ad-hoc tables are outside it. So is a Contracts flow written
@@ -620,8 +633,10 @@ takes no such edit: the answer becomes a revision through a newer
 spec's `revises:` (D24), and the held hit waits for it.
 
 The workflow rule's "hits never wait for the developer" gains one named
-exception, for coverage hits alone. Every other hit keeps a fix
-licensed by its own derivation.
+exception, for coverage hits alone. Every other hit is fixed where its
+derivation licenses the fix and put to the developer through the loop's
+ordinary questions where it does not, as D26 says; only a coverage hit
+takes the `hit held` line.
 
 ## Gate lines for a held hit
 
@@ -776,7 +791,8 @@ All under `plugins/working-process/` unless noted.
   closure, naming the rule heading that holds the declarations); the
   `decision-coverage:` block, its `inherited [..]` slot and the three
   outcomes on a spec audited alone (`register well formed`, `not
-  counted`, `not checked`); the "exactly two lines" sentence; the
+  counted`, `not checked`); the `table-closure:` line; the "exactly
+  two lines" sentence; the
   coverage exception in *What becomes of your hits*.
 - `agents/plan-adversary.md` — the realization-site dimension.
 - `agents/integrity-auditor.md` — one sentence naming the register as a
@@ -784,7 +800,8 @@ All under `plugins/working-process/` unless noted.
 - `rules/spec-plan-lifecycle.md` — the `decisions:` field in the
   frontmatter contract; the register's grammar, states and declared
   rule; the revised template sentence; the `**Realizes:**`,
-  `**Defers:**` and `**Follows:**` annotations; the four gate-line
+  `**Defers:**` and `**Follows:**` annotations and their
+  `## Deferrals and predecessors` section; the four gate-line
   shapes and the pre-round placement; the widened *Unfinished
   review-loop ledger* command; the cross-document fix heading serving a
   gate-licensed fix; withdrawal from an implemented spec by revision.
@@ -873,3 +890,6 @@ against the spec before disposition.
 - fixed 2026-09-26 — implementer questions 2, 6, 7, 9, 11, 12, 13, 14; license: the existing gate-line grammar, the lifecycle rule's gate episode, D7, step 2's grammar, the annotations' qualification rule, the writing-plans template's `**Files:**` block, D14; the `hit held` date and command, a held hit ending its episode, the spec-alone report outcomes, constraint entries without `none`, the structural register hits, qualification in gate lines and reports, the annotation's place, and the Important grade in D14 are now stated
 - fixed 2026-09-26 — implementer questions 1, 3, 4, 5, 8, 10; ruling: 2026-09-26; D26 (only uncovered identifiers and missing `**Realizes:**` lines may be held; a register malformation goes through the loop's ordinary questions where its derivation does not settle it), an identifier both inherited and deferred is a hit, an `inherited [..]` slot in the summary with local citations counting once, gate-licensed register edits under the cross-document fix heading and by revision on an implemented spec, a malformed segment opening with `withdrawn` is a hit, and qualification whenever `spec:` names two or more specs, registered or legacy
 - hit fixed 2026-09-26 — bare "coverage" still named the map in *Sequential plans*; now "the decision coverage map"
+- fixed 2026-09-26 — "coverage hit" had two scopes: the glossary named only the uncovered identifier, and *Disposing of a coverage hit* still said every other hit's fix is licensed by its derivation; ruling: 2026-09-26; the glossary's **Decision coverage** names both coverage hits, and the sentence now routes other hits as D26 does
+- fixed 2026-09-26 — the `**Defers:**`/`**Follows:**` block had no boundary a Markdown reader sees; ruling: 2026-09-26; it is now the section `## Deferrals and predecessors` at the Global Constraints heading's level (*Deferral*, *Sequential plans*, *Changes by file*)
+- fixed 2026-09-26 — the table-closure duty promised a report of what it covered with no line to carry it; ruling: 2026-09-26; *Table closure* now gives the `table-closure:` line per technical design, on clean runs too, and the card's entry in *Changes by file* names it
