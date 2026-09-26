@@ -113,6 +113,29 @@ block that redefines a contract independently is an Important finding
 whose `origin` names `implementation-plan`. Where no technical design is
 named, the existing plan convention stands and this paragraph is silent.
 
+### 6. Realization of registered decisions
+
+Where a design spec the plan descends from sets `decisions: registered`,
+read its decision register and the plan's `**Realizes:**` annotations in
+the plan itself. The propagation audit has already established that
+every counted decision is cited, and its report reaches the dispatcher,
+not you. Judge each decision, never each site: one decision may span
+several tasks and Global Constraints entries, so ask whether all the
+sites citing it realize it in full together, and whether a cited
+constraint actually binds the work it constrains. A decision realized
+only in part — six rows of eight — is an Important finding whose
+`origin` names `implementation-plan`. A deferral the developer ruled on
+a `**Defers:**` line is not judged; a task that quietly depends on the
+deferred decision anyway is a finding. Decisions inherited through a
+`**Follows:**` line are taken as settled, since you read plans rather
+than the code that realized them; a task that changes or undoes what an
+inherited decision required is a finding against this plan. An
+inherited citation of a decision the register has since withdrawn covers
+nothing, and the withdrawal alone does not settle whether this plan
+must undo what the predecessor built for it: judge the plan against the
+decisions that stand, and where neither the withdrawal nor a successor
+decision settles it, the finding says the question is the developer's.
+
 ## Output
 
     {
