@@ -109,3 +109,31 @@ A domain adds rows and values — outside the closed `change` column —
 never columns, and never redefines what qualifies: a kind of part it
 names must still have a resolvable identity, an explicit
 responsibility, and a contract its implementation can change behind.
+
+## Declared table relations
+
+Where a column names rows of another table, the relation is declared
+here, and this section is its only home. The propagation audit, when
+that agent is available, resolves every declared relation and checks
+nothing a declaration does not name: matching cell values would guess a
+relation rather than read one.
+
+| column | names rows of |
+|---|---|
+| Contracts `producer → consumer`, each side | Parts `part` |
+| State `written by` | Parts `part` |
+| State `read by` | Parts `part` |
+
+A cell may name several rows, comma-separated, and
+`producer → consumer` splits at the arrow before it splits at commas. A
+party outside the system is written `external: <name>` and is no
+reference. No side of these three relations may be empty: the
+definitions above give every contract a consumer and every state record
+a writer and a reader, so an empty cell, or one naming nothing, fails
+the relation. A later declaration that admits an empty side says so
+itself. Every other name resolves to exactly one row of Parts, because
+a duplicated part name makes every reference to it ambiguous.
+
+A Contracts flow written as a numbered sequence rather than a table row
+is outside the relation: the skeleton gives the sequence no grammar a
+parse could split, so its steps are not references.
