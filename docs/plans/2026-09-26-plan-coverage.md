@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-26
 status: draft
-adversary: concerns
+adversary: concerns (resolved 2026-09-26)
 spec: ../specs/2026-09-25-plan-coverage-design.md
 branch: feature/plan-coverage
 base: develop
@@ -2209,4 +2209,12 @@ developer, and leave `sync-rules`, the version and both documents'
 - fixed 2026-09-26 — [Minor] the new `hit held` state has an anchor and an owner but no reader at the consumption gate: the lifecycle rule's backstop sentence blocks plan-writing and implementation on open `held` lines alone, and no step of Task 3 widens it; ruling: 2026-09-26; option (a) — new Task 3 Step 9 adds `hit held` gate lines to the backstop, blocking until the gate re-runs and rewrites the line to a terminal shape, a closed gate line blocking nothing; Deviation 11, check Q added
 - fixed 2026-09-26 — [Minor] Task 13 compares "each report" with its expectation, while `claude -p` prints the outer session's text, so a wrapper line before `model:` would fail a correct run; license: Task 13's stated purpose (the run proves what the card detects); Step 3 now compares the auditor's report from its `model:` line to its last line and discards wrapper text
 - signal 2026-09-26 — another round does not earn its cost; both leftovers are Minor, one held for the developer and one licensable, together one small fix wave rather than a re-read
+
+### Loop closed — 2026-09-26
+
+The developer closed the loop on 2026-09-26 without a fourth round,
+after round 3's two Minors were fixed and a propagation gate returned
+clean. Round 3 was the confirming full-document round, no ledger line is
+`open` or `held`, and its stop signal judged another round not worth its
+cost.
 
