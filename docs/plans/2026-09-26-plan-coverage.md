@@ -1427,7 +1427,7 @@ git commit -m "feat(working-process): held coverage hits in the propagation gate
   reads are those Task 2 defines.
 - Produces: nothing a later task reads.
 
-**Realizes:** D14
+**Realizes:** D14, D30
 
 - [ ] **Step 1: Record the before values**
 
@@ -1436,10 +1436,11 @@ F=plugins/working-process/agents/plan-adversary.md
 n() { tr -s '[:space:]' ' ' < "$1"; }
 echo "A $(grep -c '^### 6\. Realization of registered decisions$' $F)"
 echo "B $(n $F | grep -oF 'realize it in full together' | wc -l)"
+echo "D $(n $F | grep -oF 'the finding says the question is the developer' | wc -l)"
 echo "C $(awk '/^### 5\./{f=1;print;next} f&&/^#/{exit} f' $F | shasum | cut -c1-7)"
 ```
 
-Expected: `A 0`, `B 0`, `C c518b54`.
+Expected: `A 0`, `B 0`, `D 0`, `C c518b54`.
 
 - [ ] **Step 2: Add the dimension**
 
@@ -1472,7 +1473,12 @@ a `**Defers:**` line is not judged; a task that quietly depends on the
 deferred decision anyway is a finding. Decisions inherited through a
 `**Follows:**` line are taken as settled, since you read plans rather
 than the code that realized them; a task that changes or undoes what an
-inherited decision required is a finding against this plan.
+inherited decision required is a finding against this plan. An
+inherited citation of a decision the register has since withdrawn covers
+nothing, and the withdrawal alone does not settle whether this plan
+must undo what the predecessor built for it: judge the plan against the
+decisions that stand, and where neither the withdrawal nor a successor
+decision settles it, the finding says the question is the developer's.
 
 ## Output
 ```
@@ -1481,7 +1487,7 @@ inherited decision required is a finding against this plan.
 
 Run the Step 1 command again.
 
-Expected: `A 1`, `B 1`, `C c518b54` — dimension 5 is unchanged
+Expected: `A 1`, `B 1`, `D 1`, `C c518b54` — dimension 5 is unchanged
 (D28.2). The awk range stops at the next line
 opening with `#`, which is dimension 6's heading after this task and
 `## Output` before it.
@@ -2106,11 +2112,19 @@ name, so the script disables it for the run and restores the state it
 found, whatever the run prints. Disabling changes the developer's own
 configuration: ask before running.
 
-The inner session may dispatch an agent, read and search, and resolve
-the repo root — nothing else. It runs with `--allowedTools` rather than
-a broad grant, because the auditor would otherwise be free to execute
-commands this plan quotes, `claude plugin disable` and `rm -rf` among
-them.
+The guard is the inner session's permission set, not a list of allowed
+tools, because `--allowedTools` only pre-approves and never forbids.
+`--setting-sources project` keeps the developer's user settings, and
+every allow rule in them, out of the run; the fixture carries no
+project settings, so the only pre-approval is the `git rev-parse` the
+command line grants, and in print mode every other prompt is denied.
+`--tools` narrows the built-in set to what the dispatch needs, and
+`--add-dir` admits the plugin directory the card reads its rules from.
+The auditor therefore cannot execute the commands this plan quotes,
+`claude plugin disable` and `rm -rf` among them.
+
+Each run's full event stream is kept, so the evidence is the dispatch
+itself rather than what the outer session chose to print.
 
 ```bash
 R=$(git rev-parse --show-toplevel)
@@ -2119,27 +2133,77 @@ was=$(claude plugin list | grep -A3 'working-process@missing-bits' | grep -c 'St
 restore() { [ "$was" = 1 ] && claude plugin enable working-process; }
 trap restore EXIT
 [ "$was" = 1 ] && claude plugin disable working-process
+k=0
 for f in docs/plans/2026-09-26-plan-coverage.md docs/plans/fixture-uncovered.md \
   docs/specs/2026-09-25-plan-coverage-design.md \
   docs/technical-designs/fixture-technical-design.md; do
-  echo "##### $f"
+  k=$((k+1))
   (cd "$W" && claude -p --plugin-dir "$R/plugins/working-process" \
-    --allowedTools "Agent Read Grep Glob Bash(git rev-parse:*)" \
-    "Dispatch the working-process:propagation-auditor agent on the haiku model over $f. Tell it to walk only duties 10 and 11 of its card and to report in the card's output shape. Print its report verbatim, nothing else.")
-done > "$W/reports.txt" 2>&1
+    --add-dir "$R/plugins/working-process" \
+    --setting-sources project \
+    --tools "Agent,Read,Grep,Glob,Bash" \
+    --allowedTools "Bash(git rev-parse:*)" \
+    --output-format stream-json --verbose \
+    "Dispatch the working-process:propagation-auditor agent on the haiku model over $f. Tell it to walk only duties 10 and 11 of its card and to report in the card's output shape.") \
+    > "$W/run-$k.jsonl" 2> "$W/run-$k.err"
+  echo "$f" > "$W/run-$k.target"
+done
 restore; trap - EXIT
-cat "$W/reports.txt"
 claude plugin list | grep -A3 'working-process@missing-bits' | grep 'Status:'
 ```
 
 Expected: the last line shows the status the plugin had before the run.
 
-- [ ] **Step 3: Compare each report with its expectation**
+- [ ] **Step 3: Extract each report and compare it with its expectation**
+
+The report is the result of the agent dispatch inside each stream, not
+the outer session's text. The extractor names the dispatch it found,
+its agent type and model, every tool result that reports a denial, and
+the report:
+
+```bash
+W=${TMPDIR:-/tmp}/plan-coverage-dogfood
+cat > "$W/extract.py" <<'EOF'
+import json, sys
+calls, report, denials = {}, None, []
+for line in open(sys.argv[1]):
+    try:
+        m = json.loads(line).get('message') or {}
+    except ValueError:
+        continue
+    content = m.get('content')
+    for c in content if isinstance(content, list) else []:
+        if c.get('type') == 'tool_use' and c.get('name') in ('Agent', 'Task'):
+            i = c.get('input') or {}
+            if i.get('subagent_type') == 'working-process:propagation-auditor':
+                calls[c['id']] = i.get('model')
+        if c.get('type') == 'tool_result':
+            r = c.get('content')
+            txt = r if isinstance(r, str) else ' '.join(x.get('text', '') for x in r or [])
+            if c.get('is_error') or 'denied' in txt.lower():
+                denials.append(txt[:200])
+            if c.get('tool_use_id') in calls:
+                report = txt
+print('dispatches:', calls)
+print('denials:', denials)
+print('report:')
+print(report)
+EOF
+for k in 1 2 3 4; do
+  echo "##### $(cat "$W/run-$k.target")"
+  python3 "$W/extract.py" "$W/run-$k.jsonl"
+done | tee "$W/reports.txt"
+```
+
+For every run, expected: exactly one dispatch, of
+`working-process:propagation-auditor` with model `haiku`; `denials: []`;
+and a report. No dispatch, a denial, or no report fails the test, and
+the stream stays for inspection. The event shapes are the CLI's own; an
+extractor that finds nothing in a stream that plainly holds a dispatch
+is a test defect to fix, never a pass.
 
 `CLEAN` here means no hit in duties 10 and 11 — the only checks that
-ran. The text compared is the auditor's report, from its `model:` line
-to its last line; any wrapper text the outer session prints before or
-after it is discarded, not judged. With `N` from Task 12 Step 5:
+ran. With `N` from Task 12 Step 5:
 
 - **this plan** — a summary line beginning
   `decision-coverage: ../specs/2026-09-25-plan-coverage-design.md N/N covered`,
@@ -2166,11 +2230,13 @@ W=${TMPDIR:-/tmp}/plan-coverage-dogfood
 D="$R/.claude/working-process/2026-09-26-plan-coverage"
 { echo '# Task 13 — auditor runs on controlled cases, 2026-09-26'; echo; cat "$W/reports.txt"; } \
   > "$D/task-13-auditor-runs.md"
+mkdir -p "$D/task-13-streams"
+command cp -f "$W"/run-*.jsonl "$W"/run-*.err "$D/task-13-streams/"
 command rm -rf "$W"
 ```
 
-The file is the test's evidence, not a dispatch record: audits write
-none. It lives in the store, whose `*` `.gitignore` keeps it local.
+The file and the streams beside it are the test's evidence, not a
+dispatch record: audits write none. It lives in the store, whose `*` `.gitignore` keeps it local.
 
 - [ ] **Step 5: Report**
 
@@ -2217,4 +2283,12 @@ after round 3's two Minors were fixed and a propagation gate returned
 clean. Round 3 was the confirming full-document round, no ledger line is
 `open` or `held`, and its stop signal judged another round not worth its
 cost.
+
+After the close, a second opinion from Codex, relayed by the developer,
+found three more defects. Their fixes landed after round 3, so no
+adversary round has read them; the propagation gate that followed did.
+
+- fixed 2026-09-26 — [Important] Task 13's `--allowedTools` only pre-approves and forbids nothing, so the user settings' `Bash(claude plugin *)` still reached the auditor; ruling: 2026-09-26; the run now takes `--setting-sources project`, `--tools` and `--add-dir` for the plugin directory the card reads, and Step 2 says the guard is the permission set
+- fixed 2026-09-26 — [Important] Task 13 kept the outer session's printed text, not evidence that the changed card ran; ruling: 2026-09-26; each run saves its `stream-json` event stream, and Step 3 extracts the dispatch's agent type, model, denials and report from it, keeping the streams as evidence
+- fixed 2026-09-26 — [Important] Task 7 dropped part of D30: the spec has the plan-adversary judge whether a withdrawn inherited decision must be undone, and send it to the developer where nothing settles it; ruling: 2026-09-26; dimension 6 now says so, Task 7 cites D30, check D added
 
