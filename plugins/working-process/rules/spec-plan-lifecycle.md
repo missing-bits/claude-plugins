@@ -379,9 +379,11 @@ The severity bracket is omitted on a line whose sole authorizer is
 
     - fixed <date> — <claim>; ruling: <date>; <what changed>
 
-`open` and `held` are the non-terminal states, and the only two the
-Unfinished-work list anchors. `fixed` and `declined` are terminal and
-say what became of the document: it changed, or it stands.
+`open` and `held` are the non-terminal states, and the only two
+disposition states the Unfinished-work list anchors; the one gate line
+it anchors, `hit held`, is defined under *Gate lines* below. `fixed`
+and `declined` are terminal and say what became of the document: it
+changed, or it stands.
 
 The two dates on a terminal line record different events and are both
 written even when they coincide. The leading date is when the line
@@ -469,7 +471,14 @@ It carries no ordinal and no verdict, which keeps it out of the round
 cap's derivation and out of the Unfinished-work commands that anchor a
 round heading: it records a fix, not a round. Two stamps go stale as on
 any body edit — the `integrity:` hash stops matching, and the verdict
-stops certifying the words that changed.
+stops certifying the words that changed. The same heading serves a
+register edit that a plan's held gate line licensed, on a design spec
+whose loop has closed at whatever verdict: the heading then names the
+plan whose gate held the hit, and that plan's terminal gate line names
+the heading and the line under it. Unlike a review-licensed fix, such an
+edit never joins a resolution note, even on a `concerns (resolved)`
+spec: that note records what resolved the verdict, and this edit
+resolves none.
 
 Payload costs nothing structurally. An Unfinished-work command under the
 list's default scope guard is held to the frontmatter block, so no body
@@ -555,10 +564,11 @@ is. The workflow rule owns the ask that produces it.
 
 ### Gate lines
 
-The propagation gate, when that agent is available, writes two shapes of
-its own. They carry their own leading token and never a severity, because
-a hit is a located detection the dispatcher confirms or dismisses, never
-a graded finding:
+The propagation gate, when that agent is available, writes gate lines of
+its own: the two ordinary shapes here, and the held shape and its three
+terminal rewrites below. Each carries its own leading token and never a
+severity, because a hit is a located detection the dispatcher confirms
+or dismisses, never a graded finding:
 
     - hit fixed <date> — <the hit's claim>; <what changed>
     - hit dismissed <date> — <the hit's claim>; counter: <the derivation that refutes it>
@@ -566,7 +576,41 @@ a graded finding:
 Neither carries a license either, because a hit's fix is licensed by its
 own derivation.
 
-Both are written at gate time, under the last round's heading. The `hit`
+A hit of the coverage duty whose fix needs a decision no derivation
+settles is held for the developer — the one exception the workflow rule
+makes to hits never waiting. It takes a third shape, rewritten in place
+to one of three terminal shapes, so its state always has one home:
+
+    - hit held <date> — <the hit's claim>; question: <the missing decision>; options: <the options, with the session's recommendation>
+    - hit fixed <date> — <the hit's claim>; <what changed>; ruling: <date>
+    - hit deferred <date> — <the hit's claim>; ruling: <date>; Defers: <id>
+    - hit withdrawn <date> — <the hit's claim>; ruling: <date>; <spec path>#<id>
+
+The rewrite happens once the gate has re-run over the changed document
+and whatever depends on it, never on the developer's answer alone.
+`hit fixed … ruling:` records that the document now carries the
+decision the developer settled — a plan that realizes it, or a register
+the ruling repaired; `hit deferred` records an approved `**Defers:**`
+line in the plan, and `hit withdrawn` a register entry now a tombstone.
+Each is written only where it names what happened, and none is
+`hit dismissed`, because the gap was real when the hit fired. The
+ordinary `hit fixed` shape, without `ruling:`, stays for every hit
+whose fix its derivation licensed. `ruling:` on a gate line means what
+it means on a disposition line, and a diff-scoped round treats the line
+as settled.
+
+A `hit held` line lives in the ledger of the document whose gate raised
+it — the audited plan, or the design spec audited alone. Its leading
+date is the gate's, and the terminal rewrite replaces it with the date
+the line reached its terminal state. A held hit ends its gate episode
+and blocks the dispatch the gate guards; the re-run after the
+developer's answer is a fresh episode. A register edit the answer
+causes is recorded in the spec's own ledger — under its latest round
+heading while its loop is open, and under the fix heading above once
+its loop has closed. A spec already `implemented` takes the edit by
+revision instead, and the held hit waits for it.
+
+Each is written at gate time, under the last round's heading. The `hit`
 token tells a gate line apart from that round's own findings; the date
 does not, since a gate episode and the round it precedes commonly share
 one. A gate still never mints a heading of its own, on the separate
@@ -579,15 +623,25 @@ is still re-dispatching, or the gate cannot terminate, and the next
 diff-scoped brief is composed before its own round is stamped. A gate
 before a document's first round has no heading to write under; its lines
 wait for that round and are written at its stamp, the one case where
-they do.
+they do — unless the episode holds a hit, since the round its lines
+would wait for cannot start. A pre-round episode holding at least one
+hit writes every one of its lines, the `hit held` line and its siblings
+alike, in the `## Review rounds` section before the first round
+heading, and they stay there, rewrites included: no round produced
+them, and one episode keeps one home. Once such lines stand there,
+every later pre-round episode writes there too, holding or not, so the
+document's pre-round gate history keeps one place. A document with no
+`## Review rounds` section gains one, at its end, with its first gate
+line.
 
 A gate episode always lands somewhere: its lines are the reason a later
 reader need not re-derive what the session already settled.
 
-Neither shape covers a hit left outstanding when the re-dispatch bound
-in the workflow rule stops an episode. That state owes the developer a
-decision, so neither `hit fixed` nor `hit dismissed` can honestly carry
-it, and no anchor surfaces it today — a stated gap, not an oversight.
+No gate-line shape covers a hit left outstanding when the re-dispatch
+bound in the workflow rule stops an episode. That state owes the
+developer a decision, so neither `hit fixed` nor `hit dismissed` can
+honestly carry it, and `hit held` is scoped to the coverage duty's
+hits; no anchor surfaces it today — a stated gap, not an oversight.
 Until a shape exists, the workflow rule's report is its only record.
 
 A `hit fixed` line puts the gate's ordinary work where the next
@@ -596,7 +650,8 @@ diff-scoped brief already looks, beside the round's `fixed` lines. A
 make, so a later round cites it instead of re-deriving it and a session
 that would dismiss the same hit differently argues against written words
 rather than silence. Neither joins the unfinished-work anchors: both are
-closed when written and owe nobody a next move.
+closed when written and owe nobody a next move. A `hit held` line owes
+the developer an answer, so it joins them until its terminal rewrite.
 
 A line carrying `ruling:` is a recorded developer decision, and what a
 later round may do with it depends on what that round brings:
@@ -657,17 +712,20 @@ leg, and the entries below that do so say it there.
   leg discharges its own debt — a session derives that decline under a
   `concerns` heading, while a `blocking` one waits for the developer's
   adjudication, which is theirs to make.
-- **Unfinished review-loop ledger** — a disposition line nobody closed:
-  an `open` line whose remediation never ran, or a `held` line whose
-  question still waits.
-  `rg -n --no-ignore --crlf '^- (open|held) —' docs/`
+- **Unfinished review-loop ledger** — a disposition line or a held gate
+  line nobody closed: an `open` line whose remediation never ran, or a
+  `held` or `hit held` line whose question still waits. A gate line's
+  date stands between its token and its dash, so the command takes an
+  alternative rather than a third token inside the group.
+  `rg -n --no-ignore --crlf '^- (open|held) —|^- hit held ' docs/`
   Scope: a hit counts only inside a `## Review rounds` section — this
   entry's own re-scoping of the guard above, kept for the same reason,
   since a document quoting the grammar describes it rather than
   instantiating it. Confirming section membership needs line positions,
   which is why this command carries `-n` where the others carry `-l`.
   Owner: an `open` line belongs to the document's next touch, which
-  re-offers the remediation; a `held` line belongs to the developer.
+  re-offers the remediation; a `held` or `hit held` line belongs to the
+  developer.
 - **Chain debt** — a diff-scoped `LGTM` heading carrying no record that
   what it owed was discharged.
   `rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/`
@@ -752,9 +810,12 @@ so the `integrity:` stamp sits on the design spec and names both.
 
 A document's consumption gate is the backstop for its ledger: no judged
 document passes to plan-writing, nor a plan to implementation, while
-`held` lines stay open — an LGTM can leave the frontmatter clean while a
-decision question still pends, so the gate asks those questions at the
-latest. Writing a plan from a judged document is that same seam: its
+`held` lines or `hit held` gate lines stay open — an LGTM can leave the
+frontmatter clean while a decision question still pends, so the gate
+asks those questions at the latest. A `hit held` line blocks until the
+gate has re-run and rewritten it to a terminal shape, since declining
+the dispatch it guarded decides nothing; a closed gate line blocks
+nothing. Writing a plan from a judged document is that same seam: its
 held questions are asked before the plan is written, whoever writes it.
 
 A technical design's own consumption gate is plan-writing, the same
