@@ -492,8 +492,8 @@ A tenth propagation duty runs on a plan. For each spec the plan's
    with the plan it comes from. A cited withdrawn identifier and a
    cited group are hits — except an inherited citation of an identifier
    withdrawn since, which *Sequential plans* skips — and so is a cited
-   identifier the register does not define. That last is an error in the plan, never a gap in the
-   spec: identifiers are minted only in the register, so a plan citing
+   identifier the register does not define. That last is an error in
+   the plan, never a gap in the spec: identifiers are minted only in the register, so a plan citing
    one the register lacks has mistyped or invented it. Duty 5 does not
    take it, since duty 5 reads an undefined name as a gap in its
    source.
