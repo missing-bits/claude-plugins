@@ -165,7 +165,9 @@ coverage from the two lists, the plan-adversary judges whether the
 citing tasks realize their decisions, and the integrity auditor checks
 that the register lists every decision the spec makes. A spec without
 the field is reported as not checked. The grammar lives in the
-spec-plan-lifecycle rule.
+spec-plan-lifecycle rule. The auditor derives the decision coverage by
+running `scripts/decision-coverage.py` with `python3`, so a session
+that asks before running a command asks once for it.
 
 ## Model selection
 

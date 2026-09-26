@@ -37,6 +37,9 @@ Released versions of this plugin, newest first.
   every decision its spec makes.
 - The propagation duties checklist gains rows for the two duties and
   the duty-2 anchor an earlier task has already rewritten.
+- The decision coverage is derived by `scripts/decision-coverage.py`,
+  which the auditor runs with `python3` (3.9 or later, standard library
+  only), rather than by the auditor walking the steps itself.
 - Run a rules re-sync after this update: the plan-adversary's `origin`
   values changed, and until the re-sync an installed workflow rule
   triages the new values by the old names. The re-sync also installs

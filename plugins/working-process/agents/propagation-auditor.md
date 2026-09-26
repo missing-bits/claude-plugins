@@ -186,7 +186,18 @@ annotations*. Read them in the plugin's own copy,
 `${CLAUDE_PLUGIN_ROOT}/rules/spec-plan-lifecycle.md`, which matches this
 card's version, rather than recalling them. Read a line only at the
 place *Plan annotations* gives it: a code block or a quoted example
-describes the grammar. For each spec the plan's `spec:` names:
+describes the grammar.
+
+Run the derivation, never walk it by hand:
+`python3 ${CLAUDE_PLUGIN_ROOT}/scripts/decision-coverage.py <document>`,
+once per audited document, as a single command from the repository
+root. It performs the steps below and prints this duty's hits and
+`decision-coverage:` lines in the report's shapes; copy its output into
+your report unchanged, neither recounting nor reordering it. If it exits
+non-zero, or you cannot run it, report that as a hit naming the command
+and its message, and write no `decision-coverage:` line — never derive
+the sets yourself. The steps below define what the script does. For
+each spec the plan's `spec:` names:
 
 1. Read the spec's `decisions:` field. Absent: the spec is legacy —
    write `not checked` for it and stop. Any value other than
