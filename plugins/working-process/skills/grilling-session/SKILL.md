@@ -70,6 +70,11 @@ applies (edit with the Edit tool):
   intended. Fuzzy term → propose a canonical one. Probe edge cases.
   Verify claims against the code.
 - Apply glossary updates inline the moment a term settles — no batching.
+- A spec carrying `decisions: registered` has a decision register,
+  defined in the spec-plan-lifecycle rule: update it inline as each
+  decision lands. A new decision takes the next free identifier, a
+  sharpened one keeps its identifier, and a dropped one is withdrawn
+  only on the developer's explicit decision.
 - ADRs are rare: offer one only when the decision is hard to reverse AND
   surprising without context AND a real trade-off existed.
 
