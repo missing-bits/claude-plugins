@@ -387,8 +387,8 @@ The later plan inherits every identifier its predecessors'
 deferred counts in the later one until that plan realizes or defers it
 itself. Nor are its `**Follows:**` lines: inheritance is not
 transitive, so a plan drawing on a chain names every implemented
-predecessor whose citations it relies on. The coverage map shows an
-inherited identifier with the plan it comes from —
+predecessor whose citations it relies on. The decision coverage map
+shows an inherited identifier with the plan it comes from —
 `D3 → ../plans/<file>.md (Task 4)`. An identifier both realized
 locally and inherited counts once, as local, and its map line names
 both sites.
@@ -871,3 +871,4 @@ against the spec before disposition.
 - fixed 2026-09-26 — bare "coverage" named the map in four places; license: glossary **Decision coverage** `_Avoid_`; reworded to "decision coverage"
 - fixed 2026-09-26 — implementer questions 2, 6, 7, 9, 11, 12, 13, 14; license: the existing gate-line grammar, the lifecycle rule's gate episode, D7, step 2's grammar, the annotations' qualification rule, the writing-plans template's `**Files:**` block, D14; the `hit held` date and command, a held hit ending its episode, the spec-alone report outcomes, constraint entries without `none`, the structural register hits, qualification in gate lines and reports, the annotation's place, and the Important grade in D14 are now stated
 - fixed 2026-09-26 — implementer questions 1, 3, 4, 5, 8, 10; ruling: 2026-09-26; D26 (only uncovered identifiers and missing `**Realizes:**` lines may be held; a register malformation goes through the loop's ordinary questions where its derivation does not settle it), an identifier both inherited and deferred is a hit, an `inherited [..]` slot in the summary with local citations counting once, gate-licensed register edits under the cross-document fix heading and by revision on an implemented spec, a malformed segment opening with `withdrawn` is a hit, and qualification whenever `spec:` names two or more specs, registered or legacy
+- hit fixed 2026-09-26 — bare "coverage" still named the map in *Sequential plans*; now "the decision coverage map"
