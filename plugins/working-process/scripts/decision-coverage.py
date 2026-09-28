@@ -10,15 +10,17 @@ card. Where this script and those texts disagree, the texts govern.
 
 Output goes to stdout: every hit, one line each, then one
 `decision-coverage:` block per spec. Exit 0 whenever the derivation ran,
-hits or not; 2 on a usage error or an unreadable file. A technical
-design — a document under a `technical-designs` directory directly
-under a `docs` directory — produces no output; this duty does not cover
-it.
+hits or not; 2 on a usage error; 1 when the argument or a document it
+names cannot be read. A technical design — a document under a
+`technical-designs` directory directly under a `docs` directory —
+produces no output; this duty does not cover it.
 """
 
-import os
+from __future__ import annotations
+
 import re
 import sys
+from pathlib import Path
 
 TOOL = "decision-coverage.py"
 
@@ -37,12 +39,13 @@ FIELD_RE = re.compile(r"^([A-Za-z_][\w-]*):\s*(.*?)\s*$")
 
 
 class Unreadable(Exception):
-    pass
+    """Raised when a document, or one it names, cannot be read."""
 
 
 # --- reading -------------------------------------------------------------
 
-def read_lines(path):
+def read_lines(path: str) -> list[str]:
+    """Read `path` and split it into lines, raising `Unreadable` on failure."""
     try:
         with open(path, encoding="utf-8") as handle:
             return handle.read().splitlines()
@@ -50,7 +53,7 @@ def read_lines(path):
         raise Unreadable(f"cannot read {path}: {error.strerror or error}")
 
 
-def frontmatter(lines):
+def frontmatter(lines: list[str]) -> tuple[dict[str, tuple[str, int]], int]:
     """Fields between the `---` on line 1 and the next `---`.
 
     Returns ({key: (value, line number)}, index of the first body line).
@@ -67,7 +70,7 @@ def frontmatter(lines):
     return fields, len(lines)
 
 
-def spec_paths(value):
+def spec_paths(value: str) -> list[str]:
     """`spec:` as a single path or an inline list `[a, b]`."""
     value = value.strip()
     if value.startswith("[") and value.endswith("]"):
@@ -75,7 +78,7 @@ def spec_paths(value):
     return [item.strip().strip("'\"") for item in value.split(",") if item.strip()]
 
 
-def unfenced(lines, start):
+def unfenced(lines: list[str], start: int) -> list[tuple[int, str]]:
     """(line number, text) pairs of the body, fenced code blocks removed."""
     kept, in_fence = [], False
     for index in range(start, len(lines)):
@@ -88,19 +91,45 @@ def unfenced(lines, start):
     return kept
 
 
-def resolve(base_display, written):
+def _collapse(path: Path) -> str:
+    """Lexically fold `..` segments, mirroring `os.path.normpath`."""
+    root = path.root
+    kept: list[str] = []
+    for part in path.parts:
+        if part == root and part:
+            continue
+        if part == "..":
+            if kept and kept[-1] != "..":
+                kept.pop()
+            elif not root:
+                kept.append(part)
+        else:
+            kept.append(part)
+    return (root + "/".join(kept)) if kept or root else "."
+
+
+def _abspath(path: str) -> str:
+    """Make `path` absolute against the current directory, lexically."""
+    given = Path(path)
+    return _collapse(given if given.is_absolute() else Path.cwd() / path)
+
+
+def resolve(base_display: str, written: str) -> str:
     """A path a document names, resolved against that document's directory."""
-    return os.path.normpath(os.path.join(os.path.dirname(base_display), written))
+    return _collapse(Path(base_display).parent / written)
 
 
-def same_file(a, b):
-    return os.path.abspath(a) == os.path.abspath(b)
+def same_file(a: str, b: str) -> bool:
+    """Whether `a` and `b` name the same file once made absolute."""
+    return _abspath(a) == _abspath(b)
 
 
 # --- the register --------------------------------------------------------
 
 class Entry:
-    def __init__(self, ident, line, child):
+    """One register entry: an identifier, its line, and its nesting."""
+
+    def __init__(self, ident: str, line: int, child: bool) -> None:
         self.ident = ident
         self.line = line
         self.child = child
@@ -110,27 +139,35 @@ class Entry:
         self.replaced_by = None
 
     @property
-    def group(self):
+    def group(self) -> bool:
+        """Whether this entry is a group (has children)."""
         return bool(self.children)
 
 
 class Register:
     """Outcome of steps 1 and 2 for one spec: legacy, malformed or counted."""
 
-    def __init__(self, state, entries=None, hits=None):
+    def __init__(
+        self,
+        state: str,
+        entries: dict[str, Entry] | None = None,
+        hits: list[str] | None = None,
+    ) -> None:
         self.state = state  # "legacy" | "malformed" | "ok"
         self.entries = entries or {}
         self.hits = hits or []
 
-    def leaves(self):
+    def leaves(self) -> list[Entry]:
+        """The register's leaf entries — those without children."""
         return [e for e in self.entries.values() if not e.group]
 
 
-def hit(path, line, claim, step):
+def hit(path: str, line: int, claim: str, step: str) -> str:
+    """Format one derivation hit line."""
     return f"{path}:{line} — {claim} — derivation: {TOOL}, {step}"
 
 
-def read_register(display, lines):
+def read_register(display: str, lines: list[str]) -> Register:
     fields, body_start = frontmatter(lines)
     if "decisions" not in fields:
         return Register("legacy")
@@ -155,7 +192,7 @@ def read_register(display, lines):
     return parse_register(display, section)
 
 
-def parse_register(display, section):
+def parse_register(display: str, section: list[tuple[int, str]]) -> Register:
     hits, entries, parent = [], {}, None
 
     def bad(line, claim):
@@ -253,14 +290,18 @@ def parse_register(display, section):
 # --- the plan ------------------------------------------------------------
 
 class Citation:
-    def __init__(self, token, line, site):
+    """One `**Realizes:**`/Global-Constraints citation of a decision."""
+
+    def __init__(self, token: str, line: int, site: str) -> None:
         self.token = token
         self.line = line
         self.site = site
 
 
 class Plan:
-    def __init__(self, display, lines):
+    """A parsed plan document: its specs, citations, tasks, defers and follows."""
+
+    def __init__(self, display: str, lines: list[str]) -> None:
         self.display = display
         fields, body_start = frontmatter(lines)
         self.fields = fields
@@ -316,11 +357,12 @@ class Plan:
                     self.follows.append((number, text[len("**Follows:** "):].strip()))
 
 
-def split_ids(value):
+def split_ids(value: str) -> list[str]:
+    """Split a comma-separated list of identifiers, dropping blanks."""
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
-def scoped(plan, token, spec_abs):
+def scoped(plan: Plan, token: str, spec_abs: str) -> str | None:
     """The identifier `token` names for the spec at spec_abs, or None.
 
     A plan naming one spec writes bare identifiers; one naming two or more
@@ -339,22 +381,25 @@ def scoped(plan, token, spec_abs):
 # --- the derivation ------------------------------------------------------
 
 class Audit:
-    def __init__(self, plan):
+    """Runs the coverage derivation for one plan, collecting hits and blocks."""
+
+    def __init__(self, plan: Plan) -> None:
         self.plan = plan
         self.hits = []
         self.blocks = []
         self._predecessors = None
 
-    def add(self, line):
+    def add(self, line: str) -> None:
+        """Record a hit line, once per distinct line."""
         if line not in self.hits:
             self.hits.append(line)
 
-    def predecessors(self):
+    def predecessors(self) -> list[tuple[str, Plan, list[str]]]:
         """Step 3, once per plan: the accepted `**Follows:**` lines."""
         if self._predecessors is not None:
             return self._predecessors
         accepted = []
-        own = [os.path.abspath(resolve(self.plan.display, s)) for s in self.plan.specs]
+        own = [_abspath(resolve(self.plan.display, s)) for s in self.plan.specs]
         for line, written in self.plan.follows:
             display = resolve(self.plan.display, written)
             try:
@@ -363,7 +408,7 @@ class Audit:
                 self.add(hit(self.plan.display, line,
                              f"`**Follows:**` names {written}, which does not exist", "step 3"))
                 continue
-            theirs = [os.path.abspath(resolve(display, s)) for s in pred.specs]
+            theirs = [_abspath(resolve(display, s)) for s in pred.specs]
             shared = [s for s in own if s in theirs]
             if not shared:
                 self.add(hit(self.plan.display, line,
@@ -379,10 +424,11 @@ class Audit:
         self._predecessors = accepted
         return accepted
 
-    def check_spec(self, written):
+    def check_spec(self, written: str) -> None:
+        """Run steps 3 through 7 for one spec the plan names."""
         plan = self.plan
         spec_display = resolve(plan.display, written)
-        spec_abs = os.path.abspath(spec_display)
+        spec_abs = _abspath(spec_display)
         register = read_register(spec_display, read_lines(spec_display))
         for line in register.hits:
             self.add(line)
@@ -482,7 +528,7 @@ class Audit:
         for ident, site in withdrawn_since:
             self.blocks.append(f"  withdrawn since: {show(ident)} ← {site}")
 
-    def plan_wide(self, registered):
+    def plan_wide(self, registered: bool) -> None:
         """Step 7's plan-wide hits: missing annotations and bare identifiers."""
         plan = self.plan
         if registered:
@@ -499,7 +545,8 @@ class Audit:
                                  f"{len(plan.specs)} specs", "step 7"))
 
 
-def audit_plan(display, lines):
+def audit_plan(display: str, lines: list[str]) -> list[str]:
+    """Run the derivation for a plan document, returning its output lines."""
     plan = Plan(display, lines)
     audit = Audit(plan)
     registered = False
@@ -513,7 +560,8 @@ def audit_plan(display, lines):
     return audit.hits + audit.blocks
 
 
-def audit_spec(display, lines):
+def audit_spec(display: str, lines: list[str]) -> list[str]:
+    """Run the derivation for a spec audited alone, returning its output lines."""
     register = read_register(display, lines)
     outcome = {
         "legacy": "not checked — no decision register",
@@ -523,14 +571,15 @@ def audit_spec(display, lines):
     return register.hits + [f"decision-coverage: {display} {outcome}"]
 
 
-def is_technical_design(display):
+def is_technical_design(display: str) -> bool:
     """The resolved path has `docs/technical-designs/` among its parents."""
-    parts = os.path.abspath(display).split(os.sep)
+    parts = Path(_abspath(display)).parts
     return any(a == "docs" and b == "technical-designs"
                for a, b in zip(parts, parts[1:]))
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
+    """Parse argv, dispatch on document type, and print the derivation's output."""
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
     if len(argv) != 2:
@@ -546,7 +595,7 @@ def main(argv):
         output = audit_plan(display, lines) if "spec" in fields else audit_spec(display, lines)
     except Unreadable as error:
         print(f"decision-coverage: {error}", file=sys.stderr)
-        return 2
+        return 1
     for line in output:
         print(line)
     return 0
