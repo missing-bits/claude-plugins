@@ -95,12 +95,13 @@ the rule files named in *Changes by file*.
   - **D7.13** — `dir..superpowers`, as D7.2.
   - **D7.14** — `dir.docs/memory`, as D7.2; always registered, asked
     and read only as D25 says.
-- **D8** — Keys are never renamed. A retired key stays in the registry
-  marked `withdrawn <version>`, and the loader reports a withdrawn key
-  it meets. Argued in *The key registry*.
+- **D8** — Keys are never renamed. How a retired key is marked, and how
+  the loader reports one, is settled with the first key actually
+  retired. Argued in *The key registry*.
 - **D9** — A SessionStart hook runs a loader that emits the effective
-  value and source of every registered key, plus warnings, as the
-  hook's additional context. Argued in *The loader*.
+  value and source of every registered key, plus warnings, as plain
+  standard output, which both hosts add to the session's context.
+  Argued in *The loader*.
 - **D10** — The loader stays silent when `.working-process/` does not
   exist, exits 0 on any error of its own, and caps its output at 4 KB,
   saying so when it truncates. Argued in *The loader*.
@@ -108,9 +109,11 @@ the rule files named in *Changes by file*.
   matcher so it also runs on resume and compaction; it finds the
   registry relative to its own path and uses POSIX `sh`, `sed` and
   `awk`. Argued in *The loader*.
-- **D12** — A new always-on rule, `process-settings.md`, is the only
-  definition of the files, the grammar, the block and the procedure for
-  reading a key. Argued in *Reading a key*.
+- **D12** — A new always-on rule, `process-settings.md`, defines the
+  files, the grammar, the block, the three-step read, and when a write
+  happens; how a write happens belongs to the loader (D43), and the
+  full by-hand resolution to a reference file the rule points at, read
+  only on the no-hook path. Argued in *Reading a key*.
 - **D13** — A rule reads a key from the block in its context; without
   a trustworthy block, by the procedure D38 names; an unset key means
   the rule's behaviour before this change. Argued in *Reading a key*.
@@ -131,8 +134,8 @@ the rule files named in *Changes by file*.
 - **D18** — `.working-process/` is not a Process directory: it is never
   asked about, and the rule says so. Argued in *Directory modes*.
 - **D19** — When a standing question is asked in ordinary work, its
-  answers include "yes, and record", which writes the answer to the
-  file its scope names. There is no separate "record it?" question.
+  answers include "yes, and record", which writes the answer, through
+  the loader's `--set`, to the file its scope names. There is no separate "record it?" question.
   Anyone may record a team key this way; the write names the team file.
   Argued in *Recording an answer*.
 - **D20** — A `CLAUDE.md` note that declares a key's value keeps binding
@@ -149,9 +152,10 @@ the rule files named in *Changes by file*.
   signals as candidates: directory signals as certain, prose notes in
   `CLAUDE.md` as the model's reading, to be confirmed. It never deletes
   a `CLAUDE.md` note without consent. Argued in *Migration*.
-- **D24** — The skill writes `.working-process/.gitignore` holding the
-  single line `settings.local.md` at its first write. Argued in *The
-  skill*.
+- **D24** — The first personal answer written creates
+  `.working-process/.gitignore` holding the single line
+  `settings.local.md`, beside the personal file; the loader's `--set`
+  writes it (D43). Argued in *The loader*.
 - **D25** — The skill asks about `dir.docs/memory` only when the
   project-memory plugin is installed, and the project-memory rule reads
   that key only when the working-process rules are installed. Argued in
@@ -165,8 +169,9 @@ the rule files named in *Changes by file*.
   registered, that defaults validate, and that names are unique. Argued in *Verification*.
 - **D28** — Repository tests run the loader on fixtures for
   precedence, suggestions, invalid and duplicate values, unknown keys,
-  the worktree fallback, the size cap, silence and error exit. Argued
-  in *Verification*.
+  the worktree fallback, the size cap, silence and error exit, and
+  `--set`'s insert, replace, duplicate report, destination and
+  `.gitignore`. Argued in *Verification*.
 - **D29** — A Claude Code dogfood run proves the block reaches a new
   session, a recorded question is not asked, and the block returns after
   compaction. Argued in *Verification*.
@@ -186,20 +191,23 @@ the rule files named in *Changes by file*.
   exits non-zero with its warnings when the file would not validate.
   Argued in *The loader*.
 - **D35** — The propagation-auditor card stops prescribing the cheapest
-  family and accepts the tier the dispatcher resolved, still reporting
-  its family for the dispatcher's comparison. Argued in *Reading a key*.
+  family and accepts the tier the dispatcher resolved from
+  `dispatch.propagation-auditor-tier`, whose default stays `cheapest`;
+  it still reports its family for the dispatcher's comparison. Argued in
+  *Reading a key*.
 - **D36** — Every line shaped like a key — a dotted name and a colon at
   the start of a line, outside a fence — is a settings line, validated,
   and diagnosed when its value is invalid; it is never commentary.
   Argued in *The settings files*.
 - **D37** — A write inserts an absent key, replaces a present one, and
-  on a duplicate asks which line stands; after writing, the writer
-  prints the fresh block, which supersedes the old one for the rest of
-  the session. Argued in *The skill*.
+  on a duplicate stops and reports both lines, leaving the choice to
+  the developer; after writing, it prints the fresh block, which
+  supersedes the old one for the rest of the session. Argued in *The
+  loader*.
 - **D38** — Without a trustworthy block — none, or one marked
   incomplete — a session resolves keys by the loader's own procedure,
-  through `--print` or by applying the rule's full resolution by hand.
-  Argued in *Reading a key*.
+  through `--print` or, where the script is unreachable, by the
+  reference file's full resolution. Argued in *Reading a key*.
 - **D39** — The skill asks about directory exceptions only when the
   developer asks for them. Argued in *The skill*.
 - **D40** — The python and salesforce review commands and the
@@ -217,6 +225,14 @@ the rule files named in *Changes by file*.
   worktree only, as the skill says. Argued in *Scope and precedence*.
 - **D42** — `--print` is uncapped; only the hook's output carries the
   4 KB cap. Argued in *The loader*.
+- **D43** — The loader owns every write through
+  `--set --scope team|personal <key> <value>`: the destination (D41),
+  the `.gitignore` beside a personal file, insertion, replacement and
+  duplicate detection (D37), validation, and the fresh block printed on
+  success, validating before it writes; `--set --dry-run` computes the
+  same write and applies nothing, which the skill's preview uses. The
+  skill, a "yes, and record" answer and migration all call it; none
+  writes a settings file directly. Argued in *The loader*.
 
 ## The settings files
 
@@ -250,7 +266,7 @@ than read past. So `review.autonomy: "no"` below `review.autonomy: yes`
 is a duplicate, and the key is unset; it cannot hide as commentary and
 leave the earlier consent standing. Fences open and close on lines
 starting with three backticks; leading whitespace makes a line
-commentary. Every other line is commentary, and the skill writes each
+commentary. Every other line is commentary, and `--set` writes each
 key's question as a comment line above it, so the file explains itself. The
 grammar follows the one precedent in the marketplace, the
 `trigger-framework:` declaration of salesforce-standards: one line, one
@@ -282,9 +298,9 @@ reads the main checkout's, whose path is the first entry of
 parent of `git rev-parse --git-common-dir` is not a checkout path in
 every layout, so it is not used.) One set of personal answers then
 serves every worktree of a repository. A personal answer is written
-where the loader reads it: the skill, run in a worktree, writes to the
-main checkout's personal file and puts the `.gitignore` beside it, and
-a "yes, and record" answer goes to the same place, so a worktree never
+where the loader reads it: `--set`, called from a worktree by the skill
+or by a "yes, and record" answer alike, writes to the main checkout's
+personal file and puts the `.gitignore` beside it, so a worktree never
 gains a file of its own through a write. A personal file created in a
 worktree by hand replaces the fallback wholly — no per-key merge — and
 the loader's first line says which file it read; a write made from that
@@ -314,9 +330,9 @@ manifest follows.
 The skill takes its questions from the registry, the loader takes its
 validation from it, and the rules name keys and nothing more; no second
 definition of a key exists to drift. A key is never renamed: renaming would
-silently orphan every file that set it. A retired key keeps its entry
-with `withdrawn <version>`, and the loader reports it as withdrawn
-rather than unknown. The registry's exact path and heading shape are the
+silently orphan every file that set it. Version one retires no key, so
+the marker for a retired one and the loader's report of it wait for the
+first key that is retired. The registry's exact path and heading shape are the
 plan's to fix.
 
 ## The keys
@@ -360,9 +376,10 @@ leaves today's behaviour, where only a manifest raises the offer; `off`
 suppresses it.
 
 The gate's value is a tier in the glossary's sense — a relative rung,
-never a model name. `mid` and `most-capable` are the glossary's own
-words for those rungs; `cheapest` is the workflow rule's, which
-prescribes "the cheapest available family" for this agent today. Each host resolves the tier at dispatch through a table
+never a model name. `mid` is the glossary's own word for its rung, and
+`most-capable` shortens the glossary's "most capable available";
+`cheapest` is the workflow rule's, which prescribes "the cheapest
+available family" for this agent today. Each host resolves the tier at dispatch through a table
 of its own; version one ships only Claude Code's (Haiku for `cheapest`,
 the family one below the most capable for `mid`, the most capable
 available for `most-capable`). A Codex port adds its table; Codex's
@@ -376,7 +393,9 @@ Deliberately not keys in version one: process weight, whose readers do
 not exist yet; the rules install level and commit mode, whose answer
 the rules manifest's position already records; the review loop's round
 cap, which stays fixed by the rule — making it a key would change the
-rule's behaviour, not only where an answer is recorded; and every
+rule's behaviour, not only where an answer is recorded, and unlike the
+gate's tier (*Reading a key*) no evidence argues for that change; and
+every
 per-document artifact (stamps, chain debt, `ticket:`), which has its
 own home.
 
@@ -400,7 +419,7 @@ hooks' context, whose order is undocumented, and understand it without
 the rule. Every registered key is listed, set or not, so a rule has one
 place to read and never needs the registry. Warnings live in the block,
 because nobody reads a hook's stderr: unknown keys, invalid values,
-duplicates, a key in the wrong scope's file, a withdrawn key.
+duplicates, a key in the wrong scope's file.
 
 The output is capped at 4 KB. That is a byte cap, not a token
 guarantee: Codex's documented per-handler threshold is about 2,500
@@ -409,8 +428,11 @@ and 4 KB of ordinary output sits under it with room to spare. The
 dogfood checks it rather than the spec promising it. Where the cap
 truncates, the last line says the block is incomplete; it never
 truncates silently. A block for the version-one keys runs to about
-1 KB. Paths and warnings in the block are escaped as JSON requires
-when the hook emits its JSON envelope.
+1 KB. The block is plain standard output, which Claude Code adds to a
+SessionStart session's context and Codex adds as developer context; no
+JSON envelope wraps it, so an arbitrary root path or warning needs no
+escaping — the constraint the drift check lives under, whose messages
+may carry no quotes or backslashes, never reaches the loader.
 
 The loader stays silent — no output at all — when `.working-process/`
 does not exist, so a project that never adopted the settings pays
@@ -439,14 +461,35 @@ cap guards the hook's context budget, and a skill or a session
 recovering from a truncated block needs the whole of it — and
 `--validate --scope team|personal <file>` checks a candidate file
 against the scope it is meant for, printing its warnings and exiting
-non-zero when the file would not validate. Only the hook mode swallows
-its errors and exits 0; the other two report failure.
+non-zero when the file would not validate. A third mode writes:
+`--set --scope team|personal <key> <value>` resolves the destination —
+in a worktree the main checkout's personal file, in a bare-repository
+worktree its own (*Scope and precedence*) — creates the file and, for a
+personal file, the `.gitignore` beside it; inserts an absent key under
+its question as a comment, replaces a present key's line in place, and
+on a duplicate changes nothing and reports both lines with a non-zero
+exit, so the caller asks which stands; validates the result against
+the key's scope before anything is written, so no `--set` ever leaves
+a file that would not validate; and on success prints the fresh
+block. `--set --dry-run` resolves the same destination and prints what
+the write would do — the file, the line it would insert or replace, the
+`.gitignore` it would create, and the shadow warning where a
+hand-made worktree file would hide the result — and writes nothing. Every other
+line and comment stays untouched, and an unchanged file is not
+rewritten. Writing lives in one place because its destination logic is
+exactly what drifts when three writers restate it. Only the hook mode
+swallows its errors and exits 0; the other three report failure.
 
 ## Reading a key
 
-A new always-on rule, `process-settings.md`, is the one definition of
-the files, their grammar, the block and the reading procedure. The
-rules that read a key cite it and restate none of it.
+A new always-on rule, `process-settings.md`, defines the files, their
+grammar, the block, the three-step read below, and when a write
+happens. The rules that read a key cite it and restate none of it. It
+stays short because every session and every dispatched agent loads it:
+the full by-hand resolution — needed only where no hook ran and the
+loader cannot be reached — lives in a reference file beside the rule,
+read on that path alone, and how a write happens belongs to the loader
+(*The loader*).
 
 To read a key, a session:
 
@@ -455,10 +498,10 @@ To read a key, a session:
 2. without a trustworthy block — none arrived because hooks are
    disabled or a Codex plugin is not yet trusted, or the block says it
    is incomplete — resolves the key by the loader's own procedure:
-   running `--print` where the script is reachable, otherwise applying
-   `process-settings.md`'s full resolution by hand — scope, the
-   worktree fallback, defaults, duplicates and invalid values — never a
-   shortcut through the files;
+   running `--print` where the script is reachable, otherwise following
+   the full resolution — scope, the worktree fallback, defaults,
+   duplicates and invalid values — in a reference file the rule points
+   at, never a shortcut through the files;
 3. where the key is unset, behaves as the rule did before this change:
    the question is asked, or the offer made, exactly as today.
 
@@ -476,7 +519,26 @@ One card changes all the same: the propagation auditor's states that it
 runs on the cheapest family and treats an upward mismatch as a fault,
 which would contradict a team that set a higher tier. It instead
 accepts the tier its dispatcher resolved and still opens its report
-with its family, so the dispatcher's comparison keeps working.
+with its family, so the dispatcher's comparison keeps working. The
+card's argument for the cheap family — that its duties are procedural
+— becomes the argument for the default, and the card says a project
+may choose otherwise. Its second clause, that "an over-tier run does
+this work casually badly — a false clean line would then feed the
+integrity gate unnoticed", is struck: the evidence below records the
+opposite, and a card keeping it would call the evidence-backed choice
+the dangerous one.
+
+This key does change the rule's behaviour where a project sets it,
+which is the ground on which the round cap stays out of version one. It
+enters anyway, on evidence rather than on "someone may want it": the
+workflow rule already records that a report carrying hits beside
+`CLEAN` "has happened more than once on the cheapest family", and a
+measurement on 2026-09-28, over two states of another project's design
+spec and technical design that a later integrity audit found defective,
+had the cheapest family return `CLEAN` in all four of its runs, while
+one tier up located real defects in every one of its runs. A project that
+has seen that must be able to move its gate without editing the
+plugin. The round cap has no such evidence behind it.
 
 ## Changes to the rules
 
@@ -507,7 +569,7 @@ in those sentences becomes the key:
   prior decision is present" gains the conflict question: a visible
   signal that contradicts the key is reported and the developer asked.
 - `agents/propagation-auditor.md` — the tier clause, as *Reading a key*
-  says.
+  says, including the struck over-tier sentence.
 
 ## Directory modes
 
@@ -537,12 +599,15 @@ says so, so it cannot become one more first-create question.
 ## Recording an answer
 
 When a standing question is asked in ordinary work, its answers gain
-one option: "yes, and record" (or "no, and record"). Choosing it writes
-the answer to the file the key's scope names, creating the file and its
-`.gitignore` where they are missing. There is no second question: the
+one option: "yes, and record" (or "no, and record"). Choosing it runs
+the loader's `--set`, which writes the answer to the file the key's
+scope names and prints the fresh block. The rule decides when a write
+happens; the loader decides how. There is no second question: the
 developer is interrupted once, as the review loop's one-batch-per-round
 contract intends. A session never records an answer the developer did
-not choose to record.
+not choose to record. Where `--set` cannot run — the loader unreachable
+on the no-hook path — the option is withheld: the answer holds for the
+session, and the session says it was not recorded.
 
 Anyone may record a team key this way, not only whoever ran the setup.
 The team file is an ordinary committed file, so the change shows in the
@@ -561,7 +626,8 @@ On its first run the skill gathers the existing answers as candidates.
 Directory signals are mechanical and shown as settled. Prose notes are
 not parseable, so the skill offers its reading of each as the model's
 reading, with the note's location, for the developer to confirm. It
-never deletes a note without consent; after a confirmed move it offers
+never deletes a note without consent; a confirmed move is a `--set`,
+and after it the skill offers
 to remove the note that now duplicates the key.
 
 ## The skill
@@ -579,20 +645,15 @@ nudges them to run it. A run:
    are not unset answers but optional ones: the skill asks
    `dir.default` and offers exceptions only when the developer asks for
    them;
-3. previews the change to each file, validates it with
-   `--validate --scope`, and writes: an absent key is added, under its
-   question as a comment; a present key's line is replaced in place; a
-   duplicated key is shown with both lines and the developer chooses
-   which stands. Every other line and comment stays untouched, and an
-   unchanged file is not written. After writing, it prints the fresh
-   block, which supersedes the one from session start for the rest of
-   the session — the same holds for a "yes, and record" answer;
+3. previews each answer with `--set --dry-run`, which also shows the
+   `.gitignore` it would create beside a personal file, then writes it
+   with `--set`; a duplicate `--set` reports is shown with both lines
+   and the developer chooses which stands. The fresh block `--set`
+   prints supersedes the one from session start for the rest of the
+   session;
 4. materializes a declared mode in each Process directory that already
    exists and does not contradict it, and reports every contradiction;
    it creates no directory;
-5. writes the `.gitignore` holding `settings.local.md` beside the
-   personal file it first writes, which in a worktree is the main
-   checkout's (D41).
 
 A second run shows the same table and asks only about what is unset or
 what the developer wants to change. It never replays the whole
@@ -614,12 +675,15 @@ questionnaire.
   file's value; a duplicate key leaving it unset; an unknown key warned
   about; the worktree fallback, on a real `git worktree` in a temporary
   directory; the 4 KB cap and its truncation line; silence without
-  `.working-process/`; silence and exit 0 on an error of its own.
+  `.working-process/`; silence and exit 0 on an error of its own;
+  `--set` inserting an absent key, replacing a present one, refusing a
+  duplicate with both lines reported, writing a personal answer to the
+  main checkout from a worktree with its `.gitignore`, and to the
+  worktree's own file in a bare-repository layout.
 - **Claude Code dogfood**, with the plugin loaded from the checkout: the
   skill records settings; a new session receives the block; a recorded
   question is not asked; after `/compact` the block is back. The run
-  also settles whether the SessionStart hook takes plain standard output,
-  the JSON `additionalContext` shape the drift check uses, or both.
+  confirms that plain standard output reaches the session.
 - **Codex check**: in a scratch project, a repository-level
   `.codex/hooks.json` runs the same loader; the block reaches the model
   once the hook is trusted, and again after compaction or resume. No
@@ -643,8 +707,10 @@ questionnaire.
 
 ## Changes by file
 
-- New: the `process-setup` skill; the key registry; the loader script;
-  the `process-settings.md` rule; a second SessionStart handler in
+- New: the `process-setup` skill; the key registry; the loader script
+  with its `--print`, `--validate` and `--set` modes; the
+  `process-settings.md` rule and the reference file holding its full
+  by-hand resolution; a second SessionStart handler in
   `hooks/hooks.json`.
 - `rules/workflow.md`, `rules/spec-plan-lifecycle.md`,
   `rules/process-artifacts.md` — as *Changes to the rules* and
@@ -667,6 +733,18 @@ None.
 
 ## Review rounds
 
+### 2026-09-28 — architect, fable 5.1, blocking (round 2, diff-scoped)
+
+- held — [Important] F8: the reference file "beside the rule" lands in the Rules payload, which Claude Code loads unconditionally, undoing F4; question: where does it live?; options: (a) a path-scoped rule in the payload with `paths: [".working-process/**"]`, loading exactly when a session reads the settings by hand (recommended); (b) outside `rules/`, under the skill or beside the loader, named by path from the rule
+- held — [Important] F9: after `--set` refuses a duplicate, the write that enacts the developer's choice has no owner, and the in-flow path needs a second question; question: how is a duplicate resolved?; options: (a) `--set` replaces every line for the key with the value it writes and reports what it removed, the fresh answer being the resolution (recommended); (b) keep the refusal and add a loader mode that writes the chosen line
+- fixed 2026-09-28 — [Important] F10: the skill's preview needed the write's destination logic, which only `--set` holds; license: D21 and D43 ("none writes a settings file directly"); `--set --dry-run` added to *The loader* and D43, *The skill* step 3 previews through it, step 5 folded in
+- held — [Minor] F11: `--set --scope` duplicates the registry's fixed scope with no stated purpose; question: what is `--scope` for?; options: (a) drop it — the registry picks the file, and a team suggestion for a personal key is written by hand (recommended); (b) keep it solely for writing a suggestion into the team file, any other mismatch refused
+- fixed 2026-09-28 — [Minor] F11 (part): validation order unstated; license: D43 ("validation"); `--set` validates before anything is written
+- fixed 2026-09-28 — [Minor] F12: the card's over-tier clause survived into the default's argument though the spec's own evidence contradicts it; license: the round-1 F1 ruling; *Reading a key* and *Changes to the rules* strike it
+- fixed 2026-09-28 — [Minor] F13: "yes, and record" had no behaviour where the loader is unreachable; license: D43; *Recording an answer* withholds the option and says the answer holds for the session only
+- fixed 2026-09-28 — the key-exclusion criterion was absolute in *The keys* and qualified in *Reading a key* (integrity note, ungraded); license: the round-1 F1 ruling; *The keys* now carries the qualified form
+- signal 2026-09-28 — one more diff-scoped round earns its cost: F8, F9 and F10 change contracts; if that wave lands as suggested the round after should close the loop; the leftovers are worth nothing alone
+
 ### 2026-09-28 — architect, fable 5.1, blocking (round 1, full-document)
 
 - hit fixed 2026-09-28 — spec used the newly banned "key list" at D6 and *The key registry*; reworded to "definition of a key"
@@ -674,13 +752,17 @@ None.
 - hit fixed 2026-09-28 — D27's scope (one plugin, three directories) disagreed with *Verification* (four plugins, commands/ included); D27 widened
 - hit fixed 2026-09-28 — the glossary's Key registry entry used its own banned term "key list"; reworded to "second definition of a key" (re-dispatch 1; its report carried CLEAN beside the hit, body governs)
 - hit fixed 2026-09-28 — "its three values use the glossary's own words" was untrue for `cheapest`, which the glossary never uses; reworded to name the workflow rule as its source (re-dispatch 2, the episode's last; fix verified by grep, no third run)
-- held — [Important] F1: the tier key changes the rule's behaviour, the criterion that excludes the round cap; D35 strips the card's rationale without a replacement; question: keep `dispatch.propagation-auditor-tier` in v1 with an evidence-based argument and a new card rationale, or move it to its own package?; options: (a) keep, argued on the gate-tier measurement and the developer's standing wish for a steerable tier, card rationale rewritten (recommended); (b) move D7.4/D35 out of v1
-- held — [Important] F2: the in-flow "yes, and record" write has no owner; D12 defines reading only, and the write logic would be restated in three places; question: who owns the write?; options: (a) a loader write mode `--set --scope team|personal <key> <value>` owning destination, `.gitignore`, insert/replace/duplicate and the fresh-block print, the rule owning when to write (recommended); (b) the rule defines the write procedure in prose
-- held — [Minor] F3: both hosts document plain stdout as context, and the spec both defers the choice to the dogfood and assumes a JSON envelope; question: plain stdout by design?; options: (a) plain stdout, the dogfood confirms (recommended); (b) JSON envelope as the drift check uses
-- held — [Minor] F4: the by-hand resolution puts the loader's whole algorithm into an always-on rule for the rarest path; question: where does it live?; options: (a) the rule keeps the three-step read and `--print`, the full algorithm moves to a reference file read on the no-hook path (recommended); (b) keep it in the rule
-- held — [Minor] F5: the `withdrawn <version>` token and the loader's withdrawn-key report have no instance in v1; question: defer them?; options: (a) keep never-rename, defer the token and its loader branch to the first retired key (recommended); (b) keep as specified
+- fixed 2026-09-28 — [Important] F1: the tier key changes the rule's behaviour, the criterion that excludes the round cap; D35 strips the card's rationale without a replacement; ruling: 2026-09-28; the key stays, argued in *Reading a key* on the recorded CLEAN-beside-hits history and the gate-tier measurement; D35 turns the card's cheap-family argument into the default's argument
+- fixed 2026-09-28 — [Important] F2: the in-flow "yes, and record" write has no owner; ruling: 2026-09-28; new D43, the loader's `--set` owns every write; D12, D19, D37, *Recording an answer*, *The skill* and *Migration* call it
+- fixed 2026-09-28 — [Minor] F3: plain stdout or a JSON envelope left undecided; ruling: 2026-09-28; D9 and *The loader* choose plain stdout, the dogfood confirms
+- fixed 2026-09-28 — [Minor] F4: the by-hand resolution in an always-on rule; ruling: 2026-09-28; D12, D38 and *Reading a key* move it to a reference file read on the no-hook path
+- fixed 2026-09-28 — [Minor] F5: the `withdrawn` marker and its loader report have no v1 instance; ruling: 2026-09-28; D8 and *The key registry* defer both to the first retired key; never-rename stays
 - fixed 2026-09-28 — [Minor] F6: the loader's root order differs from the drift hook's with no stated reason; license: D33 and D1 ("at the repository root"); *The loader* says the git root binds deliberately
 - fixed 2026-09-28 — [Minor] F7: two `working-process` directories with different jobs; license: glossary **Dispatch record**; *Directory modes* names the record store and makes `process-settings.md` tell the two apart
 - fixed 2026-09-28 — D17's first step was qualified by its second without saying so (integrity note, ungraded); license: D17; step 1 now names the signal that agrees or stands alone
 - fixed 2026-09-28 — D7.3's `on` and unset both produced an offer with the difference unstated (integrity note, ungraded); license: the workflow rule's technical-design declaration; *The keys* states the three behaviours
+- hit fixed 2026-09-28 — D24 still had the skill write the personal `.gitignore`, which D43 gives to `--set`; D24 now names `--set`
+- hit fixed 2026-09-28 — *The settings files* had the skill write each key's question comment; now `--set`
+- hit fixed 2026-09-28 — *Scope and precedence* had the skill write in a worktree and place the `.gitignore`; now `--set`, called by the skill or a "yes, and record" answer
+- hit fixed 2026-09-28 — "`mid` and `most-capable` are the glossary's own words" overclaimed for `most-capable`, which shortens "most capable available"; reworded (re-dispatch 1; the run self-reported haiku while its transcript metadata shows claude-sonnet-5, the dispatched model)
 - signal 2026-09-28 — another round earns its cost only after F1 and F2 are decided; one diff-scoped round over those changes should close the loop; the Minors alone do not justify one
