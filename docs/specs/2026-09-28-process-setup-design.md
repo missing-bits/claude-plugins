@@ -624,7 +624,7 @@ as long as D20's transition lasts:
   signal exists. They adopt the settings key and D17's order, including
   the conflict question.
 - `project-memory.md` — `dir.docs/memory` counts as the declared mode when
-  the working-process rules are installed, and its "never ask when a
+  the working-process rules are installed, and its "Never ask when a
   prior decision is present" gains the conflict question: a visible
   signal that contradicts the key is reported and the developer asked.
 - `agents/propagation-auditor.md` — the tier clause, as *Reading a key*
@@ -832,6 +832,7 @@ were checked against the spec before disposition.
 - fixed 2026-09-28 — implementer questions 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17; license: D9, D14, D17, D20, D25, D27, D36, D37, D43 and the rules the spec names; the block's source set and first line, errors against notices (new D46), the key's shape, each site's unset branch, the committed `.gitignore`, the skill's first run and contradiction handling, inheritance shown in the block and the project-memory probe, the tier table's home and the card's `description:`, the reader list, the question comment's identity, suggestions without a line, tracked mode needing no act, the `.superpowers/` family, the local pocket, and `--print` without a settings directory are now stated
 - fixed 2026-09-28 — implementer question 5, which key a directory's "and record" writes; ruling: 2026-09-28; new D45, the exception for that directory; the technical-design offer's yes and no map to `on` and `off`
 - fixed 2026-09-28 — implementer question 1, how a rule reaches the loader; ruling: 2026-09-28; D44
+- hit fixed 2026-09-28 — *Changes to the rules* quoted project-memory's clause as "never ask …" while the source opens "Never ask …"; capitalised
 
 ### Loop closed — 2026-09-28
 
