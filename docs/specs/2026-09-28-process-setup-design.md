@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-28
 status: draft
 grilled: 2026-09-28
-architect: concerns
+architect: concerns (resolved 2026-09-28)
 decisions: registered
 branch: feature/process-setup
 base: develop
@@ -766,6 +766,14 @@ questionnaire.
 None.
 
 ## Review rounds
+
+### Loop closed — 2026-09-28
+
+Resolved without a fresh architect round, on the developer's choice
+after round 3's stop signal: round 3 returned three Minor findings, all
+fixed under cited licenses (F14–F16 above), and the architect judged a
+further round not worth its cost. The consumption gate's integrity
+audit reads the whole document next.
 
 ### 2026-09-28 — architect, fable 5.1, concerns (round 3, diff-scoped)
 
