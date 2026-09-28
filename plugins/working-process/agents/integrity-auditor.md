@@ -108,7 +108,12 @@ no longer does:
   document declares about itself, in both directions.** A document that
   says every entry carries a field is checked entry by entry for the
   field, and field by field for an entry the rule never claimed — the
-  reverse direction is where the survivors hide.
+  reverse direction is where the survivors hide. A design spec carrying
+  `decisions: registered` declares one such rule: its decision register
+  lists every decision in the spec that needs realization. Check each
+  entry against the text that argues it, and each decision the text
+  makes against the register; a decision left only in a paragraph is a
+  defect, and a rejected alternative without an entry is none.
 
 ### 2. Sufficiency for an implementer
 

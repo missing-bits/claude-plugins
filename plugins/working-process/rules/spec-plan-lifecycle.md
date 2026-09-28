@@ -21,6 +21,7 @@ architect: LGTM     # optional: latest architect verdict (LGTM | concerns | bloc
 adversary: LGTM     # optional: latest plan-adversary verdict (LGTM | concerns | blocking)
 architect-fallback: <model> (degraded <date>)   # optional: verdict above produced below the prescribed tier (adversary-fallback: for plans)
 integrity: <ISO date> (sha: <short-hash>[; with: <file>@<short-hash>])   # optional: date of the last integrity audit, the body hash it certifies, and — where a technical design was audited with it — that document and its hash
+decisions: registered   # optional, design specs only: the body carries a decision register
 revises: ./<file>.md   # optional: documents this one departs from; inline list when several
 spec: ../specs/<file>.md   # plans and technical designs: the design spec this document descends from; inline list when several, on a plan
 technical-design: ../technical-designs/<file>.md   # optional: on a design spec, the technical design that develops it; on a plan, the technical design of each design spec it descends from that has one — inline list when several, each path relative to the plan
@@ -148,14 +149,187 @@ base: master        # optional: branch the topic branch was cut from
   with no technical design contributes no entry, so a plan from specs
   `a` and `b`, where only `a` names a design, carries that one design.
   One technical design per design spec.
+- `decisions:` is optional, on design specs only, and takes one value,
+  `registered`: the spec carries a decision register, defined under
+  *Decision register* below. It is a convention field rather than a
+  process stamp — no review step writes it, and no Unfinished-work
+  command reads it.
 - Where a plan's `technical-design:` names documents, those documents
   define the interfaces. The plan's `**Interfaces:**` blocks reference
   the contracts they define and say which part of one each task
   implements or changes; they do not independently redefine those
   contracts. Where a plan names no technical design, the existing plan
   convention stands unchanged. This binds how the blocks are filled and
-  changes no plan template — the template belongs to the tool that
-  writes plans.
+  changes no plan template. The template belongs to the tool that
+  writes plans, with one exception, defined under *Plan annotations*
+  below: this rule adds the `**Realizes:**` annotation on tasks and
+  Global Constraints entries, and the `## Deferrals and predecessors`
+  section with its `**Defers:**` and `**Follows:**` lines. The rest of
+  the template stays with that tool.
+
+## Decision register
+
+A design spec that sets `decisions: registered` carries a `## Decisions`
+section — the decision register, the enumerable list of the decisions
+the spec makes that need realization. The propagation auditor, when
+that agent is available, derives a plan's decision coverage from it.
+
+The register is an index, never a copy. An entry is one identity
+paragraph — the identifier and a short statement of the decision — and
+may name the section that argues it:
+
+    - **D3** — <a short statement of the decision>. Argued in *<section>*. [state token]
+
+      <optional prose, indented, after a blank line>
+
+The identity paragraph is the list item's first paragraph: its opening
+line and the continuation lines after it, up to the first of a blank
+line, a nested list item, the next list item at the same or a higher
+level, or the end of the section. A reader joins those lines,
+normalising whitespace, before parsing, so a statement wrapped across
+lines keeps its state token at the paragraph's end. Prose beneath the
+blank line is free. The grammar enforces the paragraph's shape, never a
+sentence count: restating the argument in the register would give the
+decision two homes, and the first fix wave would leave the register
+describing the decision's old form.
+
+The identifier is the literal token `**D<n>**`, or `**D<n>.<m>**` for a
+child, at the start of a list item under `## Decisions`; a child's item
+nests under its parent's. Identifiers are unique within the spec and
+never positional, renumbered or reused: a decision added mid-loop takes
+the next free number. A Markdown numbered list is refused, because its
+numbers are positions and move when an item is inserted above. An
+element of a list that needs realization on its own takes a child
+identifier. The parent of children is a group: it enters no count, a
+citation of it covers none of its children, and it carries no state
+token.
+
+Every decision that needs realization enters, cross-cutting constraints
+included. A ruling that something stays as it is enters too, since an
+implementer can break it, and a plan realizes it as a constraint; no
+kind of entry is exempt. A rejected alternative never enters: nobody
+realizes it, and it already has homes — a spec's out-of-scope section,
+a technical design's *Cuts not taken*.
+
+An entry without a token is active. One state token exists, carried by
+a leaf or not at all, and never by a group:
+
+    withdrawn <reason>, ruling: <date>[; replaced by <id>]
+
+The decision no longer stands. The entry stays as a tombstone that
+reserves its identifier, so a reuse shows up as a duplicate.
+`replaced by` names an identifier of the same register other than its
+own, and a chain of successors never forms a cycle; a successor may
+itself be withdrawn. The token is recognized by its opening word alone:
+the first segment after the full stop that ends the statement, and after
+any "Argued in" pointer, that begins with `withdrawn`; it runs to the
+paragraph's end, so its reason may hold a full stop. A segment so
+opening that does not match the grammar is malformed, never prose.
+Withdrawing a group is written on each of its leaves. A decision that
+still stands but one plan does not realize is no state of the entry:
+that plan defers it (see *Plan annotations*).
+
+A withdrawal changes what the spec decides, so the session writes the
+token only on the developer's explicit decision. Its `ruling:` is dated
+with that decision; the edit lands in the spec's own ledger and leaves
+the `integrity:` stamp stale, as any body edit does. On a spec whose
+loop has closed, a withdrawal ruled outside any hit or finding writes
+no ledger line: the tombstone is its record, since no diff-scoped round
+follows a close. A spec already `implemented` takes no such edit: the
+decision is withdrawn by a newer design spec carrying `revises:` and the
+register that stands.
+
+The spec's author creates the register while writing the spec, so a
+design that never meets a grilling session still has one, and a
+grilling session updates it as its decisions land. A spec carrying the
+field declares a rule about itself: *the register lists every decision
+in this spec that needs realization.* The integrity audit's first lens
+verifies a document's declared rules in both directions, which gives
+the register's completeness its reader.
+
+A design spec without the field is legacy: the propagation audit
+reports it as not checked and raises no hit, and a plan descending from
+legacy specs alone carries no annotations. An existing spec migrates
+when it is next substantively revised, never in a sweep. Every new
+design spec is expected to set the field; its absence is reported, not
+refused.
+
+## Plan annotations
+
+A plan whose `spec:` names at least one registered design spec carries,
+on every task, one line after its `**Files:**` block — after its
+`**Interfaces:**` block where it has one — and before its first step:
+
+    **Realizes:** D3, D5
+    **Realizes:** none
+
+`none` is a value, not an omission: without it a housekeeping task
+cannot be told from an author who forgot. One decision may be cited by
+several tasks, and a task split or merged in a fix wave stays covered as
+long as the union of its identifiers survives. A cross-cutting
+constraint is realized by the Global Constraints entry that states it,
+and that entry opens with the same annotation as its first clause —
+`**Realizes:** D9`. Only an entry that realizes a decision carries one,
+and `none` is never written there. Citing the section as a whole
+realizes nothing, and neither does citing a group: its leaves are what
+a plan cites. `none` names no identifier, so it is never qualified.
+
+A plan whose `spec:` names one spec writes bare identifiers. A plan
+whose `spec:` names two or more — registered or legacy alike — qualifies
+every identifier with its spec's path exactly as `spec:` writes it,
+`../specs/<file>.md#D3`, wherever the plan or its audit names one. The
+count of entries decides, never the count of registered ones, so
+migrating a second spec out of legacy changes no annotation already
+written.
+
+Two more kinds of line form a section of their own, headed
+`## Deferrals and predecessors` at the Global Constraints heading's
+level and placed directly after that section. They state facts about
+the whole plan rather than requirements of any task, so they stay out of
+Global Constraints, which the plan template makes part of every task's
+requirements:
+
+    **Defers:** D6 — <why>; ruling: <date>
+    **Follows:** ../plans/<file>.md
+
+A `**Defers:**` line records that this plan leaves a standing decision
+unrealized, one line per identifier, qualified as the annotations are.
+The session writes it only on the developer's explicit decision, which
+its `ruling:` dates. The deferral binds this plan alone: auditing any
+other plan of the same spec, the decision counts, and the spec names no
+plan. Deferring an undefined, withdrawn or group identifier is
+malformed, and so is deferring one the plan also cites, locally or by
+inheritance. A plan with neither kind of line carries no such
+section, and in the pass for one spec a `**Defers:**` line naming
+another spec's identifier is out of scope.
+
+A `**Follows:**` line names a plan this one continues, by a path
+relative to the plan. The predecessor shares at least one spec with
+this plan's `spec:` and carries `status: implemented`, since only a
+frozen body's citations cannot move. This plan inherits every
+identifier the predecessor's `**Realizes:**` annotations cite for the
+specs both plans name, and nothing else — never its `**Defers:**`
+lines, and never its `**Follows:**` lines, so inheritance is not
+transitive and a plan names every predecessor whose citations it relies
+on. An inherited citation of an identifier the register withdrew after
+the predecessor shipped covers nothing and raises no hit; a local
+citation of it still does. Whether the predecessor's realization still
+stands in the code is not this line's question: the diff the
+implemented-document bullet above prescribes answers it.
+
+An annotation, a `**Defers:**` line or a `**Follows:**` line counts
+only at the place this section gives it: a task's line before its first
+step, the opening clause of a Global Constraints entry, a line of
+`## Deferrals and predecessors`. The same text inside a code block, or
+quoted as an example, describes the grammar and instantiates nothing.
+
+The plan's author writes these lines, whoever that author is. A session
+writing a plan meets this rule by reading the design spec, and a brief
+that delegates plan-writing to a separate context names this rule and
+requires reading it first, as the workflow rule's step 4 says. A plan
+lacking an annotation is caught at its first propagation gate, and an
+identifier is added there only where the task's text actually realizes
+the decision, never mechanically.
 
 ## Finding what revises a document
 
@@ -205,9 +379,11 @@ The severity bracket is omitted on a line whose sole authorizer is
 
     - fixed <date> — <claim>; ruling: <date>; <what changed>
 
-`open` and `held` are the non-terminal states, and the only two the
-Unfinished-work list anchors. `fixed` and `declined` are terminal and
-say what became of the document: it changed, or it stands.
+`open` and `held` are the non-terminal states, and the only two
+disposition states the Unfinished-work list anchors; the one gate line
+it anchors, `hit held`, is defined under *Gate lines* below. `fixed`
+and `declined` are terminal and say what became of the document: it
+changed, or it stands.
 
 The two dates on a terminal line record different events and are both
 written even when they coincide. The leading date is when the line
@@ -295,7 +471,14 @@ It carries no ordinal and no verdict, which keeps it out of the round
 cap's derivation and out of the Unfinished-work commands that anchor a
 round heading: it records a fix, not a round. Two stamps go stale as on
 any body edit — the `integrity:` hash stops matching, and the verdict
-stops certifying the words that changed.
+stops certifying the words that changed. The same heading serves a
+register edit that a plan's held gate line licensed, on a design spec
+whose loop has closed at whatever verdict: the heading then names the
+plan whose gate held the hit, and that plan's terminal gate line names
+the heading and the line under it. Unlike a review-licensed fix, such an
+edit never joins a resolution note, even on a `concerns (resolved)`
+spec: that note records what resolved the verdict, and this edit
+resolves none.
 
 Payload costs nothing structurally. An Unfinished-work command under the
 list's default scope guard is held to the frontmatter block, so no body
@@ -381,10 +564,11 @@ is. The workflow rule owns the ask that produces it.
 
 ### Gate lines
 
-The propagation gate, when that agent is available, writes two shapes of
-its own. They carry their own leading token and never a severity, because
-a hit is a located detection the dispatcher confirms or dismisses, never
-a graded finding:
+The propagation gate, when that agent is available, writes gate lines of
+its own: the two ordinary shapes here, and the held shape and its three
+terminal rewrites below. Each carries its own leading token and never a
+severity, because a hit is a located detection the dispatcher confirms
+or dismisses, never a graded finding:
 
     - hit fixed <date> — <the hit's claim>; <what changed>
     - hit dismissed <date> — <the hit's claim>; counter: <the derivation that refutes it>
@@ -392,7 +576,41 @@ a graded finding:
 Neither carries a license either, because a hit's fix is licensed by its
 own derivation.
 
-Both are written at gate time, under the last round's heading. The `hit`
+A hit of the coverage duty whose fix needs a decision no derivation
+settles is held for the developer — the one exception the workflow rule
+makes to hits never waiting. It takes a third shape, rewritten in place
+to one of three terminal shapes, so its state always has one home:
+
+    - hit held <date> — <the hit's claim>; question: <the missing decision>; options: <the options, with the session's recommendation>
+    - hit fixed <date> — <the hit's claim>; <what changed>; ruling: <date>
+    - hit deferred <date> — <the hit's claim>; ruling: <date>; Defers: <id>
+    - hit withdrawn <date> — <the hit's claim>; ruling: <date>; <spec path>#<id>
+
+The rewrite happens once the gate has re-run over the changed document
+and whatever depends on it, never on the developer's answer alone.
+`hit fixed … ruling:` records that the document now carries the
+decision the developer settled — a plan that realizes it, or a register
+the ruling repaired; `hit deferred` records an approved `**Defers:**`
+line in the plan, and `hit withdrawn` a register entry now a tombstone.
+Each is written only where it names what happened, and none is
+`hit dismissed`, because the gap was real when the hit fired. The
+ordinary `hit fixed` shape, without `ruling:`, stays for every hit
+whose fix its derivation licensed. `ruling:` on a gate line means what
+it means on a disposition line, and a diff-scoped round treats the line
+as settled.
+
+A `hit held` line lives in the ledger of the document whose gate raised
+it — the audited plan, or the design spec audited alone. Its leading
+date is the gate's, and the terminal rewrite replaces it with the date
+the line reached its terminal state. A held hit ends its gate episode
+and blocks the dispatch the gate guards; the re-run after the
+developer's answer is a fresh episode. A register edit the answer
+causes is recorded in the spec's own ledger — under its latest round
+heading while its loop is open, and under the fix heading above once
+its loop has closed. A spec already `implemented` takes the edit by
+revision instead, and the held hit waits for it.
+
+Each is written at gate time, under the last round's heading. The `hit`
 token tells a gate line apart from that round's own findings; the date
 does not, since a gate episode and the round it precedes commonly share
 one. A gate still never mints a heading of its own, on the separate
@@ -405,15 +623,25 @@ is still re-dispatching, or the gate cannot terminate, and the next
 diff-scoped brief is composed before its own round is stamped. A gate
 before a document's first round has no heading to write under; its lines
 wait for that round and are written at its stamp, the one case where
-they do.
+they do — unless the episode holds a hit, since the round its lines
+would wait for cannot start. A pre-round episode holding at least one
+hit writes every one of its lines, the `hit held` line and its siblings
+alike, in the `## Review rounds` section before the first round
+heading, and they stay there, rewrites included: no round produced
+them, and one episode keeps one home. Once such lines stand there,
+every later pre-round episode writes there too, holding or not, so the
+document's pre-round gate history keeps one place. A document with no
+`## Review rounds` section gains one, at its end, with its first gate
+line.
 
 A gate episode always lands somewhere: its lines are the reason a later
 reader need not re-derive what the session already settled.
 
-Neither shape covers a hit left outstanding when the re-dispatch bound
-in the workflow rule stops an episode. That state owes the developer a
-decision, so neither `hit fixed` nor `hit dismissed` can honestly carry
-it, and no anchor surfaces it today — a stated gap, not an oversight.
+No gate-line shape covers a hit left outstanding when the re-dispatch
+bound in the workflow rule stops an episode. That state owes the
+developer a decision, so neither `hit fixed` nor `hit dismissed` can
+honestly carry it, and `hit held` is scoped to the coverage duty's
+hits; no anchor surfaces it today — a stated gap, not an oversight.
 Until a shape exists, the workflow rule's report is its only record.
 
 A `hit fixed` line puts the gate's ordinary work where the next
@@ -422,7 +650,8 @@ diff-scoped brief already looks, beside the round's `fixed` lines. A
 make, so a later round cites it instead of re-deriving it and a session
 that would dismiss the same hit differently argues against written words
 rather than silence. Neither joins the unfinished-work anchors: both are
-closed when written and owe nobody a next move.
+closed when written and owe nobody a next move. A `hit held` line owes
+the developer an answer, so it joins them until its terminal rewrite.
 
 A line carrying `ruling:` is a recorded developer decision, and what a
 later round may do with it depends on what that round brings:
@@ -483,17 +712,20 @@ leg, and the entries below that do so say it there.
   leg discharges its own debt — a session derives that decline under a
   `concerns` heading, while a `blocking` one waits for the developer's
   adjudication, which is theirs to make.
-- **Unfinished review-loop ledger** — a disposition line nobody closed:
-  an `open` line whose remediation never ran, or a `held` line whose
-  question still waits.
-  `rg -n --no-ignore --crlf '^- (open|held) —' docs/`
+- **Unfinished review-loop ledger** — a disposition line or a held gate
+  line nobody closed: an `open` line whose remediation never ran, or a
+  `held` or `hit held` line whose question still waits. A gate line's
+  date stands between its token and its dash, so the command takes an
+  alternative rather than a third token inside the group.
+  `rg -n --no-ignore --crlf '^- (open|held) —|^- hit held ' docs/`
   Scope: a hit counts only inside a `## Review rounds` section — this
   entry's own re-scoping of the guard above, kept for the same reason,
   since a document quoting the grammar describes it rather than
   instantiating it. Confirming section membership needs line positions,
   which is why this command carries `-n` where the others carry `-l`.
   Owner: an `open` line belongs to the document's next touch, which
-  re-offers the remediation; a `held` line belongs to the developer.
+  re-offers the remediation; a `held` or `hit held` line belongs to the
+  developer.
 - **Chain debt** — a diff-scoped `LGTM` heading carrying no record that
   what it owed was discharged.
   `rg -n --no-ignore --crlf '^### .*LGTM \(round [0-9]+, diff-scoped\)$' docs/`
@@ -578,9 +810,12 @@ so the `integrity:` stamp sits on the design spec and names both.
 
 A document's consumption gate is the backstop for its ledger: no judged
 document passes to plan-writing, nor a plan to implementation, while
-`held` lines stay open — an LGTM can leave the frontmatter clean while a
-decision question still pends, so the gate asks those questions at the
-latest. Writing a plan from a judged document is that same seam: its
+`held` lines or `hit held` gate lines stay open — an LGTM can leave the
+frontmatter clean while a decision question still pends, so the gate
+asks those questions at the latest. A `hit held` line blocks until the
+gate has re-run and rewritten it to a terminal shape, since declining
+the dispatch it guarded decides nothing; a closed gate line blocks
+nothing. Writing a plan from a judged document is that same seam: its
 held questions are asked before the plan is written, whoever writes it.
 
 A technical design's own consumption gate is plan-writing, the same

@@ -291,12 +291,17 @@ Closes a round; the finding-level counterpart is a Ruling.
 _Avoid_: developer override, manual close
 
 **Ruling**:
-The developer's authorization of one finding's disposition, written as
-the `ruling: <date>` clause on that finding's ledger line — dated fresh,
-or carrying an earlier ruling's date where the line folds a re-raise
-against it. On a fold against a line written before the clause existed,
-the date on that line's own terminal token is the earlier ruling. Closes
-a finding; the round-level counterpart is an Adjudication.
+The developer's authorization of a finding's disposition, a held hit's
+disposition, a plan's deferral of a registered decision, or a decision
+register entry's state change, recorded by a
+`ruling: <date>` clause where that record lives — dated with the
+decision, never with the edit that wrote it, and on a finding's line
+dated fresh or carrying an earlier ruling's date where the line folds a
+re-raise against it. On a fold against a line written before the
+clause existed, the date on that line's own terminal token is the
+earlier ruling. It closes a finding; a held hit it authorizes closes
+only once the gate has rechecked the fix. The round-level counterpart
+is an Adjudication.
 _Avoid_: developer decision (as the name), developer fix
 
 **Fallback**:
@@ -379,7 +384,8 @@ document and returns material for the dispatcher's disposition — hits
 (`propagation-auditor`, the mechanical pass) or defects-with-quotes and
 ranked questions (`integrity-auditor`, the judgment pass). Dispatched as
 a gate before expensive work: the precondition is a disposed audit —
-every hit fixed or dismissed, every defect applied or declined — never
+every hit fixed, dismissed, or closed by the developer's ruling, every
+defect applied or declined — never
 an empty one, and never a judgment on the design. The third dispatch category beside Verdict agent
 and Consultation: an audit agent adopts no persona and its output is
 never a Contribution.
@@ -393,7 +399,10 @@ part company over disposition: a propagation-auditor hit is confirmed or
 dismissed by the dispatcher and the outcome is written as a gate line,
 while an Unfinished-work hit has no dismissal at all — its only
 disposition is ceasing to match, when the state the command anchors is
-rewritten or annotated closed.
+rewritten or annotated closed. A confirmed hit of the coverage duty
+whose fix needs a decision no derivation settles may be held for the
+developer; its disposition stays open until that decision is recorded
+and the gate rechecks the changed spec and plan.
 _Avoid_: mechanical finding
 
 **Disposition ledger**:
@@ -437,6 +446,26 @@ written by the propagation gate. It shares the container with
 disposition lines and nothing else — its own leading token, no severity,
 no license.
 _Avoid_: hit line, audit line
+
+**Decision register**:
+The `## Decisions` section of a design spec that sets
+`decisions: registered`: one entry per decision the spec makes that
+needs realization, each under a stable identifier that is never reused —
+a withdrawn entry stays as a tombstone reserving it. Entries with
+children are groups; their leaf entries identify the independently
+realizable decisions.
+_Avoid_: decision log, decision table (as the name)
+
+**Decision coverage**:
+The map from each counted identifier of a decision register — each leaf
+identifier that is neither withdrawn nor deferred by the audited plan —
+to the plan tasks and Global Constraints entries citing it, in the
+audited plan or in an implemented predecessor its `**Follows:**` lines
+name, derived by the propagation auditor. A counted identifier nothing
+cites, and a task lacking its `**Realizes:**` line where the convention
+binds, are the two coverage hits.
+_Avoid_: coverage (bare, for this map — the integrity audit's coverage
+tell is another fact)
 
 **Chain debt**:
 The obligation a diff-scoped LGTM leaves: the document was approved with

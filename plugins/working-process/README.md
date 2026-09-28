@@ -49,18 +49,24 @@ verdict dispatch and the integrity audit itself.
   plans (plans only; handed a judged document it declines toward the
   `architect` agent). Generic failure-mode dimensions live here; domain
   specifics
-  come from `*-plan-review` checklist skills. Dispatched in the
-  background, scaled to the plan's size and risk; the verdict arrives
-  as a task notification and is stamped after relay.
+  come from `*-plan-review` checklist skills. Where a design spec keeps
+  a decision register, it also judges whether the tasks citing each
+  decision realize it in full. Dispatched in the background, scaled to
+  the plan's size and risk; the verdict arrives as a task notification
+  and is stamped after relay.
 - **`propagation-auditor` agent** — the mechanical audit of a design
   spec, a technical design or a plan: it parses every changed interface
   to enumerate its consumers,
   diffs every prescribed block against the file it targets — a landed
   change against what shipped, a promised one against the anchor its
-  edit needs — re-derives every counter, and runs the document's own
-  verification commands. Its
-  unit is the hit: located, binary, and carrying the derivation that
-  produced it; a clean audit reports the single line `CLEAN`. It grades
+  edit needs — re-derives every counter, runs the document's own
+  verification commands, derives a plan's decision coverage from its
+  design specs' decision registers, and resolves the table relations
+  the technical-design rule declares. Its unit is the hit: located,
+  binary, and carrying the derivation that produced it. Every report
+  also carries a `decision-coverage:` block per design spec and a
+  `table-closure:` line per technical design, and a clean one ends in
+  `CLEAN`. It grades
   nothing, ends in no verdict, and stamps nothing. Dispatched in the
   background on the cheapest available family, because every duty is
   procedural; the workflow gates every verdict-agent dispatch and every
@@ -113,6 +119,9 @@ exist, so it speaks the project's language from its first message.
       /plugin marketplace add obra/superpowers-marketplace
       /plugin install elements-of-style@superpowers-marketplace
 
+- `python3` 3.9 or later, standard library only, for the propagation
+  auditor's coverage duty.
+
 ## Extending with a domain checklist
 
 Ship a skill named `<domain>-plan-review` in your domain plugin. Its
@@ -146,6 +155,23 @@ Finding unfinished work is one command per class, published as the
 anchors live there, and the `process-status` skill runs them. The tail
 anchors are exact, so a resolved-concern annotation drops out of the
 match by design.
+
+## Decision register
+
+A design spec that sets `decisions: registered` carries a `## Decisions`
+section listing, under stable identifiers (`D3`, `D4.1`), every
+decision that needs realization. A plan descending from it marks each
+task with `**Realizes:**` — the identifiers it realizes, or `none` —
+and records deferrals and predecessor plans in a `## Deferrals and
+predecessors` section. The propagation auditor derives the decision
+coverage from the two lists, the plan-adversary judges whether the
+citing tasks realize their decisions, and the integrity auditor checks
+that the register lists every decision the spec makes. A spec without
+the field is reported as not checked. The grammar lives in the
+spec-plan-lifecycle rule. The auditor derives the decision coverage by
+running `scripts/decision-coverage.py` with `python3`, so a session
+that asks before running a command asks once for it; the permission
+entry for the plugin cache below covers it.
 
 ## Model selection
 
