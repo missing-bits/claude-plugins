@@ -3,7 +3,7 @@ ticket: none
 date: 2026-09-28
 status: draft
 grilled: 2026-09-28
-architect: blocking
+architect: concerns
 decisions: registered
 branch: feature/process-setup
 base: develop
@@ -112,8 +112,10 @@ the rule files named in *Changes by file*.
 - **D12** — A new always-on rule, `process-settings.md`, defines the
   files, the grammar, the block, the three-step read, and when a write
   happens; how a write happens belongs to the loader (D43), and the
-  full by-hand resolution to a reference file the rule points at, read
-  only on the no-hook path. Argued in *Reading a key*.
+  full by-hand resolution to a second rule, `process-settings-resolution.md`,
+  path-scoped to `.working-process/**` so it loads only when a session
+  reads the settings by hand; `process-settings.md` names it and tells
+  the by-hand path to open it first. Argued in *Reading a key*.
 - **D13** — A rule reads a key from the block in its context; without
   a trustworthy block, by the procedure D38 names; an unset key means
   the rule's behaviour before this change. Argued in *Reading a key*.
@@ -171,7 +173,8 @@ the rule files named in *Changes by file*.
   precedence, suggestions, invalid and duplicate values, unknown keys,
   the worktree fallback, the size cap, silence and error exit, and
   `--set`'s insert, replace, duplicate report, destination and
-  `.gitignore`. Argued in *Verification*.
+  `.gitignore`, and `--set --dry-run` writing nothing. Argued in
+  *Verification*.
 - **D29** — A Claude Code dogfood run proves the block reaches a new
   session, a recorded question is not asked, and the block returns after
   compaction. Argued in *Verification*.
@@ -200,14 +203,16 @@ the rule files named in *Changes by file*.
   and diagnosed when its value is invalid; it is never commentary.
   Argued in *The settings files*.
 - **D37** — A write inserts an absent key, replaces a present one, and
-  on a duplicate stops and reports both lines, leaving the choice to
-  the developer; after writing, it prints the fresh block, which
+  on a duplicate replaces every line for the key with the value it
+  writes and reports the lines it removed — the fresh answer is the
+  resolution; after writing, it prints the fresh block, which
   supersedes the old one for the rest of the session. Argued in *The
   loader*.
 - **D38** — Without a trustworthy block — none, or one marked
   incomplete — a session resolves keys by the loader's own procedure,
-  through `--print` or, where the script is unreachable, by the
-  reference file's full resolution. Argued in *Reading a key*.
+  through `--print` or, where the script is unreachable, by the full
+  resolution in `process-settings-resolution.md`. Argued in *Reading a
+  key*.
 - **D39** — The skill asks about directory exceptions only when the
   developer asks for them. Argued in *The skill*.
 - **D40** — The python and salesforce review commands and the
@@ -225,14 +230,17 @@ the rule files named in *Changes by file*.
   worktree only, as the skill says. Argued in *Scope and precedence*.
 - **D42** — `--print` is uncapped; only the hook's output carries the
   4 KB cap. Argued in *The loader*.
-- **D43** — The loader owns every write through
-  `--set --scope team|personal <key> <value>`: the destination (D41),
+- **D43** — The loader owns every write of an answer through
+  `--set <key> <value>`, the registry choosing the file by the key's
+  scope: the destination (D41),
   the `.gitignore` beside a personal file, insertion, replacement and
   duplicate detection (D37), validation, and the fresh block printed on
   success, validating before it writes; `--set --dry-run` computes the
   same write and applies nothing, which the skill's preview uses. The
   skill, a "yes, and record" answer and migration all call it; none
-  writes a settings file directly. Argued in *The loader*.
+  writes a settings file directly; the one hand-written line is a team's
+  suggestion for a personal key, which `--validate --scope team`
+  warns about and still passes. Argued in *The loader*.
 
 ## The settings files
 
@@ -461,20 +469,30 @@ cap guards the hook's context budget, and a skill or a session
 recovering from a truncated block needs the whole of it — and
 `--validate --scope team|personal <file>` checks a candidate file
 against the scope it is meant for, printing its warnings and exiting
-non-zero when the file would not validate. A third mode writes:
-`--set --scope team|personal <key> <value>` resolves the destination —
+non-zero when the file would not validate. A warning alone fails
+nothing: a personal key in the team file is reported as a suggestion
+and the file still validates, which is the check a hand-written
+suggestion gets. A third mode writes:
+`--set <key> <value>` takes no scope argument — the registry fixes each
+key's scope, so the file follows from the key — and resolves the
+destination —
 in a worktree the main checkout's personal file, in a bare-repository
 worktree its own (*Scope and precedence*) — creates the file and, for a
 personal file, the `.gitignore` beside it; inserts an absent key under
 its question as a comment, replaces a present key's line in place, and
-on a duplicate changes nothing and reports both lines with a non-zero
-exit, so the caller asks which stands; validates the result against
-the key's scope before anything is written, so no `--set` ever leaves
+on a duplicate replaces every line for that key with the one it writes
+and reports the lines it removed — the developer has just answered the
+question the duplicate caused, so that answer resolves it without a
+second question. The written line takes the first duplicate's place;
+each later duplicate goes, with the question comment directly above
+it, the one exception to leaving every other line untouched; validates the result against the key's registry scope
+before anything is written, so no `--set` ever leaves
 a file that would not validate; and on success prints the fresh
 block. `--set --dry-run` resolves the same destination and prints what
 the write would do — the file, the line it would insert or replace, the
-`.gitignore` it would create, and the shadow warning where a
-hand-made worktree file would hide the result — and writes nothing. Every other
+duplicate lines it would remove, the `.gitignore` it would create, and
+the shadow warning where a hand-made worktree file would hide the
+result — and writes nothing. Every other
 line and comment stays untouched, and an unchanged file is not
 rewritten. Writing lives in one place because its destination logic is
 exactly what drifts when three writers restate it. Only the hook mode
@@ -487,9 +505,18 @@ grammar, the block, the three-step read below, and when a write
 happens. The rules that read a key cite it and restate none of it. It
 stays short because every session and every dispatched agent loads it:
 the full by-hand resolution — needed only where no hook ran and the
-loader cannot be reached — lives in a reference file beside the rule,
-read on that path alone, and how a write happens belongs to the loader
-(*The loader*).
+loader cannot be reached — lives in a second rule of the payload,
+`process-settings-resolution.md`, scoped by `paths:` to
+`.working-process/**`. The Rules engine copies every rule file and
+Claude Code loads a rule without `paths:` at every launch, so a file
+merely "beside the rule" would be always-on; path-scoped, it loads
+exactly when a session reads a settings file by hand, which is the
+by-hand path and nothing else — the shape `process-artifacts.md`
+already uses. The trigger is a file read through the Read tool, not a
+`cat` in a shell, so `process-settings.md` also names the file and
+tells a session on the by-hand path to open it before touching the
+settings, and correctness does not depend on which tool reads them.
+How a write happens belongs to the loader (*The loader*).
 
 To read a key, a session:
 
@@ -500,8 +527,8 @@ To read a key, a session:
    is incomplete — resolves the key by the loader's own procedure:
    running `--print` where the script is reachable, otherwise following
    the full resolution — scope, the worktree fallback, defaults,
-   duplicates and invalid values — in a reference file the rule points
-   at, never a shortcut through the files;
+   duplicates and invalid values — in `process-settings-resolution.md`,
+   never a shortcut through the files;
 3. where the key is unset, behaves as the rule did before this change:
    the question is asked, or the offer made, exactly as today.
 
@@ -647,13 +674,17 @@ nudges them to run it. A run:
    them;
 3. previews each answer with `--set --dry-run`, which also shows the
    `.gitignore` it would create beside a personal file, then writes it
-   with `--set`; a duplicate `--set` reports is shown with both lines
-   and the developer chooses which stands. The fresh block `--set`
-   prints supersedes the one from session start for the rest of the
+   with `--set`; where the preview shows a duplicate, the lines the
+   write would remove are shown before it is applied. The fresh block
+   `--set` prints supersedes the one from session start for the rest of the
    session;
 4. materializes a declared mode in each Process directory that already
    exists and does not contradict it, and reports every contradiction;
    it creates no directory;
+
+A team's suggestion for a personal key is the one settings line
+`--set` never writes: it goes into the team file by hand, and the
+loader shows it as a suggestion.
 
 A second run shows the same table and asks only about what is unset or
 what the developer wants to change. It never replays the whole
@@ -676,8 +707,11 @@ questionnaire.
   about; the worktree fallback, on a real `git worktree` in a temporary
   directory; the 4 KB cap and its truncation line; silence without
   `.working-process/`; silence and exit 0 on an error of its own;
-  `--set` inserting an absent key, replacing a present one, refusing a
-  duplicate with both lines reported, writing a personal answer to the
+  `--set` inserting an absent key, replacing a present one, replacing
+  a duplicated key's every line and reporting the removed ones,
+  `--set --dry-run` printing the destination, the line, the lines a
+  duplicate would lose, the `.gitignore` and the shadow warning while
+  leaving every file byte-identical, writing a personal answer to the
   main checkout from a worktree with its `.gitignore`, and to the
   worktree's own file in a bare-repository layout.
 - **Claude Code dogfood**, with the plugin loaded from the checkout: the
@@ -709,8 +743,8 @@ questionnaire.
 
 - New: the `process-setup` skill; the key registry; the loader script
   with its `--print`, `--validate` and `--set` modes; the
-  `process-settings.md` rule and the reference file holding its full
-  by-hand resolution; a second SessionStart handler in
+  always-on `process-settings.md` rule and the path-scoped
+  `process-settings-resolution.md` holding the full by-hand resolution; a second SessionStart handler in
   `hooks/hooks.json`.
 - `rules/workflow.md`, `rules/spec-plan-lifecycle.md`,
   `rules/process-artifacts.md` — as *Changes to the rules* and
@@ -733,16 +767,25 @@ None.
 
 ## Review rounds
 
+### 2026-09-28 — architect, fable 5.1, concerns (round 3, diff-scoped)
+
+- fixed 2026-09-28 — [Minor] F14: D43 stayed absolute after the F11 ruling made the suggestion hand-written, and `--validate` was not said to pass it; license: the round-2 F11 ruling; D43 covers every write of an answer and names the exception, *The loader* says a warning alone fails nothing
+- fixed 2026-09-28 — [Minor] F15: a duplicate's rewrite had no stated shape; license: D37 and *The settings files* ("so the file explains itself"); the line takes the first duplicate's place, later duplicates go with their question comments
+- fixed 2026-09-28 — [Minor] F16: the path-scoped rule loads on a Read, not a shell `cat`, and the pointer from `process-settings.md` was lost in the F8 rewrite; license: the round-2 F8 ruling; D12 and *Reading a key* restore the pointer
+- signal 2026-09-28 — a further round would not earn its cost; land the three Minors and let the consumption-gate integrity audit read the whole
+
 ### 2026-09-28 — architect, fable 5.1, blocking (round 2, diff-scoped)
 
-- held — [Important] F8: the reference file "beside the rule" lands in the Rules payload, which Claude Code loads unconditionally, undoing F4; question: where does it live?; options: (a) a path-scoped rule in the payload with `paths: [".working-process/**"]`, loading exactly when a session reads the settings by hand (recommended); (b) outside `rules/`, under the skill or beside the loader, named by path from the rule
-- held — [Important] F9: after `--set` refuses a duplicate, the write that enacts the developer's choice has no owner, and the in-flow path needs a second question; question: how is a duplicate resolved?; options: (a) `--set` replaces every line for the key with the value it writes and reports what it removed, the fresh answer being the resolution (recommended); (b) keep the refusal and add a loader mode that writes the chosen line
+- fixed 2026-09-28 — [Important] F8: the reference file beside the rule would load at every launch; ruling: 2026-09-28; D12, D38, *Reading a key* and *Changes by file* make it `process-settings-resolution.md`, path-scoped to `.working-process/**`
+- fixed 2026-09-28 — [Important] F9: a refused duplicate left the resolving write unowned and forced a second question; ruling: 2026-09-28; D37, *The loader*, *The skill* and the loader tests: `--set` replaces every line for the key and reports the removed ones
 - fixed 2026-09-28 — [Important] F10: the skill's preview needed the write's destination logic, which only `--set` holds; license: D21 and D43 ("none writes a settings file directly"); `--set --dry-run` added to *The loader* and D43, *The skill* step 3 previews through it, step 5 folded in
-- held — [Minor] F11: `--set --scope` duplicates the registry's fixed scope with no stated purpose; question: what is `--scope` for?; options: (a) drop it — the registry picks the file, and a team suggestion for a personal key is written by hand (recommended); (b) keep it solely for writing a suggestion into the team file, any other mismatch refused
+- fixed 2026-09-28 — [Minor] F11: `--set --scope` duplicated the registry's scope; ruling: 2026-09-28; `--set <key> <value>` takes no scope, the registry picks the file, and a team suggestion for a personal key is written by hand (*The skill*)
 - fixed 2026-09-28 — [Minor] F11 (part): validation order unstated; license: D43 ("validation"); `--set` validates before anything is written
 - fixed 2026-09-28 — [Minor] F12: the card's over-tier clause survived into the default's argument though the spec's own evidence contradicts it; license: the round-1 F1 ruling; *Reading a key* and *Changes to the rules* strike it
 - fixed 2026-09-28 — [Minor] F13: "yes, and record" had no behaviour where the loader is unreachable; license: D43; *Recording an answer* withholds the option and says the answer holds for the session only
 - fixed 2026-09-28 — the key-exclusion criterion was absolute in *The keys* and qualified in *Reading a key* (integrity note, ungraded); license: the round-1 F1 ruling; *The keys* now carries the qualified form
+- hit fixed 2026-09-28 — *The loader*'s list of what `--set --dry-run` prints lacked the duplicate lines *The skill* step 3 now previews; added
+- hit fixed 2026-09-28 — `--set --dry-run` had no test in D28 or *Verification*; both now name it
 - signal 2026-09-28 — one more diff-scoped round earns its cost: F8, F9 and F10 change contracts; if that wave lands as suggested the round after should close the loop; the leftovers are worth nothing alone
 
 ### 2026-09-28 — architect, fable 5.1, blocking (round 1, full-document)
