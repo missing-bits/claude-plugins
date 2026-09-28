@@ -4,6 +4,8 @@ Each test builds its documents in a temporary directory, runs the script
 on one of them and asserts the exact lines the contract names.
 """
 
+from __future__ import annotations
+
 import os
 import re
 import subprocess
@@ -73,11 +75,12 @@ Text.
 """
 
 
-def dedent(text):
+def dedent(text: str) -> str:
+    """Shorthand for `textwrap.dedent`."""
     return textwrap.dedent(text)
 
 
-def line_of(text, needle):
+def line_of(text: str, needle: str) -> int:
     """1-based number of the first line containing needle."""
     for number, line in enumerate(text.splitlines(), 1):
         if needle in line:
@@ -86,7 +89,7 @@ def line_of(text, needle):
 
 
 class Result:
-    def __init__(self, proc):
+    def __init__(self, proc: subprocess.CompletedProcess[str]) -> None:
         self.proc = proc
         self.lines = proc.stdout.splitlines()
         self.hits = [line for line in self.lines if DERIVATION in line]
@@ -95,21 +98,23 @@ class Result:
 
 
 class CoverageTest(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         self.root = Path(self._tmp.name)
         (self.root / "specs").mkdir()
         (self.root / "plans").mkdir()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self._tmp.cleanup()
 
-    def write(self, relative, text):
+    def write(self, relative: str, text: str) -> Path:
+        """Write `text` to `relative` under the temp root, returning its path."""
         path = self.root / relative
         path.write_text(text, encoding="utf-8")
         return path
 
-    def run_script(self, relative):
+    def run_script(self, relative: str) -> Result:
+        """Run the script on `relative` under the temp root, asserting it exits 0."""
         proc = subprocess.run(
             [sys.executable, SCRIPT, str(self.root / relative)],
             capture_output=True,
@@ -119,9 +124,10 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(proc.stderr, "")
         return Result(proc)
 
-    def assert_hit_at(self, result, filename, line, needle=None):
+    def assert_hit_at(self, result: Result, filename: str, line: int, needle: str | None = None) -> None:
+        """Assert a hit exists at `filename:line`, optionally containing `needle`."""
         prefix = f"{filename}:{line} — "
-        found = [h for h in result.hits if os.path.basename(h.split(" — ")[0].rsplit(":", 1)[0]) == filename
+        found = [h for h in result.hits if Path(h.split(" — ")[0].rsplit(":", 1)[0]).name == filename
                  and h.split(" — ")[0].endswith(f":{line}")]
         self.assertTrue(found, f"no hit at {prefix} in {result.lines}")
         if needle is not None:
@@ -249,7 +255,8 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(result.map, ["  D1 → Task 1"])
 
     # 6
-    def assert_malformed(self, register, bad_line_needle):
+    def assert_malformed(self, register: str, bad_line_needle: str) -> None:
+        """Assert a `register` body is malformed at `bad_line_needle` and counts nothing."""
         spec = "---\ndecisions: registered\n---\n\n## Decisions\n\n" + dedent(register)
         self.write("specs/s.md", spec)
         self.write("plans/p.md", dedent("""\
@@ -268,58 +275,75 @@ class CoverageTest(unittest.TestCase):
                          ["decision-coverage: ../specs/s.md not counted — malformed register"])
         self.assertEqual(result.map, [])
 
-    def test_06a_duplicate_identifier(self):
-        self.assert_malformed("""\
+    # Cases 06a-06h and 06j-06m share assert_malformed's exact shape (one
+    # hit, the malformed block, an empty map) and differ only in the
+    # register body and the expected bad-line needle, so they fold into
+    # one table-driven test. 06i differs — it is malformed through the
+    # `decisions:` field rather than the register body, and does not
+    # check `result.map` — so it stays its own test, as does 06n, which
+    # exercises a different (non-malformed) behavior.
+    MALFORMED_REGISTER_CASES = [
+        ("test_06a_duplicate_identifier", """\
             - **D1** — One.
             - **D2** — Two.
             - **D1** — One again.
-            """, "One again")
-
-    def test_06b_child_without_parent(self):
-        self.assert_malformed("""\
+            """, "One again"),
+        ("test_06b_child_without_parent", """\
             - **D1** — One.
               - **D4.1** — Orphan.
-            """, "Orphan")
-
-    def test_06c_group_with_token(self):
-        self.assert_malformed("""\
+            """, "Orphan"),
+        ("test_06c_group_with_token", """\
             - **D1** — One.
             - **D3** — Group. withdrawn old, ruling: 2026-01-01
               - **D3.1** — Child.
-            """, "Group.")
-
-    def test_06d_replaced_by_itself(self):
-        self.assert_malformed("""\
+            """, "Group."),
+        ("test_06d_replaced_by_itself", """\
             - **D1** — One.
             - **D2** — Two. withdrawn old, ruling: 2026-01-01; replaced by D2
-            """, "Two.")
-
-    def test_06e_replacement_cycle(self):
-        self.assert_malformed("""\
+            """, "Two."),
+        ("test_06e_replacement_cycle", """\
             - **D1** — One. withdrawn old, ruling: 2026-01-01; replaced by D2
             - **D2** — Two. withdrawn old, ruling: 2026-01-01; replaced by D1
             - **D3** — Three.
-            """, "One.")
-
-    def test_06f_numbered_list(self):
-        self.assert_malformed("""\
+            """, "One."),
+        ("test_06f_numbered_list", """\
             1. **D1** — One.
             2. **D2** — Two.
-            """, "1. **D1**")
-
-    def test_06g_unsupported_nesting_depth(self):
-        self.assert_malformed("""\
+            """, "1. **D1**"),
+        ("test_06g_unsupported_nesting_depth", """\
             - **D1** — One.
             - **D2** — Two.
               - **D2.1** — Child.
                 - **D2.1.1** — x.
-            """, "D2.1.1")
-
-    def test_06h_bullet_without_identifier(self):
-        self.assert_malformed("""\
+            """, "D2.1.1"),
+        ("test_06h_bullet_without_identifier", """\
             - **D1** — One.
             - note
-            """, "- note")
+            """, "- note"),
+        ("test_06j_child_nested_under_wrong_parent", """\
+            - **D1** — One.
+              - **D1.1** — Child of D1.
+            - **D2** — Two.
+              - **D1.2** — Wrongly placed.
+            """, "Wrongly placed"),
+        ("test_06k_withdrawn_segment_malformed", """\
+            - **D1** — One.
+            - **D2** — Two. withdrawn reason without a ruling date.
+            """, "withdrawn reason"),
+        ("test_06l_replaced_by_missing_identifier", """\
+            - **D1** — One. withdrawn old, ruling: 2026-01-01; replaced by D9
+            """, "One."),
+        ("test_06m_replaced_by_group", """\
+            - **D1** — One. withdrawn old, ruling: 2026-01-01; replaced by D2
+            - **D2** — Group.
+              - **D2.1** — Child.
+            """, "One."),
+    ]
+
+    def test_06_malformed_register_shared_shape(self):
+        for name, register, needle in self.MALFORMED_REGISTER_CASES:
+            with self.subTest(name):
+                self.assert_malformed(register, needle)
 
     def test_06i_decisions_field_not_registered(self):
         spec = "---\ndecisions: draft\n---\n\n## Decisions\n\n- **D1** — One.\n"
@@ -338,32 +362,6 @@ class CoverageTest(unittest.TestCase):
         self.assert_hit_at(result, "s.md", line_of(spec, "decisions: draft"), "not `registered`")
         self.assertEqual(result.blocks,
                          ["decision-coverage: ../specs/s.md not counted — malformed register"])
-
-    def test_06j_child_nested_under_wrong_parent(self):
-        self.assert_malformed("""\
-            - **D1** — One.
-              - **D1.1** — Child of D1.
-            - **D2** — Two.
-              - **D1.2** — Wrongly placed.
-            """, "Wrongly placed")
-
-    def test_06k_withdrawn_segment_malformed(self):
-        self.assert_malformed("""\
-            - **D1** — One.
-            - **D2** — Two. withdrawn reason without a ruling date.
-            """, "withdrawn reason")
-
-    def test_06l_replaced_by_missing_identifier(self):
-        self.assert_malformed("""\
-            - **D1** — One. withdrawn old, ruling: 2026-01-01; replaced by D9
-            """, "One.")
-
-    def test_06m_replaced_by_group(self):
-        self.assert_malformed("""\
-            - **D1** — One. withdrawn old, ruling: 2026-01-01; replaced by D2
-            - **D2** — Group.
-              - **D2.1** — Child.
-            """, "One.")
 
     def test_06n_legal_nested_list_in_free_prose_is_not_a_hit(self):
         spec = "---\ndecisions: registered\n---\n\n## Decisions\n\n" + dedent("""\
@@ -454,7 +452,8 @@ class CoverageTest(unittest.TestCase):
         self.assertIn("  D1 → Task 1", result.lines)
 
     # 10
-    def follows_case(self, spec, predecessor_status):
+    def follows_case(self, spec: str, predecessor_status: str) -> tuple[str, Result]:
+        """Run a plan that follows a predecessor at `predecessor_status`."""
         self.write("specs/s.md", spec)
         self.write("plans/p0.md", dedent(f"""\
             ---
@@ -686,6 +685,27 @@ class CoverageTest(unittest.TestCase):
             result.lines)
         self.assertIn("  D1 → —", result.lines)
 
+    # 17
+    def test_17_plan_names_unreadable_spec_exits_1(self):
+        plan = dedent("""\
+            ---
+            spec: ../specs/missing.md
+            ---
+
+            ### Task 1: one
+
+            **Realizes:** D1
+            """)
+        self.write("plans/p.md", plan)
+        proc = subprocess.run(
+            [sys.executable, SCRIPT, str(self.root / "plans" / "p.md")],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(proc.returncode, 1, proc.stderr)
+        self.assertEqual(len(proc.stderr.strip().splitlines()), 1)
+        self.assertTrue(proc.stderr.startswith("decision-coverage: "), proc.stderr)
+
 
 class UsageTest(unittest.TestCase):
     def test_usage_error(self):
@@ -696,7 +716,7 @@ class UsageTest(unittest.TestCase):
 
     def test_unreadable_file(self):
         proc = subprocess.run([sys.executable, SCRIPT, "/nonexistent/x.md"], capture_output=True, text=True)
-        self.assertEqual(proc.returncode, 2)
+        self.assertEqual(proc.returncode, 1)
         self.assertEqual(len(proc.stderr.strip().splitlines()), 1)
         self.assertTrue(proc.stderr.startswith("decision-coverage: "), proc.stderr)
 
