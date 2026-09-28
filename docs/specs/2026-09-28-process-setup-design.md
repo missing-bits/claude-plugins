@@ -75,8 +75,8 @@ the rule files named in *Changes by file*.
   worktree replaces that fallback wholly, and the loader says so.
   Argued in *Scope and precedence*.
 - **D6** — One key registry in the plugin defines every key: name,
-  scope, allowed values, default, the rule that reads it, and the
-  question the skill asks. The skill, the loader and the rules keep no
+  scope, allowed values, default, the files that read it (a list of
+  rules, commands and cards), and the question the skill asks. The skill, the loader and the rules keep no
   second definition of a key. Argued in *The key registry*.
 - **D7** — The version-one keys. Argued in *The keys*.
   - **D7.1** — `dir.default`: `tracked` | `ignored`, team.
@@ -157,7 +157,8 @@ the rule files named in *Changes by file*.
 - **D24** — The first personal answer written creates
   `.working-process/.gitignore` holding the single line
   `settings.local.md`, beside the personal file; the loader's `--set`
-  writes it (D43), and the file is committed with the team file.
+  writes it (D43), and it is committed in the checkout where it was
+  written.
   Argued in *The loader*.
 - **D25** — The skill asks about `dir.docs/memory` only when the
   project-memory plugin is installed, and the project-memory rule reads
@@ -183,7 +184,8 @@ the rule files named in *Changes by file*.
   through a repository-level Codex hook, after trust and after
   compaction or resume. Argued in *Verification*.
 - **D31** — The glossary's **First-create question** entry gains the
-  settings key as a signal. Argued in *Changes by file*.
+  settings key as a signal; the grilling of this spec already landed it,
+  and the plan verifies it. Argued in *Changes by file*.
 - **D32** — An absent `dir.<path>` exception inherits `dir.default`; an
   invalid one is unset and the rule asks, never inheriting. Argued in
   *The keys*.
@@ -217,7 +219,9 @@ the rule files named in *Changes by file*.
   developer asks for them. Argued in *The skill*.
 - **D40** — The python and salesforce review commands and the
   project-memory rule, which restate the first-create predicate, adopt
-  the settings key and its conflict question. Argued in *Changes to the
+  the settings key and its conflict question; in an install without the
+  working-process rules, a command reads the key only from a block in
+  context and otherwise keeps today's predicate. Argued in *Changes to the
   rules*.
 - **D41** — Personal answers are written where the loader reads them:
   in a worktree, to the main checkout's personal file, with its
@@ -250,6 +254,26 @@ the rule files named in *Changes by file*.
   duplicate, an unknown key, a team key in the personal file — and never
   on a notice, which a personal key's suggestion in the team file is.
   Argued in *The loader*.
+- **D47** — Claude Code's tier table lives in `workflow.md` and maps
+  each tier to a relative rung: the cheapest available family, the
+  family one below the most capable, the most capable available.
+  Argued in *The keys*.
+- **D48** — The grilling-session skill stays as it is: it defers to
+  `process-artifacts.md`'s signal list. Argued in *Changes to the
+  rules*.
+- **D49** — `--set` never introduces an error: on a file already
+  carrying one on another line it writes its own line and reports the
+  other. Argued in *The loader*.
+- **D50** — A team key is written to the team file of the checkout
+  `--set` runs in. Argued in *Scope and precedence*.
+- **D51** — The first write in a project without `.working-process/` is
+  the skill's: the hook stays silent there, so no block names the
+  loader, and the skill finds the loader relative to its own plugin
+  directory. Argued in *The skill*.
+- **D52** — On the skill's first run, existing directory signals are
+  offered as `dir.default` set to the majority's mode, and each
+  directory in another mode as an exception, all for the developer to
+  confirm. Argued in *The skill*.
 
 ## The settings files
 
@@ -326,6 +350,12 @@ worktree by hand replaces the fallback wholly — no per-key merge — and
 the loader's first line says which file it read; a write made from that
 worktree still goes to the main checkout, and its preview says it will
 not change the current worktree's answer.
+
+A team key is written to the team file of the checkout `--set` runs
+in: the team file is committed on a branch, so a worktree's team answer
+travels with that branch's work and is reviewed with it. The
+`.gitignore` a personal write creates is committed in the checkout it
+lands in.
 
 A bare repository with linked worktrees has no main checkout: the first
 porcelain entry is the bare repository itself, marked `bare`. There the
@@ -405,8 +435,9 @@ never a model name. `mid` is the glossary's own word for its rung, and
 `most-capable` shortens the glossary's "most capable available";
 `cheapest` is the workflow rule's, which prescribes "the cheapest
 available family" for this agent today. Each host resolves the tier at dispatch through a table
-of its own; version one ships only Claude Code's (Haiku for `cheapest`,
-the family one below the most capable for `mid`, the most capable
+of its own; version one ships only Claude Code's (the cheapest
+available family for `cheapest`, the family one below the most capable
+for `mid`, the most capable
 available for `most-capable`), and it lives in `workflow.md`, where the
 dispatch tiers are already prescribed. A Codex port adds its table; Codex's
 current ladder has three rungs, which fit the three values, and its
@@ -524,9 +555,11 @@ second question. The written line takes the first duplicate's place;
 each later duplicate goes, with the question comment directly above
 it — a comment line whose text is that key's question in the registry,
 never a hand-written one — the one exception to leaving every other
-line untouched; validates the result against the key's registry scope
-before anything is written, so no `--set` ever leaves
-a file that would not validate; and on success prints the fresh
+line untouched; validates its own line against the key's registry
+scope before anything is written, so no `--set` ever introduces an
+error — where the file already carries one on another line, `--set`
+writes its line and reports the other, rather than refusing a write it
+did not break; and on success prints the fresh
 block. `--set --dry-run` resolves the same destination and prints what
 the write would do — the file, the line it would insert or replace, the
 duplicate lines it would remove, the `.gitignore` it would create, and
@@ -617,8 +650,11 @@ as long as D20's transition lasts:
   `.docs` branch (`docs-branch.merge`).
 - `process-artifacts.md` — the settings key joins the directory
   signals (*Directory modes*).
-- `review-reports.md` and the grilling-session skill defer to
-  `process-artifacts.md`'s signal list and gain nothing of their own.
+- `review-reports.md` — its local-pocket step, today written "when the
+  first-create question resolves to tracked mode", fires on the
+  resolved mode however it was settled (*Directory modes*).
+- The grilling-session skill defers to `process-artifacts.md`'s signal
+  list and gains nothing of its own.
 - The python and salesforce review commands restate the predicate so
   each stands alone, and today skip the question whenever a visible
   signal exists. They adopt the settings key and D17's order, including
@@ -627,6 +663,9 @@ as long as D20's transition lasts:
   the working-process rules are installed, and its "Never ask when a
   prior decision is present" gains the conflict question: a visible
   signal that contradicts the key is reported and the developer asked.
+- `agents/integrity-auditor.md` — its sentence that the propagation
+  pass runs "on the cheapest available family" follows the resolved
+  tier.
 - `agents/propagation-auditor.md` — the tier clause, as *Reading a key*
   says, including the struck over-tier sentence, and the `description:`
   line's own "cheapest" prescription.
@@ -705,8 +744,9 @@ nudges them to run it. A run:
 1. calls the loader's `--print` and shows the effective settings as one
    table — key, value, source — together with the first-run candidates
    (*Migration*): on a run where no settings file exists yet, the
-   directory signals are offered as values to record and each prose
-   note as the model's reading; the project-memory plugin counts as
+   directory signals are offered as `dir.default` set to the majority's
+   mode, with each directory in another mode as an exception, and each
+   prose note as the model's reading, all to confirm; the project-memory plugin counts as
    installed where its `project-memory.md` rule is found in the project
    or user rules directory;
 2. asks only about unset keys, one at a time, with a recommendation,
@@ -729,7 +769,14 @@ nudges them to run it. A run:
    value with `--set`; where the key stands, it says what the developer
    must do by hand, since it never untracks or force-adds a file;
 5. reminds the developer that `.working-process/settings.md` and its
-   `.gitignore` belong in the work's commit; it never commits.
+   `.gitignore` belong in the work's commit, in the checkout they were
+   written in; it never commits.
+
+In a project without `.working-process/` the hook is silent and no
+block names the loader, so "and record" is withheld there and the
+skill makes the first write; it finds the loader relative to its own
+plugin directory. Adopting the settings is a deliberate act, as
+adopting a Project-memory store is.
 
 A team's suggestion for a personal key is the one settings line
 `--set` never writes: it goes into the team file by hand, and the
@@ -763,7 +810,8 @@ questionnaire.
   duplicate would lose, the `.gitignore` and the shadow warning while
   leaving every file byte-identical, writing a personal answer to the
   main checkout from a worktree with its `.gitignore`, and to the
-  worktree's own file in a bare-repository layout.
+  worktree's own file in a bare-repository layout; `--validate`
+  exiting non-zero on each error kind and zero on a suggestion.
 - **Claude Code dogfood**, with the plugin loaded from the checkout: the
   skill records settings; a new session receives the block; a recorded
   question is not asked; after `/compact` the block is back. The run
@@ -805,16 +853,46 @@ questionnaire.
   `plugins/salesforce-standards/commands/salesforce-review.md` — the
   restated first-create predicate.
 - `docs/domain/glossary.md` — **First-create question** gains the
-  settings key as a signal, through a grilling session on this spec.
+  settings key as a signal; already landed by this spec's grilling, and
+  verified by the plan.
+- `rules/review-reports.md` — the local-pocket step keyed to the
+  resolved mode.
 - Tests under `tests/working-process/`.
 - README and CHANGELOG entries under `## Unreleased` for working-process
   and project-memory; a `-dev` dogfood version.
 
 ## Open questions
 
-None.
+None for the design. The plan settles the format edges the integrity
+audit of 2026-09-28 listed: the key line's exact regular expression and
+its whitespace; the source a `dir.<path>` line carries when
+`dir.default` is itself unset or invalid, and a duplicated key's
+source; the first line's `local:` when no personal file exists; whether
+a suggestion shows beside a `[local]` value; whether the truncation line
+counts inside the 4 KB and that the cut falls on a line boundary; the
+tier table's form in `workflow.md`; and the "and record" wording for a
+non-yes/no answer and for the autonomy question's two clauses.
 
 ## Review rounds
+
+### 2026-09-28 — integrity audit, fable, at the consumption gate (second)
+
+Coverage tell: 886 lines read, highest line cited 886; glossary 693
+lines, highest cited 315. Seven defects and fifteen implementer
+questions; quotes checked before disposition.
+
+- fixed 2026-09-28 — D6 kept the reader field singular; license: *The key registry* and *Verification*; D6 names a list of rules, commands and cards (question 6)
+- fixed 2026-09-28 — D24 and the skill's reminder could not both hold in a worktree, and a team key's destination was unstated; ruling: 2026-09-28; new D50, *Scope and precedence* and step 5 say which checkout
+- fixed 2026-09-28 — the tier table named Haiku though the value is a relative rung; license: glossary **Tier**; the cheapest available family
+- fixed 2026-09-28 — the host tier table had no register entry; license: the register's declared rule; new D47
+- fixed 2026-09-28 — the local-pocket step was claimed to fire on a key while `review-reports.md` stayed unchanged; license: *Directory modes* step 3; `review-reports.md` changes and joins *Changes by file*
+- fixed 2026-09-28 — D31 prescribed an edit already at HEAD; license: glossary at f0a57d4; D31 and *Changes by file* say it landed and the plan verifies it
+- fixed 2026-09-28 — the grilling-session skill's "stays as it is" had no entry; license: the register's declared rule; new D48
+- fixed 2026-09-28 — question 1, `--set` on a file already carrying an error; ruling: 2026-09-28; new D49, `--set` never introduces one and reports the other
+- fixed 2026-09-28 — question 2, the first "and record" in a project without settings; ruling: 2026-09-28; new D51, the skill makes the first write and finds the loader from its own plugin directory
+- fixed 2026-09-28 — question 3, directory signals on the first run; ruling: 2026-09-28; new D52, majority mode as `dir.default` with exceptions, to confirm
+- fixed 2026-09-28 — questions 4, 7, 12, 13; license: D41, D46, D40 and the integrity-auditor card; the team-file destination (D50), a `--validate` test, standalone review commands, the integrity-auditor card joins *Changes by file*
+- fixed 2026-09-28 — questions 5, 9, 10, 11, 14, 15, format edges; ruling: 2026-09-28; handed to the plan in *Open questions*
 
 ### 2026-09-28 — integrity audit, fable, at the consumption gate
 
