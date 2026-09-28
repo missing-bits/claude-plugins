@@ -4,6 +4,7 @@ date: 2026-09-28
 status: draft
 grilled: 2026-09-28
 architect: concerns (resolved 2026-09-28)
+integrity: 2026-09-28 (sha: 901ebf5)
 decisions: registered
 branch: feature/process-setup
 base: develop
@@ -886,13 +887,14 @@ questions; quotes checked before disposition.
 - fixed 2026-09-28 — the tier table named Haiku though the value is a relative rung; license: glossary **Tier**; the cheapest available family
 - fixed 2026-09-28 — the host tier table had no register entry; license: the register's declared rule; new D47
 - fixed 2026-09-28 — the local-pocket step was claimed to fire on a key while `review-reports.md` stayed unchanged; license: *Directory modes* step 3; `review-reports.md` changes and joins *Changes by file*
-- fixed 2026-09-28 — D31 prescribed an edit already at HEAD; license: glossary at f0a57d4; D31 and *Changes by file* say it landed and the plan verifies it
+- fixed 2026-09-28 — D31 prescribed an edit already at HEAD; license: glossary at f0a57d4; D31 and *Changes by file* say it landed and the plan verifies it (question 8)
 - fixed 2026-09-28 — the grilling-session skill's "stays as it is" had no entry; license: the register's declared rule; new D48
 - fixed 2026-09-28 — question 1, `--set` on a file already carrying an error; ruling: 2026-09-28; new D49, `--set` never introduces one and reports the other
 - fixed 2026-09-28 — question 2, the first "and record" in a project without settings; ruling: 2026-09-28; new D51, the skill makes the first write and finds the loader from its own plugin directory
 - fixed 2026-09-28 — question 3, directory signals on the first run; ruling: 2026-09-28; new D52, majority mode as `dir.default` with exceptions, to confirm
 - fixed 2026-09-28 — questions 4, 7, 12, 13; license: D41, D46, D40 and the integrity-auditor card; the team-file destination (D50), a `--validate` test, standalone review commands, the integrity-auditor card joins *Changes by file*
 - fixed 2026-09-28 — questions 5, 9, 10, 11, 14, 15, format edges; ruling: 2026-09-28; handed to the plan in *Open questions*
+- hit fixed 2026-09-28 — the glossary's **Key registry** entry kept a singular "reading rule" after D6 made it a list; reworded; and question 8's disposition was not named on its line; now named
 
 ### 2026-09-28 — integrity audit, fable, at the consumption gate
 
