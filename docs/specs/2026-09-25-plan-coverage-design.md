@@ -569,16 +569,17 @@ it got wrong, and a parse settles them. The script reads the document it
 is given — a plan, or a design spec audited alone — with the specs and
 predecessors it names, performs the steps above, and prints the duty's
 hits and `decision-coverage:` lines in the report's shapes. The auditor
-runs it from the plugin's root with `python3` — Python 3.9 or later, the
-standard library only — passing the audited document's path as its one
-argument, once per audited plan or design spec and never on a technical
-design, copies its output into the report below the `model:` line, and
-never derives the sets itself. A document the script cannot read ends it
-with a non-zero exit and a message; the auditor reports that as a hit
-and writes no `decision-coverage:` line for the document. The spec path
-on a summary line is written as the plan's `spec:` writes it, and on a
-design spec audited alone as the auditor passed it. The steps stay the
-duty's definition; the script is their one implementation.
+runs the plugin's copy with `python3` from the repository root — Python
+3.9 or later, the standard library only — passing the audited document's
+path as its one argument, once per audited plan or design spec and never
+on a technical design, copies its output into the report below the
+`model:` line, and never derives the sets itself. A document the script
+cannot read ends it with a non-zero exit and a message; the auditor
+reports that as a hit and writes no `decision-coverage:` line for the
+document. The spec path on a summary line is written as the plan's
+`spec:` writes it, and on a design spec audited alone as the auditor
+passed it. The steps stay the duty's definition; the script is their one
+implementation.
 
 The duty proves that every *declared* decision has an owner. Whether
 the register faithfully lists the spec's decisions is judgment, and
@@ -1137,4 +1138,4 @@ propagation gate defines the gate episode and its re-dispatch bound, and
 *Disposing of a coverage hit* already gives a fresh episode its own
 bound; the lifecycle rule's frontmatter block places `decisions:` and
 names `registered` as its one value.
-
+- hit fixed 2026-09-28 — the D31 paragraph said the script runs "from the plugin's root" while the card runs it from the repository root; it now runs the plugin's copy from the repository root
