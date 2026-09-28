@@ -56,8 +56,9 @@ the rule files named in *Changes by file*.
   (team, committed) and `.working-process/settings.local.md` (personal,
   git-ignored), at the repository root. Neither `CLAUDE.md` nor
   `AGENTS.md` carries them. Argued in *The settings files*.
-- **D2** — Both files use one grammar: a `key: value` line at the start
-  of a line, outside a fenced block; a key contains a dot; a value is a
+- **D2** — Both files use one grammar: a line at the start of a line,
+  outside a fenced block, that opens with a key — a dotted name — and a
+  colon is a settings line, validated as D36 says; a valid value is a
   plain token; every other line is commentary. Argued in *The settings
   files*.
 - **D3** — Every key has one scope, team or personal, fixed by the
@@ -102,20 +103,18 @@ the rule files named in *Changes by file*.
   value and source of every registered key, plus warnings, as plain
   standard output, which both hosts add to the session's context.
   Argued in *The loader*.
-- **D10** — The loader stays silent when `.working-process/` does not
-  exist, exits 0 on any error of its own, and caps its output at 4 KB,
-  saying so when it truncates. Argued in *The loader*.
+- **D10** — In hook mode the loader stays silent when
+  `.working-process/` does not exist, exits 0 on any error of its own,
+  and caps its output at 4 KB, saying so when it truncates; its other
+  modes report failure. Argued in *The loader*.
 - **D11** — The loader is its own hook handler, registered without a
   matcher so it also runs on resume and compaction; it finds the
   registry relative to its own path and uses POSIX `sh`, `sed` and
   `awk`. Argued in *The loader*.
 - **D12** — A new always-on rule, `process-settings.md`, defines the
-  files, the grammar, the block, the three-step read, and when a write
-  happens; how a write happens belongs to the loader (D43), and the
-  full by-hand resolution to a second rule, `process-settings-resolution.md`,
-  path-scoped to `.working-process/**` so it loads only when a session
-  reads the settings by hand; `process-settings.md` names it and tells
-  the by-hand path to open it first. Argued in *Reading a key*.
+  files, the grammar, the block, the reading of a key, and when a write
+  happens; how a write happens belongs to the loader (D43). No second
+  rule resolves keys by hand. Argued in *Reading a key*.
 - **D13** — A rule reads a key from the block in its context; without
   a trustworthy block, by the procedure D38 names; an unset key means
   the rule's behaviour before this change. Argued in *Reading a key*.
@@ -137,7 +136,8 @@ the rule files named in *Changes by file*.
   asked about, and the rule says so. Argued in *Directory modes*.
 - **D19** — When a standing question is asked in ordinary work, its
   answers include "yes, and record", which writes the answer, through
-  the loader's `--set`, to the file its scope names. There is no separate "record it?" question.
+  the loader's `--set`, to the file its scope names; where no settings
+  block names the loader, the option is withheld. There is no separate "record it?" question.
   Anyone may record a team key this way; the write names the team file.
   Argued in *Recording an answer*.
 - **D20** — A `CLAUDE.md` note that declares a key's value keeps binding
@@ -157,15 +157,16 @@ the rule files named in *Changes by file*.
 - **D24** — The first personal answer written creates
   `.working-process/.gitignore` holding the single line
   `settings.local.md`, beside the personal file; the loader's `--set`
-  writes it (D43). Argued in *The loader*.
+  writes it (D43), and the file is committed with the team file.
+  Argued in *The loader*.
 - **D25** — The skill asks about `dir.docs/memory` only when the
   project-memory plugin is installed, and the project-memory rule reads
   that key only when the working-process rules are installed. Argued in
   *The keys*.
 - **D26** — Version one reads the working-process registry alone; no
   domain registry is read or discovered. Argued in *Out of scope*.
-- **D27** — A repository test checks that every registered key is cited
-  by the rule its entry names, that every key reference under the
+- **D27** — A repository test checks that every registered key is cited,
+  literally, by every rule its entry names, that every key reference under the
   `rules/`, `skills/`, `agents/` and `commands/` of working-process,
   project-memory, python-standards and salesforce-standards is
   registered, that defaults validate, and that names are unique. Argued in *Verification*.
@@ -208,11 +209,10 @@ the rule files named in *Changes by file*.
   resolution; after writing, it prints the fresh block, which
   supersedes the old one for the rest of the session. Argued in *The
   loader*.
-- **D38** — Without a trustworthy block — none, or one marked
-  incomplete — a session resolves keys by the loader's own procedure,
-  through `--print` or, where the script is unreachable, by the full
-  resolution in `process-settings-resolution.md`. Argued in *Reading a
-  key*.
+- **D38** — A block marked incomplete is completed by running
+  `--print` through the loader path its first line names; with no block
+  at all, every key is unset and each rule behaves as it did before this
+  change. Argued in *Reading a key*.
 - **D39** — The skill asks about directory exceptions only when the
   developer asks for them. Argued in *The skill*.
 - **D40** — The python and salesforce review commands and the
@@ -241,6 +241,15 @@ the rule files named in *Changes by file*.
   writes a settings file directly; the one hand-written line is a team's
   suggestion for a personal key, which `--validate --scope team`
   warns about and still passes. Argued in *The loader*.
+- **D44** — The block's first line names the loader's path, which is
+  how a rule reaches `--print` and `--set`. Argued in *The loader*.
+- **D45** — A first-create question answered "and record" writes the
+  exception for the directory asked about; only the skill writes
+  `dir.default`. Argued in *Recording an answer*.
+- **D46** — `--validate` fails on an error — an invalid value, a
+  duplicate, an unknown key, a team key in the personal file — and never
+  on a notice, which a personal key's suggestion in the team file is.
+  Argued in *The loader*.
 
 ## The settings files
 
@@ -263,8 +272,11 @@ process machinery, and the answers fit a format a script can resolve.
 A settings line is a `key: value` pair at the start of a line and
 outside a fenced block. A key holds a dot — `review.autonomy`,
 `dir.docs/specs` — so a line of prose such as `Note: see below` never
-reads as a key. A value is a plain token: letters, digits, `.`, `_`,
-`/` and `-`, with no quotes.
+reads as a key. A key is lower-case: a first segment of letters,
+digits and `-`, then one or more `.`-joined segments of letters, digits,
+`-`, `/` and `.` — so `dir..superpowers` is a key, and `Note.this:`,
+with its capital, is prose. A value is a plain token: letters, digits,
+`.`, `_`, `/` and `-`, with no quotes.
 
 Recognizing a settings line and validating it are separate steps. Every
 line shaped like a key — a dotted name and a colon at the start of a
@@ -329,8 +341,8 @@ version one.
 
 One file in the plugin defines every key. Each entry carries the key's
 name, its scope, its allowed values, its default (a value, or `unset`
-where the rule asks), the rule file that reads it, and the question the
-skill asks. The shape is fixed, one field per line under a heading
+where the rule asks), the rule files that read it (a list), and the
+question the skill asks. The shape is fixed, one field per line under a heading
 naming the key, so that the loader's `sed` and the repository test both
 parse it without a Markdown parser — the same discipline the rules
 manifest follows.
@@ -351,6 +363,7 @@ Version one registers the keys whose question has no home today:
 |---|---|---|---|---|
 | `dir.default` | team | `tracked` \| `ignored` | ask at first create | process-artifacts |
 | `dir.<path>` | team | `tracked` \| `ignored` | absent: `dir.default` applies; invalid: ask | process-artifacts |
+| `dir.docs/memory` | team | `tracked` \| `ignored` | as `dir.<path>` | project-memory |
 | `design.technical-design-offer` | team | `on` \| `off` | today's manifest-raised offer | workflow |
 | `dispatch.propagation-auditor-tier` | team | `cheapest` \| `mid` \| `most-capable` | `cheapest` | workflow |
 | `docs-branch.merge` | team | `squash` \| `fast-forward` | ask at the gate | spec-plan-lifecycle |
@@ -362,7 +375,11 @@ The `dir.<path>` exceptions exist for `docs/specs`,
 `docs/technical-designs`, `docs/plans`, `docs/domain`,
 `docs/code-review`, `.superpowers` and `docs/memory`. One default with
 exceptions collapses what is today one question asked separately for
-each directory into one question with rare exceptions. An exception has
+each directory into one question with rare exceptions. The block lists
+each exception's effective value, inheritance applied, so a reader such
+as the project-memory rule reads its own key and never recomputes the
+default. `dir..superpowers` covers the whole `.superpowers/` family
+`process-artifacts.md` names. An exception has
 three states. Absent, it inherits `dir.default`. Valid, it decides its
 directory. Invalid, it is unset — the rule asks at that directory's
 first create, and it does not inherit, for the reason D4 gives: an
@@ -390,7 +407,8 @@ never a model name. `mid` is the glossary's own word for its rung, and
 available family" for this agent today. Each host resolves the tier at dispatch through a table
 of its own; version one ships only Claude Code's (Haiku for `cheapest`,
 the family one below the most capable for `mid`, the most capable
-available for `most-capable`). A Codex port adds its table; Codex's
+available for `most-capable`), and it lives in `workflow.md`, where the
+dispatch tiers are already prescribed. A Codex port adds its table; Codex's
 current ladder has three rungs, which fit the three values, and its
 separate reasoning-effort setting is the port's concern, not a
 settings value. Consent values are `yes` and `no` alone. A
@@ -415,19 +433,36 @@ applies scope and precedence against the registry, and emits one block
 as the hook's additional context:
 
 ```
-working-process settings (root: <path>; team: settings.md; local: settings.local.md)
+working-process settings (root: <path>; loader: <path>; team: settings.md; local: settings.local.md)
 dir.default: tracked  [team]
+dir.docs/specs: tracked  [inherited]
+dispatch.propagation-auditor-tier: cheapest  [default]
 review.autonomy: yes  [local]
 consult.personas: unset  [team suggests: yes]
-warning: settings.md:14 unknown key `review.autonmy` — ignored
+docs-branch.merge: unset  [invalid in team]
+error: settings.md:14 unknown key `review.autonmy` — ignored
 ```
+
+Each key's line carries one of a closed set of sources: `[team]`,
+`[local]`, `[default]`, `[inherited]` (a directory exception taking
+`dir.default`), `[team suggests: <value>]` beside `unset`, and
+`[invalid in team]` or `[invalid in local]` beside `unset`. The first
+line names the local file actually read — `settings.local.md (main
+checkout)` in a worktree using the fallback, `settings.local.md
+(worktree, bare repository)` where there is no main checkout — and the
+loader's own path. A truncated block ends with `incomplete: run
+<loader> --print`.
 
 The first line names the block, so a reader can find it among other
 hooks' context, whose order is undocumented, and understand it without
 the rule. Every registered key is listed, set or not, so a rule has one
 place to read and never needs the registry. Warnings live in the block,
-because nobody reads a hook's stderr: unknown keys, invalid values,
-duplicates, a key in the wrong scope's file.
+because nobody reads a hook's stderr. They come in two kinds. An
+error — an invalid value, a duplicate, an unknown key, a team key in the
+personal file — takes an `error:` line. A personal key's suggestion in
+the team file is not an error: it shows in its key's line as
+`[team suggests: …]` and takes no line of its own, so a deliberate
+suggestion adds nothing to every session start.
 
 The output is capped at 4 KB. That is a byte cap, not a token
 guarantee: Codex's documented per-handler threshold is about 2,500
@@ -469,10 +504,12 @@ cap guards the hook's context budget, and a skill or a session
 recovering from a truncated block needs the whole of it — and
 `--validate --scope team|personal <file>` checks a candidate file
 against the scope it is meant for, printing its warnings and exiting
-non-zero when the file would not validate. A warning alone fails
-nothing: a personal key in the team file is reported as a suggestion
-and the file still validates, which is the check a hand-written
-suggestion gets. A third mode writes:
+non-zero on any error; a suggestion is no error, so a hand-written
+suggestion passes, and that is the check it gets. `--validate` serves a
+developer who edits a settings file by hand, and the tests; `--set`
+validates on its own. `--print` in a project without
+`.working-process/` prints the first line alone, saying there is no
+settings directory. A third mode writes:
 `--set <key> <value>` takes no scope argument — the registry fixes each
 key's scope, so the file follows from the key — and resolves the
 destination —
@@ -485,7 +522,9 @@ and reports the lines it removed — the developer has just answered the
 question the duplicate caused, so that answer resolves it without a
 second question. The written line takes the first duplicate's place;
 each later duplicate goes, with the question comment directly above
-it, the one exception to leaving every other line untouched; validates the result against the key's registry scope
+it — a comment line whose text is that key's question in the registry,
+never a hand-written one — the one exception to leaving every other
+line untouched; validates the result against the key's registry scope
 before anything is written, so no `--set` ever leaves
 a file that would not validate; and on success prints the fresh
 block. `--set --dry-run` resolves the same destination and prints what
@@ -501,35 +540,25 @@ swallows its errors and exits 0; the other three report failure.
 ## Reading a key
 
 A new always-on rule, `process-settings.md`, defines the files, their
-grammar, the block, the three-step read below, and when a write
-happens. The rules that read a key cite it and restate none of it. It
-stays short because every session and every dispatched agent loads it:
-the full by-hand resolution — needed only where no hook ran and the
-loader cannot be reached — lives in a second rule of the payload,
-`process-settings-resolution.md`, scoped by `paths:` to
-`.working-process/**`. The Rules engine copies every rule file and
-Claude Code loads a rule without `paths:` at every launch, so a file
-merely "beside the rule" would be always-on; path-scoped, it loads
-exactly when a session reads a settings file by hand, which is the
-by-hand path and nothing else — the shape `process-artifacts.md`
-already uses. The trigger is a file read through the Read tool, not a
-`cat` in a shell, so `process-settings.md` also names the file and
-tells a session on the by-hand path to open it before touching the
-settings, and correctness does not depend on which tool reads them.
-How a write happens belongs to the loader (*The loader*).
+grammar, the block, the read below, and when a write happens. The rules
+that read a key cite it and restate none of it, and it stays short,
+because every session and every dispatched agent loads it. How a write
+happens belongs to the loader (*The loader*).
 
 To read a key, a session:
 
-1. takes its value from the settings block in its context, unless the
-   block says it is incomplete;
-2. without a trustworthy block — none arrived because hooks are
-   disabled or a Codex plugin is not yet trusted, or the block says it
-   is incomplete — resolves the key by the loader's own procedure:
-   running `--print` where the script is reachable, otherwise following
-   the full resolution — scope, the worktree fallback, defaults,
-   duplicates and invalid values — in `process-settings-resolution.md`,
-   never a shortcut through the files;
-3. where the key is unset, behaves as the rule did before this change:
+1. where the repository has no `.working-process/` directory, treats
+   every key as unset and calls nothing;
+2. takes its value from the settings block in its context; a block
+   marked incomplete is completed by running `--print` through the
+   loader path the block's first line names;
+3. with no block at all — hooks disabled, a Codex plugin not yet
+   trusted — treats every key as unset. It does not resolve the files
+   by hand: without the loader it cannot reach the registry, so it
+   would not know a key's scope or default, and a guess could read a
+   team suggestion as consent. A rule installed on a machine without
+   the plugin meets the same case;
+4. where the key is unset, behaves as the rule did before this change:
    the question is asked, or the offer made, exactly as today.
 
 An answer given in the current session outranks the settings, so a
@@ -571,7 +600,9 @@ plugin. The round cap has no such evidence behind it.
 
 Each site that asks a standing question today names its key and says
 what happens when the key is unset. "The developer's own instructions"
-in those sentences becomes the key:
+in those sentences becomes the key, and each site's unset branch keeps
+today's text, including its reading of a `CLAUDE.md` declaration, for
+as long as D20's transition lasts:
 
 - `workflow.md` — persona consultation (`consult.personas`), loop
   autonomy and per-round commits (`review.autonomy`,
@@ -579,7 +610,8 @@ in those sentences becomes the key:
   (`design.technical-design-offer`; the sentence that reads a
   declaration "until a standing home for a project's process answers
   exists" is rewritten to cite the key), and the propagation auditor's
-  tier (`dispatch.propagation-auditor-tier`).
+  tier (`dispatch.propagation-auditor-tier`), together with the host's
+  tier table (*The keys*).
 - `spec-plan-lifecycle.md` — the per-round commit consent
   (`review.per-round-commit`) and the fast-forward or squash of the
   `.docs` branch (`docs-branch.merge`).
@@ -596,7 +628,8 @@ in those sentences becomes the key:
   prior decision is present" gains the conflict question: a visible
   signal that contradicts the key is reported and the developer asked.
 - `agents/propagation-auditor.md` — the tier clause, as *Reading a key*
-  says, including the struck over-tier sentence.
+  says, including the struck over-tier sentence, and the `description:`
+  line's own "cheapest" prescription.
 
 ## Directory modes
 
@@ -611,8 +644,11 @@ form. At the first touch of a Process directory:
 2. a visible signal that contradicts the key is reported, and the
    developer asked which stands; nothing is changed until they answer;
 3. a key with no visible signal is applied without asking — the ignored
-   mode by writing the `*` `.gitignore`, the tracked mode by the first
-   committed file;
+   mode by writing the `*` `.gitignore`; the tracked mode needs no act
+   and becomes visible with the first committed file. A step keyed to a
+   resolved mode rather than to the question — `review-reports.md`'s
+   local-pocket `.gitignore` for a tracked `docs/code-review/` — fires
+   whichever way the mode was settled;
 4. with neither, the rule asks, as today.
 
 `.working-process/` is not `.claude/working-process/`, the per-checkout
@@ -629,12 +665,16 @@ When a standing question is asked in ordinary work, its answers gain
 one option: "yes, and record" (or "no, and record"). Choosing it runs
 the loader's `--set`, which writes the answer to the file the key's
 scope names and prints the fresh block. The rule decides when a write
-happens; the loader decides how. There is no second question: the
+happens; the loader decides how. A first-create question answered "and
+record" writes the exception for the directory asked about —
+`dir.docs/specs`, say — because the answer was about that directory;
+only the skill writes `dir.default`. The technical-design offer's "yes,
+and record" writes `on` and its "no, and record" writes `off`. There is no second question: the
 developer is interrupted once, as the review loop's one-batch-per-round
 contract intends. A session never records an answer the developer did
-not choose to record. Where `--set` cannot run — the loader unreachable
-on the no-hook path — the option is withheld: the answer holds for the
-session, and the session says it was not recorded.
+not choose to record. Where no settings block names the loader, the
+option is withheld: the answer holds for the session, and the session
+says it was not recorded.
 
 Anyone may record a team key this way, not only whoever ran the setup.
 The team file is an ordinary committed file, so the change shows in the
@@ -664,7 +704,11 @@ nudges them to run it. A run:
 
 1. calls the loader's `--print` and shows the effective settings as one
    table — key, value, source — together with the first-run candidates
-   (*Migration*);
+   (*Migration*): on a run where no settings file exists yet, the
+   directory signals are offered as values to record and each prose
+   note as the model's reading; the project-memory plugin counts as
+   installed where its `project-memory.md` rule is found in the project
+   or user rules directory;
 2. asks only about unset keys, one at a time, with a recommendation,
    saying for each which file the answer goes to; a team suggestion is
    offered as the default answer to a personal key; project-memory's key
@@ -678,9 +722,14 @@ nudges them to run it. A run:
    write would remove are shown before it is applied. The fresh block
    `--set` prints supersedes the one from session start for the rest of the
    session;
-4. materializes a declared mode in each Process directory that already
-   exists and does not contradict it, and reports every contradiction;
-   it creates no directory;
+4. materializes a declared ignored mode in each Process directory that
+   already exists and does not contradict it — a tracked mode needs no
+   act — and creates no directory. For each contradiction it asks which
+   stands: where the visible signal stands, it records the matching
+   value with `--set`; where the key stands, it says what the developer
+   must do by hand, since it never untracks or force-adds a file;
+5. reminds the developer that `.working-process/settings.md` and its
+   `.gitignore` belong in the work's commit; it never commits.
 
 A team's suggestion for a personal key is the one settings line
 `--set` never writes: it goes into the team file by hand, and the
@@ -693,7 +742,8 @@ questionnaire.
 ## Verification
 
 - **Consistency test** (repository, beside the decision-coverage
-  tests): every registered key is cited by the rule its entry names;
+  tests): every registered key is cited literally by every rule its
+  entry names — the registry's reader field is a list;
   every key reference is registered, where a reference is a
   backticked token with a registered key's shape — a dotted name
   starting with one of the registry's prefixes — under the `rules/`,
@@ -743,8 +793,7 @@ questionnaire.
 
 - New: the `process-setup` skill; the key registry; the loader script
   with its `--print`, `--validate` and `--set` modes; the
-  always-on `process-settings.md` rule and the path-scoped
-  `process-settings-resolution.md` holding the full by-hand resolution; a second SessionStart handler in
+  always-on `process-settings.md` rule; a second SessionStart handler in
   `hooks/hooks.json`.
 - `rules/workflow.md`, `rules/spec-plan-lifecycle.md`,
   `rules/process-artifacts.md` — as *Changes to the rules* and
@@ -767,11 +816,28 @@ None.
 
 ## Review rounds
 
+### 2026-09-28 — integrity audit, fable, at the consumption gate
+
+Coverage tell: 819 lines read, highest line cited 780 (the rest is
+ledger). Seven defects and seventeen implementer questions; the quotes
+were checked against the spec before disposition.
+
+- fixed 2026-09-28 — D10 gave every mode exit 0 on error while *The loader* confines it to the hook; license: *The loader* ("Only the hook mode swallows its errors"); D10 names hook mode
+- fixed 2026-09-28 — D19 omitted the withheld option; license: *Recording an answer*; D19 carries it
+- fixed 2026-09-28 — the `dir.<path>` row named process-artifacts as reader of `dir.docs/memory`; license: D25; its own row names project-memory
+- fixed 2026-09-28 — a project without `.working-process/` would run `--print` at every read; license: D10 (silence by design); *Reading a key* step 1 treats every key as unset and calls nothing
+- fixed 2026-09-28 — the by-hand resolution needed the registry exactly where it is unreachable, a second definition of every key or none; ruling: 2026-09-28; D38 sharpened, new D44 (the block names the loader's path), `process-settings-resolution.md` dropped: with no block every key is unset (reverses the round-1 F4 and round-2 F8 placements, whose file no longer exists)
+- fixed 2026-09-28 — D2 kept the pre-D36 grammar; license: D36; D2 now defers to it
+- fixed 2026-09-28 — the *Loop closed* note pointed "above" at lines below it; license: the ledger itself; "below"
+- fixed 2026-09-28 — implementer questions 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17; license: D9, D14, D17, D20, D25, D27, D36, D37, D43 and the rules the spec names; the block's source set and first line, errors against notices (new D46), the key's shape, each site's unset branch, the committed `.gitignore`, the skill's first run and contradiction handling, inheritance shown in the block and the project-memory probe, the tier table's home and the card's `description:`, the reader list, the question comment's identity, suggestions without a line, tracked mode needing no act, the `.superpowers/` family, the local pocket, and `--print` without a settings directory are now stated
+- fixed 2026-09-28 — implementer question 5, which key a directory's "and record" writes; ruling: 2026-09-28; new D45, the exception for that directory; the technical-design offer's yes and no map to `on` and `off`
+- fixed 2026-09-28 — implementer question 1, how a rule reaches the loader; ruling: 2026-09-28; D44
+
 ### Loop closed — 2026-09-28
 
 Resolved without a fresh architect round, on the developer's choice
 after round 3's stop signal: round 3 returned three Minor findings, all
-fixed under cited licenses (F14–F16 above), and the architect judged a
+fixed under cited licenses (F14–F16 below), and the architect judged a
 further round not worth its cost. The consumption gate's integrity
 audit reads the whole document next.
 
