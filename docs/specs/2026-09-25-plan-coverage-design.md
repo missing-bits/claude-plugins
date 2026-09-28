@@ -63,7 +63,9 @@ What stands today:
 - **D5** — An entry carries one state token or none:
   `withdrawn <reason>, ruling: <date>[; replaced by <id>]`. Only a leaf
   carries it, and the session writes it only on the developer's
-  explicit decision. Argued in *Entry states*.
+  explicit decision; on a spec whose loop has closed, a withdrawal tied
+  to no hit or finding is recorded by its tombstone alone. Argued in
+  *Entry states*.
 - **D6** — The spec author creates the register, with or without a
   grilling session; the grilling session updates it as decisions land.
   Argued in *Who writes the register*.
@@ -155,8 +157,10 @@ What stands today:
   formed, not counted, or not checked. Argued in *The coverage duty*
   and *The report*.
 - **D23** — A pre-round gate episode that holds a hit writes all its
-  lines before the first round heading, where they stay. Argued in
-  *Gate lines for a held hit*.
+  lines before the first round heading, where they stay; every later
+  pre-round episode writes there too, and a document with no
+  `## Review rounds` section gains one at its end with its first gate
+  line. Argued in *Gate lines for a held hit*.
 - **D24** — Withdrawing, repairing, sharpening or adding a decision of
   an `implemented` spec is a revision through a newer spec's
   `revises:`, never an edit of the frozen body. Argued in *Entry
@@ -191,8 +195,9 @@ What stands today:
 - **D31** — The coverage duty's derivation is a script the plugin ships,
   `scripts/decision-coverage.py`, run by the auditor, whose output is
   the duty's hits and `decision-coverage:` lines; the auditor reports
-  that output and never derives the sets itself. Argued in *The
-  coverage duty*.
+  that output and never derives the sets itself. The script is tested
+  from the repository's `tests/working-process/`, outside the plugin.
+  Argued in *The coverage duty*.
 
 ## The register
 
@@ -220,7 +225,9 @@ A state token is recognized by its reserved opening word alone: the
 first segment after the full stop that ends the decision's statement —
 and after any "Argued in" pointer, which belongs to the statement — that
 begins with `withdrawn`. The token runs from that word to the
-paragraph's end, so its `<reason>` may hold a full stop. A segment
+paragraph's end, so its `<reason>` may hold a full stop. A full stop
+here is one followed by whitespace, so the dot in `decision-coverage.py`
+or `../plans/<file>.md` ends no segment. A segment
 so opening that does not match the token's grammar is a hit, never
 prose. Any other text is
 prose, so a statement whose own words happen to end in "withdrawn"
@@ -233,7 +240,11 @@ identity paragraph. A Markdown numbered list is refused on purpose: its
 numbers are positions, and a positional reference breaks when an item
 is inserted above it. A child nested under a parent other than its
 own, a child whose parent does not exist, and a register written as a
-numbered list are each malformed (see *The coverage duty*).
+numbered list are each malformed (see *The coverage duty*). So is a
+list item at the entries' own level that opens no identifier, and a
+list item at any depth that opens like one — `**D` and a digit — but
+does not match the token, such as `**D2.1.1**`; a list inside an entry's
+prose, below its blank line, is prose.
 
 An entry states the decision briefly and, where the argument is long,
 names the section that makes it. The grammar enforces the paragraph's
@@ -282,9 +293,9 @@ records it (see *Deferral*).
 
 A tombstone keeps the identifier visibly taken, so a reuse shows up as
 a duplicate, and a plan still citing it gets a hit that says why. Two
-constraints bind `replaced by`: it names an identifier that exists in
-the same register and differs from its own, and a chain of successors
-never forms a cycle. A successor may itself be withdrawn.
+constraints bind `replaced by`: it names a leaf that exists in the
+same register and differs from its own, and a chain of successors never
+forms a cycle. A successor may itself be withdrawn.
 
 A withdrawal is not a disposition of a hit: it changes what the spec
 decides, so the session writes the token only on the developer's
@@ -462,7 +473,8 @@ withdrawn — the spec, still open to edits, took the `withdrawn` token
 after the predecessor shipped (D30). The frozen predecessor cannot
 change, so that inherited citation is skipped: it is not counted, it
 covers nothing, and it raises no hit against the later plan. It is not
-hidden either — the report lists it after the map, outside the counted
+hidden either — the report lists it after the map, indented as the
+map's lines are and one line per skipped citation, outside the counted
 identifiers and the fraction, as `withdrawn since: D4 ←
 ../plans/<file>.md (Task 2)`. The exception covers inheritance alone: a
 `**Realizes:**` in the later plan that cites the withdrawn identifier
@@ -525,17 +537,19 @@ A tenth propagation duty runs on a plan. For each spec the plan's
 6. Collect the counted set: the leaf identifiers that are not
    withdrawn, less those the `**Defers:**` lines step 5 accepted name.
 7. Report every counted identifier the cited set lacks: one hit per
-   identifier.
+   identifier. A task — a `### Task <n>` heading — whose `**Realizes:**`
+   line is missing before its first step, in a plan the convention
+   binds, is a hit too, raised once for the plan rather than once per
+   spec.
 
 A line that is a hit gains the plan nothing: an invalid predecessor
 covers no decision, and an invalid deferral excuses none, while the hit
 itself stays in the report.
 
-The decision coverage map is derived, never tallied. The auditor writes
+The decision coverage map is derived, never tallied. The script writes
 the map from identifier to citing sites, and the fraction is that map's
-summary; a bare count would pass one omission offset by one duplicate. A
-task carrying no `**Realizes:**` line in a plan the convention binds is
-a hit. An identifier cited by several tasks is legal — one decision,
+summary; a bare count would pass one omission offset by one duplicate.
+An identifier cited by several tasks is legal — one decision,
 many tasks — and a task split or merged in a fix wave passes as long as
 the union of its identifiers survives.
 
@@ -547,18 +561,24 @@ report* gives the line it writes.
 The derivation runs as a script the plugin ships (D31). Measured on
 2026-09-26, the cheapest family walking these steps from prose read the
 same plan three times as 39/39, 34/37 and — on a copy missing one
-annotation — 31/32: it missed the annotations opening Global
-Constraints entries and miscounted the register's leaves wherever the
-harness denied the compound commands it reached for. Bounding the
-section, telling groups from leaves and taking set differences are
-exactly the operations it got wrong, and a parse settles them. The
-script reads the document it is given — a plan, or a design spec audited
-alone — with the specs and predecessors it names, performs the steps
-above, and prints the duty's hits and `decision-coverage:` lines in the
-report's shapes; it reports a document it cannot parse rather than
-guessing. The auditor runs it once per audited document, copies its
-output into the report, and never derives the sets itself. The steps
-stay the duty's definition; the script is their one implementation.
+annotation — 31/32: it missed the annotations opening Global Constraints
+entries and miscounted the register's leaves wherever the harness denied
+the compound commands it reached for. Bounding the section, telling
+groups from leaves and taking set differences are exactly the operations
+it got wrong, and a parse settles them. The script reads the document it
+is given — a plan, or a design spec audited alone — with the specs and
+predecessors it names, performs the steps above, and prints the duty's
+hits and `decision-coverage:` lines in the report's shapes. The auditor
+runs it from the plugin's root with `python3` — Python 3.9 or later, the
+standard library only — passing the audited document's path as its one
+argument, once per audited plan or design spec and never on a technical
+design, copies its output into the report below the `model:` line, and
+never derives the sets itself. A document the script cannot read ends it
+with a non-zero exit and a message; the auditor reports that as a hit
+and writes no `decision-coverage:` line for the document. The spec path
+on a summary line is written as the plan's `spec:` writes it, and on a
+design spec audited alone as the auditor passed it. The steps stay the
+duty's definition; the script is their one implementation.
 
 The duty proves that every *declared* decision has an owner. Whether
 the register faithfully lists the spec's decisions is judgment, and
@@ -729,7 +749,7 @@ dispatcher classifies its fix by license:
   brief names it among the previous wave's fixes, which the round
   attacks first.
 - **(c)** Writing the task needs a choice the decision does not make.
-  The question is that missing decision — not the coverage gap, which
+  The question is that missing decision — not the missing owner, which
   is already established. The hit is held for the developer.
 
 A held hit blocks the dispatch its gate guards, as a held finding
@@ -924,14 +944,14 @@ design spec and its absence is reported, not refused.
 
 All under `plugins/working-process/` unless noted.
 
-- `agents/propagation-auditor.md` — duties 10 (coverage) and 11 (table
-  closure, naming the rule heading that holds the declarations); the
-  `decision-coverage:` block, its `inherited [..]` slot, its
+- `agents/propagation-auditor.md` — duties 10 (decision coverage) and 11
+  (table closure, naming the rule heading that holds the declarations);
+  the `decision-coverage:` block, its `inherited [..]` slot, its
   `withdrawn since` listing and the three outcomes on a spec audited
   alone (`register well formed`, `not counted`, `not checked`); the
   `table-closure:` line; the "exactly two lines" sentence; running
-  `scripts/decision-coverage.py` for duty 10; the
-  coverage exception in *What becomes of your hits*.
+  `scripts/decision-coverage.py` for duty 10; the coverage exception in
+  *What becomes of your hits*.
 - `agents/plan-adversary.md` — the realization-site dimension.
 - `agents/integrity-auditor.md` — one sentence naming the register as a
   declared rule for lens 1.
@@ -1096,4 +1116,25 @@ measured duty 10 unstable on the cheapest family. The developer ruled
 that the derivation becomes a script in this change.
 
 - fixed 2026-09-26 — the coverage duty's derivation, walked from prose on the cheapest family, read one plan as 39/39, 34/37 and 31/32 across runs; ruling: 2026-09-26; D31 added, *The coverage duty* gives the script and the measurement, *Changes by file* lists the script and its tests — the plan's line under its Task 13 record points here
+
+### 2026-09-28 — integrity audit, fable, after D31 (fourth)
+
+Coverage tell: 1099 lines read, highest line cited 1098 — a
+whole-document read after D31 left the third audit's stamp stale. Seven
+defects and ten implementer questions; the quotes were checked against
+the spec before disposition. Most dispositions state in the spec what
+the implementation already does under rulings the plan records.
+
+- fixed 2026-09-28 — the map-writing sentence still named the auditor as the one who writes the map, against D31; license: D31; the script writes it
+- fixed 2026-09-28 — the missing-`**Realizes:**` hit stood outside the numbered steps the script implements; license: D31 ("The steps stay the duty's definition"); step 7 now carries it, with what counts as a task, its place before the first step, and once per plan (implementer questions 4 and 8)
+- fixed 2026-09-28 — *Entry states* gave two constraints on `replaced by` while step 2 also rejects a group; license: step 2; the successor is a leaf
+- fixed 2026-09-28 — the closed-loop withdrawal record, D23's later episodes and the section a document gains, and the script's tests had no register entry; license: the register's declared rule; D5, D23 and D31 sharpened under their own identifiers
+- fixed 2026-09-28 — bare "coverage" named the missing owner and duty 10 in *Changes by file*; license: glossary **Decision coverage** `_Avoid_`; reworded
+- fixed 2026-09-28 — implementer questions 1, 2, 3, 5, 6 and 7; license: D31 and the plan's rulings of 2026-09-26 that the implementation carries (Tasks 14–16 and the final-review record); the invocation, interpreter and argument, the failure path, what a full stop is, where `withdrawn since` lines stand, which list items in a register are malformed, and how a summary line writes its spec path are now stated
+
+Implementer questions 9 and 10 need no change: the workflow rule's
+propagation gate defines the gate episode and its re-dispatch bound, and
+*Disposing of a coverage hit* already gives a fresh episode its own
+bound; the lifecycle rule's frontmatter block places `decisions:` and
+names `registered` as its one value.
 
