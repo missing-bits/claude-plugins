@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-09-28
 status: draft
+grilled: 2026-09-28
 decisions: registered
 branch: feature/process-setup
 base: develop
@@ -80,8 +81,8 @@ the rule files named in *Changes by file*.
   - **D7.2** — `dir.docs/specs`: `tracked` | `ignored`, team, an
     optional exception to `dir.default`.
   - **D7.3** — `design.technical-design-offer`: `on` | `off`, team.
-  - **D7.4** — `dispatch.propagation-auditor-model`: `cheapest` |
-    `one-above-cheapest` | `most-capable`, team; default `cheapest`.
+  - **D7.4** — `dispatch.propagation-auditor-tier`: `cheapest` |
+    `mid` | `most-capable`, team; default `cheapest`.
   - **D7.5** — `docs-branch.merge`: `squash` | `fast-forward`, team.
   - **D7.6** — `consult.personas`: `yes` | `no`, personal.
   - **D7.7** — `review.autonomy`: `yes` | `no`, personal.
@@ -91,8 +92,8 @@ the rule files named in *Changes by file*.
   - **D7.11** — `dir.docs/domain`, as D7.2.
   - **D7.12** — `dir.docs/code-review`, as D7.2.
   - **D7.13** — `dir..superpowers`, as D7.2.
-  - **D7.14** — `dir.docs/memory`, as D7.2, registered only where the
-    project-memory plugin is installed.
+  - **D7.14** — `dir.docs/memory`, as D7.2; always registered, asked
+    and read only as D25 says.
 - **D8** — Keys are never renamed. A retired key stays in the registry
   marked `withdrawn <version>`, and the loader reports a withdrawn key
   it meets. Argued in *The key registry*.
@@ -109,9 +110,9 @@ the rule files named in *Changes by file*.
 - **D12** — A new always-on rule, `process-settings.md`, is the only
   definition of the files, the grammar, the block and the procedure for
   reading a key. Argued in *Reading a key*.
-- **D13** — A rule reads a key from the block in its context; without a
-  block, from the two files; an unset key means the rule's behaviour
-  before this change. Argued in *Reading a key*.
+- **D13** — A rule reads a key from the block in its context; without
+  a trustworthy block, by the procedure D38 names; an unset key means
+  the rule's behaviour before this change. Argued in *Reading a key*.
 - **D14** — An answer given in the current session outranks the
   settings, compaction included. Argued in *Reading a key*.
 - **D15** — Background agents never read settings; the dispatcher
@@ -130,14 +131,15 @@ the rule files named in *Changes by file*.
 - **D19** — When a standing question is asked in ordinary work, its
   answers include "yes, and record", which writes the answer to the
   file its scope names. There is no separate "record it?" question.
+  Anyone may record a team key this way; the write names the team file.
   Argued in *Recording an answer*.
 - **D20** — A `CLAUDE.md` note that declares a key's value keeps binding
   until it is migrated; where it and a settings value disagree, the
   settings value wins and the session says so. Argued in *Migration*.
 - **D21** — The `process-setup` skill runs only on request. It shows
-  the effective settings, asks only about unset keys, previews its
-  changes, and writes by replacing a key's line in place. Argued in
-  *The skill*.
+  the effective settings, asks about unset keys other than optional
+  directory exceptions (D39), previews its changes, and writes by the
+  rules D37 names. Argued in *The skill*.
 - **D22** — The skill materializes a declared mode only in a Process
   directory that already exists and does not contradict it; it creates
   no directory. Argued in *The skill*.
@@ -184,7 +186,7 @@ the rule files named in *Changes by file*.
   family and accepts the tier the dispatcher resolved, still reporting
   its family for the dispatcher's comparison. Argued in *Reading a key*.
 - **D36** — Every line shaped like a key — a dotted name and a colon at
-  the start of a line, outside a fence — is a declaration, validated,
+  the start of a line, outside a fence — is a settings line, validated,
   and diagnosed when its value is invalid; it is never commentary.
   Argued in *The settings files*.
 - **D37** — A write inserts an absent key, replaces a present one, and
@@ -201,6 +203,17 @@ the rule files named in *Changes by file*.
   project-memory rule, which restate the first-create predicate, adopt
   the settings key and its conflict question. Argued in *Changes to the
   rules*.
+- **D41** — Personal answers are written where the loader reads them:
+  in a worktree, to the main checkout's personal file, with its
+  `.gitignore` beside it — for a skill write and a "yes, and record"
+  answer alike. Where a hand-made worktree file shadows that
+  destination, the preview says the write will not change the current
+  worktree's answer. In a bare repository with linked worktrees there
+  is no main checkout: the loader has no fallback and says so, and
+  personal answers go to the current worktree's file, binding that
+  worktree only, as the skill says. Argued in *Scope and precedence*.
+- **D42** — `--print` is uncapped; only the hook's output carries the
+  4 KB cap. Argued in *The loader*.
 
 ## The settings files
 
@@ -226,9 +239,9 @@ outside a fenced block. A key holds a dot — `review.autonomy`,
 reads as a key. A value is a plain token: letters, digits, `.`, `_`,
 `/` and `-`, with no quotes.
 
-Recognizing a declaration and validating it are separate steps. Every
+Recognizing a settings line and validating it are separate steps. Every
 line shaped like a key — a dotted name and a colon at the start of a
-line, outside a fence — is a declaration, whatever follows the colon,
+line, outside a fence — is a settings line, whatever follows the colon,
 and a value that is not a valid token for that key is diagnosed rather
 than read past. So `review.autonomy: "no"` below `review.autonomy: yes`
 is a duplicate, and the key is unset; it cannot hide as commentary and
@@ -265,11 +278,22 @@ reads the main checkout's, whose path is the first entry of
 `git worktree list --porcelain` wherever the worktree lives. (The
 parent of `git rev-parse --git-common-dir` is not a checkout path in
 every layout, so it is not used.) One set of personal answers then
-serves every worktree of a repository. The skill, run in a worktree,
-writes personal answers to the main checkout's file, so a worktree
-never gains a file of its own through the skill. A personal file
-created in a worktree by hand replaces the fallback wholly — no
-per-key merge — and the loader's first line says which file it read.
+serves every worktree of a repository. A personal answer is written
+where the loader reads it: the skill, run in a worktree, writes to the
+main checkout's personal file and puts the `.gitignore` beside it, and
+a "yes, and record" answer goes to the same place, so a worktree never
+gains a file of its own through a write. A personal file created in a
+worktree by hand replaces the fallback wholly — no per-key merge — and
+the loader's first line says which file it read; a write made from that
+worktree still goes to the main checkout, and its preview says it will
+not change the current worktree's answer.
+
+A bare repository with linked worktrees has no main checkout: the first
+porcelain entry is the bare repository itself, marked `bare`. There the
+loader has no fallback and its first line says so, and a personal answer
+goes to the current worktree's own file, with the skill saying plainly
+that it binds that worktree only. Nothing is ever written inside the
+bare repository.
 
 A home-level file of personal defaults for every project is out of
 version one.
@@ -301,7 +325,7 @@ Version one registers the keys whose question has no home today:
 | `dir.default` | team | `tracked` \| `ignored` | ask at first create | process-artifacts |
 | `dir.<path>` | team | `tracked` \| `ignored` | absent: `dir.default` applies; invalid: ask | process-artifacts |
 | `design.technical-design-offer` | team | `on` \| `off` | today's manifest-raised offer | workflow |
-| `dispatch.propagation-auditor-model` | team | `cheapest` \| `one-above-cheapest` \| `most-capable` | `cheapest` | workflow |
+| `dispatch.propagation-auditor-tier` | team | `cheapest` \| `mid` \| `most-capable` | `cheapest` | workflow |
 | `docs-branch.merge` | team | `squash` \| `fast-forward` | ask at the gate | spec-plan-lifecycle |
 | `consult.personas` | personal | `yes` \| `no` | ask once per conversation | workflow |
 | `review.autonomy` | personal | `yes` \| `no` | ask at the first verdict dispatch | workflow |
@@ -322,8 +346,19 @@ where that plugin is installed, and the project-memory rule reads the
 key only where the working-process rules are installed, the pattern its
 rule already uses for Process directories.
 
-The gate model is a tier, not a model name, so a Codex port can map it
-onto its own families. Consent values are `yes` and `no` alone. A
+A key is `dir.` followed by the path exactly, so the `.superpowers`
+exception is `dir..superpowers`; the double dot is the price of one
+mapping with no special case for paths that start with a dot.
+
+The gate's value is a tier in the glossary's sense — a relative rung,
+never a model name — and its three values use the glossary's own words
+for the rungs. Each host resolves the tier at dispatch through a table
+of its own; version one ships only Claude Code's (Haiku for `cheapest`,
+the family one below the most capable for `mid`, the most capable
+available for `most-capable`). A Codex port adds its table; Codex's
+current ladder has three rungs, which fit the three values, and its
+separate reasoning-effort setting is the port's concern, not a
+settings value. Consent values are `yes` and `no` alone. A
 session-scoped answer — "not now", "not in this session" — is never a
 key, because it dies with the session by definition.
 
@@ -383,7 +418,9 @@ conversation gets its settings back. It is its own handler rather than a
 branch of the drift check, because Codex budgets context per handler.
 It uses POSIX `sh` with `sed` and `awk`, the drift check's toolchain,
 and no `jq`. Two modes serve the skill and the no-hook path:
-`--print` emits the same block to standard output, and
+`--print` emits the same block to standard output, uncapped — the 4 KB
+cap guards the hook's context budget, and a skill or a session
+recovering from a truncated block needs the whole of it — and
 `--validate --scope team|personal <file>` checks a candidate file
 against the scope it is meant for, printing its warnings and exiting
 non-zero when the file would not validate. Only the hook mode swallows
@@ -437,7 +474,7 @@ in those sentences becomes the key:
   (`design.technical-design-offer`; the sentence that reads a
   declaration "until a standing home for a project's process answers
   exists" is rewritten to cite the key), and the propagation auditor's
-  tier (`dispatch.propagation-auditor-model`).
+  tier (`dispatch.propagation-auditor-tier`).
 - `spec-plan-lifecycle.md` — the per-round commit consent
   (`review.per-round-commit`) and the fast-forward or squash of the
   `.docs` branch (`docs-branch.merge`).
@@ -449,7 +486,7 @@ in those sentences becomes the key:
   each stands alone, and today skip the question whenever a visible
   signal exists. They adopt the settings key and D17's order, including
   the conflict question.
-- `project-memory.md` — `dir.docs/memory` counts as a declaration when
+- `project-memory.md` — `dir.docs/memory` counts as the declared mode when
   the working-process rules are installed, and its "never ask when a
   prior decision is present" gains the conflict question: a visible
   signal that contradicts the key is reported and the developer asked.
@@ -486,6 +523,11 @@ the answer to the file the key's scope names, creating the file and its
 developer is interrupted once, as the review loop's one-batch-per-round
 contract intends. A session never records an answer the developer did
 not choose to record.
+
+Anyone may record a team key this way, not only whoever ran the setup.
+The team file is an ordinary committed file, so the change shows in the
+diff and passes the same review as any other; the session says, when
+it writes, that the answer lands in the team's file.
 
 ## Migration
 
@@ -528,7 +570,9 @@ nudges them to run it. A run:
 4. materializes a declared mode in each Process directory that already
    exists and does not contradict it, and reports every contradiction;
    it creates no directory;
-5. writes `.working-process/.gitignore` at its first write.
+5. writes the `.gitignore` holding `settings.local.md` beside the
+   personal file it first writes, which in a worktree is the main
+   checkout's (D41).
 
 A second run shows the same table and asks only about what is unset or
 what the developer wants to change. It never replays the whole
@@ -587,7 +631,7 @@ questionnaire.
   *Directory modes* say.
 - `agents/propagation-auditor.md` — the tier clause.
 - `plugins/project-memory/rules/project-memory.md` — the conditional
-  `dir.docs/memory` declaration and its conflict question.
+  `dir.docs/memory` key and its conflict question.
 - `plugins/python-standards/commands/python-review.md`,
   `plugins/salesforce-standards/commands/salesforce-review.md` — the
   restated first-create predicate.
@@ -599,6 +643,4 @@ questionnaire.
 
 ## Open questions
 
-- The name `one-above-cheapest` for the middle gate tier.
-- `dir..superpowers` carries a double dot because the path starts with
-  one; the plan may keep it or fix a mapping for leading-dot paths.
+None.
