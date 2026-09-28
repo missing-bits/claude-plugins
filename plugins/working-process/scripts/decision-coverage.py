@@ -18,6 +18,7 @@ produces no output; this duty does not cover it.
 
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -91,37 +92,18 @@ def unfenced(lines: list[str], start: int) -> list[tuple[int, str]]:
     return kept
 
 
-def _collapse(path: Path) -> str:
-    """Lexically fold `..` segments, mirroring `os.path.normpath`."""
-    root = path.root
-    kept: list[str] = []
-    for part in path.parts:
-        if part == root and part:
-            continue
-        if part == "..":
-            if kept and kept[-1] != "..":
-                kept.pop()
-            elif not root:
-                kept.append(part)
-        else:
-            kept.append(part)
-    return (root + "/".join(kept)) if kept or root else "."
-
-
-def _abspath(path: str) -> str:
-    """Make `path` absolute against the current directory, lexically."""
-    given = Path(path)
-    return _collapse(given if given.is_absolute() else Path.cwd() / path)
-
-
 def resolve(base_display: str, written: str) -> str:
     """A path a document names, resolved against that document's directory."""
-    return _collapse(Path(base_display).parent / written)
+    # pathlib has no lexical `..`-fold that leaves the filesystem
+    # untouched (Path.resolve() makes the path absolute and follows
+    # symlinks), so the fold itself stays on os.path.normpath; the join
+    # above it uses Path.
+    return os.path.normpath(Path(base_display).parent / written)
 
 
 def same_file(a: str, b: str) -> bool:
     """Whether `a` and `b` name the same file once made absolute."""
-    return _abspath(a) == _abspath(b)
+    return os.path.abspath(a) == os.path.abspath(b)
 
 
 # --- the register --------------------------------------------------------
@@ -399,7 +381,7 @@ class Audit:
         if self._predecessors is not None:
             return self._predecessors
         accepted = []
-        own = [_abspath(resolve(self.plan.display, s)) for s in self.plan.specs]
+        own = [os.path.abspath(resolve(self.plan.display, s)) for s in self.plan.specs]
         for line, written in self.plan.follows:
             display = resolve(self.plan.display, written)
             try:
@@ -408,7 +390,7 @@ class Audit:
                 self.add(hit(self.plan.display, line,
                              f"`**Follows:**` names {written}, which does not exist", "step 3"))
                 continue
-            theirs = [_abspath(resolve(display, s)) for s in pred.specs]
+            theirs = [os.path.abspath(resolve(display, s)) for s in pred.specs]
             shared = [s for s in own if s in theirs]
             if not shared:
                 self.add(hit(self.plan.display, line,
@@ -428,7 +410,7 @@ class Audit:
         """Run steps 3 through 7 for one spec the plan names."""
         plan = self.plan
         spec_display = resolve(plan.display, written)
-        spec_abs = _abspath(spec_display)
+        spec_abs = os.path.abspath(spec_display)
         register = read_register(spec_display, read_lines(spec_display))
         for line in register.hits:
             self.add(line)
@@ -573,7 +555,7 @@ def audit_spec(display: str, lines: list[str]) -> list[str]:
 
 def is_technical_design(display: str) -> bool:
     """The resolved path has `docs/technical-designs/` among its parents."""
-    parts = Path(_abspath(display)).parts
+    parts = Path(os.path.abspath(display)).parts
     return any(a == "docs" and b == "technical-designs"
                for a, b in zip(parts, parts[1:]))
 
