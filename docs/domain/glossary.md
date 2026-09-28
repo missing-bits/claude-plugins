@@ -73,7 +73,7 @@ _Avoid_: declaration (for a settings line)
 **Key registry**:
 The one definition of every settings key in the working-process plugin
 — scope, values, default, reading rule, question. The loader, the
-`process-setup` skill and the rules keep no other key list.
+`process-setup` skill and the rules keep no second definition of a key.
 _Avoid_: schema, key list
 
 **Settings block**:

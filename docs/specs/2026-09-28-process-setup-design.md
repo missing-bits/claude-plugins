@@ -3,6 +3,7 @@ ticket: none
 date: 2026-09-28
 status: draft
 grilled: 2026-09-28
+architect: blocking
 decisions: registered
 branch: feature/process-setup
 base: develop
@@ -75,7 +76,7 @@ the rule files named in *Changes by file*.
 - **D6** — One key registry in the plugin defines every key: name,
   scope, allowed values, default, the rule that reads it, and the
   question the skill asks. The skill, the loader and the rules keep no
-  other key list. Argued in *The key registry*.
+  second definition of a key. Argued in *The key registry*.
 - **D7** — The version-one keys. Argued in *The keys*.
   - **D7.1** — `dir.default`: `tracked` | `ignored`, team.
   - **D7.2** — `dir.docs/specs`: `tracked` | `ignored`, team, an
@@ -121,8 +122,9 @@ the rule files named in *Changes by file*.
   and its behaviour when the key is unset, replacing "the developer's
   own instructions". Argued in *Changes to the rules*.
 - **D17** — A settings key becomes a declared signal for a Process
-  directory. At the first touch of a directory: a visible signal
-  governs; a visible signal contradicting the key is reported and the
+  directory. At the first touch of a directory: a visible signal that
+  agrees with the key, or stands where no key is set, governs; one
+  contradicting the key is reported and the
   developer asked, with nothing changed; a key without a visible signal
   is applied unasked; with neither, the rule asks. Argued in *Directory
   modes*.
@@ -157,9 +159,10 @@ the rule files named in *Changes by file*.
 - **D26** — Version one reads the working-process registry alone; no
   domain registry is read or discovered. Argued in *Out of scope*.
 - **D27** — A repository test checks that every registered key is cited
-  by the rule its entry names, that every key cited under the plugin's
-  `rules/`, `skills/` and `agents/` is registered, that defaults
-  validate, and that names are unique. Argued in *Verification*.
+  by the rule its entry names, that every key reference under the
+  `rules/`, `skills/`, `agents/` and `commands/` of working-process,
+  project-memory, python-standards and salesforce-standards is
+  registered, that defaults validate, and that names are unique. Argued in *Verification*.
 - **D28** — Repository tests run the loader on fixtures for
   precedence, suggestions, invalid and duplicate values, unknown keys,
   the worktree fallback, the size cap, silence and error exit. Argued
@@ -310,7 +313,7 @@ manifest follows.
 
 The skill takes its questions from the registry, the loader takes its
 validation from it, and the rules name keys and nothing more; no second
-key list exists to drift. A key is never renamed: renaming would
+definition of a key exists to drift. A key is never renamed: renaming would
 silently orphan every file that set it. A retired key keeps its entry
 with `withdrawn <version>`, and the loader reports it as withdrawn
 rather than unknown. The registry's exact path and heading shape are the
@@ -350,9 +353,16 @@ A key is `dir.` followed by the path exactly, so the `.superpowers`
 exception is `dir..superpowers`; the double dot is the price of one
 mapping with no special case for paths that start with a dot.
 
+`design.technical-design-offer: on` makes the offer at every
+consumption gate whether or not a toolchain manifest is present — the
+declaration the workflow rule already honours — while an unset key
+leaves today's behaviour, where only a manifest raises the offer; `off`
+suppresses it.
+
 The gate's value is a tier in the glossary's sense — a relative rung,
-never a model name — and its three values use the glossary's own words
-for the rungs. Each host resolves the tier at dispatch through a table
+never a model name. `mid` and `most-capable` are the glossary's own
+words for those rungs; `cheapest` is the workflow rule's, which
+prescribes "the cheapest available family" for this agent today. Each host resolves the tier at dispatch through a table
 of its own; version one ships only Claude Code's (Haiku for `cheapest`,
 the family one below the most capable for `mid`, the most capable
 available for `most-capable`). A Codex port adds its table; Codex's
@@ -412,12 +422,18 @@ It finds the repository root through `git rev-parse --show-toplevel`,
 then `CLAUDE_PROJECT_DIR`, then the working directory — in a worktree,
 the worktree's own root — and the registry
 relative to its own path rather than through `CLAUDE_PLUGIN_ROOT`, which
-a Codex port may not provide. It is registered without a matcher, so it
+a Codex port may not provide. The git root comes first on purpose: the team file is a committed
+property of the repository, so a project rooted below its git toplevel
+still reads the settings at the git root. The drift check reads
+`CLAUDE_PROJECT_DIR` first; the two hooks may differ there, and that
+difference is deliberate. It is registered without a matcher, so it
 runs on startup, resume, clear and compaction alike, and a compacted
 conversation gets its settings back. It is its own handler rather than a
 branch of the drift check, because Codex budgets context per handler.
-It uses POSIX `sh` with `sed` and `awk`, the drift check's toolchain,
-and no `jq`. Two modes serve the skill and the no-hook path:
+It uses POSIX `sh`, `sed` and `awk`, all part of a POSIX base system,
+and no `jq`: unlike the drift check, whose foreign-payload branch needs
+`jq` and skips itself without it, the loader has no optional
+dependency. Two modes serve the skill and the no-hook path:
 `--print` emits the same block to standard output, uncapped — the 4 KB
 cap guards the hook's context budget, and a skill or a session
 recovering from a truncated block needs the whole of it — and
@@ -501,7 +517,8 @@ tracked — and a declared instruction, "materialized by whoever first
 acts on it". A settings key becomes that declared instruction's named
 form. At the first touch of a Process directory:
 
-1. a visible signal governs;
+1. a visible signal that agrees with the key, or stands where no key
+   is set, governs;
 2. a visible signal that contradicts the key is reported, and the
    developer asked which stands; nothing is changed until they answer;
 3. a key with no visible signal is applied without asking — the ignored
@@ -509,7 +526,10 @@ form. At the first touch of a Process directory:
    committed file;
 4. with neither, the rule asks, as today.
 
-`.working-process/` itself is configuration, not a Process directory:
+`.working-process/` is not `.claude/working-process/`, the per-checkout
+dispatch-record store; `process-settings.md` tells the two apart in one
+sentence. `.working-process/` itself is configuration, not a Process
+directory:
 its team file is committed by definition and its local file ignored by
 its own `.gitignore`. It is never asked about, and `process-artifacts.md`
 says so, so it cannot become one more first-create question.
@@ -644,3 +664,23 @@ questionnaire.
 ## Open questions
 
 None.
+
+## Review rounds
+
+### 2026-09-28 — architect, fable 5.1, blocking (round 1, full-document)
+
+- hit fixed 2026-09-28 — spec used the newly banned "key list" at D6 and *The key registry*; reworded to "definition of a key"
+- hit fixed 2026-09-28 — *The loader* called sh+sed+awk with no jq "the drift check's toolchain"; the drift check uses no awk and conditional jq; reworded
+- hit fixed 2026-09-28 — D27's scope (one plugin, three directories) disagreed with *Verification* (four plugins, commands/ included); D27 widened
+- hit fixed 2026-09-28 — the glossary's Key registry entry used its own banned term "key list"; reworded to "second definition of a key" (re-dispatch 1; its report carried CLEAN beside the hit, body governs)
+- hit fixed 2026-09-28 — "its three values use the glossary's own words" was untrue for `cheapest`, which the glossary never uses; reworded to name the workflow rule as its source (re-dispatch 2, the episode's last; fix verified by grep, no third run)
+- held — [Important] F1: the tier key changes the rule's behaviour, the criterion that excludes the round cap; D35 strips the card's rationale without a replacement; question: keep `dispatch.propagation-auditor-tier` in v1 with an evidence-based argument and a new card rationale, or move it to its own package?; options: (a) keep, argued on the gate-tier measurement and the developer's standing wish for a steerable tier, card rationale rewritten (recommended); (b) move D7.4/D35 out of v1
+- held — [Important] F2: the in-flow "yes, and record" write has no owner; D12 defines reading only, and the write logic would be restated in three places; question: who owns the write?; options: (a) a loader write mode `--set --scope team|personal <key> <value>` owning destination, `.gitignore`, insert/replace/duplicate and the fresh-block print, the rule owning when to write (recommended); (b) the rule defines the write procedure in prose
+- held — [Minor] F3: both hosts document plain stdout as context, and the spec both defers the choice to the dogfood and assumes a JSON envelope; question: plain stdout by design?; options: (a) plain stdout, the dogfood confirms (recommended); (b) JSON envelope as the drift check uses
+- held — [Minor] F4: the by-hand resolution puts the loader's whole algorithm into an always-on rule for the rarest path; question: where does it live?; options: (a) the rule keeps the three-step read and `--print`, the full algorithm moves to a reference file read on the no-hook path (recommended); (b) keep it in the rule
+- held — [Minor] F5: the `withdrawn <version>` token and the loader's withdrawn-key report have no instance in v1; question: defer them?; options: (a) keep never-rename, defer the token and its loader branch to the first retired key (recommended); (b) keep as specified
+- fixed 2026-09-28 — [Minor] F6: the loader's root order differs from the drift hook's with no stated reason; license: D33 and D1 ("at the repository root"); *The loader* says the git root binds deliberately
+- fixed 2026-09-28 — [Minor] F7: two `working-process` directories with different jobs; license: glossary **Dispatch record**; *Directory modes* names the record store and makes `process-settings.md` tell the two apart
+- fixed 2026-09-28 — D17's first step was qualified by its second without saying so (integrity note, ungraded); license: D17; step 1 now names the signal that agrees or stands alone
+- fixed 2026-09-28 — D7.3's `on` and unset both produced an offer with the difference unstated (integrity note, ungraded); license: the workflow rule's technical-design declaration; *The keys* states the three behaviours
+- signal 2026-09-28 — another round earns its cost only after F1 and F2 are decided; one diff-scoped round over those changes should close the loop; the Minors alone do not justify one
