@@ -1,8 +1,8 @@
 ---
 ticket: none
 date: 2026-09-28
-status: draft
-adversary: concerns
+status: approved
+adversary: concerns (resolved 2026-09-29)
 spec: ../specs/2026-09-28-process-setup-design.md
 branch: feature/process-setup
 base: develop
@@ -3404,6 +3404,15 @@ scratch project with `command rm -rf "$W"`. No commit. Report the
 results of Tasks 17 and 18 to the developer.
 
 ## Review rounds
+
+### Loop closed — 2026-09-29
+
+Resolved without a fresh round on the developer's choice: the latest
+round, 3, read the whole document and returned `concerns` with one
+Important and five Minor findings, all fixed under cited licenses (F16–
+F21 below), and the adversary judged a further round not worth its
+cost. The developer approved the plan and chose a fast-forward of the
+document branch.
 
 ### 2026-09-29 — plan-adversary, fable 5.1, concerns (round 3, full-document)
 
