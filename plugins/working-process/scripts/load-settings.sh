@@ -179,6 +179,7 @@ scan_file() {
 #   DECIDE\t<key>\t<dup|invalid|ok>\t<status>\t<value>   (deciding file)
 #   SUGGEST\t<key>\t<n>\t<value>                        (team pass, a
 #     personal key's single valid line)
+# shellcheck disable=SC2016
 AWK_PROG='
   BEGIN {
     n_reg = split(reg, reglines, "\n")
@@ -270,6 +271,7 @@ AWK_PROG='
 # records are reported to stderr as "remove\t<n>\t<line text>", in
 # ascending file-line order, so a caller reading only stdout never
 # sees them and a caller reading only stderr gets the report alone.
+# shellcheck disable=SC2016
 PLAN_PROG='
   BEGIN {
     n = 0
@@ -361,7 +363,7 @@ resolve() {
   SUGGESTIONS=$(printf '%s\n' "$TEAM_RAW" | awk -F'\t' '$1=="SUGGEST"') || return 1
 
   VALUE_LINES=""
-  dir_default_value=unset
+  dir_default_value="unset"
   for key in $keys; do
     key_meta=$(printf '%s\n' "$REGISTRY_SUMMARY" | awk -F'\t' -v k="$key" '$1==k{print $2 "\t" $4; exit}') || return 1
     scope=$(printf '%s\n' "$key_meta" | awk -F'\t' '{print $1}') || return 1
@@ -394,7 +396,7 @@ resolve() {
         value=$(printf '%s\n' "$decision" | awk -F'\t' '{print $5}') || return 1
         if [ "$scope" = team ]; then source=team; else source=local; fi
       else
-        value=unset
+        value="unset"
         if [ "$scope" = team ]; then source="invalid in team"; else source="invalid in local"; fi
       fi
     fi
@@ -746,6 +748,7 @@ do_set() {
     if [ "$k" = "$s_key" ]; then s_found=1; break; fi
   done
   if [ "$s_found" -eq 0 ]; then
+    # shellcheck disable=SC2016
     printf 'error: unknown key `%s`\n' "$s_key" >&2
     return 1
   fi
@@ -757,6 +760,7 @@ do_set() {
     if [ "$s_v" = "$s_value" ]; then s_value_ok=1; break; fi
   done
   if [ "$s_value_ok" -eq 0 ]; then
+    # shellcheck disable=SC2016
     printf 'error: invalid value for `%s`: %s (allowed: %s)\n' "$s_key" "$s_value" "$s_values" >&2
     return 1
   fi
@@ -841,7 +845,7 @@ main() {
         usage
         exit 2
       fi
-      MODE=set
+      MODE="set"
       ;;
     *)
       usage
