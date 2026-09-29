@@ -3383,6 +3383,15 @@ results of Tasks 17 and 18 to the developer.
 
 ## Review rounds
 
+### 2026-09-29 — plan-adversary, fable 5.1, blocking (round 2, diff-scoped)
+
+- open — [Important] F11: `block=$(set -e; build_block …) || block=''` fails where `/bin/sh` is bash, which ignores `set -e` on the left of `||`
+- open — [Important] F12: Task 17 disables every enabled install, including a project-scope install belonging to another project, which would refuse or leave an `enabledPlugins` entry in this repository's tracked settings
+- open — [Minor] F13: the function list still gives `die` a silent `exit 0` in hook mode
+- open — [Minor] F14: *unchanged* is byte-exact while the grammar tolerates a trailing CR, so a repeat `--set` rewrites a CRLF file
+- held — [Minor] F15: F4's `license:` cites a private note and platform documentation, neither a license, and the committed ledger points at a per-user store; question: do you approve the dogfood procedure — disable only the install active in the scratch directory, and move the user-scope rules aside only with consent at run time?; options: (a) approve, `ruling:` replaces the license and the private note is dropped (recommended); (b) change the procedure
+- signal 2026-09-29 — another round earns its cost only over the two Important fixes, and a confirming full-document round is owed anyway; the Minors alone do not justify one
+
 ### 2026-09-29 — plan-adversary, fable 5.1, blocking (round 1, full-document)
 
 - hit fixed 2026-09-29 — Task 8's check H expected 2 literal "resolved from `…tier`" matches, but the card edit inserts "the project's"; the grep now admits it
