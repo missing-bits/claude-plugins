@@ -53,8 +53,9 @@ Released versions of this plugin, newest first.
 - A second SessionStart handler, `scripts/load-settings.sh`, emits every
   key's effective value and source as one plain-text block, capped at
   4 KB; the same loader offers `--print`, `--validate` and `--set`
-  (with `--dry-run`) and owns every write — in a worktree, to the main
-  checkout's personal file.
+  (with `--dry-run`) and owns every write; the main checkout's personal
+  file is written, and read unless the worktree holds its own, which is
+  read instead and shadows it.
 - New always-on rule `process-settings.md`: the files, the grammar, the
   block, how a key is read and when a write happens. Run a rules
   re-sync after this update to install it.

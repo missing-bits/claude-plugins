@@ -158,6 +158,11 @@ Recorded here and beside the text they concern.
    the key wins; D20 also has the session say which note it overrode, as
    workflow.md's technical-design site already says, and the developer
    ruled at implementation to add the clause.
+8. **Task 15's worktree sentence names the shadowing file.** The plan's
+   README and CHANGELOG blocks said the main checkout's personal file is
+   read and written in a worktree; the loader reads the worktree's own
+   file where one exists, and the developer ruled at implementation to
+   say so.
 
 ## Settled format edges
 

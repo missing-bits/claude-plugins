@@ -299,8 +299,9 @@ script offers `--print`, `--validate --scope team|personal <file>`,
 every write. Set the answers in one sitting with the `process-setup`
 skill, or record one as you answer its question — "yes, and record".
 The block is plain standard output, capped at 4 KB in the hook and
-uncapped under `--print`; in a worktree the main checkout's personal
-file is read and written.
+uncapped under `--print`; the main checkout's personal file is written,
+and read unless the worktree holds its own, which is read instead and
+shadows it.
 
 ## Process directories
 
