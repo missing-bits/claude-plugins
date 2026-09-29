@@ -117,6 +117,11 @@ class LoaderTest(unittest.TestCase):
                    loader: Path = LOADER) -> str:
         return f"working-process settings (root: {root}; loader: {loader}; team: {team}; local: {local})"
 
+    QUESTION = "May the review loop run autonomously, within the round cap?"
+
+    def read(self, path: Path) -> str:
+        return path.read_text(encoding="utf-8")
+
     # 1. Precedence and defaults.
     def test_precedence_and_defaults(self) -> None:
         self.git_init()
@@ -566,6 +571,316 @@ class LoaderTest(unittest.TestCase):
             res.lines,
         )
         self.assertEqual(res.lines[-1], "x=y.md: 1 errors, 0 notices")
+
+    # 22. Insert, personal, creating everything.
+    def test_set_insert_personal_creates_everything(self) -> None:
+        self.git_init()
+        res = self.run_loader(self.root, "--set", "review.autonomy", "yes")
+        self.assertEqual(res.code, 0)
+        self.assertEqual(res.err, "")
+        d = self.root / ".working-process"
+        self.assertEqual(
+            self.read(d / "settings.local.md"),
+            f"# working-process settings — personal\n\n{self.QUESTION}\nreview.autonomy: yes\n",
+        )
+        self.assertEqual(self.read(d / ".gitignore"), "settings.local.md\n")
+        self.assertFalse((d / "settings.md").exists())
+        self.assertEqual(
+            res.lines[:3],
+            [
+                "wrote settings.local.md: review.autonomy: yes (inserted)",
+                "created .working-process/settings.local.md",
+                "created .working-process/.gitignore — commit it with settings.md",
+            ],
+        )
+        self.assertEqual(res.lines[3], "")
+        self.assertEqual(res.lines[4], self.first_line(self.root, team="settings.md (absent)"))
+        self.assertIn("review.autonomy: yes  [local]", res.lines)
+
+    # 23. Insert, team.
+    def test_set_insert_team(self) -> None:
+        self.git_init()
+        res = self.run_loader(self.root, "--set", "dir.default", "tracked")
+        self.assertEqual(res.code, 0)
+        d = self.root / ".working-process"
+        question = ("Which mode does a Process directory get unless an exception "
+                    "names it — tracked or ignored?")
+        self.assertEqual(
+            self.read(d / "settings.md"),
+            f"# working-process settings\n\n{question}\ndir.default: tracked\n",
+        )
+        self.assertFalse((d / ".gitignore").exists())
+        self.assertIn("wrote settings.md: dir.default: tracked (inserted)", res.lines)
+        self.assertIn("created .working-process/settings.md", res.lines)
+
+    # 24. Insert into an existing file.
+    def test_set_insert_into_existing_file(self) -> None:
+        original = "# Team\n\ndir.default: tracked\n"
+        question = ("How does the topic branch take the .docs branch at the "
+                    "implementation-ready gate — squash or fast-forward?")
+        expected = original + f"\n{question}\ndocs-branch.merge: squash\n"
+
+        self.git_init()
+        self.settings(self.root, team=original)
+        res = self.run_loader(self.root, "--set", "docs-branch.merge", "squash")
+        self.assertEqual(res.code, 0)
+        self.assertEqual(self.read(self.root / ".working-process" / "settings.md"), expected)
+
+        root2 = self.git_init(self.base / "proj2")
+        d2 = root2 / ".working-process"
+        d2.mkdir(parents=True, exist_ok=True)
+        (d2 / "settings.md").write_bytes(original[:-1].encode("utf-8"))
+        res2 = self.run_loader(root2, "--set", "docs-branch.merge", "squash")
+        self.assertEqual(res2.code, 0)
+        self.assertEqual((d2 / "settings.md").read_bytes(), expected.encode("utf-8"))
+
+    # 25. Replace.
+    def test_set_replace(self) -> None:
+        self.git_init()
+        text = f"intro\n\n{self.QUESTION}\nreview.autonomy: yes\n\nconsult.personas: no\n"
+        self.settings(self.root, local=text)
+        local = self.root / ".working-process" / "settings.local.md"
+        res = self.run_loader(self.root, "--set", "review.autonomy", "no")
+        self.assertEqual(res.code, 0)
+        expected = text.replace("review.autonomy: yes", "review.autonomy: no")
+        self.assertEqual(self.read(local), expected)
+        self.assertIn("wrote settings.local.md: review.autonomy: no (replaced)", res.lines)
+
+        root2 = self.git_init(self.base / "proj-crlf")
+        d2 = self.settings(root2)
+        (d2 / "settings.local.md").write_bytes(
+            b"intro\r\nreview.autonomy: yes\r\nconsult.personas: no\r\n")
+        res2 = self.run_loader(root2, "--set", "review.autonomy", "no")
+        self.assertEqual(res2.code, 0)
+        self.assertEqual(
+            (d2 / "settings.local.md").read_bytes(),
+            b"intro\r\nreview.autonomy: no\nconsult.personas: no\r\n",
+        )
+
+    # 26. Unchanged.
+    def test_set_unchanged(self) -> None:
+        self.git_init()
+        text = f"intro\n\n{self.QUESTION}\nreview.autonomy: yes\n\nconsult.personas: no\n"
+        self.settings(self.root, local=text)
+        before = tree_hash(self.root / ".working-process")
+        res = self.run_loader(self.root, "--set", "review.autonomy", "yes")
+        self.assertEqual(res.code, 0)
+        after = tree_hash(self.root / ".working-process")
+        self.assertEqual(before, after)
+        self.assertIn("unchanged settings.local.md: review.autonomy: yes", res.lines)
+        self.assertTrue(any(l.startswith("working-process settings (root:") for l in res.lines))
+
+        root2 = self.git_init(self.base / "proj-crlf2")
+        d2 = self.settings(root2)
+        (d2 / "settings.local.md").write_bytes(b"review.autonomy: yes\r\n")
+        before2 = tree_hash(d2)
+        res2 = self.run_loader(root2, "--set", "review.autonomy", "yes")
+        self.assertEqual(res2.code, 0)
+        after2 = tree_hash(d2)
+        self.assertEqual(before2, after2)
+        self.assertIn("unchanged settings.local.md: review.autonomy: yes", res2.lines)
+
+    # 27. Duplicate.
+    def test_set_duplicate(self) -> None:
+        self.git_init()
+        text = (f"{self.QUESTION}\nreview.autonomy: yes\nfoo\n"
+                f"{self.QUESTION}\nreview.autonomy: no\nbar\nreview.autonomy: maybe\n")
+        self.settings(self.root, local=text)
+        local = self.root / ".working-process" / "settings.local.md"
+        res = self.run_loader(self.root, "--set", "review.autonomy", "no")
+        self.assertEqual(res.code, 0)
+        self.assertEqual(self.read(local), f"{self.QUESTION}\nreview.autonomy: no\nfoo\nbar\n")
+        self.assertEqual(
+            [l for l in res.lines if l.startswith("removed ") or l.startswith("wrote ")],
+            [
+                f"removed settings.local.md:4 {self.QUESTION}",
+                "removed settings.local.md:5 review.autonomy: no",
+                "removed settings.local.md:7 review.autonomy: maybe",
+                "wrote settings.local.md: review.autonomy: no (replaced)",
+            ],
+        )
+
+    # 28. Another line's error is reported, not blocking (D49).
+    def test_set_other_line_error_not_blocking(self) -> None:
+        self.git_init()
+        self.settings(self.root, local="review.autonmy: yes\n")
+        local = self.root / ".working-process" / "settings.local.md"
+        res = self.run_loader(self.root, "--set", "review.autonomy", "no")
+        self.assertEqual(res.code, 0)
+        self.assertEqual(
+            self.read(local),
+            f"review.autonmy: yes\n\n{self.QUESTION}\nreview.autonomy: no\n",
+        )
+        err_idx = res.lines.index("error: settings.local.md:1 unknown key `review.autonmy` — ignored")
+        wrote_idx = res.lines.index("wrote settings.local.md: review.autonomy: no (inserted)")
+        self.assertLess(err_idx, wrote_idx)
+
+    # 29. Validation.
+    def test_set_validation(self) -> None:
+        self.git_init()
+        res = self.run_loader(self.root, "--set", "review.autonomy", "maybe")
+        self.assertEqual(res.code, 1)
+        self.assertEqual(res.out, "")
+        self.assertEqual(res.err, "error: invalid value for `review.autonomy`: maybe (allowed: yes | no)\n")
+        self.assertFalse((self.root / ".working-process").exists())
+
+        res2 = self.run_loader(self.root, "--set", "nosuch.key", "yes")
+        self.assertEqual(res2.code, 1)
+        self.assertEqual(res2.err, "error: unknown key `nosuch.key`\n")
+
+        res3 = self.run_loader(self.root, "--set", "review.autonomy")
+        self.assertEqual(res3.code, 2)
+
+    # 30. Destination from a worktree.
+    def test_set_destination_from_worktree(self) -> None:
+        main = self.git_init()
+        wt = self.worktree(main, "wt")
+        res = self.run_loader(wt, "--set", "review.autonomy", "yes")
+        self.assertEqual(res.code, 0)
+        main_d = main / ".working-process"
+        self.assertEqual(
+            self.read(main_d / "settings.local.md"),
+            f"# working-process settings — personal\n\n{self.QUESTION}\nreview.autonomy: yes\n",
+        )
+        self.assertEqual(self.read(main_d / ".gitignore"), "settings.local.md\n")
+        self.assertFalse((wt / ".working-process").exists())
+        self.assertIn(
+            "wrote settings.local.md (main checkout): review.autonomy: yes (inserted)",
+            res.lines,
+        )
+        self.assertIn("review.autonomy: yes  [local]", res.lines)
+        self.assertEqual(
+            res.lines[res.lines.index("") + 1],
+            self.first_line(wt, team="settings.md (absent)", local="settings.local.md (main checkout)"),
+        )
+
+        res2 = self.run_loader(wt, "--set", "dir.default", "tracked")
+        self.assertEqual(res2.code, 0)
+        self.assertTrue((wt / ".working-process" / "settings.md").exists())
+        self.assertFalse((main / ".working-process" / "settings.md").exists())
+        self.assertEqual(
+            res2.lines[res2.lines.index("") + 1],
+            self.first_line(wt, local="settings.local.md (main checkout)"),
+        )
+        self.assertIn("dir.default: tracked  [team]", res2.lines)
+
+    # 31. Shadow.
+    def test_set_shadow(self) -> None:
+        main = self.git_init()
+        wt = self.worktree(main, "wt")
+        self.settings(wt, local="review.autonomy: no\n")
+        res = self.run_loader(wt, "--set", "review.autonomy", "yes")
+        self.assertEqual(res.code, 0)
+        self.assertEqual(
+            self.read(main / ".working-process" / "settings.local.md"),
+            f"# working-process settings — personal\n\n{self.QUESTION}\nreview.autonomy: yes\n",
+        )
+        self.assertEqual(self.read(wt / ".working-process" / "settings.local.md"), "review.autonomy: no\n")
+        self.assertEqual(
+            res.lines[0],
+            "note: settings.local.md in this worktree shadows the main checkout; "
+            "this write will not change the current worktree's answer",
+        )
+        self.assertIn("review.autonomy: no  [local]", res.lines)
+
+    # 32. Bare.
+    def test_set_bare(self) -> None:
+        src = self.git_init()
+        bwt = self.bare(src)
+        bare_git = src.parent / "bare.git"
+        before = tree_hash(bare_git)
+        res = self.run_loader(bwt, "--set", "review.autonomy", "yes")
+        self.assertEqual(res.code, 0)
+        self.assertTrue((bwt / ".working-process" / "settings.local.md").exists())
+        self.assertTrue((bwt / ".working-process" / ".gitignore").exists())
+        self.assertEqual(tree_hash(bare_git), before)
+        self.assertIn(
+            "wrote settings.local.md (worktree, bare repository): review.autonomy: yes (inserted)",
+            res.lines,
+        )
+
+    # 33. Dry run.
+    def test_set_dry_run(self) -> None:
+        # Case 22: insert, personal, creating everything.
+        self.git_init()
+        base_hash = tree_hash(self.base)
+        res = self.run_loader(self.root, "--set", "--dry-run", "review.autonomy", "yes")
+        self.assertEqual(res.code, 0)
+        self.assertEqual(tree_hash(self.base), base_hash)
+        self.assertFalse((self.root / ".working-process").exists())
+        self.assertFalse(any(l.startswith("working-process settings") for l in res.lines))
+        self.assertIn("would write settings.local.md: review.autonomy: yes (inserted)", res.lines)
+        self.assertIn("would create .working-process/settings.local.md", res.lines)
+        self.assertIn(
+            "would create .working-process/.gitignore — commit it with settings.md",
+            res.lines,
+        )
+
+        # Case 25: replace.
+        root25 = self.git_init(self.base / "proj25")
+        text25 = f"intro\n\n{self.QUESTION}\nreview.autonomy: yes\n\nconsult.personas: no\n"
+        self.settings(root25, local=text25)
+        hash25 = tree_hash(root25 / ".working-process")
+        res25 = self.run_loader(root25, "--set", "--dry-run", "review.autonomy", "no")
+        self.assertEqual(res25.code, 0)
+        self.assertEqual(tree_hash(root25 / ".working-process"), hash25)
+        self.assertIn("would write settings.local.md: review.autonomy: no (replaced)", res25.lines)
+
+        # Case 27: duplicate.
+        root27 = self.git_init(self.base / "proj27")
+        text27 = (f"{self.QUESTION}\nreview.autonomy: yes\nfoo\n"
+                  f"{self.QUESTION}\nreview.autonomy: no\nbar\nreview.autonomy: maybe\n")
+        self.settings(root27, local=text27)
+        hash27 = tree_hash(root27 / ".working-process")
+        res27 = self.run_loader(root27, "--set", "--dry-run", "review.autonomy", "no")
+        self.assertEqual(res27.code, 0)
+        self.assertEqual(tree_hash(root27 / ".working-process"), hash27)
+        self.assertIn(f"would remove settings.local.md:4 {self.QUESTION}", res27.lines)
+        self.assertIn("would remove settings.local.md:5 review.autonomy: no", res27.lines)
+        self.assertIn("would remove settings.local.md:7 review.autonomy: maybe", res27.lines)
+        self.assertIn("would write settings.local.md: review.autonomy: no (replaced)", res27.lines)
+
+        # Case 30: destination from a worktree.
+        main30 = self.git_init(self.base / "proj30")
+        wt30 = self.worktree(main30, "wt30")
+        base30_hash = tree_hash(self.base / "proj30")
+        res30 = self.run_loader(wt30, "--set", "--dry-run", "review.autonomy", "yes")
+        self.assertEqual(res30.code, 0)
+        self.assertFalse((main30 / ".working-process").exists())
+        self.assertFalse((wt30 / ".working-process").exists())
+        self.assertIn(
+            "would write settings.local.md (main checkout): review.autonomy: yes (inserted)",
+            res30.lines,
+        )
+        self.assertIn(
+            "would create .working-process/.gitignore — commit it with settings.md",
+            res30.lines,
+        )
+
+        # Case 31: shadow.
+        main31 = self.git_init(self.base / "proj31")
+        wt31 = self.worktree(main31, "wt31")
+        self.settings(wt31, local="review.autonomy: no\n")
+        res31 = self.run_loader(wt31, "--set", "--dry-run", "review.autonomy", "yes")
+        self.assertEqual(res31.code, 0)
+        self.assertFalse((main31 / ".working-process").exists())
+        self.assertEqual(
+            res31.lines[0],
+            "note: settings.local.md in this worktree shadows the main checkout; "
+            "this write will not change the current worktree's answer",
+        )
+
+    # 34. An existing .gitignore without the line.
+    def test_set_gitignore_appended(self) -> None:
+        self.git_init()
+        self.settings(self.root, gitignore="*.bak\n")
+        res = self.run_loader(self.root, "--set", "review.autonomy", "yes")
+        self.assertEqual(res.code, 0)
+        self.assertEqual(
+            self.read(self.root / ".working-process" / ".gitignore"),
+            "*.bak\nsettings.local.md\n",
+        )
+        self.assertIn("appended settings.local.md to .working-process/.gitignore", res.lines)
 
 
 if __name__ == "__main__":

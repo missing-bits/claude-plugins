@@ -4,14 +4,13 @@
 # the contract for the files, the grammar and the block; the key
 # registry (plugins/working-process/SETTINGS_REGISTRY.md) is the
 # contract for the keys; this plan's Tasks 2-5 are the contract for the
-# modes this script implements (hook mode, --print and the
-# worktree/bare-repository layouts and --validate here; --set in a
-# later task).
+# modes this script implements: hook mode, --print and the
+# worktree/bare-repository layouts, --validate and --set.
 set -u
 export LC_ALL=C
 
 usage() {
-  echo "usage: load-settings.sh [--print] | --validate --scope <team|personal> <file>" >&2
+  echo "usage: load-settings.sh [--print] | --validate --scope <team|personal> <file> | --set [--dry-run] <key> <value>" >&2
 }
 
 die() {
@@ -251,6 +250,62 @@ AWK_PROG='
   }
 '
 
+# PLAN_PROG: the rewrite engine shared by plan_write (report pass,
+# content discarded) and apply_write (write pass, report discarded).
+# Reads the destination file on stdin (or nothing, for an absent file);
+# never takes a path operand. Parameters (-v): mode (insert|replace|
+# replace_remove), first_nr (the record to replace, 0 for insert),
+# skip_csv (comma-separated extra record numbers to remove), question
+# (the key's question: text, compared exactly), kv (the "<key>:
+# <value>" line to write, LF-terminated by print), title (the file's
+# title line, insert mode on an absent/empty file only).
+#
+# Content goes to stdout, one line at a time via plain print — every
+# line, kept or new, gains exactly one trailing LF this way, which is
+# the "a last line lacking a final newline gains one" normalization
+# for free. A kept line's own text (CRLF included) is reproduced
+# verbatim; only the lines this script adds are new bytes. Removed
+# records are reported to stderr as "remove\t<n>\t<line text>", in
+# ascending file-line order, so a caller reading only stdout never
+# sees them and a caller reading only stderr gets the report alone.
+PLAN_PROG='
+  BEGIN {
+    n = 0
+    m = split(skip_csv, sk, ",")
+    for (i = 1; i <= m; i++) if (sk[i] != "") skip[sk[i] + 0] = 1
+  }
+  { n++; lines[n] = $0 }
+  END {
+    total = n
+    for (i = 1; i <= total; i++) {
+      if ((i in skip) && i > 1 && lines[i - 1] == question) skip[i - 1] = 1
+    }
+    if (mode == "insert") {
+      for (i = 1; i <= total; i++) print lines[i]
+      if (total == 0) {
+        print title
+        print ""
+      } else if (lines[total] != "") {
+        print ""
+      }
+      print question
+      print kv
+    } else {
+      for (i = 1; i <= total; i++) {
+        if (i in skip) {
+          printf "remove\t%d\t%s\n", i, lines[i] > "/dev/stderr"
+          continue
+        }
+        if (i == first_nr + 0) {
+          print kv
+        } else {
+          print lines[i]
+        }
+      }
+    }
+  }
+'
+
 # build_registry_summary: fills REGISTRY_SUMMARY, one
 # "<key>\t<scope>\t<space-joined values>\t<default>" line per key in
 # $keys, registry order — the "reg" AWK_PROG's BEGIN block reads.
@@ -474,6 +529,227 @@ cap_block() {
   '
 }
 
+# destination <scope>: sets DEST (the file --set writes), DEST_LABEL
+# (its qualifier for the wrote/unchanged line) and NOTE (the shadow
+# note line, or empty) for a key of the given scope. Requires find_root
+# to have already set ROOT/TEAM/LOCAL/LAYOUT/MAIN. A team key always
+# writes ROOT's own settings.md, whatever the layout; the scope's
+# personal branch matches the layout cases find_root already resolved.
+destination() {
+  d_scope=$1
+  NOTE=""
+  if [ "$d_scope" = team ]; then
+    DEST="$TEAM"
+    DEST_LABEL="settings.md"
+    return 0
+  fi
+  case "$LAYOUT" in
+    worktree)
+      DEST="$MAIN/.working-process/settings.local.md"
+      DEST_LABEL="settings.local.md (main checkout)"
+      if [ -f "$LOCAL" ]; then
+        NOTE="note: settings.local.md in this worktree shadows the main checkout; this write will not change the current worktree's answer"
+      fi
+      ;;
+    bare-worktree)
+      DEST="$LOCAL"
+      DEST_LABEL="settings.local.md (worktree, bare repository)"
+      ;;
+    *)
+      DEST="$LOCAL"
+      DEST_LABEL="settings.local.md"
+      ;;
+  esac
+}
+
+# plan_write: computes and prints every --set/--set --dry-run output
+# line up to (not including) the trailing blank line and block, from
+# DEST's current content via scan_file and AWK_PROG (reused, so the
+# key/value/duplicate decisions for every OTHER line stay the one
+# AWK_PROG makes). It never writes. Sets PW_MODE (insert|replace|
+# replace_remove|unchanged), and for every mode but unchanged,
+# PW_FIRST_NR, PW_SKIP_CSV and PW_GITIGNORE_ACTION (none|create|append)
+# for apply_write.
+plan_write() {
+  [ -n "$NOTE" ] && printf '%s\n' "$NOTE"
+
+  pw_role=local
+  [ "$s_scope" = team ] && pw_role=team
+  pw_label=$(basename "$DEST")
+
+  pw_dest_records=$(scan_file "$DEST" "$s_scope") || return 1
+  pw_raw=$(printf '%s\n' "$pw_dest_records" | awk -F'\t' -v reg="$REGISTRY_SUMMARY" -v file_label="$pw_label" -v role="$pw_role" "$AWK_PROG") || return 1
+  pw_other_errors=$(printf '%s\n' "$pw_raw" | awk -v k="$s_key" '/^error: /{ if (index($0, "`" k "`") == 0) print }') || return 1
+  [ -n "$pw_other_errors" ] && printf '%s\n' "$pw_other_errors"
+
+  pw_own=$(printf '%s\n' "$pw_dest_records" | awk -F'\t' -v k="$s_key" '$2==k') || return 1
+  pw_own_count=$(printf '%s\n' "$pw_own" | awk 'NF{c++} END{print c+0}') || return 1
+
+  pw_verb_write=wrote
+  pw_verb_unchanged=unchanged
+  pw_verb_remove=removed
+  pw_verb_create=created
+  pw_verb_append=appended
+  if [ "$s_dry" -eq 1 ]; then
+    pw_verb_write="would write"
+    pw_verb_unchanged="would leave unchanged"
+    pw_verb_remove="would remove"
+    pw_verb_create="would create"
+    pw_verb_append="would append"
+  fi
+
+  pw_kv="$s_key: $s_value"
+
+  if [ "$pw_own_count" -eq 0 ]; then
+    PW_MODE=insert
+    PW_FIRST_NR=0
+    PW_SKIP_CSV=""
+  elif [ "$pw_own_count" -eq 1 ]; then
+    pw_status=$(printf '%s\n' "$pw_own" | awk -F'\t' '{print $3}') || return 1
+    pw_value=$(printf '%s\n' "$pw_own" | awk -F'\t' '{print $4}') || return 1
+    pw_nr=$(printf '%s\n' "$pw_own" | awk -F'\t' '{print $1}') || return 1
+    if [ "$pw_status" = ok ] && [ "$pw_value" = "$s_value" ]; then
+      PW_MODE=unchanged
+    else
+      PW_MODE=replace
+      PW_FIRST_NR=$pw_nr
+      PW_SKIP_CSV=""
+    fi
+  else
+    PW_MODE=replace_remove
+    PW_FIRST_NR=$(printf '%s\n' "$pw_own" | awk -F'\t' 'NR==1{print $1; exit}') || return 1
+    PW_SKIP_CSV=$(printf '%s\n' "$pw_own" | awk -F'\t' 'NR>1{printf "%s,", $1}') || return 1
+  fi
+
+  if [ "$PW_MODE" = unchanged ]; then
+    printf '%s %s: %s\n' "$pw_verb_unchanged" "$DEST_LABEL" "$pw_kv"
+    return 0
+  fi
+
+  pw_input=/dev/null
+  [ -f "$DEST" ] && pw_input="$DEST"
+  pw_report=$(awk -v mode="$PW_MODE" -v first_nr="$PW_FIRST_NR" -v skip_csv="$PW_SKIP_CSV" \
+    -v question="$s_question" -v kv="$pw_kv" -v title="$TITLE" "$PLAN_PROG" \
+    < "$pw_input" 2>&1 1>/dev/null) || return 1
+  [ -n "$pw_report" ] && printf '%s\n' "$pw_report" | awk -F'\t' -v fl="$pw_label" -v verb="$pw_verb_remove" '
+    $1=="remove"{ printf "%s %s:%s %s\n", verb, fl, $2, $3 }
+  '
+
+  pw_kind="(replaced)"
+  [ "$PW_MODE" = insert ] && pw_kind="(inserted)"
+  printf '%s %s: %s %s\n' "$pw_verb_write" "$DEST_LABEL" "$pw_kv" "$pw_kind"
+
+  PW_EXISTED=0
+  [ -f "$DEST" ] && PW_EXISTED=1
+
+  PW_GITIGNORE_ACTION=none
+  if [ "$s_scope" = personal ]; then
+    pw_gi="$(dirname "$DEST")/.gitignore"
+    if [ ! -f "$pw_gi" ]; then
+      PW_GITIGNORE_ACTION=create
+    elif ! awk '$0=="settings.local.md"{f=1} END{exit !f}' < "$pw_gi"; then
+      PW_GITIGNORE_ACTION=append
+    fi
+  fi
+
+  [ "$PW_EXISTED" -eq 0 ] && printf '%s .working-process/%s\n' "$pw_verb_create" "$(basename "$DEST")"
+  case "$PW_GITIGNORE_ACTION" in
+    create) printf '%s .working-process/.gitignore \342\200\224 commit it with settings.md\n' "$pw_verb_create" ;;
+    append) printf '%s settings.local.md to .working-process/.gitignore\n' "$pw_verb_append" ;;
+  esac
+}
+
+# apply_write: the only function that creates or moves a file. Reruns
+# PLAN_PROG (its content this time, report discarded) to rewrite DEST
+# via a temp file beside it, moved into place under the same trap
+# write-manifest.sh uses, then materializes the personal .gitignore
+# per PW_GITIGNORE_ACTION. Never called for --dry-run or a mode of
+# unchanged.
+apply_write() {
+  aw_dir=$(dirname "$DEST")
+  mkdir -p "$aw_dir" || return 1
+
+  aw_input=/dev/null
+  [ -f "$DEST" ] && aw_input="$DEST"
+
+  tmp="$DEST.tmp.$$"
+  trap 'rm -f "$tmp"' EXIT
+  awk -v mode="$PW_MODE" -v first_nr="$PW_FIRST_NR" -v skip_csv="$PW_SKIP_CSV" \
+    -v question="$s_question" -v kv="$s_key: $s_value" -v title="$TITLE" "$PLAN_PROG" \
+    < "$aw_input" > "$tmp" 2>/dev/null || { rm -f "$tmp"; trap - EXIT; return 1; }
+  mv "$tmp" "$DEST" || { rm -f "$tmp"; trap - EXIT; return 1; }
+  trap - EXIT
+
+  [ "$s_scope" = personal ] || return 0
+  case "$PW_GITIGNORE_ACTION" in
+    create|append)
+      gi="$aw_dir/.gitignore"
+      gi_tmp="$gi.tmp.$$"
+      trap 'rm -f "$gi_tmp"' EXIT
+      if [ "$PW_GITIGNORE_ACTION" = create ]; then
+        printf 'settings.local.md\n' > "$gi_tmp" || return 1
+      else
+        awk '{print} END{print "settings.local.md"}' < "$gi" > "$gi_tmp" || return 1
+      fi
+      mv "$gi_tmp" "$gi" || { rm -f "$gi_tmp"; trap - EXIT; return 1; }
+      trap - EXIT
+      ;;
+  esac
+}
+
+# do_set <dry: 0|1> <key> <value>: validates the key and value against
+# the registry (nothing is created before both pass), then plans and,
+# unless dry, applies the write, then, on a real write, prints a blank
+# line and the fresh block resolved from the current checkout.
+do_set() {
+  s_dry=$1
+  s_key=$2
+  s_value=$3
+
+  [ -f "$REGISTRY" ] || die "registry not found or empty at $REGISTRY"
+  keys=$(registry_keys) || return 1
+  [ -n "$keys" ] || die "registry not found or empty at $REGISTRY"
+
+  s_found=0
+  for k in $keys; do
+    if [ "$k" = "$s_key" ]; then s_found=1; break; fi
+  done
+  if [ "$s_found" -eq 0 ]; then
+    printf 'error: unknown key `%s`\n' "$s_key" >&2
+    return 1
+  fi
+
+  s_values=$(registry_field "$s_key" values) || return 1
+  s_values_norm=$(printf '%s' "$s_values" | sed 's/ | / /g') || return 1
+  case " $s_values_norm " in
+    *" $s_value "*) ;;
+    *)
+      printf 'error: invalid value for `%s`: %s (allowed: %s)\n' "$s_key" "$s_value" "$s_values" >&2
+      return 1
+      ;;
+  esac
+
+  s_scope=$(registry_field "$s_key" scope) || return 1
+  s_question=$(registry_field "$s_key" question) || return 1
+  build_registry_summary || return 1
+
+  TITLE="# working-process settings"
+  if [ "$s_scope" = personal ]; then
+    TITLE=$(printf '# working-process settings \342\200\224 personal') || return 1
+  fi
+
+  find_root || return 1
+  destination "$s_scope" || return 1
+  plan_write || return 1
+
+  if [ "$s_dry" -eq 0 ]; then
+    [ "$PW_MODE" != unchanged ] && { apply_write || return 1; }
+    printf '\n'
+    resolve || return 1
+    emit_block || return 1
+  fi
+}
+
 main() {
   case "${1-}" in
     "")
@@ -510,6 +786,21 @@ main() {
       fi
       MODE=validate
       ;;
+    --set)
+      if [ "$#" -eq 3 ]; then
+        s_dry=0
+        s_key=$2
+        s_value=$3
+      elif [ "$#" -eq 4 ] && [ "${2-}" = "--dry-run" ]; then
+        s_dry=1
+        s_key=$3
+        s_value=$4
+      else
+        usage
+        exit 2
+      fi
+      MODE=set
+      ;;
     *)
       usage
       exit 2
@@ -527,6 +818,15 @@ main() {
 
   if [ "$MODE" = validate ]; then
     out=$(set -e; do_validate "$v_scope" "$v_file")
+    rc=$?
+    if [ -n "$out" ]; then
+      printf '%s\n' "$out"
+    fi
+    exit "$rc"
+  fi
+
+  if [ "$MODE" = set ]; then
+    out=$(set -e; do_set "$s_dry" "$s_key" "$s_value")
     rc=$?
     if [ -n "$out" ]; then
       printf '%s\n' "$out"
