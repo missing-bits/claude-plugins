@@ -543,6 +543,30 @@ class LoaderTest(unittest.TestCase):
         self.assertEqual(res3.out, "")
         self.assertTrue(res3.err.startswith("usage:"))
 
+    # Regression: a candidate path shaped like an awk assignment
+    # (ident=value) must still be read as a file, not treated as a
+    # bare awk operand (which POSIX awk parses as a variable
+    # assignment, falling through to read stdin instead of the named
+    # file). Before the fix this printed a false-clean
+    # "0 errors, 0 notices" / exit 0 here, since scan_file's awk
+    # silently read the test's empty stdin instead of the real file.
+    def test_validate_operand_shaped_filename_is_read_not_assigned(self) -> None:
+        candidate = self.base / "x=y.md"
+        candidate.write_text("dir.default: bogus\n", encoding="utf-8")
+        # A bare relative name reproduces the ambiguity: awk's operand
+        # grammar treats "ident=value" as an assignment only when the
+        # whole operand matches it from the start, which an absolute
+        # or slash-containing path never does. cwd=self.base with the
+        # bare "x=y.md" argument is the shape that actually reaches
+        # awk unresolved.
+        res = self.run_loader(self.base, "--validate", "--scope", "team", "x=y.md")
+        self.assertEqual(res.code, 1)
+        self.assertIn(
+            "error: x=y.md:1 invalid value for `dir.default`: bogus — unset",
+            res.lines,
+        )
+        self.assertEqual(res.lines[-1], "x=y.md: 1 errors, 0 notices")
+
 
 if __name__ == "__main__":
     unittest.main()

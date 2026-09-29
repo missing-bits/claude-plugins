@@ -127,6 +127,13 @@ registry_field() {
 # record per settings line: <line>\t<key>\t<ok|invalid>\t<value-or-raw>.
 # A missing file prints no record. <scope> is unused by the grammar
 # itself; it names which file the caller is scanning.
+#
+# The file is fed on awk's stdin, never as a trailing operand: POSIX
+# awk reads an ident=value operand as a variable assignment rather
+# than a filename (and "-" as stdin), and --validate's <file> is an
+# arbitrary caller-given path, so a name shaped like an assignment
+# would silently skip the scan (and a name of "-" would block on
+# stdin) instead of being read as a file.
 scan_file() {
   file=$1
   scope=$2
@@ -152,7 +159,7 @@ scan_file() {
         printf "%d\t%s\t%s\t%s\n", NR, key, status, val
       }
     }
-  ' "$file" || return 1
+  ' < "$file" || return 1
 }
 
 # AWK_PROG: the decision engine shared by resolve (team pass + local
