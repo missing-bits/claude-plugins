@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import shutil
 import subprocess
 import unittest
 import tempfile
@@ -25,6 +26,17 @@ KEYS = [  # registry order
     "design.technical-design-offer", "dispatch.propagation-auditor-tier",
     "docs-branch.merge", "consult.personas", "review.autonomy", "review.per-round-commit",
 ]
+
+
+def system_awk_is_gawk() -> bool:
+    """True when the `awk` the loader will actually run is gawk, whose
+    --posix / POSIXLY_CORRECT=1 behavior is what the strict-POSIX
+    regression tests exercise."""
+    try:
+        proc = subprocess.run(["awk", "--version"], capture_output=True, text=True, timeout=5)
+    except OSError:
+        return False
+    return proc.returncode == 0 and "gnu awk" in proc.stdout.lower()
 
 
 def tree_hash(root: Path) -> str:
@@ -102,13 +114,16 @@ class LoaderTest(unittest.TestCase):
         return path
 
     def run_loader(self, cwd: Path, *args: str, project_dir: str | None = None,
-                   loader: Path = LOADER, path_prefix: Path | None = None) -> Result:
+                   loader: Path = LOADER, path_prefix: Path | None = None,
+                   env_extra: dict[str, str] | None = None) -> Result:
         env = {k: v for k, v in os.environ.items() if k not in ("CLAUDE_PROJECT_DIR", "CLAUDE_PLUGIN_ROOT")}
         env["GIT_CEILING_DIRECTORIES"] = str(self.base)
         if project_dir is not None:
             env["CLAUDE_PROJECT_DIR"] = project_dir
         if path_prefix is not None:
             env["PATH"] = f"{path_prefix}{os.pathsep}{env.get('PATH', '')}"
+        if env_extra is not None:
+            env.update(env_extra)
         proc = subprocess.run(["/bin/sh", str(loader), *args], cwd=cwd, env=env,
                               capture_output=True, text=True, stdin=subprocess.DEVNULL)
         return Result(proc)
@@ -961,6 +976,102 @@ class LoaderTest(unittest.TestCase):
             "wrote settings.local.md (main checkout): review.autonomy: no (replaced)",
             res.lines,
         )
+
+    # Final whole-branch review, finding 1: `-v reg=...` passed a
+    # multi-line value, which POSIX awk (gawk --posix / POSIXLY_CORRECT=1)
+    # rejects fatally. Every mode must behave the same with or without
+    # strict POSIX awk behavior, and the em dash must still print.
+    @unittest.skipUnless(system_awk_is_gawk(), "strict-POSIX regression needs gawk")
+    def test_strict_posix_awk_matches_every_mode(self) -> None:
+        self.git_init()
+        self.settings(self.root, team="dir.default: tracked\n", local="review.autonomy: yes\n")
+        posix_env = {"POSIXLY_CORRECT": "1"}
+
+        hook_plain = self.run_loader(self.root)
+        hook_posix = self.run_loader(self.root, env_extra=posix_env)
+        self.assertEqual(hook_posix.out, hook_plain.out)
+        self.assertEqual(hook_posix.code, hook_plain.code)
+
+        print_plain = self.run_loader(self.root, "--print")
+        print_posix = self.run_loader(self.root, "--print", env_extra=posix_env)
+        self.assertEqual(print_posix.out, print_plain.out)
+        self.assertEqual(print_posix.code, print_plain.code)
+        self.assertNotEqual(print_posix.out, "")
+
+        team_file = self.root / ".working-process" / "settings.md"
+        validate_plain = self.run_loader(self.root, "--validate", "--scope", "team", str(team_file))
+        validate_posix = self.run_loader(self.root, "--validate", "--scope", "team", str(team_file),
+                                         env_extra=posix_env)
+        self.assertEqual(validate_posix.out, validate_plain.out)
+        self.assertEqual(validate_posix.code, validate_plain.code)
+
+        dry_plain = self.run_loader(self.root, "--set", "--dry-run", "consult.personas", "yes")
+        dry_posix = self.run_loader(self.root, "--set", "--dry-run", "consult.personas", "yes",
+                                    env_extra=posix_env)
+        self.assertEqual(dry_posix.out, dry_plain.out)
+        self.assertEqual(dry_posix.code, dry_plain.code)
+
+    # Final whole-branch review, finding 2: the `\xe2\x80\x94` hex
+    # escapes in awk string literals are undefined under strict POSIX
+    # awk. The em dash in an error: line must still render correctly.
+    @unittest.skipUnless(system_awk_is_gawk(), "strict-POSIX regression needs gawk")
+    def test_strict_posix_awk_em_dash_intact(self) -> None:
+        self.git_init()
+        self.settings(self.root, team="bogus.key: x\n")
+        res = self.run_loader(self.root, "--print", env_extra={"POSIXLY_CORRECT": "1"})
+        self.assertEqual(res.code, 0)
+        self.assertIn("error: settings.md:1 unknown key `bogus.key` — ignored", res.err.splitlines() + res.lines)
+
+    # Final whole-branch review, finding 3: an empty/failed `git
+    # worktree list` must not fall to `main` only by accident of `cd
+    # ""` being a no-op — it must be an explicit guard, verified here
+    # from a subdirectory whose cwd differs from ROOT (where the
+    # accidental version would misclassify the layout as `worktree`).
+    def test_worktree_list_failure_keeps_layout_main(self) -> None:
+        main = self.git_init()
+        sub = main / "sub"
+        sub.mkdir()
+        self.settings(main, team="dir.default: tracked\n", local="review.autonomy: yes\n")
+
+        real_git = shutil.which("git")
+        assert real_git is not None
+        shim = self.base / "shim-worktree-list-fail"
+        shim.mkdir()
+        git_shim = shim / "git"
+        git_shim.write_text(
+            "#!/bin/sh\n"
+            'if [ "$1" = worktree ] && [ "$2" = list ]; then exit 1; fi\n'
+            f'exec "{real_git}" "$@"\n',
+            encoding="utf-8",
+        )
+        git_shim.chmod(0o755)
+
+        res = self.run_loader(sub, "--print", path_prefix=shim)
+        self.assertEqual(res.code, 0)
+        self.assertEqual(res.err, "")
+        self.assertEqual(res.lines[0], self.first_line(main))
+        self.assertEqual(res.line("review.autonomy"), "review.autonomy: yes  [local]")
+
+    # Final whole-branch review, finding 4: a settings write that
+    # succeeds followed by a .gitignore write that fails must not be
+    # reported as "failed to write settings.local.md" — the file that
+    # actually failed is the .gitignore.
+    @unittest.skipIf(hasattr(os, "geteuid") and os.geteuid() == 0, "root bypasses permission checks")
+    def test_set_gitignore_write_failure_reports_distinctly(self) -> None:
+        self.git_init()
+        self.settings(self.root, gitignore="*.bak\n")
+        gi = self.root / ".working-process" / ".gitignore"
+        gi.chmod(0o000)
+        try:
+            res = self.run_loader(self.root, "--set", "review.autonomy", "yes")
+        finally:
+            gi.chmod(0o644)
+        self.assertEqual(res.code, 1)
+        self.assertEqual(res.out, "")
+        self.assertIn("error: failed to write .working-process/.gitignore", res.err)
+        self.assertNotIn("error: failed to write settings.local.md", res.err)
+        local = self.root / ".working-process" / "settings.local.md"
+        self.assertIn("review.autonomy: yes", self.read(local))
 
 
 if __name__ == "__main__":
