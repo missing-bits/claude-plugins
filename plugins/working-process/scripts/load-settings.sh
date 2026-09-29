@@ -63,11 +63,21 @@ find_root() {
     wt_first=$(printf '%s\n' "$wt_list" | sed -n '1p')
     wt_second=$(printf '%s\n' "$wt_list" | sed -n '2p')
     wt_first_path=$(printf '%s' "$wt_first" | sed 's/^worktree //')
+    case "$wt_first" in
+      "worktree "*) ;;
+      *) wt_first_path="" ;;
+    esac
     if [ "$wt_second" = bare ]; then
       LAYOUT=bare-worktree
+    elif [ -z "$wt_first_path" ]; then
+      # An empty or malformed first porcelain line (a failed or empty
+      # `git worktree list`) must not fall through to `cd ""`, a no-op
+      # in dash/bash that would otherwise decide the layout by
+      # accident. Keep the main-repository default explicitly.
+      LAYOUT=main
     else
       wt_first_phys=$(cd "$wt_first_path" 2>/dev/null && pwd -P) || wt_first_phys=""
-      if [ "$wt_first_phys" = "$ROOT" ]; then
+      if [ -z "$wt_first_phys" ] || [ "$wt_first_phys" = "$ROOT" ]; then
         LAYOUT=main
       else
         LAYOUT=worktree
@@ -167,8 +177,11 @@ scan_file() {
 # from the registry facts passed in "reg" and the records on stdin;
 # every caller only formats what this pass already decided.
 #
-# Invocation: awk -F'\t' -v reg=<registry_summary> -v
-# file_label=<name> -v role=team|local. reg is registry-order lines of
+# Invocation: REG=<registry_summary> FL=<name> awk -F'\t' -v
+# role=team|local. REG and FL travel through the environment
+# (ENVIRON["REG"]/ENVIRON["FL"]), never -v: REG is a multi-line value,
+# which POSIX awk's -v does not allow, and FL is a caller-influenced
+# basename that -v's escape processing could mangle. reg is registry-order lines of
 # "<key>\t<scope>\t<space-joined values>\t<default>" (the default is
 # unused here). role names which file is being scanned: team is the
 # deciding file for a team key, local (settings.local.md, or a file
@@ -182,13 +195,14 @@ scan_file() {
 # shellcheck disable=SC2016
 AWK_PROG='
   BEGIN {
-    n_reg = split(reg, reglines, "\n")
+    n_reg = split(ENVIRON["REG"], reglines, "\n")
     for (ri = 1; ri <= n_reg; ri++) {
       if (reglines[ri] == "") continue
       split(reglines[ri], f, "\t")
       regscope[f[1]] = f[2]
       regvalues[f[1]] = " " f[3] " "
     }
+    file_label = ENVIRON["FL"]
   }
   function valid_value(val, padded,    needle) {
     needle = " " val " "
@@ -215,7 +229,7 @@ AWK_PROG='
     for (i = 1; i <= total; i++) {
       n = rn[i]; k = rk[i]; s = rs[i]; v = rv[i]
       if (!(k in regscope)) {
-        printf "error: %s:%s unknown key `%s` \xe2\x80\x94 ignored\n", file_label, n, k
+        printf "error: %s:%s unknown key `%s` \342\200\224 ignored\n", file_label, n, k
         continue
       }
       keyscope = regscope[k]
@@ -224,10 +238,10 @@ AWK_PROG='
         if (k in demitted) continue
         demitted[k] = 1
         if (dcount[k] > 1) {
-          printf "error: %s:%s duplicate key `%s` \xe2\x80\x94 unset\n", file_label, dlines[k], k
+          printf "error: %s:%s duplicate key `%s` \342\200\224 unset\n", file_label, dlines[k], k
           printf "DECIDE\t%s\tdup\t-\t-\n", k
         } else if (s != "ok" || !valid_value(v, regvalues[k])) {
-          printf "error: %s:%s invalid value for `%s`: %s \xe2\x80\x94 unset\n", file_label, n, k, v
+          printf "error: %s:%s invalid value for `%s`: %s \342\200\224 unset\n", file_label, n, k, v
           printf "DECIDE\t%s\tinvalid\t%s\t%s\n", k, s, v
         } else {
           printf "DECIDE\t%s\tok\t%s\t%s\n", k, s, v
@@ -235,15 +249,15 @@ AWK_PROG='
         continue
       }
       if (role == "local") {
-        printf "error: %s:%s team key `%s` in the personal file \xe2\x80\x94 ignored\n", file_label, n, k
+        printf "error: %s:%s team key `%s` in the personal file \342\200\224 ignored\n", file_label, n, k
         continue
       }
       if (k in femitted) continue
       femitted[k] = 1
       if (fcount[k] > 1) {
-        printf "error: %s:%s duplicate key `%s` \xe2\x80\x94 ignored\n", file_label, flines[k], k
+        printf "error: %s:%s duplicate key `%s` \342\200\224 ignored\n", file_label, flines[k], k
       } else if (s != "ok" || !valid_value(v, regvalues[k])) {
-        printf "error: %s:%s invalid value for `%s`: %s \xe2\x80\x94 ignored\n", file_label, n, k, v
+        printf "error: %s:%s invalid value for `%s`: %s \342\200\224 ignored\n", file_label, n, k, v
       } else {
         printf "SUGGEST\t%s\t%s\t%s\n", k, n, v
       }
@@ -343,8 +357,8 @@ resolve() {
 
   build_registry_summary || return 1
 
-  TEAM_RAW=$(printf '%s\n' "$team_records" | awk -F'\t' -v reg="$REGISTRY_SUMMARY" -v file_label=settings.md -v role=team "$AWK_PROG") || return 1
-  LOCAL_RAW=$(printf '%s\n' "$local_records" | awk -F'\t' -v reg="$REGISTRY_SUMMARY" -v file_label=settings.local.md -v role=local "$AWK_PROG") || return 1
+  TEAM_RAW=$(printf '%s\n' "$team_records" | REG="$REGISTRY_SUMMARY" FL="settings.md" awk -F'\t' -v role=team "$AWK_PROG") || return 1
+  LOCAL_RAW=$(printf '%s\n' "$local_records" | REG="$REGISTRY_SUMMARY" FL="settings.local.md" awk -F'\t' -v role=local "$AWK_PROG") || return 1
 
   TEAM_ERRORS_RAW=$(printf '%s\n' "$TEAM_RAW" | awk '/^error: /') || return 1
   LOCAL_ERRORS_RAW=$(printf '%s\n' "$LOCAL_RAW" | awk '/^error: /') || return 1
@@ -431,16 +445,20 @@ do_validate() {
   build_registry_summary || return 1
 
   v_records=$(scan_file "$v_file" "$v_scope") || return 1
-  v_raw=$(printf '%s\n' "$v_records" | awk -F'\t' -v reg="$REGISTRY_SUMMARY" -v file_label="$v_label" -v role="$v_role" "$AWK_PROG") || return 1
+  v_raw=$(printf '%s\n' "$v_records" | REG="$REGISTRY_SUMMARY" FL="$v_label" awk -F'\t' -v role="$v_role" "$AWK_PROG") || return 1
 
   # One pass turns each AWK_PROG record into its validate-mode line:
   # an error: line passes through, a SUGGEST record becomes a notice:
   # line (team pass only, so this is the only place that formats one),
   # a DECIDE record produces nothing. The relative order is AWK_PROG's
   # own — ascending by record — so it is already file-line order.
-  v_formatted=$(printf '%s\n' "$v_raw" | awk -F'\t' -v fl="$v_label" '
+  # fl travels via ENVIRON like file_label above: v_label is a
+  # caller-given file's basename, and -v's escape processing could
+  # mangle it.
+  v_formatted=$(printf '%s\n' "$v_raw" | FL="$v_label" awk -F'\t' '
+    BEGIN { fl = ENVIRON["FL"] }
     /^error: /{ print; next }
-    $1=="SUGGEST"{ printf "notice: %s:%s personal key `%s` in the team file \xe2\x80\x94 a suggestion\n", fl, $3, $2; next }
+    $1=="SUGGEST"{ printf "notice: %s:%s personal key `%s` in the team file \342\200\224 a suggestion\n", fl, $3, $2; next }
   ') || return 1
 
   v_errors=0
@@ -590,7 +608,7 @@ plan_write() {
   pw_label=$(basename "$DEST")
 
   pw_dest_records=$(scan_file "$DEST" "$s_scope") || return 1
-  pw_raw=$(printf '%s\n' "$pw_dest_records" | awk -F'\t' -v reg="$REGISTRY_SUMMARY" -v file_label="$pw_label" -v role="$pw_role" "$AWK_PROG") || return 1
+  pw_raw=$(printf '%s\n' "$pw_dest_records" | REG="$REGISTRY_SUMMARY" FL="$pw_label" awk -F'\t' -v role="$pw_role" "$AWK_PROG") || return 1
   pw_other_errors=$(printf '%s\n' "$pw_raw" | awk -v k="$s_key" '/^error: /{ if (index($0, "`" k "`") == 0) print }') || return 1
   [ -n "$pw_other_errors" ] && printf '%s\n' "$pw_other_errors"
 
@@ -697,7 +715,8 @@ plan_write() {
 # per PW_GITIGNORE_ACTION. Never called for --dry-run or a mode of
 # unchanged. Returns nonzero, with nothing moved into place, on any
 # failure, so the caller can withhold PW_REPORT and report the error
-# itself.
+# itself: 1 for a DEST (settings file) failure, 2 for a .gitignore
+# failure, so the caller can name the file that actually failed.
 apply_write() {
   aw_dir=$(dirname "$DEST")
   mkdir -p "$aw_dir" || return 1
@@ -720,11 +739,11 @@ apply_write() {
       gi_tmp="$gi.tmp.$$"
       trap 'rm -f "$gi_tmp"' EXIT
       if [ "$PW_GITIGNORE_ACTION" = create ]; then
-        printf 'settings.local.md\n' > "$gi_tmp" || return 1
+        printf 'settings.local.md\n' > "$gi_tmp" || { rm -f "$gi_tmp"; trap - EXIT; return 2; }
       else
-        awk '{print} END{print "settings.local.md"}' < "$gi" > "$gi_tmp" || return 1
+        awk '{print} END{print "settings.local.md"}' < "$gi" > "$gi_tmp" || { rm -f "$gi_tmp"; trap - EXIT; return 2; }
       fi
-      mv "$gi_tmp" "$gi" || { rm -f "$gi_tmp"; trap - EXIT; return 1; }
+      mv "$gi_tmp" "$gi" || { rm -f "$gi_tmp"; trap - EXIT; return 2; }
       trap - EXIT
       ;;
   esac
@@ -784,7 +803,15 @@ do_set() {
   fi
 
   if [ "$PW_MODE" != unchanged ]; then
-    if ! apply_write; then
+    if apply_write; then
+      aw_rc=0
+    else
+      aw_rc=$?
+    fi
+    if [ "$aw_rc" -eq 2 ]; then
+      printf 'error: failed to write .working-process/.gitignore\n' >&2
+      return 1
+    elif [ "$aw_rc" -ne 0 ]; then
       printf 'error: failed to write %s\n' "$DEST_LABEL" >&2
       return 1
     fi
