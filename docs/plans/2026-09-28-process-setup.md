@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-09-28
 status: draft
+adversary: blocking
 spec: ../specs/2026-09-28-process-setup-design.md
 branch: feature/process-setup
 base: develop
@@ -3233,3 +3234,22 @@ command cp -f "$W/exec-1.jsonl" "$D/task-18-exec-1.jsonl"
 Then paste the Step 2 replies under `## step 2 replies` and remove the
 scratch project with `command rm -rf "$W"`. No commit. Report the
 results of Tasks 17 and 18 to the developer.
+
+## Review rounds
+
+### 2026-09-29 — plan-adversary, fable 5.1, blocking (round 1, full-document)
+
+- hit fixed 2026-09-29 — Task 8's check H expected 2 literal "resolved from `…tier`" matches, but the card edit inserts "the project's"; the grep now admits it
+- hit fixed 2026-09-29 — Task 15's check H expected 2 "process-setup" in the CHANGELOG, the edit yields 1; expected 1
+- hit fixed 2026-09-29 — Task 16 Step 2 expected no diff against develop for the glossary, which the spec's grilling already changed on this branch; the glossary left out of that check (Step 3 checks its content)
+- open — [Important] F1: a worktree without `.working-process/` is silent though the main checkout has settings, narrowing D5 without a Deviation
+- open — [Important] F2: Task 14's mutation proof stashes an already committed edit and so cannot fail
+- open — [Important] F3: Task 17 expects no `.gitignore` in `docs/specs/` although `dir.default: ignored` makes the skill write one (D22, D17 step 3)
+- open — [Important] F4: Task 17's disable guard counts two installed scopes and never disables; user- and project-level rules both load, so "a project copy wins" is false
+- open — [Important] F5: the Python 3.9 floor is asserted and never exercised; tests run on the system interpreter unstated
+- open — [Minor] F6: the `incomplete:` reservation cuts blocks that fit under 4096 bytes
+- open — [Minor] F7: hook-mode silence on failure names no mechanism beyond `die`
+- open — [Minor] F8: the rule says the `.gitignore` holds "the single line" while Deviation 4 allows more
+- open — [Minor] F9: `--set`'s "every other byte untouched" is unprovable without a trailing newline or with CRLF; the temp file has no cleanup trap
+- open — [Minor] F10: the review commands' "and record" names neither the key nor `--set`
+- signal 2026-09-29 — another round earns its cost: F1 and F4 change the loader contract and the dogfood procedure, F2 and F3 are wrong verification steps; one diff-scoped round over the fixes should suffice
