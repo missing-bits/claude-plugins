@@ -2,6 +2,12 @@
 
 Released versions of this plugin, newest first.
 
+## Unreleased
+
+- `/python-review` reads the settings key `dir.docs/code-review` from a
+  settings block in context before asking the first-create question,
+  and asks which stands when a visible signal contradicts it.
+
 ## 0.3.2 — 2026-09-15
 
 - The plugin ships this changelog.

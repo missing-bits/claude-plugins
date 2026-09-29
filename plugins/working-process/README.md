@@ -68,8 +68,11 @@ verdict dispatch and the integrity audit itself.
   `table-closure:` line per technical design, and a clean one ends in
   `CLEAN`. It grades
   nothing, ends in no verdict, and stamps nothing. Dispatched in the
-  background on the cheapest available family, because every duty is
-  procedural; the workflow gates every verdict-agent dispatch and every
+  background on the tier the project's
+  `dispatch.propagation-auditor-tier` resolves to — the cheapest
+  available family unless the project sets another — because every
+  duty is procedural; the workflow gates every verdict-agent dispatch
+  and every
   integrity audit on a passing run — no confirmed hit outstanding — and
   offers the same audit at authoring time after any multi-site edit.
 - **`integrity-auditor` agent** — the judgment audit of a churned
@@ -90,6 +93,11 @@ verdict dispatch and the integrity audit itself.
   Unfinished-work list the lifecycle rule publishes and fires none of
   the offers those classes name. Triggers: "what is unfinished" /
   "process status".
+- **`process-setup` skill** — collects a project's standing process
+  answers in one sitting: shows the effective settings, asks about the
+  unset keys, migrates `CLAUDE.md` notes and directory signals as
+  candidates, and records every answer through the settings loader.
+  Triggers: "process setup" / "set up the process settings".
 - **`sync-rules` skill** — installs, updates, and uninstalls the rule
   files shipped by plugins of this marketplace (Rules payloads); see the
   "Process rules" section.
@@ -192,9 +200,12 @@ before stamping; the two audit agents report the family alone, which is
 the rung their comparison reads.
 
 An audit is not a review, and that floor governs reviews alone: the
-`propagation-auditor` dispatches on the cheapest available family,
-since every duty it walks is procedural, and the `integrity-auditor` on
-the most capable available tier — each named like any other dispatch.
+`propagation-auditor` dispatches on the tier the project's
+`dispatch.propagation-auditor-tier` resolves to — `cheapest`, `mid` or
+`most-capable`, the first unless the project sets another, since every
+duty it walks is procedural; the workflow rule carries the table — and
+the `integrity-auditor` on the most capable available tier, each named
+like any other dispatch.
 Both audits end in no verdict, so the fallback machinery leaves them
 out as well, and both reports open with a model self-report the
 dispatcher checks before relying on the run: a mismatched propagation
@@ -211,9 +222,11 @@ new gates merely stay silent.
 
 ## Process rules
 
-The plugin ships seven rule files in `rules/` — the preferred workflow
-(always loaded once installed), frontmatter and lifecycle for judged
-documents and plans, what a technical design must contain
+The plugin ships eight rule files in `rules/` — the preferred workflow
+(always loaded once installed), the process settings
+(`process-settings.md`, always loaded: the settings files, their
+grammar, the block and how a key is read), frontmatter and lifecycle
+for judged documents and plans, what a technical design must contain
 (`technical-design.md`, loaded while one is open), Process directory
 conventions, ticket frontmatter, the propagation duties keyed by the
 edit that triggers them (`propagation-duties.md`, loaded while a design
@@ -270,6 +283,25 @@ dependency, whose process skills (plan execution, review packaging)
 shell out the same way. The drift hook itself runs as a plugin hook and
 needs no allow entry.
 
+## Process settings
+
+Standing answers — a directory's mode, the review loop's autonomy and
+per-round commits, persona consultation, the technical-design offer,
+the `.docs` branch merge, the propagation gate's tier — live in
+`.working-process/settings.md` (the team's, committed) and
+`.working-process/settings.local.md` (one person's, ignored by the
+directory's own `.gitignore`), as `key: value` lines. The key registry
+`SETTINGS_REGISTRY.md` at the plugin root defines every key. A second
+SessionStart hook runs `scripts/load-settings.sh`, which emits every
+key's effective value and source as one block the rules read; the same
+script offers `--print`, `--validate --scope team|personal <file>`,
+`--set <key> <value>` and `--set --dry-run <key> <value>`, and owns
+every write. Set the answers in one sitting with the `process-setup`
+skill, or record one as you answer its question — "yes, and record".
+The block is plain standard output, capped at 4 KB in the hook and
+uncapped under `--print`; in a worktree the main checkout's personal
+file is read and written.
+
 ## Process directories
 
 This plugin creates three directories in a project repo:
@@ -278,8 +310,11 @@ designs, written when a project accepts the offer) and
 `docs/code-review/` (Review reports — one per
 code-review run, shape defined by the review-reports rule). On first
 creation the developer is asked whether the directory should be
-git-ignored (a `.gitignore` containing exactly `*`) or committed; an
-existing directory's state is respected without asking. A tracked-mode
+git-ignored (a `.gitignore` containing exactly `*`) or committed —
+unless `dir.default` or the directory's own exception key settles it,
+in which case nothing is asked; an existing directory's state is
+respected without asking, and one contradicting the key is reported.
+A tracked-mode
 `docs/code-review/` additionally carries a `.gitignore` with `local-*`
 — the local pocket for reports the developer keeps out of git.
 
