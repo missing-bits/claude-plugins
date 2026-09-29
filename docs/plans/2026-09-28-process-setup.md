@@ -105,6 +105,13 @@ plugin and Rules payload; `tr`, `grep`, `awk`, `shasum` and
 - **`cp`, `mv` and `rm` are aliased `-i` on the development machine.**
   Every scripted copy or removal in this plan uses `command cp -f`,
   `command mv -f` or `command rm -rf`, and checks the effect on disk.
+- **Tests are stdlib-only `unittest`, run by the system `python3`.** As
+  `tests/working-process/test_decision_coverage.py` already does: no
+  Python project, no `pyproject.toml`, no lockfile, no third-party
+  import, and every test step in this plan runs `python3 -m unittest`
+  as the machine provides it. The `Python 3.9+` floor in *Tech Stack*
+  is a claim until Task 16 measures it once under an interpreter at
+  the floor.
 
 ## Deviations from the spec
 
@@ -178,11 +185,12 @@ here and realized where the task named says.
    suggestion was a default answer for a question the person has
    answered.
 5. **The truncation line and the 4 KB cut** — Task 2. The cap is 4096
-   bytes over the whole hook output, the `incomplete:` line included;
-   the cut falls on a line boundary — the loader emits whole lines while
-   the running byte count plus the `incomplete:` line's length stays at
-   or under 4096, then the `incomplete:` line — and the first line is
-   never dropped.
+   bytes over the whole hook output. A block of at most 4096 bytes is
+   emitted whole, with no `incomplete:` line. A longer one is cut on a
+   line boundary: the loader emits whole lines while the running byte
+   count plus the `incomplete:` line's length stays at or under 4096,
+   then the `incomplete:` line, so the line it adds counts inside the
+   cap — and the first line is never dropped.
 6. **The tier table's form in `workflow.md`** — Task 8. A three-row
    Markdown table after the model-selection paragraph, keyed by the
    value and giving the Claude Code rung in the glossary's words.
@@ -615,7 +623,8 @@ later tasks extend rather than restructure.
 - **Silence.** In hook mode, when `$DIR` is not a directory, print
   nothing, exit 0. `--print` then prints exactly one line,
   `working-process settings (root: <ROOT>; loader: <LOADER>; no settings directory)`,
-  and exits 0.
+  and exits 0. Task 3 qualifies both for the worktree layout, where
+  the main checkout's directory counts too.
 - **The grammar** (`scan_file <file> <scope>`, one awk pass). A fence
   toggles on a line matching `^```` `. Outside a fence, a line matching
   the ERE `^[a-z0-9-]+\.[a-z0-9./-]+:` is a settings line; its key is
@@ -664,17 +673,29 @@ later tasks extend rather than restructure.
   in registry order, `<key>: <value>  [<source>]` — two spaces before
   the bracket; then the `error:` lines. Nothing else, no blank lines.
 - **The cap** (`cap_block`, hook mode only): 4096 bytes over the whole
-  output, the `incomplete:` line included. Lines are emitted whole, in
-  order, while the bytes so far plus the next line plus the length of
-  `incomplete: run <LOADER> --print` plus its newline stay at or under
-  4096; where a line would exceed it, that line and every later one are
-  dropped and `incomplete: run <LOADER> --print` closes the block. The
-  first line is emitted whatever its length. `--print` never caps.
+  output. A block whose total byte count is at or under 4096 passes
+  through whole, with no `incomplete:` line. Otherwise lines are
+  emitted whole, in order, while the bytes so far plus the next line
+  plus the length of `incomplete: run <LOADER> --print` plus its
+  newline stay at or under 4096; where a line would exceed it, that
+  line and every later one are dropped and
+  `incomplete: run <LOADER> --print` closes the block, inside the
+  4096. The first line is emitted whatever its length. `--print` never
+  caps.
 - **Errors of the loader's own.** Hook mode wraps everything: any
-  failure — registry missing, awk absent, an unreadable file — ends in
-  no output and exit 0, the way `check-rules-drift.sh` ends. The block
-  is assembled in a variable and printed once at the end, so a failure
-  midway prints nothing partial.
+  failure — registry missing, `awk` absent or failing, an unset
+  variable under `set -u`, an unreadable file — ends in no output and
+  exit 0, the way `check-rules-drift.sh` ends. The mechanism is a
+  subshell: `main` in hook mode runs the body that builds the block as
+  `block=$(set -e; build_block 2>/dev/null) || block=''`, so every
+  failing command, `die` included, ends the subshell, its stderr is
+  discarded and its partial output dropped; `$block` goes through
+  `cap_block` to stdout only when the subshell exited 0, and `main`
+  exits 0 either way. Every other mode runs the same body with stderr
+  kept and, where it fails, prints `error: loader failed` on stderr
+  after whatever the failing tool wrote, exits 1 and prints nothing on
+  stdout. The block is assembled in a variable and printed once at the
+  end, so a failure midway prints nothing partial.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -772,10 +793,12 @@ class LoaderTest(unittest.TestCase):
         return d
 
     def run_loader(self, cwd: Path, *args: str, project_dir: str | None = None,
-                   loader: Path = LOADER) -> Result:
+                   loader: Path = LOADER, path_prefix: Path | None = None) -> Result:
         env = {k: v for k, v in os.environ.items() if k not in ("CLAUDE_PROJECT_DIR", "CLAUDE_PLUGIN_ROOT")}
         if project_dir is not None:
             env["CLAUDE_PROJECT_DIR"] = project_dir
+        if path_prefix is not None:
+            env["PATH"] = f"{path_prefix}{os.pathsep}{env.get('PATH', '')}"
         proc = subprocess.run(["/bin/sh", str(loader), *args], cwd=cwd, env=env,
                               capture_output=True, text=True, stdin=subprocess.DEVNULL)
         return Result(proc)
@@ -863,12 +886,26 @@ cases share a shape), asserting the exact lines:
     registry beside it; `.working-process/` present in `self.root`;
     hook mode → `out == ""`, `err == ""`, exit 0; `--print` → exit 1,
     `out == ""`, `err` contains `registry not found or empty`.
+    Then a broken dependency: `shim = self.base / "shim"` holding an
+    executable `awk` whose text is `#!/bin/sh\nexit 1\n` (mode
+    `0o755`); team `dir.default: tracked\n`; hook mode with
+    `path_prefix=shim` → `out == ""`, `err == ""`, exit 0; `--print`
+    with the same prefix → exit 1, `out == ""`, `err` contains
+    `loader failed`.
 12. **The cap.** Team file of 200 lines `zz.k<i>: x` (`i` from 0) →
     hook mode: `len(out.encode()) <= 4096`, `out.endswith("\n")`,
     `lines[-1] == f"incomplete: run {LOADER} --print"`, `lines[0]` is
     the first line, `0 < len(errors) < 200`, and every error line is
     one of the 200 the file produces (none cut mid-line). `--print` →
     `len(errors) == 200` and no `incomplete:` line.
+    Then the edge: team file of one line `zz.<pad>: x`, where `pad` is
+    `k` repeated so that `--print`'s output is exactly 4096 bytes
+    (measure once with `zz.k: x`, then lengthen the key by the
+    difference: the error line echoes the key, so each added character
+    adds one byte) → hook mode's `out` is byte-identical to `--print`'s
+    and holds no `incomplete:` line. With one more `k` → hook mode's
+    `len(out.encode()) <= 4096`, no `error:` line, and `lines[-1]` is
+    the `incomplete:` line.
 13. **Usage.** `--nonsense` → exit 2, `out == ""`, `err` one line
     starting `usage:`. `--print extra` → exit 2.
 
@@ -888,8 +925,9 @@ block; the registry defines the keys; this plan's Tasks 2–5 the modes.
 Match the contract above; add nothing it does not name. The functions:
 `usage`, `die` (stderr + exit 1, or silent exit 0 in hook mode),
 `find_root`, `registry_keys`, `registry_field`, `scan_file`,
-`resolve`, `emit_block`, `cap_block`, `main`. The block is built in a
-variable and printed once.
+`resolve`, `emit_block`, `build_block` (the body `main` runs in the
+subshell), `cap_block`, `main`. The block is built in a variable and
+printed once.
 
 - [ ] **Step 4: Run the tests to see them pass**
 
@@ -1002,9 +1040,23 @@ git commit -m "feat(working-process): settings loader with hook mode and --print
   ` (absent)` where there were none. The team file is always
   `$ROOT/.working-process/settings.md`.
 - Error lines from the fallback file still name `settings.local.md`.
-- The fallback is read only for the personal file: a worktree without
-  `.working-process/` at all is silent in hook mode even when the main
-  checkout has settings, because `$DIR` is the worktree's.
+- The fallback is read only for the personal file. The team file is
+  the current checkout's, `$ROOT/.working-process/settings.md`, and
+  where it does not exist every team key takes its default and the
+  label reads `settings.md (absent)`: a team answer travels with the
+  branch that commits it (D50, spec *Scope and precedence*), so the
+  main checkout's team file is never read from a worktree.
+- Silence in the worktree layout. `LAYOUT=worktree` is silent in hook
+  mode, and prints the `no settings directory` line under `--print`,
+  only when neither `$DIR` nor `$MAIN/.working-process` is a
+  directory. Where only the main checkout's exists, the block is
+  emitted — `team: settings.md (absent)`, the personal file read from
+  the main checkout — because D5 reads the main checkout's personal
+  file wherever the worktree has none of its own, and D41 writes a
+  personal answer where the loader reads it: `--set` from such a
+  worktree writes the main checkout's file (Task 5, case 30), and the
+  next session in that worktree must read it. The other layouts keep
+  Task 2's test on `$DIR` alone.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -1046,22 +1098,30 @@ Cases:
     then with `local="review.autonomy: yes\n"` in `bwt` →
     `review.autonomy: yes  [local]` and
     `local="settings.local.md (worktree, bare repository)"`.
-18. **Worktree without a settings directory.** `main` with settings,
-    `wt` without `.working-process/` → hook mode from `wt` prints
+18. **Worktree without a settings directory.** `main = git_init()` with
+    `settings(main, team="dir.default: tracked\n", local="review.autonomy: yes\n")`,
+    `wt = worktree(main, "wt")` without `.working-process/` → hook mode
+    from `wt` prints the block: exit 0, first line
+    `first_line(wt, team="settings.md (absent)", local="settings.local.md (main checkout)")`,
+    `review.autonomy: yes  [local]`, `dir.default: unset  [default]` —
+    the main checkout's team file is not read. Then `main` and `wt`
+    both without `.working-process/` → hook mode from `wt` prints
     nothing, exit 0; `--print` prints the one `no settings directory`
     line naming `wt`.
 
 - [ ] **Step 2: Run the tests to see them fail**
 
 Run: `python3 -m unittest discover -s tests/working-process -p 'test_load_settings.py' -v 2>&1 | tail -n 5`
-Expected: cases 14–17 fail on the first line or the fallback value;
-case 18 and every Task 2 case pass.
+Expected: cases 14–18 fail on the first line or the fallback value —
+case 18 on the block Task 2's script withholds; every Task 2 case
+passes.
 
 - [ ] **Step 3: Extend the script**
 
 Add the layout to `find_root`, `LOCAL_READ` and `LOCAL_LABEL` to
-`resolve`/`emit_block` as the contract says. `git worktree list
---porcelain` runs once; its first two lines are all `find_root` reads.
+`resolve`/`emit_block`, and the worktree silence test to `build_block`,
+as the contract says. `git worktree list --porcelain` runs once; its
+first two lines are all `find_root` reads.
 
 - [ ] **Step 4: Run the tests to see them pass**
 
@@ -1215,12 +1275,19 @@ git commit -m "feat(working-process): settings loader validates a file for its s
   `# working-process settings — personal` (personal), a blank line,
   then the question and the key line (Deviation 5). With exactly one
   record — *replace* that line in place with `<key>: <value>`, every
-  other byte untouched; where the line already reads exactly
+  other line untouched; where the line already reads exactly
   `<key>: <value>` — *unchanged*, no write. With several records —
   *replace the first* in place and *remove* each later record's line,
   together with the line directly above it when that line equals the
   key's `question:` text exactly; other lines, blank lines included,
   stay.
+- **Line endings.** The file is rewritten line by line, and two
+  normalizations are the only bytes a write may change outside the
+  lines it names: a last line lacking a final newline gains one, and
+  the lines `--set` writes end in LF. A CRLF ending on an untouched
+  line is preserved — the `\r` is part of the line's text and is
+  written back; the grammar strips it only when reading the value. An
+  *unchanged* file is not rewritten, so it gains nothing.
 - **The `.gitignore`** beside a personal destination: absent → created
   holding the single line `settings.local.md`; present without a line
   equal to `settings.local.md` → that line appended (Deviation 4);
@@ -1247,9 +1314,11 @@ git commit -m "feat(working-process): settings loader validates a file for its s
   block; it writes nothing and creates no directory. Exit 0 after a
   valid key and value, 1 and 2 as above.
 - **Writes** go to `<file>.tmp.$$` beside the destination and are
-  moved into place, as `write-manifest.sh` does; `.working-process/`
-  is created with `mkdir -p` where absent (the first write in a project
-  without settings — D51 — is this path, called by the skill).
+  moved into place, as `write-manifest.sh` does, under the same
+  `trap 'rm -f "$tmp"' EXIT`, cleared after the move, so a write that
+  fails leaves no temp file behind; `.working-process/` is created
+  with `mkdir -p` where absent (the first write in a project without
+  settings — D51 — is this path, called by the skill).
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -1283,11 +1352,18 @@ Cases:
 24. **Insert into an existing file.** Team file `# Team\n\ndir.default: tracked\n`
     (no trailing blank line); `--set docs-branch.merge squash` → the
     file reads the original, then `\nHow does the topic branch take the .docs branch at the implementation-ready gate — squash or fast-forward?\ndocs-branch.merge: squash\n`
-    appended, and every earlier byte identical.
+    appended, and every earlier byte identical. The same fixture
+    without its final newline (`write_bytes`) → a byte-identical
+    result: the missing newline is added first.
 25. **Replace.** Local `intro\n\n{QUESTION}\nreview.autonomy: yes\n\nconsult.personas: no\n`;
     `--set review.autonomy no` → the file differs from the original in
     exactly one line, `review.autonomy: no`; stdout has
-    `wrote settings.local.md: review.autonomy: no (replaced)`.
+    `wrote settings.local.md: review.autonomy: no (replaced)`. Then
+    CRLF: local written as bytes
+    `b"intro\r\nreview.autonomy: yes\r\nconsult.personas: no\r\n"`;
+    `--set review.autonomy no` → `read_bytes()` equals
+    `b"intro\r\nreview.autonomy: no\nconsult.personas: no\r\n"` — the
+    untouched lines keep CRLF, the written line ends in LF.
 26. **Unchanged.** The file of case 25 with `--set review.autonomy yes`
     → `tree_hash` of `.working-process` equal before and after; stdout
     has `unchanged settings.local.md: review.autonomy: yes` and the
@@ -1313,9 +1389,15 @@ Cases:
     `--set review.autonomy yes` from `wt` → `main/.working-process/settings.local.md`
     and `main/.working-process/.gitignore` exist with the case-22
     contents; `wt/.working-process/` does not exist; stdout has
-    `wrote settings.local.md (main checkout): review.autonomy: yes (inserted)`.
-    Then `--set dir.default tracked` from `wt` → `wt/.working-process/settings.md`
-    exists, `main/.working-process/settings.md` does not.
+    `wrote settings.local.md (main checkout): review.autonomy: yes (inserted)`,
+    and the block at the end opens with
+    `first_line(wt, team="settings.md (absent)", local="settings.local.md (main checkout)")`
+    and carries `review.autonomy: yes  [local]` — the answer just
+    written is read from the worktree (Task 3, case 18). Then
+    `--set dir.default tracked` from `wt` → `wt/.working-process/settings.md`
+    exists, `main/.working-process/settings.md` does not, and the block
+    opens with `first_line(wt, local="settings.local.md (main checkout)")`
+    and carries `dir.default: tracked  [team]`.
 31. **Shadow.** As 30, plus `settings(wt, local="review.autonomy: no\n")`;
     `--set review.autonomy yes` from `wt` → `main`'s file gains the
     key, `wt`'s file is byte-identical, `lines[0]` is the shadow note
@@ -1420,8 +1502,8 @@ Standing answers — a directory's mode, the review loop's autonomy, the
 technical-design offer — live in two files at the repository root, in
 `.working-process/`: `settings.md`, the team's answers, committed like
 any other file; and `settings.local.md`, one person's answers, kept
-out of git by `.working-process/.gitignore`, which holds the single
-line `settings.local.md`. `.working-process/` is not
+out of git by `.working-process/.gitignore`, which holds the line
+`settings.local.md`. `.working-process/` is not
 `.claude/working-process/`, the per-checkout dispatch-record store, and
 it is not a Process directory: its team file is committed by
 definition and its local file ignored by its own `.gitignore`, so it is
@@ -1478,8 +1560,9 @@ block cut at the hook's 4 KB cap ends with
 
 ## Reading a key
 
-1. Where the repository has no `.working-process/` directory, every key
-   is unset and nothing is run.
+1. Where no `.working-process/` directory exists — not in this
+   checkout and, in a worktree, not in the main checkout either — every
+   key is unset and nothing is run.
 2. Otherwise take the key's value from the block in context; complete
    an incomplete block by running `--print` through the loader path the
    block's first line names.
@@ -2302,18 +2385,19 @@ Replace with, in each:
    key is unset), and no explicit project instruction declaring the
    mode (signal list owned by the process-artifacts rule) — ask the
    developer now: ignored or tracked mode, "and record" among the
-   answers where the block names the loader. A visible signal that
-   contradicts the key is reported and the developer asked which
-   stands, nothing changed until they answer; the key with no visible
-   signal is applied unasked, the ignored mode by writing the `*`
-   `.gitignore`.
+   answers where the block names the loader, which writes
+   `dir.docs/code-review` through the loader's `--set`. A visible
+   signal that contradicts the key is reported and the developer asked
+   which stands, nothing changed until they answer; the key with no
+   visible signal is applied unasked, the ignored mode by writing the
+   `*` `.gitignore`.
 ```
 
 - [ ] **Step 3: Verify**
 
 Run the Step 1 command again, then `claude plugin validate .`.
 
-Expected, for each file: `A 0`, `B 1`, `C 1`, `D 1`; validation
+Expected, for each file: `A 0`, `B 2`, `C 1`, `D 1`; validation
 passes.
 
 - [ ] **Step 4: Commit**
@@ -2373,9 +2457,15 @@ settings file directly: every write is a `--set`.
 
 Run `<loader> --print` from the repository root and show its block as
 one table — key, value, source — with the first line's root and files
-above it. Where the line says `no settings directory`, this is the
-first run: nothing is recorded yet, the hook has been silent, and this
-skill makes the first write; `--set` creates the directory.
+above it. Where the line says `no settings directory` — no
+`.working-process/` in this checkout or, in a worktree, in the main
+checkout — this is the first run: nothing is recorded yet, the hook
+has been silent, and this skill makes the first write; `--set` creates
+the directory. In a worktree whose own checkout has no
+`.working-process/`, the block still lists the main checkout's
+personal answers, with `team: settings.md (absent)`: team keys are
+unset here until a team answer is written, which creates the
+worktree's own `settings.md`.
 
 On the first run — no settings file exists yet — gather the candidates
 and show them beside the table, each to confirm:
@@ -2563,18 +2653,21 @@ placeholder such as `dir.<path>` and is skipped; fenced blocks are
 skipped whole. A file path such as `review-reports.md` has the shape
 but not a prefix, so it is not a reference.
 
-Then prove the check can fail, on a scratch copy of one reader:
+Then prove the check can fail, by putting one reader back to its state
+before Task 10 — from history, since Task 10 committed its edit:
 
 ```bash
-git stash -q -- plugins/working-process/rules/process-artifacts.md 2>/dev/null || true
+F=plugins/working-process/rules/process-artifacts.md
+git show develop:$F > $F
 python3 -m unittest discover -s tests/working-process -p 'test_settings_registry.py' 2>&1 | tail -n 1
-git stash pop -q 2>/dev/null || true
+git checkout -- $F
+git status --porcelain -- $F
 ```
 
-Expected: `FAILED (failures=1)` while the stash holds Task 10's edit
-(the rule no longer cites `dir.default`), and the file restored after.
-Where nothing was stashed because Task 10 is not yet landed, the
-result is the same failure and the pop is a no-op.
+Expected: `FAILED (failures=7)` — the `develop` copy cites none of the
+seven `dir.` keys whose `read-by:` names it, and `unittest` counts one
+failure per failed `subTest`; then `git status` prints nothing, the
+file restored to Task 10's committed text.
 
 - [ ] **Step 2: Run the test to see it pass**
 
@@ -2926,11 +3019,15 @@ claude plugin validate . && claude plugin validate plugins/working-process
 python3 -m unittest discover -s tests/working-process 2>&1 | tail -n 3
 /bin/sh plugins/working-process/scripts/load-settings.sh; echo "hook rc=$?"
 command -v shellcheck >/dev/null && shellcheck -s sh plugins/working-process/scripts/load-settings.sh && echo shellcheck-ok
+if command -v uv >/dev/null; then uv run --python 3.9 --no-project python -m unittest discover -s tests/working-process 2>&1 | tail -n 1; else echo "uv absent: the 3.9 floor is not measured here"; fi
 ```
 
 Expected: both validations pass; the tests end `OK`; the hook prints
 nothing but `hook rc=0` (this repository has no `.working-process/`);
-`shellcheck-ok` where shellcheck is installed, nothing otherwise.
+`shellcheck-ok` where shellcheck is installed, nothing otherwise; and
+`OK` once more from the run under Python 3.9 — the floor *Tech Stack*
+claims, measured once — or the `uv absent` note, which the report
+repeats so the floor is known to be unmeasured.
 
 - [ ] **Step 2: Check what must not change**
 
@@ -3005,14 +3102,26 @@ standard output from a plugin hook reaches the context, that a rule
 reads the block instead of asking, and that compaction brings it back.
 Three sessions run in one scratch project, the plugin loaded from the
 checkout with `--plugin-dir` and the changed rules copied project-scope
-into the scratch project, since the user-scope install still carries
-the old rules and a project copy wins on conflict.
+into the scratch project. The user-scope install still carries the old
+rules at `~/.claude/rules/working-process/`, and Claude Code loads
+user- and project-level rules both — neither set overrides the other —
+so the old set is moved aside for the run, with the developer's
+consent, and restored after.
 
 - [ ] **Step 1: Build the scratch project — ask the developer first**
 
 A `--plugin-dir` session collides with the installed plugin of the same
-name, so the installed one is disabled for the run and restored after;
-that changes the developer's own configuration, so ask before running.
+name, so every enabled install of it — the plugin may be installed in
+more than one scope — is disabled for the run and restored after; and
+the user-scope rules are moved aside so that only the new rules are in
+context. Both change the developer's own configuration, so ask two
+questions before running: may the installed plugin be disabled for the
+run, and may `~/.claude/rules/working-process/` be moved aside for the
+run. Without the first the dogfood cannot run. Without the second it
+runs with both rule sets in context, and Step 6 says so in the
+evidence file: Step 5 is then weaker evidence, since a reply may have
+followed the old workflow rule's "a durable preference belongs in the
+developer's own instructions" rather than the new text.
 
 ```bash
 R=$(git rev-parse --show-toplevel)
@@ -3024,21 +3133,48 @@ printf '%s\n' '# Fixture' '' 'This repository does not get the technical-design 
 printf '*\n' > "$W/docs/plans/.gitignore"
 (cd "$W" && git init -q && git add -A && git -c user.name=fixture -c user.email=fixture@example.invalid commit -qm fixture)
 ls "$W/.claude/rules/working-process" | wc -l
-claude plugin list | grep -A3 'working-process@missing-bits' | grep -c 'Status: .*enabled' > "$W/was"; echo "was=$(cat "$W/was")"
+claude plugin list | awk '/working-process@missing-bits/ {p=1; next} p && /Scope:/ {s=$2} p && /Status:/ {if ($NF == "enabled") print s; p=0}' > "$W/was"; echo "was=$(tr '\n' ' ' < "$W/was")"
+ls "$HOME/.claude/rules/working-process" | wc -l > "$W/rules-count"; echo "rules-count=$(cat "$W/rules-count")"
+echo both > "$W/rules-state"
 ```
 
-Expected: `8` rule files copied; `was=1` or `was=0`, kept in `$W/was`
-for Steps 2 and 6, which run in shells of their own.
+Expected: `8` rule files copied; `was=` followed by the scopes in which
+the plugin is enabled — `user`, `project`, both or none, one per line
+in `$W/was`; `rules-count=` the number of rule files in the user-scope
+copy (7 where the payload before this change is installed). Steps 2
+and 6 run in shells of their own and read the three files.
 The fixture carries one prose note (a technical-design declaration to
-migrate), one ignored-mode directory (`docs/plans/`) and one tracked
-directory (`docs/specs/` holds nothing yet, so it is undecided) — the
+migrate), one ignored-mode directory (`docs/plans/`) and one undecided
+directory (`docs/specs/`, which exists and holds nothing) — the
 first-run candidates of the skill.
 
 - [ ] **Step 2: Silence before adoption**
 
+First the installed plugin, in every scope Step 1 recorded:
+
 ```bash
 R=$(git rev-parse --show-toplevel); W=${TMPDIR:-/tmp}/process-setup-dogfood
-[ "$(cat "$W/was")" = 1 ] && claude plugin disable working-process
+for s in $(cat "$W/was"); do claude plugin disable working-process@missing-bits --scope "$s"; done
+claude plugin list | grep -A3 'working-process@missing-bits' | grep -c ' enabled$'
+```
+
+Expected: `0` — no enabled install of the plugin remains.
+
+Then, only where the developer consented in Step 1, the user-scope
+rules:
+
+```bash
+W=${TMPDIR:-/tmp}/process-setup-dogfood
+command mv -f "$HOME/.claude/rules/working-process" "$W/user-rules-aside" && [ ! -e "$HOME/.claude/rules/working-process" ] && echo aside > "$W/rules-state"; cat "$W/rules-state"
+```
+
+Expected: `aside`; without consent the block is skipped and
+`$W/rules-state` keeps `both`.
+
+Then the session:
+
+```bash
+R=$(git rev-parse --show-toplevel); W=${TMPDIR:-/tmp}/process-setup-dogfood
 (cd "$W" && claude -p --plugin-dir "$R/plugins/working-process" \
   "Quote verbatim every line in your context that begins with 'working-process settings'. If there is none, print exactly NONE.") | tee "$W/run-1.txt"
 ```
@@ -3058,14 +3194,16 @@ confirm both. Then answer the unset keys: `dispatch.propagation-auditor-tier`
 keep `cheapest`, `docs-branch.merge` squash, `consult.personas` no,
 `review.autonomy` yes, `review.per-round-commit` no; decline
 exceptions. For each answer it shows a `--set --dry-run` preview, then
-writes; it offers to remove the `CLAUDE.md` note — accept; it writes
-no `.gitignore` into `docs/specs/` (undecided and tracked needs no
-act) and none into `docs/plans/` (already there); it reminds you to
-commit `settings.md` and `.working-process/.gitignore`. Then `/exit`.
+writes; it offers to remove the `CLAUDE.md` note — accept; in its
+step 4 it writes `docs/specs/.gitignore` holding `*` — with
+`dir.default: ignored` confirmed, `docs/specs/` inherits ignored and
+carries no visible signal (D17 step 3, D22) — and writes none into
+`docs/plans/`, which already has one; it reminds you to commit
+`settings.md` and `.working-process/.gitignore`. Then `/exit`.
 
 ```bash
 W=${TMPDIR:-/tmp}/process-setup-dogfood
-cat "$W/.working-process/settings.md"; echo ---; cat "$W/.working-process/settings.local.md"; echo ---; cat "$W/.working-process/.gitignore"; echo ---; cat "$W/CLAUDE.md"
+cat "$W/.working-process/settings.md"; echo ---; cat "$W/.working-process/settings.local.md"; echo ---; cat "$W/.working-process/.gitignore"; echo ---; cat "$W/CLAUDE.md"; echo ---; cat "$W/docs/specs/.gitignore"
 ```
 
 Expected: the team file holds `dir.default: ignored`,
@@ -3073,9 +3211,10 @@ Expected: the team file holds `dir.default: ignored`,
 each under its question; the personal file `consult.personas: no`,
 `review.autonomy: yes`, `review.per-round-commit: no`; the
 `.gitignore` the single line `settings.local.md`; `CLAUDE.md` without
-the technical-design sentence. A skill that wrote a settings file with
-anything but `--set`, or asked about a key already answered, fails the
-test.
+the technical-design sentence; `docs/specs/.gitignore` the single line
+`*`. A skill that wrote a settings file with anything but `--set`,
+asked about a key already answered, or left `docs/specs/` without its
+`.gitignore`, fails the test.
 
 - [ ] **Step 4: A new session receives the block**
 
@@ -3119,18 +3258,25 @@ and do not adjust the expectation.
 
 ```bash
 R=$(git rev-parse --show-toplevel); W=${TMPDIR:-/tmp}/process-setup-dogfood
-[ "$(cat "$W/was")" = 1 ] && claude plugin enable working-process
-claude plugin list | grep -A3 'working-process@missing-bits' | grep 'Status:'
+for s in $(cat "$W/was"); do claude plugin enable working-process@missing-bits --scope "$s"; done
+echo "enabled=$(claude plugin list | grep -A3 'working-process@missing-bits' | grep -c ' enabled$') expected $(grep -c . "$W/was")"
+[ -d "$W/user-rules-aside" ] && command mv -f "$W/user-rules-aside" "$HOME/.claude/rules/working-process"
+echo "rules-count=$(ls "$HOME/.claude/rules/working-process" | wc -l) expected $(cat "$W/rules-count")"; [ -e "$W/user-rules-aside" ] && echo "aside still present"
 D="$R/.claude/working-process/2026-09-28-process-setup"; mkdir -p "$D"
-{ echo '# Task 17 — Claude Code dogfood, 2026-09-28'; echo; echo '## run-1'; cat "$W/run-1.txt"; echo; echo '## run-2'; cat "$W/run-2.txt"; echo; echo '## files'; cat "$W/.working-process/settings.md" "$W/.working-process/settings.local.md"; echo; echo '## step 5 replies'; } > "$D/task-17-dogfood.md"
+{ echo '# Task 17 — Claude Code dogfood, 2026-09-28'; echo; echo '## rules'; case $(cat "$W/rules-state") in aside) echo 'user-scope rules moved aside for the run; only the new rules were in context';; *) echo 'both rule sets in context: the user-scope copy was not moved aside, so Step 5 is weaker evidence';; esac; echo; echo '## run-1'; cat "$W/run-1.txt"; echo; echo '## run-2'; cat "$W/run-2.txt"; echo; echo '## files'; cat "$W/.working-process/settings.md" "$W/.working-process/settings.local.md"; echo '--- docs/specs/.gitignore'; cat "$W/docs/specs/.gitignore"; echo; echo '## step 5 replies'; } > "$D/task-17-dogfood.md"
 ```
 
 Then paste the three Step 5 replies under `## step 5 replies`, and
-remove the scratch project with `command rm -rf "$W"`.
+remove the scratch project with `command rm -rf "$W"` — after the
+rules are back in place, since the moved-aside copy lives under `$W`.
 
-Expected: the status line shows the state Step 1 recorded; the evidence
-file lives in the dispatch-record store, whose `*` `.gitignore` keeps
-it local. No commit.
+Expected: `enabled=` equal to its `expected` — every scope Step 1
+recorded is enabled again; `rules-count=` equal to its `expected` and
+no `aside still present` line — the user-scope rules are back on disk;
+the evidence file lives in the dispatch-record store, whose `*`
+`.gitignore` keeps it local, and its `## rules` section says which
+case held. Where it says both rule sets were in context, the report to
+the developer repeats that Step 5 is weaker evidence. No commit.
 
 ---
 
@@ -3242,14 +3388,14 @@ results of Tasks 17 and 18 to the developer.
 - hit fixed 2026-09-29 — Task 8's check H expected 2 literal "resolved from `…tier`" matches, but the card edit inserts "the project's"; the grep now admits it
 - hit fixed 2026-09-29 — Task 15's check H expected 2 "process-setup" in the CHANGELOG, the edit yields 1; expected 1
 - hit fixed 2026-09-29 — Task 16 Step 2 expected no diff against develop for the glossary, which the spec's grilling already changed on this branch; the glossary left out of that check (Step 3 checks its content)
-- open — [Important] F1: a worktree without `.working-process/` is silent though the main checkout has settings, narrowing D5 without a Deviation
-- open — [Important] F2: Task 14's mutation proof stashes an already committed edit and so cannot fail
-- open — [Important] F3: Task 17 expects no `.gitignore` in `docs/specs/` although `dir.default: ignored` makes the skill write one (D22, D17 step 3)
-- open — [Important] F4: Task 17's disable guard counts two installed scopes and never disables; user- and project-level rules both load, so "a project copy wins" is false
-- open — [Important] F5: the Python 3.9 floor is asserted and never exercised; tests run on the system interpreter unstated
-- open — [Minor] F6: the `incomplete:` reservation cuts blocks that fit under 4096 bytes
-- open — [Minor] F7: hook-mode silence on failure names no mechanism beyond `die`
-- open — [Minor] F8: the rule says the `.gitignore` holds "the single line" while Deviation 4 allows more
-- open — [Minor] F9: `--set`'s "every other byte untouched" is unprovable without a trailing newline or with CRLF; the temp file has no cleanup trap
-- open — [Minor] F10: the review commands' "and record" names neither the key nor `--set`
+- fixed 2026-09-29 — [Important] F1: a worktree without `.working-process/` is silent though the main checkout has settings, narrowing D5 without a Deviation; license: spec D5 and D41 (the loader reads the main checkout's personal file wherever the worktree has none of its own, and a personal answer is written where the loader reads it), with D50 and *Scope and precedence* keeping the team file the current checkout's; Task 3's contract gains the worktree silence test over `$DIR` or `$MAIN/.working-process` and states that the main checkout's team file is never read, case 18 expects the block with `team: settings.md (absent)` and the main checkout's personal answer and keeps the silent case for two checkouts without the directory, case 30 expects the fresh block to carry the answer just written, Task 3 Step 2's expectation and Task 2's Silence bullet point at it, Task 13 §1 says what `no settings directory` means in a worktree and what such a worktree sees, and step 1 of the process-settings rule's *Reading a key* (Task 6) names the checkout — no directory in this checkout or, in a worktree, in the main checkout — so a worktree session reads the block the hook emits from the main checkout's settings
+- fixed 2026-09-29 — [Important] F2: Task 14's mutation proof stashes an already committed edit and so cannot fail; license: the plan's own Task 10 Step 7 and *Order and independence* (the edit is committed before Task 14 runs); the proof restores `process-artifacts.md` from `develop` with `git show`, expects `FAILED (failures=7)` — one per `dir.` key the file reads — and restores with `git checkout --`, checked by `git status --porcelain`
+- fixed 2026-09-29 — [Important] F3: Task 17 expects no `.gitignore` in `docs/specs/` although `dir.default: ignored` makes the skill write one (D22, D17 step 3); license: spec D22 and D17 step 3; Step 1 calls `docs/specs/` undecided rather than tracked, Step 3 expects `docs/specs/.gitignore` holding `*`, prints it and fails the run where it is missing, and Step 6 stores it in the evidence file
+- fixed 2026-09-29 — [Important] F4: Task 17's disable guard counts two installed scopes and never disables; user- and project-level rules both load, so "a project copy wins" is false; license: the private note scratchpad-dogfood-recipe (the installed same-name plugin disabled for the run and re-enabled after, by its `<name>@<marketplace>` name) and the Claude Code documentation the round cited (neither rule set overrides the other); Step 1 records every scope where the plugin is enabled in `$W/was` and the user-scope rules count, and asks two consents; Steps 2 and 6 disable and enable per scope with `--scope` and count the enabled installs; Step 2 moves `~/.claude/rules/working-process/` aside only with consent, Step 6 restores it and checks the count on disk, and the evidence file's `## rules` section says which case held and that Step 5 is weaker evidence where both sets were in context; the "wins on conflict" sentence is gone
+- fixed 2026-09-29 — [Important] F5: the Python 3.9 floor is asserted and never exercised; tests run on the system interpreter unstated; license: the plan's own *Tech Stack* claim (`Python 3.9+`) and the precedent `tests/working-process/test_decision_coverage.py`; a Global Constraint states the tests are stdlib-only `unittest` run by the system `python3` with no Python project or lockfile, and Task 16 Step 1 runs the suite once under `uv run --python 3.9 --no-project`, printing a note where uv is absent
+- fixed 2026-09-29 — [Minor] F6: the `incomplete:` reservation cuts blocks that fit under 4096 bytes; license: spec D10 (caps its output at 4 KB, saying so when it truncates — a block under the cap is not truncated); Settled format edge 5 and Task 2's cap bullet emit a block of at most 4096 bytes whole and reserve the `incomplete:` line only when a cut is needed, and case 12 gains the edge fixture at exactly 4096 bytes and one byte over
+- fixed 2026-09-29 — [Minor] F7: hook-mode silence on failure names no mechanism beyond `die`; license: spec D10 (exits 0 on any error of its own; its other modes report failure); Task 2's *Errors of the loader's own* names the subshell — `block=$(set -e; build_block 2>/dev/null) || block=''`, printed only on success, exit 0 — and `error: loader failed` with exit 1 in the other modes; `build_block` joins the function list, `run_loader` gains `path_prefix`, and case 11 gains an `awk` shim exiting 1 with empty stdout, empty stderr and exit 0 in hook mode and exit 1 under `--print`
+- fixed 2026-09-29 — [Minor] F8: the rule says the `.gitignore` holds "the single line" while Deviation 4 allows more; license: Deviation 4; Task 6's rule text reads "which holds the line `settings.local.md`"; the README sentence Task 15 writes makes no line-count claim and stands
+- fixed 2026-09-29 — [Minor] F9: `--set`'s "every other byte untouched" is unprovable without a trailing newline or with CRLF; the temp file has no cleanup trap; license: spec D37 (a write inserts, replaces and reports; every other line stays untouched) and the precedent `scripts/write-manifest.sh`; Task 5's contract says "every other line untouched", gains a *Line endings* bullet — a missing final newline is added, CRLF is preserved on untouched lines, the written line ends in LF — and the `trap 'rm -f "$tmp"' EXIT`; case 24 gains the no-final-newline fixture and case 25 the CRLF fixture, read as bytes
+- fixed 2026-09-29 — [Minor] F10: the review commands' "and record" names neither the key nor `--set`; license: spec D45 (a first-create question answered "and record" writes the exception for the directory asked about); Task 12's replacement says the answer writes `dir.docs/code-review` through the loader's `--set`, and check B expects 2
 - signal 2026-09-29 — another round earns its cost: F1 and F4 change the loader contract and the dogfood procedure, F2 and F3 are wrong verification steps; one diff-scoped round over the fixes should suffice
