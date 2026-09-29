@@ -687,11 +687,15 @@ later tasks extend rather than restructure.
   variable under `set -u`, an unreadable file — ends in no output and
   exit 0, the way `check-rules-drift.sh` ends. The mechanism is a
   subshell: `main` in hook mode runs the body that builds the block as
-  `block=$(set -e; build_block 2>/dev/null) || block=''`, so every
-  failing command, `die` included, ends the subshell, its stderr is
-  discarded and its partial output dropped; `$block` goes through
-  `cap_block` to stdout only when the subshell exited 0, and `main`
-  exits 0 either way. Every other mode runs the same body with stderr
+  `block=$(set -e; build_block 2>/dev/null); rc=$?` and prints only when
+  `rc` is 0 — never `… || block=''` nor `if block=$(…)`, because bash
+  ignores `set -e` inside a substitution tested by `||` or `if`, which
+  would let a failing tool run on. Every failing command, `die`
+  included, ends the subshell, its stderr is discarded and its partial
+  output dropped; `$block` goes through `cap_block` to stdout only when
+  `rc` is 0, and `main` exits 0 either way. `build_block` also returns
+  non-zero from each tool call it makes (`|| return 1`), so the silence
+  does not rest on `set -e` alone. Every other mode runs the same body with stderr
   kept and, where it fails, prints `error: loader failed` on stderr
   after whatever the failing tool wrote, exits 1 and prints nothing on
   stdout. The block is assembled in a variable and printed once at the
@@ -923,7 +927,8 @@ the contract's home — the spec-plan-lifecycle rule is not it: the
 process-settings rule (Task 6) defines the files, the grammar and the
 block; the registry defines the keys; this plan's Tasks 2–5 the modes.
 Match the contract above; add nothing it does not name. The functions:
-`usage`, `die` (stderr + exit 1, or silent exit 0 in hook mode),
+`usage`, `die` (stderr + exit 1; the hook-mode wrapper, not `die`,
+gives hook mode its silence),
 `find_root`, `registry_keys`, `registry_field`, `scan_file`,
 `resolve`, `emit_block`, `build_block` (the body `main` runs in the
 subshell), `cap_block`, `main`. The block is built in a variable and
@@ -1275,8 +1280,9 @@ git commit -m "feat(working-process): settings loader validates a file for its s
   `# working-process settings — personal` (personal), a blank line,
   then the question and the key line (Deviation 5). With exactly one
   record — *replace* that line in place with `<key>: <value>`, every
-  other line untouched; where the line already reads exactly
-  `<key>: <value>` — *unchanged*, no write. With several records —
+  other line untouched; where that record's value already equals
+  `<value>` — compared as the grammar reads it, so a trailing `\r` does
+  not count — *unchanged*, no write. With several records —
   *replace the first* in place and *remove* each later record's line,
   together with the line directly above it when that line equals the
   key's `question:` text exactly; other lines, blank lines included,
@@ -1367,7 +1373,8 @@ Cases:
 26. **Unchanged.** The file of case 25 with `--set review.autonomy yes`
     → `tree_hash` of `.working-process` equal before and after; stdout
     has `unchanged settings.local.md: review.autonomy: yes` and the
-    block.
+    block. Then a CRLF record: local `b"review.autonomy: yes\r\n"` with
+    `--set review.autonomy yes` → `unchanged`, `tree_hash` equal.
 27. **Duplicate.** Local `{QUESTION}\nreview.autonomy: yes\nfoo\n{QUESTION}\nreview.autonomy: no\nbar\nreview.autonomy: maybe\n`;
     `--set review.autonomy no` → the file reads
     `{QUESTION}\nreview.autonomy: no\nfoo\nbar\n`; stdout has, in order,
@@ -3133,7 +3140,7 @@ printf '%s\n' '# Fixture' '' 'This repository does not get the technical-design 
 printf '*\n' > "$W/docs/plans/.gitignore"
 (cd "$W" && git init -q && git add -A && git -c user.name=fixture -c user.email=fixture@example.invalid commit -qm fixture)
 ls "$W/.claude/rules/working-process" | wc -l
-claude plugin list | awk '/working-process@missing-bits/ {p=1; next} p && /Scope:/ {s=$2} p && /Status:/ {if ($NF == "enabled") print s; p=0}' > "$W/was"; echo "was=$(tr '\n' ' ' < "$W/was")"
+claude plugin list --json | jq -r --arg w "$W" '.[] | select(.id=="working-process@missing-bits" and .enabled and (.scope=="user" or .projectPath==$w)) | .scope' > "$W/was"; echo "was=$(tr '\n' ' ' < "$W/was")"
 ls "$HOME/.claude/rules/working-process" | wc -l > "$W/rules-count"; echo "rules-count=$(cat "$W/rules-count")"
 echo both > "$W/rules-state"
 ```
@@ -3155,10 +3162,14 @@ First the installed plugin, in every scope Step 1 recorded:
 ```bash
 R=$(git rev-parse --show-toplevel); W=${TMPDIR:-/tmp}/process-setup-dogfood
 for s in $(cat "$W/was"); do claude plugin disable working-process@missing-bits --scope "$s"; done
-claude plugin list | grep -A3 'working-process@missing-bits' | grep -c ' enabled$'
+claude plugin list --json | jq -r --arg w "$W" '[.[] | select(.id=="working-process@missing-bits" and .enabled and (.scope=="user" or .projectPath==$w))] | length'
 ```
 
-Expected: `0` — no enabled install of the plugin remains.
+Expected: `0` — no enabled install active in the scratch directory
+remains. An install scoped to another project is neither listed nor
+touched, so nothing is written to this repository's tracked
+`.claude/settings.json`; `git -C "$R" status --porcelain .claude/settings.json`
+prints nothing.
 
 Then, only where the developer consented in Step 1, the user-scope
 rules:
@@ -3259,7 +3270,7 @@ and do not adjust the expectation.
 ```bash
 R=$(git rev-parse --show-toplevel); W=${TMPDIR:-/tmp}/process-setup-dogfood
 for s in $(cat "$W/was"); do claude plugin enable working-process@missing-bits --scope "$s"; done
-echo "enabled=$(claude plugin list | grep -A3 'working-process@missing-bits' | grep -c ' enabled$') expected $(grep -c . "$W/was")"
+echo "enabled=$(claude plugin list --json | jq -r --arg w "$W" '[.[] | select(.id=="working-process@missing-bits" and .enabled and (.scope=="user" or .projectPath==$w))] | length') expected $(grep -c . "$W/was")"
 [ -d "$W/user-rules-aside" ] && command mv -f "$W/user-rules-aside" "$HOME/.claude/rules/working-process"
 echo "rules-count=$(ls "$HOME/.claude/rules/working-process" | wc -l) expected $(cat "$W/rules-count")"; [ -e "$W/user-rules-aside" ] && echo "aside still present"
 D="$R/.claude/working-process/2026-09-28-process-setup"; mkdir -p "$D"
@@ -3385,11 +3396,11 @@ results of Tasks 17 and 18 to the developer.
 
 ### 2026-09-29 — plan-adversary, fable 5.1, blocking (round 2, diff-scoped)
 
-- open — [Important] F11: `block=$(set -e; build_block …) || block=''` fails where `/bin/sh` is bash, which ignores `set -e` on the left of `||`
-- open — [Important] F12: Task 17 disables every enabled install, including a project-scope install belonging to another project, which would refuse or leave an `enabledPlugins` entry in this repository's tracked settings
-- open — [Minor] F13: the function list still gives `die` a silent `exit 0` in hook mode
-- open — [Minor] F14: *unchanged* is byte-exact while the grammar tolerates a trailing CR, so a repeat `--set` rewrites a CRLF file
-- held — [Minor] F15: F4's `license:` cites a private note and platform documentation, neither a license, and the committed ledger points at a per-user store; question: do you approve the dogfood procedure — disable only the install active in the scratch directory, and move the user-scope rules aside only with consent at run time?; options: (a) approve, `ruling:` replaces the license and the private note is dropped (recommended); (b) change the procedure
+- fixed 2026-09-29 — [Important] F11: `block=$(set -e; …) || block=''` fails where `/bin/sh` is bash; license: spec D10; Task 2 prescribes `block=$(set -e; build_block 2>/dev/null); rc=$?`, bans the `||` and `if` forms, and has `build_block` return non-zero from each tool call
+- fixed 2026-09-29 — [Important] F12: Task 17 disabled every enabled install, a project-scope install of another project included; license: Task 17's own aim (the collision with `--plugin-dir` in the scratch directory); Steps 1, 2 and 6 read `claude plugin list --json` filtered to installs active in the scratch directory, and Step 2 checks the tracked settings stay clean
+- fixed 2026-09-29 — [Minor] F13: the function list gave `die` a silent exit in hook mode; license: Task 2's own wrapper contract; `die` always exits 1
+- fixed 2026-09-29 — [Minor] F14: *unchanged* was byte-exact while the grammar tolerates a trailing CR; license: spec D37; *unchanged* compares the record's value, and case 26 gains a CRLF record
+- fixed 2026-09-29 — [Minor] F15: F4's license cited a private note and platform documentation, and the committed ledger pointed at a per-user store; ruling: 2026-09-29; the developer approved the dogfood procedure — disable only the install active in the scratch directory, move the user-scope rules aside only with consent at run time — and F4's line now carries that ruling
 - signal 2026-09-29 — another round earns its cost only over the two Important fixes, and a confirming full-document round is owed anyway; the Minors alone do not justify one
 
 ### 2026-09-29 — plan-adversary, fable 5.1, blocking (round 1, full-document)
@@ -3400,7 +3411,7 @@ results of Tasks 17 and 18 to the developer.
 - fixed 2026-09-29 — [Important] F1: a worktree without `.working-process/` is silent though the main checkout has settings, narrowing D5 without a Deviation; license: spec D5 and D41 (the loader reads the main checkout's personal file wherever the worktree has none of its own, and a personal answer is written where the loader reads it), with D50 and *Scope and precedence* keeping the team file the current checkout's; Task 3's contract gains the worktree silence test over `$DIR` or `$MAIN/.working-process` and states that the main checkout's team file is never read, case 18 expects the block with `team: settings.md (absent)` and the main checkout's personal answer and keeps the silent case for two checkouts without the directory, case 30 expects the fresh block to carry the answer just written, Task 3 Step 2's expectation and Task 2's Silence bullet point at it, Task 13 §1 says what `no settings directory` means in a worktree and what such a worktree sees, and step 1 of the process-settings rule's *Reading a key* (Task 6) names the checkout — no directory in this checkout or, in a worktree, in the main checkout — so a worktree session reads the block the hook emits from the main checkout's settings
 - fixed 2026-09-29 — [Important] F2: Task 14's mutation proof stashes an already committed edit and so cannot fail; license: the plan's own Task 10 Step 7 and *Order and independence* (the edit is committed before Task 14 runs); the proof restores `process-artifacts.md` from `develop` with `git show`, expects `FAILED (failures=7)` — one per `dir.` key the file reads — and restores with `git checkout --`, checked by `git status --porcelain`
 - fixed 2026-09-29 — [Important] F3: Task 17 expects no `.gitignore` in `docs/specs/` although `dir.default: ignored` makes the skill write one (D22, D17 step 3); license: spec D22 and D17 step 3; Step 1 calls `docs/specs/` undecided rather than tracked, Step 3 expects `docs/specs/.gitignore` holding `*`, prints it and fails the run where it is missing, and Step 6 stores it in the evidence file
-- fixed 2026-09-29 — [Important] F4: Task 17's disable guard counts two installed scopes and never disables; user- and project-level rules both load, so "a project copy wins" is false; license: the private note scratchpad-dogfood-recipe (the installed same-name plugin disabled for the run and re-enabled after, by its `<name>@<marketplace>` name) and the Claude Code documentation the round cited (neither rule set overrides the other); Step 1 records every scope where the plugin is enabled in `$W/was` and the user-scope rules count, and asks two consents; Steps 2 and 6 disable and enable per scope with `--scope` and count the enabled installs; Step 2 moves `~/.claude/rules/working-process/` aside only with consent, Step 6 restores it and checks the count on disk, and the evidence file's `## rules` section says which case held and that Step 5 is weaker evidence where both sets were in context; the "wins on conflict" sentence is gone
+- fixed 2026-09-29 — [Important] F4: Task 17's disable guard counts two installed scopes and never disables; user- and project-level rules both load, so "a project copy wins" is false; ruling: 2026-09-29; Step 1 records every scope where the plugin is enabled in `$W/was` and the user-scope rules count, and asks two consents; Steps 2 and 6 disable and enable per scope with `--scope` and count the enabled installs; Step 2 moves `~/.claude/rules/working-process/` aside only with consent, Step 6 restores it and checks the count on disk, and the evidence file's `## rules` section says which case held and that Step 5 is weaker evidence where both sets were in context; the "wins on conflict" sentence is gone
 - fixed 2026-09-29 — [Important] F5: the Python 3.9 floor is asserted and never exercised; tests run on the system interpreter unstated; license: the plan's own *Tech Stack* claim (`Python 3.9+`) and the precedent `tests/working-process/test_decision_coverage.py`; a Global Constraint states the tests are stdlib-only `unittest` run by the system `python3` with no Python project or lockfile, and Task 16 Step 1 runs the suite once under `uv run --python 3.9 --no-project`, printing a note where uv is absent
 - fixed 2026-09-29 — [Minor] F6: the `incomplete:` reservation cuts blocks that fit under 4096 bytes; license: spec D10 (caps its output at 4 KB, saying so when it truncates — a block under the cap is not truncated); Settled format edge 5 and Task 2's cap bullet emit a block of at most 4096 bytes whole and reserve the `incomplete:` line only when a cut is needed, and case 12 gains the edge fixture at exactly 4096 bytes and one byte over
 - fixed 2026-09-29 — [Minor] F7: hook-mode silence on failure names no mechanism beyond `die`; license: spec D10 (exits 0 on any error of its own; its other modes report failure); Task 2's *Errors of the loader's own* names the subshell — `block=$(set -e; build_block 2>/dev/null) || block=''`, printed only on success, exit 0 — and `error: loader failed` with exit 1 in the other modes; `build_block` joins the function list, `run_loader` gains `path_prefix`, and case 11 gains an `awk` shim exiting 1 with empty stdout, empty stderr and exit 0 in hook mode and exit 1 under `--print`
