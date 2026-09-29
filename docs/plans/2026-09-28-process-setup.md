@@ -36,7 +36,8 @@ loader; Python 3.9+ `unittest` via `subprocess` for its tests and the
 consistency test, following `tests/working-process/test_decision_coverage.py`;
 Markdown rules, cards, skill and README distributed as a Claude Code
 plugin and Rules payload; `tr`, `grep`, `awk`, `shasum` and
-`claude plugin validate` for the prose checks.
+`claude plugin validate` for the prose checks; `jq` for Task 17's
+reading of `claude plugin list --json`, and nowhere else.
 
 ## Global Constraints
 
@@ -3117,9 +3118,11 @@ consent, and restored after.
 
 - [ ] **Step 1: Build the scratch project — ask the developer first**
 
-A `--plugin-dir` session collides with the installed plugin of the same
-name, so every enabled install of it — the plugin may be installed in
-more than one scope — is disabled for the run and restored after; and
+A `--plugin-dir` session collides with an installed plugin of the same
+name that is active in the scratch directory, so each such install —
+the user-scope one, and a project-scope one only where it belongs to
+the scratch directory; one scoped to another project is left alone —
+is disabled for the run and restored after; and
 the user-scope rules are moved aside so that only the new rules are in
 context. Both change the developer's own configuration, so ask two
 questions before running: may the installed plugin be disabled for the
@@ -3139,6 +3142,7 @@ command cp -f "$R"/plugins/working-process/rules/*.md "$W/.claude/rules/working-
 printf '%s\n' '# Fixture' '' 'This repository does not get the technical-design offer.' > "$W/CLAUDE.md"
 printf '*\n' > "$W/docs/plans/.gitignore"
 (cd "$W" && git init -q && git add -A && git -c user.name=fixture -c user.email=fixture@example.invalid commit -qm fixture)
+command -v jq >/dev/null || { echo "jq absent: install it (mise use jq) before this task"; exit 1; }
 ls "$W/.claude/rules/working-process" | wc -l
 claude plugin list --json | jq -r --arg w "$W" '.[] | select(.id=="working-process@missing-bits" and .enabled and (.scope=="user" or .projectPath==$w)) | .scope' > "$W/was"; echo "was=$(tr '\n' ' ' < "$W/was")"
 ls "$HOME/.claude/rules/working-process" | wc -l > "$W/rules-count"; echo "rules-count=$(cat "$W/rules-count")"
@@ -3401,6 +3405,9 @@ results of Tasks 17 and 18 to the developer.
 - fixed 2026-09-29 — [Minor] F13: the function list gave `die` a silent exit in hook mode; license: Task 2's own wrapper contract; `die` always exits 1
 - fixed 2026-09-29 — [Minor] F14: *unchanged* was byte-exact while the grammar tolerates a trailing CR; license: spec D37; *unchanged* compares the record's value, and case 26 gains a CRLF record
 - fixed 2026-09-29 — [Minor] F15: F4's license cited a private note and platform documentation, and the committed ledger pointed at a per-user store; ruling: 2026-09-29; the developer approved the dogfood procedure — disable only the install active in the scratch directory, move the user-scope rules aside only with consent at run time — and F4's line now carries that ruling
+- hit fixed 2026-09-29 — Task 17 Step 1's intro still disabled "every enabled install"; now only the installs active in the scratch directory
+- hit fixed 2026-09-29 — Task 17's `jq` calls had no Tech Stack entry and no availability guard; Tech Stack names it, Step 1 stops with an install hint where it is absent
+- hit dismissed 2026-09-29 — round 1's F7 line quotes the mechanism F11 later replaced; counter: a ledger line records what its wave changed at the time, and F11's line records the replacement, so the history is complete and editing F7's line would rewrite it
 - signal 2026-09-29 — another round earns its cost only over the two Important fixes, and a confirming full-document round is owed anyway; the Minors alone do not justify one
 
 ### 2026-09-29 — plan-adversary, fable 5.1, blocking (round 1, full-document)
