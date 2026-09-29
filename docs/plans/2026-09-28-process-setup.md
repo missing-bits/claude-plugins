@@ -1751,7 +1751,7 @@ echo "D $(n $W | grep -oF 'never a model name' | wc -l)"
 echo "E $(n $P | grep -oF 'You run on the cheapest available family' | wc -l)"
 echo "F $(n $P | grep -oF 'casually badly' | wc -l)"
 echo "G $(n $P | grep -oF 'Run it on the cheapest available family' | wc -l)"
-echo "H $(n $P | grep -oF 'resolved from `dispatch.propagation-auditor-tier`' | wc -l)"
+echo "H $(n $P | grep -oE 'resolved from (the project.s )?`dispatch\.propagation-auditor-tier`' | wc -l)"
 echo "I $(n $P | grep -oF 'A project may choose a higher tier' | wc -l)"
 echo "J $(head -n 5 $P | grep -c '^description: "')"
 echo "K $(n $I | grep -oF 'on the cheapest available family, and re-running' | wc -l)"
@@ -2888,7 +2888,7 @@ file, the same edit.
 
 Run the Step 1 command again, then both validations.
 
-Expected: `A 1`, `B 0`, `C 0`, `D 0`, `E 1`, `F 1`, `G 1`, `H 2`,
+Expected: `A 1`, `B 0`, `C 0`, `D 0`, `E 1`, `F 1`, `G 1`, `H 1`,
 `I 0`, `J 0`, `K 3`, `L … 1` for each of the three changelogs, and:
 
 ```bash
@@ -2934,11 +2934,11 @@ nothing but `hook rc=0` (this repository has no `.working-process/`);
 - [ ] **Step 2: Check what must not change**
 
 ```bash
-git diff --stat develop -- plugins/working-process/skills/grilling-session/SKILL.md docs/domain/glossary.md plugins/working-process/scripts/check-rules-drift.sh plugins/working-process/scripts/ruleset-hash.sh plugins/working-process/skills/sync-rules/SKILL.md | tail -n 1
+git diff --stat develop -- plugins/working-process/skills/grilling-session/SKILL.md plugins/working-process/scripts/check-rules-drift.sh plugins/working-process/scripts/ruleset-hash.sh plugins/working-process/skills/sync-rules/SKILL.md | tail -n 1
 ```
 
 Expected: no output — the grilling-session skill stays as it is
-(D48), the glossary is not edited by this plan, and the drift check,
+(D48), and the drift check,
 the hasher and the sync-rules skill are untouched.
 
 - [ ] **Step 3: Check the glossary entry D31 names**
