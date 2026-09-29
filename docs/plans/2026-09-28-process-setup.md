@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-09-28
 status: draft
-adversary: blocking
+adversary: concerns
 spec: ../specs/2026-09-28-process-setup-design.md
 branch: feature/process-setup
 base: develop
@@ -60,7 +60,9 @@ reading of `claude plugin list --json`, and nowhere else.
 - **The loader is POSIX.** `#!/bin/sh`, `set -u`, `export LC_ALL=C`,
   and only `sh`, `sed`, `awk`, `git`, `mkdir`, `mv`, `rm`, `cat`,
   `printf`, `dirname`, `basename`, `pwd` and `head`; no `jq`, no
-  `bash`-only syntax, no GNU-only flags. Every step that runs the loader
+  `bash`-only syntax, no `local` (function variables are global or
+  passed positionally, since `shellcheck -s sh` rejects it as SC3043),
+  no GNU-only flags. Every step that runs the loader
   runs it through `/bin/sh` (dash on the development machine) so a
   bashism fails here rather than on macOS.
 - **The loader never reads stdin** — Claude Code and Codex feed a hook
@@ -800,6 +802,7 @@ class LoaderTest(unittest.TestCase):
     def run_loader(self, cwd: Path, *args: str, project_dir: str | None = None,
                    loader: Path = LOADER, path_prefix: Path | None = None) -> Result:
         env = {k: v for k, v in os.environ.items() if k not in ("CLAUDE_PROJECT_DIR", "CLAUDE_PLUGIN_ROOT")}
+        env["GIT_CEILING_DIRECTORIES"] = str(self.base)
         if project_dir is not None:
             env["CLAUDE_PROJECT_DIR"] = project_dir
         if path_prefix is not None:
@@ -877,14 +880,15 @@ cases share a shape), asserting the exact lines:
 9. **Absent files and the first line.** `.working-process/` with only a
    team file → first line ends `team: settings.md; local: settings.local.md (absent))`;
    with only a local file → `team: settings.md (absent); local: settings.local.md)`.
-   No `.working-process/` at all: hook mode → `out == ""`, exit 0;
+   No `.working-process/` at all: hook mode → `out == ""`, `err == ""`,
+   exit 0;
    `--print` → exactly one line,
    `working-process settings (root: {root}; loader: {LOADER}; no settings directory)`,
    exit 0.
 10. **Root resolution.** No git, `project_dir=str(self.root)`, cwd a
-    subdirectory `self.root / "sub"` → the first line names `self.root`.
-    No git and no project dir, cwd `self.root / "sub"` → names
-    `self.root / "sub"`. `git_init()`, cwd `self.root / "sub"`, project
+    subdirectory `self.root / "sub"` → the first line names `self.root`
+    and `err == ""`. No git and no project dir, cwd `self.root / "sub"`
+    → names `self.root / "sub"`, `err == ""`. `git_init()`, cwd `self.root / "sub"`, project
     dir pointing elsewhere → names `self.root` (git wins).
 11. **An error of the loader's own.** Copy `LOADER` to
     `self.base / "alone" / "scripts" / "load-settings.sh"` with no
@@ -3026,13 +3030,14 @@ git commit -m "docs(working-process): README, changelogs and dogfood version for
 claude plugin validate . && claude plugin validate plugins/working-process
 python3 -m unittest discover -s tests/working-process 2>&1 | tail -n 3
 /bin/sh plugins/working-process/scripts/load-settings.sh; echo "hook rc=$?"
-command -v shellcheck >/dev/null && shellcheck -s sh plugins/working-process/scripts/load-settings.sh && echo shellcheck-ok
+if shellcheck --version >/dev/null 2>&1; then shellcheck -s sh plugins/working-process/scripts/load-settings.sh && echo shellcheck-ok; else echo "shellcheck absent: install it (mise use -g shellcheck)"; fi
 if command -v uv >/dev/null; then uv run --python 3.9 --no-project python -m unittest discover -s tests/working-process 2>&1 | tail -n 1; else echo "uv absent: the 3.9 floor is not measured here"; fi
 ```
 
 Expected: both validations pass; the tests end `OK`; the hook prints
 nothing but `hook rc=0` (this repository has no `.working-process/`);
-`shellcheck-ok` where shellcheck is installed, nothing otherwise; and
+`shellcheck-ok` where shellcheck runs, or the `shellcheck absent` note
+(a mise shim with no version set counts as absent); and
 `OK` once more from the run under Python 3.9 — the floor *Tech Stack*
 claims, measured once — or the `uv absent` note, which the report
 repeats so the floor is known to be unmeasured.
@@ -3140,6 +3145,7 @@ command rm -rf "$W"
 mkdir -p "$W/docs/specs" "$W/docs/plans" "$W/.claude/rules/working-process"
 command cp -f "$R"/plugins/working-process/rules/*.md "$W/.claude/rules/working-process/"
 printf '%s\n' '# Fixture' '' 'This repository does not get the technical-design offer.' > "$W/CLAUDE.md"
+printf '[project]\nname = "fixture"\n' > "$W/pyproject.toml"
 printf '*\n' > "$W/docs/plans/.gitignore"
 (cd "$W" && git init -q && git add -A && git -c user.name=fixture -c user.email=fixture@example.invalid commit -qm fixture)
 command -v jq >/dev/null || { echo "jq absent: install it (mise use jq) before this task"; exit 1; }
@@ -3205,8 +3211,8 @@ skill, step by step: it runs `--print` and shows the `no settings
 directory` line; it offers `docs/plans/` ignored as the only decided
 directory and `dir.default: ignored` from it, and the `CLAUDE.md`
 sentence as `design.technical-design-offer: off`, both to confirm;
-confirm both. Then answer the unset keys: `dispatch.propagation-auditor-tier`
-keep `cheapest`, `docs-branch.merge` squash, `consult.personas` no,
+confirm both. Then answer the unset keys (the tier key is not asked:
+its default `cheapest` stands): `docs-branch.merge` squash, `consult.personas` no,
 `review.autonomy` yes, `review.per-round-commit` no; decline
 exceptions. For each answer it shows a `--set --dry-run` preview, then
 writes; it offers to remove the `CLAUDE.md` note — accept; in its
@@ -3397,6 +3403,16 @@ scratch project with `command rm -rf "$W"`. No commit. Report the
 results of Tasks 17 and 18 to the developer.
 
 ## Review rounds
+
+### 2026-09-29 — plan-adversary, fable 5.1, concerns (round 3, full-document)
+
+- fixed 2026-09-29 — [Important] F16: the dogfood fixture has no toolchain manifest, so no technical-design offer fires with the key set or unset; license: spec D29 ("a recorded question is not asked") and the workflow rule's manifest-raised offer; Task 17 Step 1 writes a `pyproject.toml`
+- fixed 2026-09-29 — [Minor] F17: Task 17 Step 3 expected the tier key to be asked though its default is `cheapest`; license: Task 13 ("Ask about the unset keys only"); dropped from the answer list, with the reason
+- fixed 2026-09-29 — [Minor] F18: hook mode's empty stderr was untested where `git rev-parse` fails; license: spec D10; cases 9 and 10 assert `err == ""`
+- fixed 2026-09-29 — [Minor] F19: `local` would fail Task 16's `shellcheck -s sh`; license: the POSIX Global Constraint; the constraint bans `local`
+- fixed 2026-09-29 — [Minor] F20: `command -v shellcheck` is true for a mise shim with no version; license: Task 16's own expectation; presence tested with `shellcheck --version`, with the mise install as the remedy
+- fixed 2026-09-29 — [Minor] F21: no-git fixtures depended on `TMPDIR` lying outside every repository; license: spec D28 (fixtures); `run_loader` sets `GIT_CEILING_DIRECTORIES` to the fixture base
+- signal 2026-09-29 — a further round does not earn its cost; the fixes are one-liners licensed by the plan or the spec, and the Minors are better left to implementation and code review; the plan is ready to build once they land
 
 ### 2026-09-29 — plan-adversary, fable 5.1, blocking (round 2, diff-scoped)
 
