@@ -882,6 +882,86 @@ class LoaderTest(unittest.TestCase):
         )
         self.assertIn("appended settings.local.md to .working-process/.gitignore", res.lines)
 
+    # Review round 1, finding 1: a value made of several allowed
+    # tokens (e.g. "yes no") must not validate against "yes | no".
+    def test_set_value_rejects_multiple_tokens(self) -> None:
+        self.git_init()
+        res = self.run_loader(self.root, "--set", "review.autonomy", "yes no")
+        self.assertEqual(res.code, 1)
+        self.assertEqual(res.out, "")
+        self.assertEqual(
+            res.err,
+            "error: invalid value for `review.autonomy`: yes no (allowed: yes | no)\n",
+        )
+        self.assertFalse((self.root / ".working-process").exists())
+
+    # Review round 1, finding 2: a failed write must not report success
+    # on stdout, and must print an error: line.
+    @unittest.skipIf(hasattr(os, "geteuid") and os.geteuid() == 0, "root bypasses permission checks")
+    def test_set_apply_write_failure_withholds_report(self) -> None:
+        self.git_init()
+        text = f"intro\n\n{self.QUESTION}\nreview.autonomy: yes\n\nconsult.personas: no\n"
+        self.settings(self.root, local=text)
+        d = self.root / ".working-process"
+        local = d / "settings.local.md"
+        before = self.read(local)
+        d.chmod(0o555)
+        try:
+            res = self.run_loader(self.root, "--set", "review.autonomy", "no")
+        finally:
+            d.chmod(0o755)
+        self.assertEqual(res.code, 1)
+        self.assertEqual(res.out, "")
+        self.assertIn("error: failed to write settings.local.md", res.err)
+        self.assertEqual(self.read(local), before)
+
+    # Review round 1, finding 3: --dry-run must precede <key> <value>;
+    # any other shape is usage:, exit 2.
+    def test_set_dry_run_flag_must_precede_key_and_value(self) -> None:
+        self.git_init()
+        res = self.run_loader(self.root, "--set", "--dry-run", "review.autonomy")
+        self.assertEqual(res.code, 2)
+        self.assertEqual(res.out, "")
+        self.assertTrue(res.err.startswith("usage:"))
+
+    # Review round 1, finding 4: an existing but empty file gets no
+    # title and no blank-line prefix (only an absent file gets the
+    # title; the blank-line prefix needs a non-empty file).
+    def test_set_insert_into_existing_empty_file(self) -> None:
+        self.git_init()
+        d = self.settings(self.root, local="")
+        local = d / "settings.local.md"
+        res = self.run_loader(self.root, "--set", "review.autonomy", "yes")
+        self.assertEqual(res.code, 0)
+        self.assertEqual(self.read(local), f"{self.QUESTION}\nreview.autonomy: yes\n")
+        self.assertNotIn("created .working-process/settings.local.md", res.lines)
+        self.assertIn("wrote settings.local.md: review.autonomy: yes (inserted)", res.lines)
+
+    # Review round 1, finding 5 (ruling): "removed <label>:<n>" and
+    # "wrote <label>:" use the same label — from a worktree, that is
+    # the qualified "(main checkout)" label, not the plain basename.
+    def test_set_removed_label_matches_wrote_label_from_worktree(self) -> None:
+        main = self.git_init()
+        wt = self.worktree(main, "wt")
+        text = (f"{self.QUESTION}\nreview.autonomy: yes\nfoo\n"
+                f"{self.QUESTION}\nreview.autonomy: no\nbar\nreview.autonomy: maybe\n")
+        self.settings(main, local=text)
+        res = self.run_loader(wt, "--set", "review.autonomy", "no")
+        self.assertEqual(res.code, 0)
+        self.assertIn(f"removed settings.local.md (main checkout):4 {self.QUESTION}", res.lines)
+        self.assertIn(
+            "removed settings.local.md (main checkout):5 review.autonomy: no",
+            res.lines,
+        )
+        self.assertIn(
+            "removed settings.local.md (main checkout):7 review.autonomy: maybe",
+            res.lines,
+        )
+        self.assertIn(
+            "wrote settings.local.md (main checkout): review.autonomy: no (replaced)",
+            res.lines,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

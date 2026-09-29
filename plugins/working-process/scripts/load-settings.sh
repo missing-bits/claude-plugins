@@ -255,10 +255,12 @@ AWK_PROG='
 # Reads the destination file on stdin (or nothing, for an absent file);
 # never takes a path operand. Parameters (-v): mode (insert|replace|
 # replace_remove), first_nr (the record to replace, 0 for insert),
-# skip_csv (comma-separated extra record numbers to remove), question
-# (the key's question: text, compared exactly), kv (the "<key>:
-# <value>" line to write, LF-terminated by print), title (the file's
-# title line, insert mode on an absent/empty file only).
+# skip_csv (comma-separated extra record numbers to remove), existed
+# (1 if the destination file existed before this call, 0 if it did
+# not — an existing empty file gets no title, only an absent file
+# does), question (the key's question: text, compared exactly), kv
+# (the "<key>: <value>" line to write, LF-terminated by print), title
+# (the file's title line, insert mode on an absent file only).
 #
 # Content goes to stdout, one line at a time via plain print — every
 # line, kept or new, gains exactly one trailing LF this way, which is
@@ -282,10 +284,10 @@ PLAN_PROG='
     }
     if (mode == "insert") {
       for (i = 1; i <= total; i++) print lines[i]
-      if (total == 0) {
+      if (existed == 0) {
         print title
         print ""
-      } else if (lines[total] != "") {
+      } else if (total > 0 && lines[total] != "") {
         print ""
       }
       print question
@@ -562,14 +564,22 @@ destination() {
   esac
 }
 
-# plan_write: computes and prints every --set/--set --dry-run output
-# line up to (not including) the trailing blank line and block, from
-# DEST's current content via scan_file and AWK_PROG (reused, so the
+# plan_write: computes every --set/--set --dry-run output line up to
+# (not including) the trailing blank line and block, from DEST's
+# current content via scan_file and AWK_PROG (reused, so the
 # key/value/duplicate decisions for every OTHER line stay the one
-# AWK_PROG makes). It never writes. Sets PW_MODE (insert|replace|
-# replace_remove|unchanged), and for every mode but unchanged,
-# PW_FIRST_NR, PW_SKIP_CSV and PW_GITIGNORE_ACTION (none|create|append)
-# for apply_write.
+# AWK_PROG makes). It never writes.
+#
+# The shadow note and the other-lines' error: lines are printed
+# immediately — they are true whether or not this write goes on to
+# succeed. Everything that describes the write itself (removed lines,
+# the wrote/unchanged line, the created/appended lines) is instead
+# accumulated into PW_REPORT and left for the caller to print only
+# once the write (if any) has actually happened, so a failed write
+# never reports success on stdout. Sets PW_MODE (insert|replace|
+# replace_remove|unchanged), PW_REPORT, and, for every mode but
+# unchanged, PW_FIRST_NR, PW_SKIP_CSV, PW_EXISTED and
+# PW_GITIGNORE_ACTION (none|create|append) for apply_write.
 plan_write() {
   [ -n "$NOTE" ] && printf '%s\n' "$NOTE"
 
@@ -621,26 +631,36 @@ plan_write() {
     PW_SKIP_CSV=$(printf '%s\n' "$pw_own" | awk -F'\t' 'NR>1{printf "%s,", $1}') || return 1
   fi
 
+  PW_REPORT=""
+
   if [ "$PW_MODE" = unchanged ]; then
-    printf '%s %s: %s\n' "$pw_verb_unchanged" "$DEST_LABEL" "$pw_kv"
+    PW_REPORT="$(printf '%s %s: %s' "$pw_verb_unchanged" "$DEST_LABEL" "$pw_kv")
+"
     return 0
   fi
+
+  PW_EXISTED=0
+  [ -f "$DEST" ] && PW_EXISTED=1
 
   pw_input=/dev/null
   [ -f "$DEST" ] && pw_input="$DEST"
   pw_report=$(awk -v mode="$PW_MODE" -v first_nr="$PW_FIRST_NR" -v skip_csv="$PW_SKIP_CSV" \
-    -v question="$s_question" -v kv="$pw_kv" -v title="$TITLE" "$PLAN_PROG" \
+    -v existed="$PW_EXISTED" -v question="$s_question" -v kv="$pw_kv" -v title="$TITLE" "$PLAN_PROG" \
     < "$pw_input" 2>&1 1>/dev/null) || return 1
-  [ -n "$pw_report" ] && printf '%s\n' "$pw_report" | awk -F'\t' -v fl="$pw_label" -v verb="$pw_verb_remove" '
-    $1=="remove"{ printf "%s %s:%s %s\n", verb, fl, $2, $3 }
-  '
+  if [ -n "$pw_report" ]; then
+    pw_removed=$(printf '%s\n' "$pw_report" | awk -F'\t' -v fl="$DEST_LABEL" -v verb="$pw_verb_remove" '
+      $1=="remove"{ printf "%s %s:%s %s\n", verb, fl, $2, $3 }
+    ') || return 1
+    if [ -n "$pw_removed" ]; then
+      PW_REPORT="${PW_REPORT}${pw_removed}
+"
+    fi
+  fi
 
   pw_kind="(replaced)"
   [ "$PW_MODE" = insert ] && pw_kind="(inserted)"
-  printf '%s %s: %s %s\n' "$pw_verb_write" "$DEST_LABEL" "$pw_kv" "$pw_kind"
-
-  PW_EXISTED=0
-  [ -f "$DEST" ] && PW_EXISTED=1
+  PW_REPORT="${PW_REPORT}$(printf '%s %s: %s %s' "$pw_verb_write" "$DEST_LABEL" "$pw_kv" "$pw_kind")
+"
 
   PW_GITIGNORE_ACTION=none
   if [ "$s_scope" = personal ]; then
@@ -652,10 +672,19 @@ plan_write() {
     fi
   fi
 
-  [ "$PW_EXISTED" -eq 0 ] && printf '%s .working-process/%s\n' "$pw_verb_create" "$(basename "$DEST")"
+  if [ "$PW_EXISTED" -eq 0 ]; then
+    PW_REPORT="${PW_REPORT}$(printf '%s .working-process/%s' "$pw_verb_create" "$(basename "$DEST")")
+"
+  fi
   case "$PW_GITIGNORE_ACTION" in
-    create) printf '%s .working-process/.gitignore \342\200\224 commit it with settings.md\n' "$pw_verb_create" ;;
-    append) printf '%s settings.local.md to .working-process/.gitignore\n' "$pw_verb_append" ;;
+    create)
+      PW_REPORT="${PW_REPORT}$(printf '%s .working-process/.gitignore \342\200\224 commit it with settings.md' "$pw_verb_create")
+"
+      ;;
+    append)
+      PW_REPORT="${PW_REPORT}$(printf '%s settings.local.md to .working-process/.gitignore' "$pw_verb_append")
+"
+      ;;
   esac
 }
 
@@ -664,7 +693,9 @@ plan_write() {
 # via a temp file beside it, moved into place under the same trap
 # write-manifest.sh uses, then materializes the personal .gitignore
 # per PW_GITIGNORE_ACTION. Never called for --dry-run or a mode of
-# unchanged.
+# unchanged. Returns nonzero, with nothing moved into place, on any
+# failure, so the caller can withhold PW_REPORT and report the error
+# itself.
 apply_write() {
   aw_dir=$(dirname "$DEST")
   mkdir -p "$aw_dir" || return 1
@@ -675,7 +706,7 @@ apply_write() {
   tmp="$DEST.tmp.$$"
   trap 'rm -f "$tmp"' EXIT
   awk -v mode="$PW_MODE" -v first_nr="$PW_FIRST_NR" -v skip_csv="$PW_SKIP_CSV" \
-    -v question="$s_question" -v kv="$s_key: $s_value" -v title="$TITLE" "$PLAN_PROG" \
+    -v existed="$PW_EXISTED" -v question="$s_question" -v kv="$s_key: $s_value" -v title="$TITLE" "$PLAN_PROG" \
     < "$aw_input" > "$tmp" 2>/dev/null || { rm -f "$tmp"; trap - EXIT; return 1; }
   mv "$tmp" "$DEST" || { rm -f "$tmp"; trap - EXIT; return 1; }
   trap - EXIT
@@ -721,13 +752,14 @@ do_set() {
 
   s_values=$(registry_field "$s_key" values) || return 1
   s_values_norm=$(printf '%s' "$s_values" | sed 's/ | / /g') || return 1
-  case " $s_values_norm " in
-    *" $s_value "*) ;;
-    *)
-      printf 'error: invalid value for `%s`: %s (allowed: %s)\n' "$s_key" "$s_value" "$s_values" >&2
-      return 1
-      ;;
-  esac
+  s_value_ok=0
+  for s_v in $s_values_norm; do
+    if [ "$s_v" = "$s_value" ]; then s_value_ok=1; break; fi
+  done
+  if [ "$s_value_ok" -eq 0 ]; then
+    printf 'error: invalid value for `%s`: %s (allowed: %s)\n' "$s_key" "$s_value" "$s_values" >&2
+    return 1
+  fi
 
   s_scope=$(registry_field "$s_key" scope) || return 1
   s_question=$(registry_field "$s_key" question) || return 1
@@ -742,12 +774,22 @@ do_set() {
   destination "$s_scope" || return 1
   plan_write || return 1
 
-  if [ "$s_dry" -eq 0 ]; then
-    [ "$PW_MODE" != unchanged ] && { apply_write || return 1; }
-    printf '\n'
-    resolve || return 1
-    emit_block || return 1
+  if [ "$s_dry" -eq 1 ]; then
+    [ -n "$PW_REPORT" ] && printf '%s' "$PW_REPORT"
+    return 0
   fi
+
+  if [ "$PW_MODE" != unchanged ]; then
+    if ! apply_write; then
+      printf 'error: failed to write %s\n' "$DEST_LABEL" >&2
+      return 1
+    fi
+  fi
+
+  [ -n "$PW_REPORT" ] && printf '%s' "$PW_REPORT"
+  printf '\n'
+  resolve || return 1
+  emit_block || return 1
 }
 
 main() {
@@ -787,7 +829,7 @@ main() {
       MODE=validate
       ;;
     --set)
-      if [ "$#" -eq 3 ]; then
+      if [ "$#" -eq 3 ] && [ "${2-}" != "--dry-run" ]; then
         s_dry=0
         s_key=$2
         s_value=$3
