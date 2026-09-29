@@ -153,6 +153,11 @@ Recorded here and beside the text they concern.
    or `[invalid in local]`.** The spec hands the duplicated key's source
    to the plan and names a closed source set without a duplicate token;
    the `error:` line carries the distinction, so the set stays closed.
+7. **Task 9 also says the session reports an overridden note.** The
+   plan's block for the `docs-branch.merge` paragraph stated only that
+   the key wins; D20 also has the session say which note it overrode, as
+   workflow.md's technical-design site already says, and the developer
+   ruled at implementation to add the clause.
 
 ## Settled format edges
 
