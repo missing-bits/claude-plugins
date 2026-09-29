@@ -5,12 +5,16 @@ description: Grilling session that stress-tests a spec (the primary target), pla
 
 ## Place in the flow
 
-idea → brainstorming (spec) → **grilling-session on the spec** →
-architect review (an `architect` agent dispatch) → writing-plans (plan) →
-plan-adversary on the plan → implementation → code review. Offer a
-grilling once a spec
-exists and before its implementation plan is written. Specs are the
-primary target; plans and raw ideas are in scope too.
+idea → brainstorming (design spec) → **grilling-session on the spec** →
+architect review (an `architect` agent dispatch) → technical design
+(when the repository has code) → writing-plans (plan) → plan-adversary
+on the plan → implementation → code review. Offer a grilling once a
+design spec exists and before its implementation plan is written.
+Design specs are the primary target; plans and raw ideas are in scope
+too. A technical design is not a grilling target: it mints no
+terminology, its vocabulary coming from the design spec, which was
+grilled, and from the domain's own skills; the part and component names
+it does mint are checked against those skills.
 
 ## Glossary first
 
@@ -66,6 +70,11 @@ applies (edit with the Edit tool):
   intended. Fuzzy term → propose a canonical one. Probe edge cases.
   Verify claims against the code.
 - Apply glossary updates inline the moment a term settles — no batching.
+- A spec carrying `decisions: registered` has a decision register,
+  defined in the spec-plan-lifecycle rule: update it inline as each
+  decision lands. A new decision takes the next free identifier, a
+  sharpened one keeps its identifier, and a dropped one is withdrawn
+  only on the developer's explicit decision.
 - ADRs are rare: offer one only when the decision is hard to reverse AND
   surprising without context AND a real trade-off existed.
 

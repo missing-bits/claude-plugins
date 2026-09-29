@@ -229,8 +229,9 @@ keeping is simply deleted.
 
 ## Local pocket (tracked mode only)
 
-When the first-create question resolves to tracked mode for
-`docs/code-review/`, also write `docs/code-review/.gitignore`
+When `docs/code-review/` resolves to tracked mode — by the first-create
+question, or unasked by a signal or a settings key, in the order the
+process-artifacts rule gives — also write `docs/code-review/.gitignore`
 containing `local-*` — a registry file that rides with the work's
 commit. A review the developer requests as local-only gets a `local-`
 filename prefix and never appears in git status. Ignored mode needs no

@@ -30,22 +30,35 @@ paths:
   the PR body is assembled from the entries that changed.
 - Dogfooding unreleased content needs a changed version string — the
   plugin cache keys content by version. A topic branch that dogfoods a
-  plugin sets `X.Y.Z-dev.<discriminator>` on it — the issue number the
-  branch name carries, or the branch short-name when the topic has no
-  issue (e.g. `-dev.design-personas`). The suffix hangs off a version
-  above the one `develop` currently carries — never a re-suffix of a
-  version already minted. Widening the discriminator instead of minting
-  another channel keeps one channel for one purpose; the discriminator
-  only needs to be unique among parallel topics. The suffix flows into
-  develop as-is. A topic that does not dogfood never
-  touches the version. On a version-line merge conflict between parallel
-  topics, the merging topic's own `-dev.<discriminator>` wins — both
-  strings are provisional. The release PR strips every `-dev` suffix
-  while minting the final numbers; the `release-guard` workflow fails
-  any PR to master that carries a prerelease version or a changed plugin
+  plugin sets `X.Y.Z-dev.<n>.<discriminator>` on it. The discriminator
+  is the issue number the branch name carries, or the branch short-name
+  when the topic has no issue (e.g. `-dev.4.design-personas`); it only
+  needs to be unique among parallel topics. The suffix hangs off a
+  version above the one `develop` currently carries — never a re-suffix
+  of a version already minted. A topic that does not dogfood never
+  touches the version. The release PR strips every `-dev` suffix while
+  minting the final numbers; the `release-guard` workflow fails any PR
+  to master that carries a prerelease version or a changed plugin
   without a bump.
-- Prerelease grammar: `-<channel>.<discriminator>`. Defined channels:
-  `dev.<discriminator>` (topic-branch dogfooding, above) and
+- `<n>` separates the successive dogfood releases of successive topics,
+  and `develop` owns it: `n` is one above the highest `-dev.<n>.` the
+  plugin carries in develop's history, and the increment happens as a
+  topic merges. A topic takes the number optimistically when it starts
+  dogfooding and re-takes it at merge if develop moved meanwhile, which
+  is what makes two parallel topics safe — they may hold the same
+  number while unmerged, and the merge order settles it. Deriving the
+  counter from develop rather than from a topic is what gives it an
+  owner; a counter nobody owns walks backwards.
+  On a version-line merge conflict between parallel topics, the merging
+  topic's own string wins and takes the next free number — both strings
+  are provisional until merge.
+  The number is its own dot-separated identifier on purpose. Semver
+  compares numeric identifiers numerically and alphanumeric ones as
+  text, so `dev.1.x` < `dev.2.x` < `dev.10.x` sorts correctly, while
+  `dev.<n>-<slug>` would fold the number into an alphanumeric
+  identifier and sort `1 < 10 < 2`. Measured, not assumed.
+- Prerelease grammar: `-<channel>.<identifiers>`. Defined channels:
+  `dev.<n>.<discriminator>` (topic-branch dogfooding, above) and
   `rc.<n>` (release candidate — a freeze of develop dogfooded as one
   bundle when a release warrants whole-unit validation; minted by a
   release-prep commit and stripped by the release PR like any

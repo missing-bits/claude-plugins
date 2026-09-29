@@ -2,6 +2,12 @@
 
 Released versions of this plugin, newest first.
 
+## 0.5.0 — 2026-09-29
+
+- `/salesforce-review` reads the settings key `dir.docs/code-review`
+  from a settings block in context before asking the first-create
+  question, and asks which stands when a visible signal contradicts it.
+
 ## 0.4.0 — 2026-09-15
 
 - The new `salesforce-triggers` skill carries the rules that hold

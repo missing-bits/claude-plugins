@@ -3,8 +3,9 @@
 Tech-agnostic tooling for a spec-driven working process on top of the
 `superpowers` plugin:
 
-idea → brainstorming (spec) → grilling-session → architect review →
-integrity audit → writing-plans (plan) → plan-adversary →
+idea → brainstorming (design spec) → grilling-session → architect
+review → technical design (when the repository has code) → integrity
+audit → writing-plans (plan) → plan-adversary →
 implementation → code review — with a propagation audit gating every
 verdict dispatch and the integrity audit itself.
 
@@ -15,7 +16,7 @@ verdict dispatch and the integrity audit itself.
   (`docs/domain/glossary.md`), sharpens terminology, and records
   decisions as ADRs. Triggers: "grill me" / "grilling session".
 - **`architect` agent** — formal design-quality review of a grilled spec
-  or any design document dispatched standalone; verdict
+  or any judged document dispatched standalone; verdict
   `LGTM | concerns | blocking`, stamped into the reviewed document's
   `architect:` frontmatter field by the dispatcher. Dispatched in the
   background on the most capable available model; the verdict arrives
@@ -45,27 +46,39 @@ verdict dispatch and the integrity audit itself.
   `architect` dispatch. Triggers: "ask the designer" / "system designer
   session".
 - **`plan-adversary` agent** — adversarial review of implementation
-  plans (plans only; handed a spec it declines toward the `architect`
-  agent). Generic failure-mode dimensions live here; domain specifics
-  come from `*-plan-review` checklist skills. Dispatched in the
-  background, scaled to the plan's size and risk; the verdict arrives
-  as a task notification and is stamped after relay.
-- **`propagation-auditor` agent** — the mechanical audit of a spec or
-  plan: it parses every changed interface to enumerate its consumers,
+  plans (plans only; handed a judged document it declines toward the
+  `architect` agent). Generic failure-mode dimensions live here; domain
+  specifics
+  come from `*-plan-review` checklist skills. Where a design spec keeps
+  a decision register, it also judges whether the tasks citing each
+  decision realize it in full. Dispatched in the background, scaled to
+  the plan's size and risk; the verdict arrives as a task notification
+  and is stamped after relay.
+- **`propagation-auditor` agent** — the mechanical audit of a design
+  spec, a technical design or a plan: it parses every changed interface
+  to enumerate its consumers,
   diffs every prescribed block against the file it targets — a landed
   change against what shipped, a promised one against the anchor its
-  edit needs — re-derives every counter, and runs the document's own
-  verification commands. Its
-  unit is the hit: located, binary, and carrying the derivation that
-  produced it; a clean audit reports the single line `CLEAN`. It grades
+  edit needs — re-derives every counter, runs the document's own
+  verification commands, derives a plan's decision coverage from its
+  design specs' decision registers, and resolves the table relations
+  the technical-design rule declares. Its unit is the hit: located,
+  binary, and carrying the derivation that produced it. Every report
+  also carries a `decision-coverage:` block per design spec and a
+  `table-closure:` line per technical design, and a clean one ends in
+  `CLEAN`. It grades
   nothing, ends in no verdict, and stamps nothing. Dispatched in the
-  background on the cheapest available family, because every duty is
-  procedural; the workflow gates every verdict-agent dispatch and every
+  background on the tier the project's
+  `dispatch.propagation-auditor-tier` resolves to — the cheapest
+  available family unless the project sets another — because every
+  duty is procedural; the workflow gates every verdict-agent dispatch
+  and every
   integrity audit on a passing run — no confirmed hit outstanding — and
   offers the same audit at authoring time after any multi-site edit.
 - **`integrity-auditor` agent** — the judgment audit of a churned
   document, read on a fresh context: the document against itself, then
-  the document as an implementer who must build from that text alone.
+  the document as an implementer who must build from that text and
+  whatever was audited with it.
   It reports defects, each proved by two located quotes, beside a ranked
   list of the questions an implementer would have to ask; it grades
   nothing and ends in no verdict. Dispatched in the background on the
@@ -80,6 +93,11 @@ verdict dispatch and the integrity audit itself.
   Unfinished-work list the lifecycle rule publishes and fires none of
   the offers those classes name. Triggers: "what is unfinished" /
   "process status".
+- **`process-setup` skill** — collects a project's standing process
+  answers in one sitting: shows the effective settings, asks about the
+  unset keys, migrates `CLAUDE.md` notes and directory signals as
+  candidates, and records every answer through the settings loader.
+  Triggers: "process setup" / "set up the process settings".
 - **`sync-rules` skill** — installs, updates, and uninstalls the rule
   files shipped by plugins of this marketplace (Rules payloads); see the
   "Process rules" section.
@@ -109,6 +127,9 @@ exist, so it speaks the project's language from its first message.
       /plugin marketplace add obra/superpowers-marketplace
       /plugin install elements-of-style@superpowers-marketplace
 
+- `python3` 3.9 or later, standard library only, for the propagation
+  auditor's coverage duty.
+
 ## Extending with a domain checklist
 
 Ship a skill named `<domain>-plan-review` in your domain plugin. Its
@@ -130,7 +151,7 @@ containing a `status` field:
 | `architect` | `LGTM` \| `concerns` \| `blocking` | latest architect verdict |
 | `adversary` | `LGTM` \| `concerns` \| `blocking` | latest plan-adversary verdict |
 | `architect-fallback` / `adversary-fallback` | `<model> (degraded <date>)` \| `<model> (chosen <date>)` \| `…, waived <date>` | verdict produced below the prescribed tier (`degraded` = unchosen, `chosen` = deliberate); re-review pending until re-reviewed or waived |
-| `integrity` | `<ISO date> (sha: <short-hash>)` | last integrity audit — the date for the reader, the body hash for the check; the dispatcher writes it once the audit's dispositions land, and a spec's consumption gate recomputes the hash to decide whether the stamp still holds |
+| `integrity` | `<ISO date> (sha: <short-hash>[; with: <file>@<short-hash>])` | last integrity audit — the date for the reader, the body hash for the check; the dispatcher writes it once the audit's dispositions land, and a judged document's consumption gate recomputes the hash of every document the stamp names to decide whether the stamp still holds; where a design spec names a technical design the two are audited as one target — an audit pair — and one stamp on the design spec records both |
 
 A round ending in `concerns` or `blocking` records its findings in the
 document body. Concerns later resolved without a fresh round keep the
@@ -142,6 +163,23 @@ Finding unfinished work is one command per class, published as the
 anchors live there, and the `process-status` skill runs them. The tail
 anchors are exact, so a resolved-concern annotation drops out of the
 match by design.
+
+## Decision register
+
+A design spec that sets `decisions: registered` carries a `## Decisions`
+section listing, under stable identifiers (`D3`, `D4.1`), every
+decision that needs realization. A plan descending from it marks each
+task with `**Realizes:**` — the identifiers it realizes, or `none` —
+and records deferrals and predecessor plans in a `## Deferrals and
+predecessors` section. The propagation auditor derives the decision
+coverage from the two lists, the plan-adversary judges whether the
+citing tasks realize their decisions, and the integrity auditor checks
+that the register lists every decision the spec makes. A spec without
+the field is reported as not checked. The grammar lives in the
+spec-plan-lifecycle rule. The auditor derives the decision coverage by
+running `scripts/decision-coverage.py` with `python3`, so a session
+that asks before running a command asks once for it; the permission
+entry for the plugin cache below covers it.
 
 ## Model selection
 
@@ -162,9 +200,12 @@ before stamping; the two audit agents report the family alone, which is
 the rung their comparison reads.
 
 An audit is not a review, and that floor governs reviews alone: the
-`propagation-auditor` dispatches on the cheapest available family,
-since every duty it walks is procedural, and the `integrity-auditor` on
-the most capable available tier — each named like any other dispatch.
+`propagation-auditor` dispatches on the tier the project's
+`dispatch.propagation-auditor-tier` resolves to — `cheapest`, `mid` or
+`most-capable`, the first unless the project sets another, since every
+duty it walks is procedural; the workflow rule carries the table — and
+the `integrity-auditor` on the most capable available tier, each named
+like any other dispatch.
 Both audits end in no verdict, so the fallback machinery leaves them
 out as well, and both reports open with a model self-report the
 dispatcher checks before relying on the run: a mismatched propagation
@@ -181,11 +222,15 @@ new gates merely stay silent.
 
 ## Process rules
 
-The plugin ships six rule files in `rules/` — the preferred workflow
-(always loaded once installed), spec/plan frontmatter and lifecycle,
-Process directory conventions, ticket frontmatter, the propagation
-duties keyed by the edit that triggers them (`propagation-duties.md`,
-loaded while a spec, plan or domain document is open), and the
+The plugin ships eight rule files in `rules/` — the preferred workflow
+(always loaded once installed), the process settings
+(`process-settings.md`, always loaded: the settings files, their
+grammar, the block and how a key is read), frontmatter and lifecycle
+for judged documents and plans, what a technical design must contain
+(`technical-design.md`, loaded while one is open), Process directory
+conventions, ticket frontmatter, the propagation duties keyed by the
+edit that triggers them (`propagation-duties.md`, loaded while a design
+spec, technical design, plan or domain document is open), and the
 review-report contract (`review-reports.md`: where a code-review run
 writes its Review report and what shape it takes; domain review skills
 locate the installed contract via its contract probe — the
@@ -238,14 +283,39 @@ dependency, whose process skills (plan execution, review packaging)
 shell out the same way. The drift hook itself runs as a plugin hook and
 needs no allow entry.
 
+## Process settings
+
+Standing answers — a directory's mode, the review loop's autonomy and
+per-round commits, persona consultation, the technical-design offer,
+the `.docs` branch merge, the propagation gate's tier — live in
+`.working-process/settings.md` (the team's, committed) and
+`.working-process/settings.local.md` (one person's, ignored by the
+directory's own `.gitignore`), as `key: value` lines. The key registry
+`SETTINGS_REGISTRY.md` at the plugin root defines every key. A second
+SessionStart hook runs `scripts/load-settings.sh`, which emits every
+key's effective value and source as one block the rules read; the same
+script offers `--print`, `--validate --scope team|personal <file>`,
+`--set <key> <value>` and `--set --dry-run <key> <value>`, and owns
+every write. Set the answers in one sitting with the `process-setup`
+skill, or record one as you answer its question — "yes, and record".
+The block is plain standard output, capped at 4 KB in the hook and
+uncapped under `--print`; the main checkout's personal file is written,
+and read unless the worktree holds its own, which is read instead and
+shadows it.
+
 ## Process directories
 
-This plugin creates two directories in a project repo: `docs/domain/`
-(glossary + ADRs) and `docs/code-review/` (Review reports — one per
+This plugin creates three directories in a project repo:
+`docs/domain/` (glossary + ADRs), `docs/technical-designs/` (technical
+designs, written when a project accepts the offer) and
+`docs/code-review/` (Review reports — one per
 code-review run, shape defined by the review-reports rule). On first
 creation the developer is asked whether the directory should be
-git-ignored (a `.gitignore` containing exactly `*`) or committed; an
-existing directory's state is respected without asking. A tracked-mode
+git-ignored (a `.gitignore` containing exactly `*`) or committed —
+unless `dir.default` or the directory's own exception key settles it,
+in which case nothing is asked; an existing directory's state is
+respected without asking, and one contradicting the key is reported.
+A tracked-mode
 `docs/code-review/` additionally carries a `.gitignore` with `local-*`
 — the local pocket for reports the developer keeps out of git.
 

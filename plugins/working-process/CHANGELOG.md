@@ -2,6 +2,78 @@
 
 Released versions of this plugin, newest first.
 
+## 0.18.0 — 2026-09-29
+
+- New `technical-design` rule: a third document class between the design
+  spec and the plan, saying what a thing is made of — section skeleton,
+  the definitions of part, contract and state, and the closed `change`
+  value set.
+- The consumption gate offers the document where the repository has
+  code, and runs in passes when the offer is accepted.
+- A design spec and its technical design are audited as one target, with
+  one `integrity:` stamp on the design spec naming both.
+- `origin` on a plan-adversary finding is a list of named documents;
+  `both` retires.
+- The class a design spec and a technical design share is named
+  `judged document` on the three agent cards that carried the old
+  phrase and in the README; that phrase is retired.
+- A design spec may carry a decision register: `decisions: registered`
+  and a `## Decisions` section listing, under stable identifiers, every
+  decision that needs realization, with `withdrawn` as its one state
+  token.
+- A plan descending from a registered spec marks every task with
+  `**Realizes:**`, and records deferrals and predecessor plans in a
+  `## Deferrals and predecessors` section.
+- The propagation auditor gains two duties: decision coverage, reported
+  in a `decision-coverage:` block per design spec, and table closure
+  over the relations the technical-design rule declares, reported in a
+  `table-closure:` line. A clean report carries those lines before
+  `CLEAN`.
+- A coverage hit whose fix needs a decision the spec does not make is
+  held for the developer as a `hit held` gate line with three terminal
+  shapes, and the Unfinished review-loop ledger command finds it.
+- The plan-adversary judges whether the tasks citing a decision realize
+  it in full, and the integrity auditor checks that the register lists
+  every decision its spec makes.
+- The propagation duties checklist gains rows for the two duties and
+  the duty-2 anchor an earlier task has already rewritten.
+- The decision coverage is derived by `scripts/decision-coverage.py`,
+  which the auditor runs with `python3` (3.9 or later, standard library
+  only), rather than by the auditor walking the steps itself.
+- Run a rules re-sync after this update: the plan-adversary's `origin`
+  values changed, and until the re-sync an installed workflow rule
+  triages the new values by the old names. The re-sync also installs
+  the decision register, the plan annotations and the held gate line,
+  which the updated agents expect.
+- Standing process answers get one home: `.working-process/settings.md`
+  (the team's, committed) and `.working-process/settings.local.md`
+  (personal, ignored by the directory's own `.gitignore`), one
+  `key: value` grammar, and a key registry (`SETTINGS_REGISTRY.md`)
+  defining every key's scope, values, default, readers and question.
+- A second SessionStart handler, `scripts/load-settings.sh`, emits every
+  key's effective value and source as one plain-text block, capped at
+  4 KB; the same loader offers `--print`, `--validate` and `--set`
+  (with `--dry-run`) and owns every write; the main checkout's personal
+  file is written, and read unless the worktree holds its own, which is
+  read instead and shadows it.
+- New always-on rule `process-settings.md`: the files, the grammar, the
+  block, how a key is read and when a write happens. Run a rules
+  re-sync after this update to install it.
+- New `process-setup` skill: shows the effective settings, asks about
+  the unset keys, offers `CLAUDE.md` notes and directory signals as
+  candidates, and records every answer through the loader.
+- The rules read named keys instead of "the developer's own
+  instructions": `consult.personas`, `review.autonomy`,
+  `review.per-round-commit`, `design.technical-design-offer`,
+  `docs-branch.merge`, `dispatch.propagation-auditor-tier`, and
+  `dir.default` with its per-directory exceptions; a standing question
+  asked in ordinary work offers "<answer>, and record".
+- The propagation gate's tier is a setting: the auditor's card accepts
+  the tier the dispatcher resolved, `cheapest` by default, and the
+  workflow rule carries the Claude Code tier table.
+- The local pocket of `docs/code-review/` fires on the resolved tracked
+  mode, however it was settled.
+
 ## 0.17.0 — 2026-09-15
 
 - A plan's review loop closes only on a full-document round: a

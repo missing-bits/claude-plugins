@@ -9,14 +9,18 @@ disables its suggestion — never the work itself.
    as a spec in `docs/specs/`. When the working-process consult agents
    (`architect-consult`, `system-designer-consult`) are available, ask
    once, early in the design conversation, whether the two personas
-   should be consulted as the design forms — yes / not now / not in this
-   session (honoured for the Claude Code session only; a durable
-   preference belongs in the developer's own instructions and is
-   respected when present). After a yes, dispatch a consultation when it
-   looks worth its cost, without asking again for that conversation, and
-   state the consent decision whenever it is made or changed — and when
-   a compacted conversation leaves the current consent state unclear,
-   ask again rather than guess. On a
+   should be consulted as the design forms — unless `consult.personas`,
+   read as the process-settings rule says, is set, which answers it
+   unasked. The answers are yes / not now / not in this session, and
+   "yes, and record" or "no, and record", which write the key through
+   the loader's `--set` where a settings block names the loader; "not
+   now" and "not in this session" are honoured for the Claude Code
+   session only and are never recorded. After a yes, dispatch a
+   consultation when it looks worth its cost, without asking again for
+   that conversation, and state the consent decision whenever it is
+   made or changed — and when a compacted conversation leaves the state
+   of a consent given in this session unclear, ask again rather than
+   guess; a recorded key is simply read again. On a
    genuinely ambiguous ask — in-thread dialogue or a fresh-context
    consultation? — ask one short question rather than silently picking a
    surface.
@@ -35,22 +39,97 @@ disables its suggestion — never the work itself.
    carry it.
 4. **Spec → plan.** At the spec's consumption gate, before the plan is
    written, offer an integrity audit when the `integrity-auditor` agent
-   is available: a fresh-context read of the whole spec, returning
-   defects and the questions an implementer would have to ask. The
-   offer fires unless a standing `integrity:` stamp still matches the
-   spec's recomputed body hash — a match means the standing stamp
+   is available: a fresh-context read of the whole design spec, and of
+   its technical design where it names one, returning defects and the
+   questions an implementer would have to ask. The offer fires unless a
+   standing `integrity:` stamp still matches the recomputed body hash of
+   every document the stamp names — a match means the standing stamp
    satisfies the gate, and the spec-plan-lifecycle rule owns that
-   comparison. For a spec whose LGTM came from a diff-scoped chain the
-   offer takes the pair form the verdict-agent dispatch subsection
-   defines, and narrows as that definition says when the auditor is
-   absent. The brief
+   comparison. For a judged document whose LGTM came from a diff-scoped
+   chain the offer takes the pair-offer form the verdict-agent dispatch
+   subsection defines — one pair offer for an audit pair, never one per
+   document — and narrows as that definition says when the auditor is
+   absent.
+
+   At the same gate, and before the integrity audit above, offer the
+   technical design when the repository is one that has code. A
+   declaration the project records binds and is never re-asked, in
+   either direction. Its home is the settings key
+   `design.technical-design-offer`, read as the process-settings rule
+   says: `on` makes the offer at every consumption gate whether or not
+   a manifest is present, `off` suppresses it. Until a project migrates
+   to the key, a note in the project instructions Claude Code loads at
+   session start — a `CLAUDE.md` at the repository root or in
+   `.claude/` — or in the file such a note points at, declares it too;
+   where the note and the key disagree, the key wins and the session
+   says so. Without a declaration, a repository carrying a
+   toolchain manifest — a file a language or platform toolchain reads
+   to build, test or deploy it — gets the offer at every consumption
+   gate and nothing is written; a repository carrying neither gets no
+   offer. The core names no closed list of markers, and a domain's own
+   skill may name the markers of its technology. A marker proves the
+   repository holds code, never that this change needs decomposing, so
+   the declaration is the signal and the marker only raises the
+   question. The offer reads *open the `system-designer-session` skill,
+   when available, and write the technical design?* — never *dispatch*,
+   which names a background agent here. Where no skill covers the
+   technology the document is still written, from generic knowledge and
+   best effort: a tool that is not installed disables its suggestion,
+   never the work. A design spec that already carries
+   `technical-design:` has had its first pass: the pointer answers the
+   offer, and the offer to write a design is not made again. The pointer
+   confirms the link and nothing more — the design it names still takes
+   every check it owes — and a pointer that resolves to no file is a
+   broken link, reported as a finding, never a reason to offer a second
+   design. A session may propose writing the declaration and never
+   writes it unasked: the offer's answers include "yes, and record",
+   which writes `on`, and "no, and record", which writes `off`, through
+   the loader's `--set` where a settings block names the loader. A
+   change may skip the document when it
+   sits inside boundaries and contracts already settled and leaves the
+   implementer no new responsibility split, placement, or ownership of
+   state.
+
+   Accepted, the session opens the `system-designer-session` skill when
+   it is available and reads the technical-design rule, installed beside
+   this one, before drafting — a path-scoped rule loads only when a
+   matching file is read, and none exists yet — then writes the document
+   to `docs/technical-designs/` following that rule. It writes both
+   ends of the pair in the same turn — the design's `spec:` and the
+   design spec's `technical-design:` — so no audit ever meets a
+   half-written pair. The reviewer is the `architect` agent when that
+   agent is available, whose card admits any judged document dispatched
+   standalone, with the propagation audit gating that dispatch as it
+   gates every verdict dispatch. The plan-adversary stays on plans.
+   The plan written afterwards carries, beside its `spec:`, a
+   `technical-design:` entry for every design spec it descends from that
+   names a technical design — the same document, its path rewritten
+   relative to the plan's own directory — so the plan-adversary always
+   has each design to read.
+
+   Where the technical-design offer is accepted, the audit waits: the
+   design is the last producer of changes to its design spec, and the
+   two are then audited as one target — an audit pair. The gate makes
+   one offer for that audit pair rather than one per document, and the
+   offer
+   names both documents, so declining it releases the chain debt of the
+   two it named and nothing besides. Where the audit runs instead, it
+   discharges that debt for both documents it read. The other arm stays
+   per-document: choosing it dispatches one full-document architect
+   round on each document that carries chain debt, each discharging the
+   debt of the one it read, and plan-writing waits for every verdict so
+   dispatched. The brief
    confirms the auditor's two preconditions: every edit from the
    conversation is written to disk, since one unsaved decision
    manufactures a run of false defects; and the propagation gate below
    has passed, leaving no confirmed hit, when that agent is available.
    Then write the
    implementation plan with superpowers:writing-plans when available;
-   plans live in `docs/plans/`.
+   plans live in `docs/plans/`. A brief that delegates plan-writing to a
+   separate context names the spec-plan-lifecycle rule and requires
+   reading it before the plan is written: that rule carries the
+   annotations a plan owes a registered design spec, and a separate
+   context cannot count on it loading.
 5. **Plan → adversary review.** Before implementing a non-trivial plan,
    offer a working-process plan-adversary agent dispatch (when
    available); dispatch and stamping follow the verdict-agent dispatch
@@ -85,8 +164,12 @@ the most capable available model, named like any dispatch; a consultation
 is not a review, returns no verdict, and never gets a fallback record or
 a re-review offer. An audit is not a review either, and the
 never-cheapest floor governs reviews alone: the `propagation-auditor`
-dispatches on the cheapest available family and the `integrity-auditor`
-on the most capable available, each named explicitly. Both reports open
+dispatches on the tier `dispatch.propagation-auditor-tier` resolves
+to — read as the process-settings rule says, `cheapest` unless the
+project sets `mid` or `most-capable` — and the `integrity-auditor`
+on the most capable available, each named explicitly; the key's value
+is a tier, never a model name, and Claude Code resolves it through the
+table below this paragraph. Both reports open
 with a model self-report the dispatcher compares against the dispatched
 and the prescribed rung before relying on the result — a mismatched
 propagation run earns no reliance, and a below-tier integrity run gets
@@ -96,6 +179,12 @@ error — ask the developer: drop one family (at most once, never onto
 the cheapest family) or wait for the reset. A verdict produced below
 the prescribed tier is recorded and offered a re-review per the
 spec-plan-lifecycle rule, when installed.
+
+| `dispatch.propagation-auditor-tier` | Claude Code rung |
+|---|---|
+| `cheapest` | the cheapest available family |
+| `mid` | the family one below the most capable |
+| `most-capable` | the most capable available |
 
 Dispatching a consultation, when the consult agents are available: one
 dispatch, briefed once. The briefing names the subject and where it
@@ -124,12 +213,13 @@ thing in a contribution the developer must decide and the digest
 exists to raise decisions rather than bury them.
 
 When `docs/domain/glossary.md` exists in the project, its canonical
-terms and `_Avoid_` bans bind specs, plans, code identifiers, and
-reviews.
+terms and `_Avoid_` bans bind design specs, technical designs, plans,
+code identifiers, and reviews.
 
 When the `elements-of-style:writing-clearly-and-concisely` skill is
-available, prose artifacts under `docs/` — specs, plans, ADRs, the
-glossary — get its pass: invoke it before drafting a new document, and
+available, prose artifacts under `docs/` — design specs, technical
+designs, plans, ADRs, the glossary — get its pass: invoke it before
+drafting a new document, and
 run an explicit editing pass over the changed prose of an existing one.
 The pass binds wording, never decisions. Without the skill there is no
 substitute pass and no install nagging — the work proceeds normally.
@@ -146,8 +236,9 @@ convention fixes the shape and not the spelling.
 The branch of a worktree created with a generated name is renamed to
 this shape before its first commit, so the branch a reader sees is the
 branch the convention names; the worktree's own directory is a separate
-name and this convention does not govern it. The work's spec and plan
-record the result in their `branch:` field — the topic branch, not the
+name and this convention does not govern it. The work's design spec,
+technical design and plan record the result in their `branch:` field —
+the topic branch, not the
 `<topic>.docs` branch a review loop's per-round commits use, which the
 spec-plan-lifecycle rule names and which is a sibling of it rather than
 a second topic branch. The ticket rule's sourcing order reads the
@@ -167,8 +258,8 @@ available:
   already-stamped document leaves no signal and is accepted as lost —
   never corruption, only a missing re-run.
 - Before dispatch, resolve any undecided Process directory
-  (`docs/specs/`, `docs/plans/`) so the first-create question cannot
-  interrupt the stamp turn.
+  (`docs/specs/`, `docs/technical-designs/`, `docs/plans/`) so the
+  first-create question cannot interrupt the stamp turn.
 - At dispatch, tell the developer the round is running in the
   background and its result will arrive as a task notification, with
   progress visible in the session's task list.
@@ -304,8 +395,14 @@ question, and honour the answer for the rest of the Claude Code session
 without asking again. The same question carries a second clause wherever
 the lifecycle rule's per-round commits are available: whether the loop
 may commit the reviewed document once per round. One question, two
-answers, asked once. A durable preference in the developer's own
-instructions is respected when present. Without consent every round
+answers, asked once. Each clause has a settings key, `review.autonomy`
+and `review.per-round-commit`, read as the process-settings rule says:
+a set key answers its clause unasked, and only an unset clause is
+asked. A yes or no may be given "and record" per clause — "yes, and
+record; commits: not now" records the first clause alone — which
+writes that clause's key through the loader's `--set` where a settings
+block names the loader; "not now" and "not in this session" are never
+recorded. Without consent every round
 behaves as it did before: relay, stamp, and every proposal waits for
 the developer.
 
@@ -330,14 +427,16 @@ decision. Consequences the loop states outright:
 - Only written decisions license fixes. A decision settled in
   conversation becomes citable by being written into the document,
   which the fix itself accomplishes.
-- A finding whose `origin` names the spec is held unless a written
-  decision licenses the edit, since editing a spec from inside a plan
-  review is design work; `both` holds the same way, and its `held`
-  line names in `options:` which half is fixable at once. A licensed
-  spec-origin fix lands in the spec's own ledger and the plan's line
-  points at it, by the cross-document clause the spec-plan-lifecycle
-  rule defines — which also leaves the spec's `integrity:` stamp
-  stale, as any body edit does.
+- A finding whose `origin` names a judged document — a design spec or a
+  technical design — is held unless a written decision licenses the
+  edit, since changing either from inside a plan review is design work.
+  `origin` is a list, so a finding naming more than one holds the same
+  way, and its `held` line names in `options:` which named document is
+  fixable at once. A licensed fix lands in the ledger of the document
+  that changed, and the plan's line points at it, by the cross-document
+  clause the spec-plan-lifecycle rule defines — which also leaves the
+  design spec's `integrity:` stamp stale, as any body edit to either
+  document of an audit pair does.
 
 A fix wave that deviates from a reviewer's suggestion records the
 deviation and its rationale beside the text they concern — not only in
@@ -371,7 +470,30 @@ verdict-agent dispatch, first rounds included — authoring errors exist
 before any repair; after a fix wave, before the next round; and before
 an integrity audit. A hit's fix is licensed by its own derivation — a
 recounted counter and an enumerated missed call site decide
-themselves — so hits never wait for the developer.
+themselves — so hits never wait for the developer, with one named
+exception, for the coverage duty's hits alone.
+
+The two coverage hits — a registered decision no task cites, and a task
+lacking its `**Realizes:**` line — are triaged by license. Where a task
+already does the work and lacks only its annotation, the task's text
+licenses adding the identifier. Where no task realizes the decision and
+the decision's text settles every choice the missing task requires, the
+decision licenses writing it, and the next round's brief names it among
+the previous wave's fixes. Where writing the task needs a choice the
+decision does not make, the hit is held: its question is that missing
+decision, not the gap, which is already established. Any other hit of
+the coverage duty is fixed where its derivation settles the fix and held
+where it does not, as when breaking a `replaced by` cycle means choosing
+which entry stands. No other duty's hit is ever held.
+
+A held hit ends its gate episode and blocks the dispatch the gate
+guards, as a held finding blocks a fresh round, and the session puts its
+question to the developer. The answer lands where the decision belongs —
+in the spec's register, or as the plan's `**Defers:**` line — and the
+gate re-runs over the changed document and whatever depends on it, as a
+fresh episode; the dispatch goes out once that episode passes. The
+spec-plan-lifecycle rule defines the `hit held` line and its terminal
+shapes.
 
 A report's body governs, never its closing token. Where a report lists
 located hits and also carries `CLEAN`, the hits are the report and the
@@ -380,14 +502,17 @@ family, and once under a brief that ruled the combination out in as
 many words — so emphasis on the writing side is spent, and the guard
 belongs to the dispatcher who reads. The rule is stated here rather
 than generalised, because `CLEAN` is this agent's token and no other
-report carries one.
+report carries one. A `decision-coverage:` or `table-closure:` line is
+neither a hit nor a breach of the token's position: the card writes
+those lines on every run, clean ones included, between the hits and the
+token.
 
 A hit the session believes is wrong is dismissed, never silently: the
 session writes the `dismissed` line the spec-plan-lifecycle rule
 defines and reports the dismissal in the next report it relays to the
-developer. A hit is a report, not a question, so it never enters the
-held batch and never spends the round's one interruption — the
-developer reads the dismissal and keeps their standing veto over it.
+developer. A dismissed hit is a report, not a question, so it never
+enters the held batch and never spends the round's one interruption —
+the developer reads the dismissal and keeps their standing veto over it.
 The written line is what makes the gate terminate: a dismissed hit
 recurs on every re-dispatch, so a gate waiting on a hitless audit would
 wait forever, and a dismissal nobody wrote down would be re-derived
@@ -523,18 +648,24 @@ read: round 1 read the whole document, and every later wave was
 reviewed by the round that followed it. What that chain still owes
 differs by document.
 
-For a spec, the consumption gate before plan-writing offers the pair as
-one question — an integrity audit or a full-document round — and never
-an offer followed by a re-offer of the option just declined. When the
-`integrity-auditor` agent is absent the offer carries the full-document
-round alone. The two arms cost differently and the offer says so: an
-audit returns material for the dispatcher to dispose of and leaves the
-verdict alone, while a full-document round on a spec is a new loop's
-first round, since the spec's LGTM already closed its loop — it mints
-its own verdict and stamps it, so a `concerns` there flips the field
-back while plan-writing waits. The full-document-round arm therefore
-blocks plan-writing; the audit arm does not, and plan-writing follows
-its dispositions.
+For a judged document, the consumption gate before plan-writing makes
+the pair offer as one question — an integrity audit or a full-document
+round — and never an offer followed by a re-offer of the option just
+declined. When the `integrity-auditor` agent is absent the offer
+carries the full-document round alone. For an audit pair the gate makes
+one pair offer for both documents: its audit arm reads the two
+together, while choosing its round arm dispatches one full-document
+architect round on each document that carries the debt, and
+plan-writing waits until every verdict so dispatched is settled under
+the rules any verdict follows; the joint integrity audit stays a check
+of its own. The two arms cost differently and the
+offer says so: an audit returns material for the dispatcher to dispose
+of and leaves the verdict alone, while a full-document round on a
+judged document is a new loop's first round, since that document's
+LGTM already closed its loop — it mints its own verdict and stamps it,
+so a `concerns` there flips the field back while plan-writing waits.
+The full-document-round arm therefore blocks plan-writing; the audit
+arm does not, and plan-writing follows its dispositions.
 
 Declining is the developer discharging the chain debt by release rather
 than by performance, and the discharge is recorded rather than

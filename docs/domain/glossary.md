@@ -18,12 +18,14 @@ _Avoid_: artifact folder
 The question — ignored mode or tracked mode — asked when a process
 directory is created for the first time, or exists with no prior
 decision: neither an observable signal (a `.gitignore` containing
-exactly `*`, a git-tracked file) nor an explicit project instruction
-declaring the mode (e.g. a CLAUDE.md note). Never asked when any of
-these signals is present. A declared ignored mode is materialized by
-whoever first acts on it — writing the `*` `.gitignore` — making the
-decision observable; a declared tracked mode becomes observable with
-the first committed file.
+exactly `*`, a git-tracked file), nor a `dir.*` **Settings key**, nor
+an explicit project instruction declaring the mode (e.g. a CLAUDE.md
+note). Never asked when any of these signals is present; an observable
+signal that contradicts a settings key is reported and the developer
+asked which stands. A declared ignored mode is materialized by whoever
+first acts on it — writing the `*` `.gitignore` — making the decision
+observable; a declared tracked mode becomes observable with the first
+committed file.
 _Avoid_: self-ignore
 
 **Ignored mode**:
@@ -35,6 +37,50 @@ mode.
 **Tracked mode**:
 A process directory whose files are committed; detected by any git-tracked
 file under it.
+
+**Standing answer**:
+An answer to a process question that is a stable property of a project
+or a person — a directory's mode, loop autonomy consent, the
+technical-design offer — rather than of one document or one session.
+Recorded as a **Settings line**; a session-scoped answer ("not in this
+session") is never one.
+_Avoid_: preference, config
+
+**Settings key**:
+A dotted name defined in the **Key registry** (`review.autonomy`,
+`dir.docs/specs`), carrying one scope: a **Team key** or a **Personal
+key**.
+_Avoid_: option, flag
+
+**Team key**:
+A settings key decided by the team file, `.working-process/settings.md`.
+A line for it in the personal file is ignored.
+_Avoid_: shared setting
+
+**Personal key**:
+A settings key decided by one person's file,
+`.working-process/settings.local.md`. A line for it in the team file is
+a suggestion — it proposes a default answer and never grants consent.
+_Avoid_: private setting
+
+**Settings line**:
+A `key: value` line at the start of a line, outside a fence, in a
+settings file; every line shaped like one is validated. Distinct from a
+declaration, which is a prose note in `CLAUDE.md` that a standing answer
+may still be migrated from.
+_Avoid_: declaration (for a settings line)
+
+**Key registry**:
+The one definition of every settings key in the working-process plugin
+— scope, values, default, reading files, question. The loader, the
+`process-setup` skill and the rules keep no second definition of a key.
+_Avoid_: schema, key list
+
+**Settings block**:
+What the settings loader emits at session start: every registered key
+with its effective value and source, plus warnings. A block marked
+incomplete is not trusted.
+_Avoid_: settings dump, config context
 
 **Contract probe**:
 The ordered path check a domain review skill — or a dispatching
@@ -135,12 +181,13 @@ model-capability ladder.
 _Avoid_: severity tier
 
 **Origin**:
-The document a review finding traces to — `plan`, `spec`, or `both` —
-named by the reviewer that found it rather than derived at triage. A
-finding originating in the spec is held unless a written decision
-licenses the edit, since editing a spec from inside a plan review is
-design work.
-_Avoid_: owner (for a document), source
+The documents a review finding traces to, as a list naming one or more
+of the process's document classes — named by the reviewer that found it
+rather than derived at triage. A finding originating in a judged
+document — a design spec or a technical design — is held unless a
+written decision licenses the edit, since editing one from inside a
+plan review is design work.
+_Avoid_: owner (for a document), source, `both`
 
 **Rule tag**:
 The inline parenthesized annotation at a rule's (or sub-rule's)
@@ -182,6 +229,68 @@ exists) or report it upstream, generalized. Never cited with an
 invented rule id; the `rule: none` citation is the report's only
 candidate-gap marker.
 _Avoid_: uncited observation, unmatched finding
+
+**Design spec**:
+The judged document saying what a change must do and why — its
+behaviour, its decisions and its boundaries — written before any
+technical design and read next by whoever turns it into structure. Short
+form: spec, which every existing sentence and the `spec:` frontmatter
+field still use. A project's own document plays this part only if it
+carries the decisions and boundaries the later steps read; one that
+states behaviour alone is an input to a design spec rather than one.
+_Avoid_: requirements document, functional spec
+
+**Judged document**:
+A document a reader who still judges it will read next — a design spec
+or a technical design, each read next by the plan-writer and the
+plan-adversary — as against an implementation plan, whose next reader
+only executes it. The class decides which ceremonies a document owes
+(ADR 0004), so the lifecycle rule branches on it rather than on a
+filename.
+_Avoid_: design document
+
+**Part**:
+A unit of a design with a resolvable identity, an explicit
+responsibility and its exclusions, and a contract that lets its
+implementation change without changing its consumers. It earns a row of
+its own when leaving it out would make an implementer decide a
+responsibility boundary, a contract between parts, or the ownership of
+state; details that only carry out decisions already made stay inside
+the part that owns them. A public method is usually a row in its part's
+contracts rather than a part of its own — the construct decides nothing,
+the boundary does.
+
+**Contract**:
+What a consumer of a part may rely on without reading the producer's
+body — a name it resolves, a grammar it parses, a field it reads, a
+pattern it discovers. Where the consumer must read that body there is no
+contract but a coupling, and the technical design says so or cuts it.
+Part and contract are two questions about one thing rather than
+competing labels: a file may be a part, its signature a contract, and
+the record it writes state.
+
+**Technical design**:
+The judged document saying what a system is made of — its parts, the
+contracts between them, and the state they keep — written between the
+design spec and the plan, and read next by the plan-writer.
+_Avoid_: detailed design
+
+**Audit pair**:
+A design spec and the technical design it names, audited together as one
+target, with one integrity record on the design spec identifying both
+documents and their body hashes. Where both senses of "pair" stand close
+together, write the full name — an audit pair is two documents, a pair
+offer is the two-armed question a diff-scoped chain earns.
+_Avoid_: pair (bare, where a pair offer is also in view), document pair
+
+**Vocabulary gap**:
+A kind of part, contract, or home of state that no domain skill
+available to the author names, recorded in the technical design where it
+had to be invented. Its producer is the author rather than a reviewer,
+so it carries no severity and enters no report; accumulated gaps are
+what decide whether a technology earns a vocabulary skill of its own.
+_Avoid_: candidate gap (a review finding, graded and counted), missing
+term
 
 **Sub-rule**:
 A dot-suffixed, tagged refinement of a rule whose violations grade
@@ -228,12 +337,17 @@ Closes a round; the finding-level counterpart is a Ruling.
 _Avoid_: developer override, manual close
 
 **Ruling**:
-The developer's authorization of one finding's disposition, written as
-the `ruling: <date>` clause on that finding's ledger line — dated fresh,
-or carrying an earlier ruling's date where the line folds a re-raise
-against it. On a fold against a line written before the clause existed,
-the date on that line's own terminal token is the earlier ruling. Closes
-a finding; the round-level counterpart is an Adjudication.
+The developer's authorization of a finding's disposition, a held hit's
+disposition, a plan's deferral of a registered decision, or a decision
+register entry's state change, recorded by a
+`ruling: <date>` clause where that record lives — dated with the
+decision, never with the edit that wrote it, and on a finding's line
+dated fresh or carrying an earlier ruling's date where the line folds a
+re-raise against it. On a fold against a line written before the
+clause existed, the date on that line's own terminal token is the
+earlier ruling. It closes a finding; a held hit it authorizes closes
+only once the gate has rechecked the fix. The round-level counterpart
+is an Adjudication.
 _Avoid_: developer decision (as the name), developer fix
 
 **Fallback**:
@@ -255,12 +369,19 @@ _Avoid_: sub-tier record
 
 **Consumption gate**:
 The workflow step at which a document's review verdict is about to be
-relied on as the basis of further work — plan-writing for a spec,
-implementation for a plan. Four things fire or come due there: the
-re-review offer on a fallback-recorded verdict, the integrity audit
-offered when a spec's body hash no longer matches its stamp, the pair
-question a diff-scoped chain earns, and the chain debt itself. Nothing
-orders them against each other yet.
+relied on as the basis of further work: for a judged document — a
+design spec or a technical design — the gate precedes plan-writing; for
+a plan, it precedes implementation. Five things fire or come due
+there: the re-review offer on a fallback-recorded verdict, the
+integrity audit offered when a document's body, or that of the
+document audited with it,
+no longer matches its stamp, the pair question a diff-scoped chain earns, the chain debt
+itself, and the offer of a technical design. Only one ordering is fixed:
+writing the technical design and applying its review dispositions
+precede the joint integrity audit. The gate runs in passes where that
+offer is accepted, and each pass reaches the developer in one batch —
+every question answerable at that pass, never every question the gate
+will ever ask.
 _Avoid_: usage point
 
 **Unfinished-work list**:
@@ -309,7 +430,8 @@ document and returns material for the dispatcher's disposition — hits
 (`propagation-auditor`, the mechanical pass) or defects-with-quotes and
 ranked questions (`integrity-auditor`, the judgment pass). Dispatched as
 a gate before expensive work: the precondition is a disposed audit —
-every hit fixed or dismissed, every defect applied or declined — never
+every hit fixed, dismissed, or closed by the developer's ruling, every
+defect applied or declined — never
 an empty one, and never a judgment on the design. The third dispatch category beside Verdict agent
 and Consultation: an audit agent adopts no persona and its output is
 never a Contribution.
@@ -323,7 +445,10 @@ part company over disposition: a propagation-auditor hit is confirmed or
 dismissed by the dispatcher and the outcome is written as a gate line,
 while an Unfinished-work hit has no dismissal at all — its only
 disposition is ceasing to match, when the state the command anchors is
-rewritten or annotated closed.
+rewritten or annotated closed. A confirmed hit of the coverage duty
+whose fix needs a decision no derivation settles may be held for the
+developer; its disposition stays open until that decision is recorded
+and the gate rechecks the changed spec and plan.
 _Avoid_: mechanical finding
 
 **Disposition ledger**:
@@ -367,6 +492,26 @@ written by the propagation gate. It shares the container with
 disposition lines and nothing else — its own leading token, no severity,
 no license.
 _Avoid_: hit line, audit line
+
+**Decision register**:
+The `## Decisions` section of a design spec that sets
+`decisions: registered`: one entry per decision the spec makes that
+needs realization, each under a stable identifier that is never reused —
+a withdrawn entry stays as a tombstone reserving it. Entries with
+children are groups; their leaf entries identify the independently
+realizable decisions.
+_Avoid_: decision log, decision table (as the name)
+
+**Decision coverage**:
+The map from each counted identifier of a decision register — each leaf
+identifier that is neither withdrawn nor deferred by the audited plan —
+to the plan tasks and Global Constraints entries citing it, in the
+audited plan or in an implemented predecessor its `**Follows:**` lines
+name, derived by the propagation auditor. A counted identifier nothing
+cites, and a task lacking its `**Realizes:**` line where the convention
+binds, are the two coverage hits.
+_Avoid_: coverage (bare, for this map — the integrity audit's coverage
+tell is another fact)
 
 **Chain debt**:
 The obligation a diff-scoped LGTM leaves: the document was approved with
