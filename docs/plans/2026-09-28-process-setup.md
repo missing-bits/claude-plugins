@@ -777,7 +777,8 @@ class LoaderTest(unittest.TestCase):
         self._tmp.cleanup()
 
     def git(self, cwd: Path, *args: str) -> str:
-        proc = subprocess.run(GIT + list(args), cwd=cwd, capture_output=True, text=True)
+        env = dict(os.environ, GIT_CEILING_DIRECTORIES=str(self.base))
+        proc = subprocess.run(GIT + list(args), cwd=cwd, capture_output=True, text=True, env=env)
         self.assertEqual(proc.returncode, 0, proc.stderr)
         return proc.stdout
 
@@ -3411,7 +3412,7 @@ results of Tasks 17 and 18 to the developer.
 - fixed 2026-09-29 — [Minor] F18: hook mode's empty stderr was untested where `git rev-parse` fails; license: spec D10; cases 9 and 10 assert `err == ""`
 - fixed 2026-09-29 — [Minor] F19: `local` would fail Task 16's `shellcheck -s sh`; license: the POSIX Global Constraint; the constraint bans `local`
 - fixed 2026-09-29 — [Minor] F20: `command -v shellcheck` is true for a mise shim with no version; license: Task 16's own expectation; presence tested with `shellcheck --version`, with the mise install as the remedy
-- fixed 2026-09-29 — [Minor] F21: no-git fixtures depended on `TMPDIR` lying outside every repository; license: spec D28 (fixtures); `run_loader` sets `GIT_CEILING_DIRECTORIES` to the fixture base
+- fixed 2026-09-29 — [Minor] F21: no-git fixtures depended on `TMPDIR` lying outside every repository; license: spec D28 (fixtures); `run_loader` and `git()` set `GIT_CEILING_DIRECTORIES` to the fixture base
 - signal 2026-09-29 — a further round does not earn its cost; the fixes are one-liners licensed by the plan or the spec, and the Minors are better left to implementation and code review; the plan is ready to build once they land
 
 ### 2026-09-29 — plan-adversary, fable 5.1, blocking (round 2, diff-scoped)
