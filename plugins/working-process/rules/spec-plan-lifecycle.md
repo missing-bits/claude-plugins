@@ -857,7 +857,10 @@ above says a moment to commit has arrived; the consent question asks
 once, before any round runs, for standing authorization to use a
 mechanism — and a "no" leaves the authoring phase exactly as this
 paragraph describes it. That is why it may be asked during authoring
-while the suggestion may not.
+while the suggestion may not. A set `review.per-round-commit`, read as
+the process-settings rule says, is that standing authorization already
+given or withheld, and the clause is not asked; unset, it is asked as
+the workflow rule's review loop says, "and record" among its answers.
 
 One shape of that sooner call has a convention, because practice kept
 reaching for it: **per-round commits on a document branch.** When the
@@ -880,9 +883,15 @@ spec's rounds, the technical design's and the plan's alike — and the
 topic branch takes it at the
 implementation-ready gate: by fast-forward where the history is wanted
 whole, by squash where it is not. That choice belongs to the project
-rather than the session, so a `CLAUDE.md` note — at the repo root or
-beside the documents — records it where it binds, and a session with no
-such note asks at the gate. Either way the document branch survives the
+rather than the session, so the settings key `docs-branch.merge` —
+`squash` or `fast-forward`, read as the process-settings rule says —
+records it where it binds. Until a project migrates to the key, a
+`CLAUDE.md` note — at the repo root or beside the documents — declares
+it too, the key winning where the two disagree. A session with neither
+asks at the gate, and the answers include "squash, and record" and
+"fast-forward, and record", which write the key through the loader's
+`--set` where a settings block names the loader. Either way the
+document branch survives the
 merge, which keeps loop churn off any published branch until somebody
 pushes it and leaves the surviving ref marking where authoring ended.
 
