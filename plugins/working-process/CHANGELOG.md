@@ -45,6 +45,34 @@ Released versions of this plugin, newest first.
   triages the new values by the old names. The re-sync also installs
   the decision register, the plan annotations and the held gate line,
   which the updated agents expect.
+- Standing process answers get one home: `.working-process/settings.md`
+  (the team's, committed) and `.working-process/settings.local.md`
+  (personal, ignored by the directory's own `.gitignore`), one
+  `key: value` grammar, and a key registry (`SETTINGS_REGISTRY.md`)
+  defining every key's scope, values, default, readers and question.
+- A second SessionStart handler, `scripts/load-settings.sh`, emits every
+  key's effective value and source as one plain-text block, capped at
+  4 KB; the same loader offers `--print`, `--validate` and `--set`
+  (with `--dry-run`) and owns every write; the main checkout's personal
+  file is written, and read unless the worktree holds its own, which is
+  read instead and shadows it.
+- New always-on rule `process-settings.md`: the files, the grammar, the
+  block, how a key is read and when a write happens. Run a rules
+  re-sync after this update to install it.
+- New `process-setup` skill: shows the effective settings, asks about
+  the unset keys, offers `CLAUDE.md` notes and directory signals as
+  candidates, and records every answer through the loader.
+- The rules read named keys instead of "the developer's own
+  instructions": `consult.personas`, `review.autonomy`,
+  `review.per-round-commit`, `design.technical-design-offer`,
+  `docs-branch.merge`, `dispatch.propagation-auditor-tier`, and
+  `dir.default` with its per-directory exceptions; a standing question
+  asked in ordinary work offers "<answer>, and record".
+- The propagation gate's tier is a setting: the auditor's card accepts
+  the tier the dispatcher resolved, `cheapest` by default, and the
+  workflow rule carries the Claude Code tier table.
+- The local pocket of `docs/code-review/` fires on the resolved tracked
+  mode, however it was settled.
 
 ## 0.17.0 — 2026-09-15
 

@@ -18,12 +18,14 @@ _Avoid_: artifact folder
 The question — ignored mode or tracked mode — asked when a process
 directory is created for the first time, or exists with no prior
 decision: neither an observable signal (a `.gitignore` containing
-exactly `*`, a git-tracked file) nor an explicit project instruction
-declaring the mode (e.g. a CLAUDE.md note). Never asked when any of
-these signals is present. A declared ignored mode is materialized by
-whoever first acts on it — writing the `*` `.gitignore` — making the
-decision observable; a declared tracked mode becomes observable with
-the first committed file.
+exactly `*`, a git-tracked file), nor a `dir.*` **Settings key**, nor
+an explicit project instruction declaring the mode (e.g. a CLAUDE.md
+note). Never asked when any of these signals is present; an observable
+signal that contradicts a settings key is reported and the developer
+asked which stands. A declared ignored mode is materialized by whoever
+first acts on it — writing the `*` `.gitignore` — making the decision
+observable; a declared tracked mode becomes observable with the first
+committed file.
 _Avoid_: self-ignore
 
 **Ignored mode**:
@@ -35,6 +37,50 @@ mode.
 **Tracked mode**:
 A process directory whose files are committed; detected by any git-tracked
 file under it.
+
+**Standing answer**:
+An answer to a process question that is a stable property of a project
+or a person — a directory's mode, loop autonomy consent, the
+technical-design offer — rather than of one document or one session.
+Recorded as a **Settings line**; a session-scoped answer ("not in this
+session") is never one.
+_Avoid_: preference, config
+
+**Settings key**:
+A dotted name defined in the **Key registry** (`review.autonomy`,
+`dir.docs/specs`), carrying one scope: a **Team key** or a **Personal
+key**.
+_Avoid_: option, flag
+
+**Team key**:
+A settings key decided by the team file, `.working-process/settings.md`.
+A line for it in the personal file is ignored.
+_Avoid_: shared setting
+
+**Personal key**:
+A settings key decided by one person's file,
+`.working-process/settings.local.md`. A line for it in the team file is
+a suggestion — it proposes a default answer and never grants consent.
+_Avoid_: private setting
+
+**Settings line**:
+A `key: value` line at the start of a line, outside a fence, in a
+settings file; every line shaped like one is validated. Distinct from a
+declaration, which is a prose note in `CLAUDE.md` that a standing answer
+may still be migrated from.
+_Avoid_: declaration (for a settings line)
+
+**Key registry**:
+The one definition of every settings key in the working-process plugin
+— scope, values, default, reading files, question. The loader, the
+`process-setup` skill and the rules keep no second definition of a key.
+_Avoid_: schema, key list
+
+**Settings block**:
+What the settings loader emits at session start: every registered key
+with its effective value and source, plus warnings. A block marked
+incomplete is not trusted.
+_Avoid_: settings dump, config context
 
 **Contract probe**:
 The ordered path check a domain review skill — or a dispatching

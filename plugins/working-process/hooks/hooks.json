@@ -8,6 +8,14 @@
             "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/check-rules-drift.sh\""
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/load-settings.sh\""
+          }
+        ]
       }
     ]
   }

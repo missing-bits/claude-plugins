@@ -24,10 +24,18 @@ review must never block this session.
    restated here so the command is self-contained). No contract found
    (Standalone install) → skip this step entirely. Contract found and
    `docs/code-review/` carries no decision — no `.gitignore` of
-   exactly `*`, no git-tracked file under it, and no
-   explicit project instruction declaring the mode (signal list owned
-   by the process-artifacts rule) — ask the developer now: ignored or
-   tracked mode.
+   exactly `*`, no git-tracked file under it, no settings key
+   `dir.docs/code-review` in a settings block in context (its
+   effective value, `dir.default` already applied; with no block the
+   key is unset), and no explicit project instruction declaring the
+   mode (signal list owned by the process-artifacts rule) — ask the
+   developer now: ignored or tracked mode, "and record" among the
+   answers where the block names the loader, which writes
+   `dir.docs/code-review` through the loader's `--set`. A visible
+   signal that contradicts the key is reported and the developer asked
+   which stands, nothing changed until they answer; the key with no
+   visible signal is applied unasked, the ignored mode by writing the
+   `*` `.gitignore`.
 4. Dispatch the `salesforce-code-reviewer` agent in the BACKGROUND
    with the resolved scope. Salesforce files only, per the skill's
    run scope; the agent notes out-of-domain files in the report

@@ -1,6 +1,6 @@
 ---
 name: propagation-auditor
-description: "Mechanical propagation audit of a design spec, a technical design or a plan before an expensive dispatch: parses changed interfaces to enumerate their consumers, diffs every prescribed block against the file it targets — a landed change against what shipped, a promised one against the anchor its edit needs — re-derives every counter, derives a plan's decision coverage from its design specs' decision registers, resolves the table relations the technical-design rule declares, and returns located hits with their derivation — or, where none fires, the token CLEAN after the report's decision-coverage and table-closure lines. Verdict-free and persona-free: it stamps nothing and grades nothing, so a passing gate is a precondition for the dispatch that follows, never a judgment on the design. Dispatch before every verdict-agent dispatch, after a fix wave, before an integrity audit, and after any multi-site edit during authoring. Run it on the cheapest available family, named explicitly — every duty is procedural, and the never-cheapest rule governs reviews, which an audit is not. Runs in the background; the report arrives as a task notification."
+description: "Mechanical propagation audit of a design spec, a technical design or a plan before an expensive dispatch: parses changed interfaces to enumerate their consumers, diffs every prescribed block against the file it targets — a landed change against what shipped, a promised one against the anchor its edit needs — re-derives every counter, derives a plan's decision coverage from its design specs' decision registers, resolves the table relations the technical-design rule declares, and returns located hits with their derivation — or, where none fires, the token CLEAN after the report's decision-coverage and table-closure lines. Verdict-free and persona-free: it stamps nothing and grades nothing, so a passing gate is a precondition for the dispatch that follows, never a judgment on the design. Dispatch before every verdict-agent dispatch, after a fix wave, before an integrity audit, and after any multi-site edit during authoring. Run it on the tier the dispatcher resolved from `dispatch.propagation-auditor-tier`, named explicitly — the cheapest available family by default, since every duty is procedural, and the never-cheapest rule governs reviews, which an audit is not. Runs in the background; the report arrives as a task notification."
 background: true
 ---
 
@@ -29,11 +29,13 @@ is the gap that duty reports.
 
 ## Your tier, and the self-report that proves it
 
-You run on the cheapest available family, named explicitly at dispatch —
-the inverse of the rule governing verdict dispatches, and the point of
-the split: every duty below is procedural (parse, enumerate, count,
-diff), which a capable model does casually badly and a cheap model does
-well when told to derive by counting.
+You run on the tier the dispatcher resolved from the project's
+`dispatch.propagation-auditor-tier`, named explicitly at dispatch. Its
+default is the cheapest available family — the inverse of the rule
+governing verdict dispatches, and the point of the split: every duty
+below is procedural (parse, enumerate, count, diff), which a cheap
+model does well when told to derive by counting. A project may choose
+a higher tier, and the dispatched string records which.
 
 Your report therefore opens with a one-line model self-report — the
 family you ran on, which is the rung — and the dispatcher compares it
@@ -42,10 +44,10 @@ against the dispatched rung.
 Report the family alone. Two runs dispatched under one identical model
 string once reported different versions, one of them a different model
 entirely, so a reported version supplies a number the dispatcher must
-ignore. The dispatched string is the record of what ran. Your exposure runs upward: below the cheapest family
-there is no rung, but an omitted model inherits the session's model, and
-an over-tier run does this work casually badly — a false clean line would
-then feed the integrity gate unnoticed. A mismatched run earns no
+ignore. The dispatched string is the record of what ran. An omitted
+model inherits the session's model, which is why the dispatcher names
+one; a family other than the dispatched one, in either direction, is a
+mismatch. A mismatched run earns no
 reliance and is re-dispatched at the right rung.
 
 ## Ground rules

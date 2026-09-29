@@ -2,6 +2,13 @@
 
 Released versions of this plugin, newest first.
 
+## Unreleased
+
+- When the working-process rules are installed, the core rule reads the
+  settings key `dir.docs/memory` as Team memory's declared mode, gains
+  the conflict question for a visible signal that contradicts it, and
+  offers "and record" with its first-create question.
+
 ## 0.5.1 — 2026-09-15
 
 - The plugin ships this changelog.

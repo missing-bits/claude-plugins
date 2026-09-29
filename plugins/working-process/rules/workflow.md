@@ -9,14 +9,18 @@ disables its suggestion — never the work itself.
    as a spec in `docs/specs/`. When the working-process consult agents
    (`architect-consult`, `system-designer-consult`) are available, ask
    once, early in the design conversation, whether the two personas
-   should be consulted as the design forms — yes / not now / not in this
-   session (honoured for the Claude Code session only; a durable
-   preference belongs in the developer's own instructions and is
-   respected when present). After a yes, dispatch a consultation when it
-   looks worth its cost, without asking again for that conversation, and
-   state the consent decision whenever it is made or changed — and when
-   a compacted conversation leaves the current consent state unclear,
-   ask again rather than guess. On a
+   should be consulted as the design forms — unless `consult.personas`,
+   read as the process-settings rule says, is set, which answers it
+   unasked. The answers are yes / not now / not in this session, and
+   "yes, and record" or "no, and record", which write the key through
+   the loader's `--set` where a settings block names the loader; "not
+   now" and "not in this session" are honoured for the Claude Code
+   session only and are never recorded. After a yes, dispatch a
+   consultation when it looks worth its cost, without asking again for
+   that conversation, and state the consent decision whenever it is
+   made or changed — and when a compacted conversation leaves the state
+   of a consent given in this session unclear, ask again rather than
+   guess; a recorded key is simply read again. On a
    genuinely ambiguous ask — in-thread dialogue or a fresh-context
    consultation? — ask one short question rather than silently picking a
    surface.
@@ -50,11 +54,15 @@ disables its suggestion — never the work itself.
    At the same gate, and before the integrity audit above, offer the
    technical design when the repository is one that has code. A
    declaration the project records binds and is never re-asked, in
-   either direction; a session reads it from the project instructions
-   Claude Code loads at session start — a `CLAUDE.md` at the repository
-   root or in `.claude/` — or from the file such a note points at, which
-   is the shape available until a standing home for a project's process
-   answers exists. Without a declaration, a repository carrying a
+   either direction. Its home is the settings key
+   `design.technical-design-offer`, read as the process-settings rule
+   says: `on` makes the offer at every consumption gate whether or not
+   a manifest is present, `off` suppresses it. Until a project migrates
+   to the key, a note in the project instructions Claude Code loads at
+   session start — a `CLAUDE.md` at the repository root or in
+   `.claude/` — or in the file such a note points at, declares it too;
+   where the note and the key disagree, the key wins and the session
+   says so. Without a declaration, a repository carrying a
    toolchain manifest — a file a language or platform toolchain reads
    to build, test or deploy it — gets the offer at every consumption
    gate and nothing is written; a repository carrying neither gets no
@@ -74,7 +82,10 @@ disables its suggestion — never the work itself.
    every check it owes — and a pointer that resolves to no file is a
    broken link, reported as a finding, never a reason to offer a second
    design. A session may propose writing the declaration and never
-   writes it unasked. A change may skip the document when it
+   writes it unasked: the offer's answers include "yes, and record",
+   which writes `on`, and "no, and record", which writes `off`, through
+   the loader's `--set` where a settings block names the loader. A
+   change may skip the document when it
    sits inside boundaries and contracts already settled and leaves the
    implementer no new responsibility split, placement, or ownership of
    state.
@@ -153,8 +164,12 @@ the most capable available model, named like any dispatch; a consultation
 is not a review, returns no verdict, and never gets a fallback record or
 a re-review offer. An audit is not a review either, and the
 never-cheapest floor governs reviews alone: the `propagation-auditor`
-dispatches on the cheapest available family and the `integrity-auditor`
-on the most capable available, each named explicitly. Both reports open
+dispatches on the tier `dispatch.propagation-auditor-tier` resolves
+to — read as the process-settings rule says, `cheapest` unless the
+project sets `mid` or `most-capable` — and the `integrity-auditor`
+on the most capable available, each named explicitly; the key's value
+is a tier, never a model name, and Claude Code resolves it through the
+table below this paragraph. Both reports open
 with a model self-report the dispatcher compares against the dispatched
 and the prescribed rung before relying on the result — a mismatched
 propagation run earns no reliance, and a below-tier integrity run gets
@@ -164,6 +179,12 @@ error — ask the developer: drop one family (at most once, never onto
 the cheapest family) or wait for the reset. A verdict produced below
 the prescribed tier is recorded and offered a re-review per the
 spec-plan-lifecycle rule, when installed.
+
+| `dispatch.propagation-auditor-tier` | Claude Code rung |
+|---|---|
+| `cheapest` | the cheapest available family |
+| `mid` | the family one below the most capable |
+| `most-capable` | the most capable available |
 
 Dispatching a consultation, when the consult agents are available: one
 dispatch, briefed once. The briefing names the subject and where it
@@ -374,8 +395,14 @@ question, and honour the answer for the rest of the Claude Code session
 without asking again. The same question carries a second clause wherever
 the lifecycle rule's per-round commits are available: whether the loop
 may commit the reviewed document once per round. One question, two
-answers, asked once. A durable preference in the developer's own
-instructions is respected when present. Without consent every round
+answers, asked once. Each clause has a settings key, `review.autonomy`
+and `review.per-round-commit`, read as the process-settings rule says:
+a set key answers its clause unasked, and only an unset clause is
+asked. A yes or no may be given "and record" per clause — "yes, and
+record; commits: not now" records the first clause alone — which
+writes that clause's key through the loader's `--set` where a settings
+block names the loader; "not now" and "not in this session" are never
+recorded. Without consent every round
 behaves as it did before: relay, stamp, and every proposal waits for
 the developer.
 

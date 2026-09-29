@@ -66,7 +66,17 @@ explicit project instruction declaring the mode (e.g. a CLAUDE.md
 note) counts as the decision — a declared ignored mode is
 materialized by whoever first acts on it (writing the `*`
 `.gitignore`), a declared tracked mode becomes observable with the
-first committed file. Private memory (`.claude/memory/`) is always
+first committed file. When the working-process rules are installed,
+the settings key `dir.docs/memory` — read as that plugin's
+process-settings rule says, its effective value with `dir.default`
+already applied — is the declared mode too: a visible signal that
+agrees with it, or stands where it is unset, governs; a visible signal
+that contradicts it is reported and the developer asked which stands,
+nothing changed until they answer; the key with no visible signal is
+applied unasked; and where the question is asked, its answers include
+"tracked, and record" and "ignored, and record", which write
+`dir.docs/memory` through the loader's `--set` where a settings block
+names the loader. Private memory (`.claude/memory/`) is always
 ignored, so it is never asked. When the working-process rules are installed,
 `docs/memory/` additionally counts as a Process directory there.
 
