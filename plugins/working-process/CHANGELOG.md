@@ -2,7 +2,7 @@
 
 Released versions of this plugin, newest first.
 
-## Unreleased
+## 0.18.0 — 2026-09-29
 
 - New `technical-design` rule: a third document class between the design
   spec and the plan, saying what a thing is made of — section skeleton,

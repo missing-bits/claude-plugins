@@ -2,7 +2,7 @@
 
 Released versions of this plugin, newest first.
 
-## Unreleased
+## 0.6.0 — 2026-09-29
 
 - When the working-process rules are installed, the core rule reads the
   settings key `dir.docs/memory` as Team memory's declared mode, gains

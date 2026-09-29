@@ -2,7 +2,7 @@
 
 Released versions of this plugin, newest first.
 
-## Unreleased
+## 0.4.0 — 2026-09-29
 
 - `/python-review` reads the settings key `dir.docs/code-review` from a
   settings block in context before asking the first-create question,
