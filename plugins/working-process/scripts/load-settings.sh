@@ -5,13 +5,13 @@
 # registry (plugins/working-process/SETTINGS_REGISTRY.md) is the
 # contract for the keys; this plan's Tasks 2-5 are the contract for the
 # modes this script implements (hook mode, --print and the
-# worktree/bare-repository layouts here; --validate and --set in later
-# tasks).
+# worktree/bare-repository layouts and --validate here; --set in a
+# later task).
 set -u
 export LC_ALL=C
 
 usage() {
-  echo "usage: load-settings.sh [--print]" >&2
+  echo "usage: load-settings.sh [--print] | --validate --scope <team|personal> <file>" >&2
 }
 
 die() {
@@ -155,107 +155,130 @@ scan_file() {
   ' "$file" || return 1
 }
 
-# resolve: reads TEAM/LOCAL settings against the registry and fills
-# three globals: VALUE_LINES (one "<key>: <value>  [<source>]" line per
-# registered key, registry order), TEAM_ERRORS and LOCAL_ERRORS (each
-# file's "error: " lines, in that file's line order).
+# AWK_PROG: the decision engine shared by resolve (team pass + local
+# pass) and do_validate (one pass over the file being validated). Each
+# key's validity/duplicate/value decision is made exactly once, here,
+# from the registry facts passed in "reg" and the records on stdin;
+# every caller only formats what this pass already decided.
 #
-# Each key's validity/count/value decision is made exactly once, inside
-# AWK_PROG's single pass per file (it already holds every record and
-# every registry fact needed): the END block there is the only place
-# that decides "duplicate", "invalid" or the effective value, and it
-# reports that decision back to the shell as a DECIDE/SUGGEST record
-# alongside the error: lines it already emits, in the same pass. The
-# shell loop below only *formats* the already-made decision into a
-# value line (registry order, and the dir.default inheritance chain,
-# both need that order) — it never re-counts or re-validates.
-resolve() {
-  team_records=$(scan_file "$TEAM" team) || return 1
-  local_records=$(scan_file "$LOCAL_READ" local) || return 1
+# Invocation: awk -F'\t' -v reg=<registry_summary> -v
+# file_label=<name> -v role=team|local. reg is registry-order lines of
+# "<key>\t<scope>\t<space-joined values>\t<default>" (the default is
+# unused here). role names which file is being scanned: team is the
+# deciding file for a team key, local (settings.local.md, or a file
+# validated --scope personal) is the deciding file for a personal key.
+#
+# Output, per input record, in file-line order:
+#   error: <file_label>:<n> ...                        (see scan_file)
+#   DECIDE\t<key>\t<dup|invalid|ok>\t<status>\t<value>   (deciding file)
+#   SUGGEST\t<key>\t<n>\t<value>                        (team pass, a
+#     personal key's single valid line)
+AWK_PROG='
+  BEGIN {
+    n_reg = split(reg, reglines, "\n")
+    for (ri = 1; ri <= n_reg; ri++) {
+      if (reglines[ri] == "") continue
+      split(reglines[ri], f, "\t")
+      regscope[f[1]] = f[2]
+      regvalues[f[1]] = " " f[3] " "
+    }
+  }
+  function valid_value(val, padded,    needle) {
+    needle = " " val " "
+    return index(padded, needle) > 0
+  }
+  NF == 0 { next }
+  {
+    i = NR
+    rn[i] = $1; rk[i] = $2; rs[i] = $3; rv[i] = $4
+    total = i
+    k = $2
+    if (!(k in regscope)) next
+    keyscope = regscope[k]
+    if (role == "team") { is_deciding = (keyscope == "team") } else { is_deciding = (keyscope == "personal") }
+    if (is_deciding) {
+      dcount[k]++
+      dlines[k] = (dlines[k] == "" ? $1 : dlines[k] "," $1)
+    } else if (role == "team") {
+      fcount[k]++
+      flines[k] = (flines[k] == "" ? $1 : flines[k] "," $1)
+    }
+  }
+  END {
+    for (i = 1; i <= total; i++) {
+      n = rn[i]; k = rk[i]; s = rs[i]; v = rv[i]
+      if (!(k in regscope)) {
+        printf "error: %s:%s unknown key `%s` \xe2\x80\x94 ignored\n", file_label, n, k
+        continue
+      }
+      keyscope = regscope[k]
+      if (role == "team") { is_deciding = (keyscope == "team") } else { is_deciding = (keyscope == "personal") }
+      if (is_deciding) {
+        if (k in demitted) continue
+        demitted[k] = 1
+        if (dcount[k] > 1) {
+          printf "error: %s:%s duplicate key `%s` \xe2\x80\x94 unset\n", file_label, dlines[k], k
+          printf "DECIDE\t%s\tdup\t-\t-\n", k
+        } else if (s != "ok" || !valid_value(v, regvalues[k])) {
+          printf "error: %s:%s invalid value for `%s`: %s \xe2\x80\x94 unset\n", file_label, n, k, v
+          printf "DECIDE\t%s\tinvalid\t%s\t%s\n", k, s, v
+        } else {
+          printf "DECIDE\t%s\tok\t%s\t%s\n", k, s, v
+        }
+        continue
+      }
+      if (role == "local") {
+        printf "error: %s:%s team key `%s` in the personal file \xe2\x80\x94 ignored\n", file_label, n, k
+        continue
+      }
+      if (k in femitted) continue
+      femitted[k] = 1
+      if (fcount[k] > 1) {
+        printf "error: %s:%s duplicate key `%s` \xe2\x80\x94 ignored\n", file_label, flines[k], k
+      } else if (s != "ok" || !valid_value(v, regvalues[k])) {
+        printf "error: %s:%s invalid value for `%s`: %s \xe2\x80\x94 ignored\n", file_label, n, k, v
+      } else {
+        printf "SUGGEST\t%s\t%s\t%s\n", k, n, v
+      }
+    }
+  }
+'
 
-  registry_summary=""
+# build_registry_summary: fills REGISTRY_SUMMARY, one
+# "<key>\t<scope>\t<space-joined values>\t<default>" line per key in
+# $keys, registry order — the "reg" AWK_PROG's BEGIN block reads.
+# Shared by resolve (team + local passes) and do_validate (one pass)
+# so both feed the same decision engine the same registry facts.
+build_registry_summary() {
+  REGISTRY_SUMMARY=""
   for key in $keys; do
     rf_scope=$(registry_field "$key" scope) || return 1
     rf_values=$(registry_field "$key" values) || return 1
     rf_default=$(registry_field "$key" default) || return 1
     rf_values_norm=$(printf '%s' "$rf_values" | sed 's/ | / /g') || return 1
-    registry_summary="${registry_summary}${key}	${rf_scope}	${rf_values_norm}	${rf_default}
+    REGISTRY_SUMMARY="${REGISTRY_SUMMARY}${key}	${rf_scope}	${rf_values_norm}	${rf_default}
 "
   done
+}
 
-  AWK_PROG='
-    BEGIN {
-      n_reg = split(reg, reglines, "\n")
-      for (ri = 1; ri <= n_reg; ri++) {
-        if (reglines[ri] == "") continue
-        split(reglines[ri], f, "\t")
-        regscope[f[1]] = f[2]
-        regvalues[f[1]] = " " f[3] " "
-      }
-    }
-    function valid_value(val, padded,    needle) {
-      needle = " " val " "
-      return index(padded, needle) > 0
-    }
-    NF == 0 { next }
-    {
-      i = NR
-      rn[i] = $1; rk[i] = $2; rs[i] = $3; rv[i] = $4
-      total = i
-      k = $2
-      if (!(k in regscope)) next
-      keyscope = regscope[k]
-      if (role == "team") { is_deciding = (keyscope == "team") } else { is_deciding = (keyscope == "personal") }
-      if (is_deciding) {
-        dcount[k]++
-        dlines[k] = (dlines[k] == "" ? $1 : dlines[k] "," $1)
-      } else if (role == "team") {
-        fcount[k]++
-        flines[k] = (flines[k] == "" ? $1 : flines[k] "," $1)
-      }
-    }
-    END {
-      for (i = 1; i <= total; i++) {
-        n = rn[i]; k = rk[i]; s = rs[i]; v = rv[i]
-        if (!(k in regscope)) {
-          printf "error: %s:%s unknown key `%s` \xe2\x80\x94 ignored\n", file_label, n, k
-          continue
-        }
-        keyscope = regscope[k]
-        if (role == "team") { is_deciding = (keyscope == "team") } else { is_deciding = (keyscope == "personal") }
-        if (is_deciding) {
-          if (k in demitted) continue
-          demitted[k] = 1
-          if (dcount[k] > 1) {
-            printf "error: %s:%s duplicate key `%s` \xe2\x80\x94 unset\n", file_label, dlines[k], k
-            printf "DECIDE\t%s\tdup\t-\t-\n", k
-          } else if (s != "ok" || !valid_value(v, regvalues[k])) {
-            printf "error: %s:%s invalid value for `%s`: %s \xe2\x80\x94 unset\n", file_label, n, k, v
-            printf "DECIDE\t%s\tinvalid\t%s\t%s\n", k, s, v
-          } else {
-            printf "DECIDE\t%s\tok\t%s\t%s\n", k, s, v
-          }
-          continue
-        }
-        if (role == "local") {
-          printf "error: %s:%s team key `%s` in the personal file \xe2\x80\x94 ignored\n", file_label, n, k
-          continue
-        }
-        if (k in femitted) continue
-        femitted[k] = 1
-        if (fcount[k] > 1) {
-          printf "error: %s:%s duplicate key `%s` \xe2\x80\x94 ignored\n", file_label, flines[k], k
-        } else if (s != "ok" || !valid_value(v, regvalues[k])) {
-          printf "error: %s:%s invalid value for `%s`: %s \xe2\x80\x94 ignored\n", file_label, n, k, v
-        } else {
-          printf "SUGGEST\t%s\t%s\n", k, v
-        }
-      }
-    }
-  '
+# resolve: reads TEAM/LOCAL settings against the registry and fills
+# three globals: VALUE_LINES (one "<key>: <value>  [<source>]" line per
+# registered key, registry order), TEAM_ERRORS and LOCAL_ERRORS (each
+# file's "error: " lines, in that file's line order).
+#
+# The decisions themselves come from AWK_PROG (above), one pass per
+# file over build_registry_summary's REGISTRY_SUMMARY; this function
+# only *formats* the already-made decision into a value line (registry
+# order, and the dir.default inheritance chain, both need that order)
+# — it never re-counts or re-validates.
+resolve() {
+  team_records=$(scan_file "$TEAM" team) || return 1
+  local_records=$(scan_file "$LOCAL_READ" local) || return 1
 
-  TEAM_RAW=$(printf '%s\n' "$team_records" | awk -F'\t' -v reg="$registry_summary" -v file_label=settings.md -v role=team "$AWK_PROG") || return 1
-  LOCAL_RAW=$(printf '%s\n' "$local_records" | awk -F'\t' -v reg="$registry_summary" -v file_label=settings.local.md -v role=local "$AWK_PROG") || return 1
+  build_registry_summary || return 1
+
+  TEAM_RAW=$(printf '%s\n' "$team_records" | awk -F'\t' -v reg="$REGISTRY_SUMMARY" -v file_label=settings.md -v role=team "$AWK_PROG") || return 1
+  LOCAL_RAW=$(printf '%s\n' "$local_records" | awk -F'\t' -v reg="$REGISTRY_SUMMARY" -v file_label=settings.local.md -v role=local "$AWK_PROG") || return 1
 
   TEAM_ERRORS_RAW=$(printf '%s\n' "$TEAM_RAW" | awk '/^error: /') || return 1
   LOCAL_ERRORS_RAW=$(printf '%s\n' "$LOCAL_RAW" | awk '/^error: /') || return 1
@@ -276,7 +299,7 @@ resolve() {
   VALUE_LINES=""
   dir_default_value=unset
   for key in $keys; do
-    key_meta=$(printf '%s\n' "$registry_summary" | awk -F'\t' -v k="$key" '$1==k{print $2 "\t" $4; exit}') || return 1
+    key_meta=$(printf '%s\n' "$REGISTRY_SUMMARY" | awk -F'\t' -v k="$key" '$1==k{print $2 "\t" $4; exit}') || return 1
     scope=$(printf '%s\n' "$key_meta" | awk -F'\t' '{print $1}') || return 1
     default=$(printf '%s\n' "$key_meta" | awk -F'\t' '{print $2}') || return 1
 
@@ -296,7 +319,7 @@ resolve() {
         source=default
       fi
       if [ "$scope" = personal ] && [ "$value" = unset ]; then
-        suggestion=$(printf '%s\n' "$SUGGESTIONS" | awk -F'\t' -v k="$key" '$2==k{print $3; exit}') || return 1
+        suggestion=$(printf '%s\n' "$SUGGESTIONS" | awk -F'\t' -v k="$key" '$2==k{print $4; exit}') || return 1
         if [ -n "$suggestion" ]; then
           source="team suggests: $suggestion"
         fi
@@ -319,6 +342,51 @@ resolve() {
     VALUE_LINES="${VALUE_LINES}${key}: ${value}  [${source}]
 "
   done
+}
+
+# do_validate <scope: team|personal> <file>: scans <file> as the
+# deciding file of <scope>, through the same AWK_PROG resolve() uses,
+# then formats its error:/SUGGEST records into the validate contract's
+# error:/notice: lines and summary — in one pass over the AWK_PROG
+# output, so the original file-line order survives untouched. The
+# mode never consults $ROOT.
+do_validate() {
+  v_scope=$1
+  v_file=$2
+  case "$v_scope" in
+    team) v_role=team ;;
+    personal) v_role=local ;;
+  esac
+  v_label=$(basename "$v_file")
+
+  [ -f "$REGISTRY" ] || die "registry not found or empty at $REGISTRY"
+  keys=$(registry_keys) || return 1
+  [ -n "$keys" ] || die "registry not found or empty at $REGISTRY"
+  build_registry_summary || return 1
+
+  v_records=$(scan_file "$v_file" "$v_scope") || return 1
+  v_raw=$(printf '%s\n' "$v_records" | awk -F'\t' -v reg="$REGISTRY_SUMMARY" -v file_label="$v_label" -v role="$v_role" "$AWK_PROG") || return 1
+
+  # One pass turns each AWK_PROG record into its validate-mode line:
+  # an error: line passes through, a SUGGEST record becomes a notice:
+  # line (team pass only, so this is the only place that formats one),
+  # a DECIDE record produces nothing. The relative order is AWK_PROG's
+  # own — ascending by record — so it is already file-line order.
+  v_formatted=$(printf '%s\n' "$v_raw" | awk -F'\t' -v fl="$v_label" '
+    /^error: /{ print; next }
+    $1=="SUGGEST"{ printf "notice: %s:%s personal key `%s` in the team file \xe2\x80\x94 a suggestion\n", fl, $3, $2; next }
+  ') || return 1
+
+  v_errors=0
+  v_notices=0
+  if [ -n "$v_formatted" ]; then
+    v_errors=$(printf '%s\n' "$v_formatted" | awk '/^error: /{c++} END{print c+0}') || return 1
+    v_notices=$(printf '%s\n' "$v_formatted" | awk '/^notice: /{c++} END{print c+0}') || return 1
+    printf '%s\n' "$v_formatted" || return 1
+  fi
+  printf '%s: %s errors, %s notices\n' "$v_label" "$v_errors" "$v_notices" || return 1
+
+  [ "$v_errors" -eq 0 ]
 }
 
 # emit_block: the first line, then VALUE_LINES, then TEAM_ERRORS, then
@@ -415,6 +483,26 @@ main() {
       fi
       MODE=print
       ;;
+    --validate)
+      if [ "$#" -ne 4 ] || [ "${2-}" != "--scope" ]; then
+        usage
+        exit 2
+      fi
+      v_scope=$3
+      v_file=$4
+      case "$v_scope" in
+        team|personal) ;;
+        *)
+          usage
+          exit 2
+          ;;
+      esac
+      if [ ! -f "$v_file" ] || [ ! -r "$v_file" ]; then
+        usage
+        exit 2
+      fi
+      MODE=validate
+      ;;
     *)
       usage
       exit 2
@@ -428,6 +516,15 @@ main() {
       cap_block "$block"
     fi
     exit 0
+  fi
+
+  if [ "$MODE" = validate ]; then
+    out=$(set -e; do_validate "$v_scope" "$v_file")
+    rc=$?
+    if [ -n "$out" ]; then
+      printf '%s\n' "$out"
+    fi
+    exit "$rc"
   fi
 
   block=$(set -e; build_block)

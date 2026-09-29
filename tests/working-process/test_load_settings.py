@@ -482,6 +482,67 @@ class LoaderTest(unittest.TestCase):
         )
         self.assertEqual(res3.code, 0)
 
+    def write_candidate(self, text: str) -> Path:
+        """A standalone candidate file `t.md` outside any .working-process/."""
+        path = self.base / "t.md"
+        path.write_text(text, encoding="utf-8")
+        return path
+
+    # 19. A suggestion passes.
+    def test_validate_suggestion_passes(self) -> None:
+        candidate = self.write_candidate("consult.personas: yes\ndir.default: tracked\n")
+        res = self.run_loader(self.base, "--validate", "--scope", "team", str(candidate))
+        self.assertEqual(res.code, 0)
+        self.assertEqual(
+            res.out,
+            "notice: t.md:1 personal key `consult.personas` in the team file — a suggestion\n"
+            "t.md: 0 errors, 1 notices\n",
+        )
+
+    # 20. Each error kind fails.
+    def test_validate_each_error_kind_fails(self) -> None:
+        cases = [
+            ("team", "dir.default: bogus\n",
+             "error: t.md:1 invalid value for `dir.default`: bogus — unset"),
+            ("team", "dir.default: tracked\ndir.default: ignored\n",
+             "error: t.md:1,2 duplicate key `dir.default` — unset"),
+            ("team", "review.autonmy: yes\n",
+             "error: t.md:1 unknown key `review.autonmy` — ignored"),
+            ("personal", "dir.default: tracked\n",
+             "error: t.md:1 team key `dir.default` in the personal file — ignored"),
+            ("team", "consult.personas: maybe\n",
+             "error: t.md:1 invalid value for `consult.personas`: maybe — ignored"),
+        ]
+        for scope, text, expected_line in cases:
+            with self.subTest(scope=scope, text=text):
+                candidate = self.write_candidate(text)
+                res = self.run_loader(self.base, "--validate", "--scope", scope, str(candidate))
+                self.assertEqual(res.code, 1)
+                self.assertIn(expected_line, res.lines)
+                self.assertEqual(res.lines[-1], "t.md: 1 errors, 0 notices")
+                if scope == "team" and text == "consult.personas: maybe\n":
+                    self.assertEqual([l for l in res.lines if l.startswith("notice:")], [])
+
+    # 21. Usage.
+    def test_validate_usage(self) -> None:
+        candidate = self.write_candidate("dir.default: tracked\n")
+        missing = self.base / "missing.md"
+
+        res = self.run_loader(self.base, "--validate", str(candidate))
+        self.assertEqual(res.code, 2)
+        self.assertEqual(res.out, "")
+        self.assertTrue(res.err.startswith("usage:"))
+
+        res2 = self.run_loader(self.base, "--validate", "--scope", "both", str(candidate))
+        self.assertEqual(res2.code, 2)
+        self.assertEqual(res2.out, "")
+        self.assertTrue(res2.err.startswith("usage:"))
+
+        res3 = self.run_loader(self.base, "--validate", "--scope", "team", str(missing))
+        self.assertEqual(res3.code, 2)
+        self.assertEqual(res3.out, "")
+        self.assertTrue(res3.err.startswith("usage:"))
+
 
 if __name__ == "__main__":
     unittest.main()
