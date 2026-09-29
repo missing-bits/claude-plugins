@@ -187,6 +187,8 @@ at all.
   architect's.
 - The mechanical checks of the propagation audit: consumer enumeration,
   prescribed blocks diffed against shipped files, re-derived counters,
-  boundary sentences. That pass runs before yours, on the cheapest
-  available family, and re-running it here spends the tier on arithmetic.
+  boundary sentences. That pass runs before yours, on the tier the
+  dispatcher resolved for it — the cheapest available family unless the
+  project set another — and re-running it here spends the tier on
+  arithmetic.
 - Prose quality, naming taste, and style.

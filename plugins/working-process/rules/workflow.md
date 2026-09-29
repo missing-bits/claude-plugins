@@ -164,8 +164,12 @@ the most capable available model, named like any dispatch; a consultation
 is not a review, returns no verdict, and never gets a fallback record or
 a re-review offer. An audit is not a review either, and the
 never-cheapest floor governs reviews alone: the `propagation-auditor`
-dispatches on the cheapest available family and the `integrity-auditor`
-on the most capable available, each named explicitly. Both reports open
+dispatches on the tier `dispatch.propagation-auditor-tier` resolves
+to — read as the process-settings rule says, `cheapest` unless the
+project sets `mid` or `most-capable` — and the `integrity-auditor`
+on the most capable available, each named explicitly; the key's value
+is a tier, never a model name, and Claude Code resolves it through the
+table below this paragraph. Both reports open
 with a model self-report the dispatcher compares against the dispatched
 and the prescribed rung before relying on the result — a mismatched
 propagation run earns no reliance, and a below-tier integrity run gets
@@ -175,6 +179,12 @@ error — ask the developer: drop one family (at most once, never onto
 the cheapest family) or wait for the reset. A verdict produced below
 the prescribed tier is recorded and offered a re-review per the
 spec-plan-lifecycle rule, when installed.
+
+| `dispatch.propagation-auditor-tier` | Claude Code rung |
+|---|---|
+| `cheapest` | the cheapest available family |
+| `mid` | the family one below the most capable |
+| `most-capable` | the most capable available |
 
 Dispatching a consultation, when the consult agents are available: one
 dispatch, briefed once. The briefing names the subject and where it
