@@ -55,7 +55,13 @@ registry_field() {
   key=$1
   field=$2
   esc=$(printf '%s' "$key" | sed 's/\./\\./g') || return 1
-  sed -n "\\%^## ${esc}\$%,\\%^## %{ /^${field}: /{ s/^${field}: //p } }" "$REGISTRY" || return 1
+  sed -n "
+\\%^## ${esc}\$%,\\%^## % {
+  /^${field}: /{
+    s/^${field}: //p
+  }
+}
+" "$REGISTRY" || return 1
 }
 
 # scan_file <file> <scope>: one awk pass over a settings file (team or
@@ -98,6 +104,16 @@ scan_file() {
 # three globals: VALUE_LINES (one "<key>: <value>  [<source>]" line per
 # registered key, registry order), TEAM_ERRORS and LOCAL_ERRORS (each
 # file's "error: " lines, in that file's line order).
+#
+# Each key's validity/count/value decision is made exactly once, inside
+# AWK_PROG's single pass per file (it already holds every record and
+# every registry fact needed): the END block there is the only place
+# that decides "duplicate", "invalid" or the effective value, and it
+# reports that decision back to the shell as a DECIDE/SUGGEST record
+# alongside the error: lines it already emits, in the same pass. The
+# shell loop below only *formats* the already-made decision into a
+# value line (registry order, and the dir.default inheritance chain,
+# both need that order) — it never re-counts or re-validates.
 resolve() {
   team_records=$(scan_file "$TEAM" team) || return 1
   local_records=$(scan_file "$LOCAL" local) || return 1
@@ -106,12 +122,13 @@ resolve() {
   for key in $keys; do
     rf_scope=$(registry_field "$key" scope) || return 1
     rf_values=$(registry_field "$key" values) || return 1
+    rf_default=$(registry_field "$key" default) || return 1
     rf_values_norm=$(printf '%s' "$rf_values" | sed 's/ | / /g') || return 1
-    registry_summary="${registry_summary}${key}	${rf_scope}	${rf_values_norm}
+    registry_summary="${registry_summary}${key}	${rf_scope}	${rf_values_norm}	${rf_default}
 "
   done
 
-  AWK_ERR_PROG='
+  AWK_PROG='
     BEGIN {
       n_reg = split(reg, reglines, "\n")
       for (ri = 1; ri <= n_reg; ri++) {
@@ -156,8 +173,12 @@ resolve() {
           demitted[k] = 1
           if (dcount[k] > 1) {
             printf "error: %s:%s duplicate key `%s` \xe2\x80\x94 unset\n", file_label, dlines[k], k
+            printf "DECIDE\t%s\tdup\t-\t-\n", k
           } else if (s != "ok" || !valid_value(v, regvalues[k])) {
             printf "error: %s:%s invalid value for `%s`: %s \xe2\x80\x94 unset\n", file_label, n, k, v
+            printf "DECIDE\t%s\tinvalid\t%s\t%s\n", k, s, v
+          } else {
+            printf "DECIDE\t%s\tok\t%s\t%s\n", k, s, v
           }
           continue
         }
@@ -171,13 +192,18 @@ resolve() {
           printf "error: %s:%s duplicate key `%s` \xe2\x80\x94 ignored\n", file_label, flines[k], k
         } else if (s != "ok" || !valid_value(v, regvalues[k])) {
           printf "error: %s:%s invalid value for `%s`: %s \xe2\x80\x94 ignored\n", file_label, n, k, v
+        } else {
+          printf "SUGGEST\t%s\t%s\n", k, v
         }
       }
     }
   '
 
-  TEAM_ERRORS_RAW=$(printf '%s\n' "$team_records" | awk -F'\t' -v reg="$registry_summary" -v file_label=settings.md -v role=team "$AWK_ERR_PROG") || return 1
-  LOCAL_ERRORS_RAW=$(printf '%s\n' "$local_records" | awk -F'\t' -v reg="$registry_summary" -v file_label=settings.local.md -v role=local "$AWK_ERR_PROG") || return 1
+  TEAM_RAW=$(printf '%s\n' "$team_records" | awk -F'\t' -v reg="$registry_summary" -v file_label=settings.md -v role=team "$AWK_PROG") || return 1
+  LOCAL_RAW=$(printf '%s\n' "$local_records" | awk -F'\t' -v reg="$registry_summary" -v file_label=settings.local.md -v role=local "$AWK_PROG") || return 1
+
+  TEAM_ERRORS_RAW=$(printf '%s\n' "$TEAM_RAW" | awk '/^error: /') || return 1
+  LOCAL_ERRORS_RAW=$(printf '%s\n' "$LOCAL_RAW" | awk '/^error: /') || return 1
   TEAM_ERRORS=""
   if [ -n "$TEAM_ERRORS_RAW" ]; then TEAM_ERRORS="${TEAM_ERRORS_RAW}
 "; fi
@@ -185,30 +211,28 @@ resolve() {
   if [ -n "$LOCAL_ERRORS_RAW" ]; then LOCAL_ERRORS="${LOCAL_ERRORS_RAW}
 "; fi
 
+  # DECIDE rows: one per key that has a record in its own deciding file
+  # (never both passes for the same key, since a key's scope is fixed).
+  # SUGGEST rows: team-file records for a personal key, exactly one and
+  # valid — only the team pass ever emits these.
+  DECISIONS=$(printf '%s\n%s\n' "$TEAM_RAW" "$LOCAL_RAW" | awk -F'\t' '$1=="DECIDE"') || return 1
+  SUGGESTIONS=$(printf '%s\n' "$TEAM_RAW" | awk -F'\t' '$1=="SUGGEST"') || return 1
+
   VALUE_LINES=""
   dir_default_value=unset
   for key in $keys; do
-    scope=$(registry_field "$key" scope) || return 1
-    values=$(registry_field "$key" values) || return 1
-    default=$(registry_field "$key" default) || return 1
-    values_norm=$(printf '%s' "$values" | sed 's/ | / /g') || return 1
-
-    if [ "$scope" = team ]; then
-      deciding_matches=$(printf '%s\n' "$team_records" | awk -F'\t' -v k="$key" 'NF && $2==k') || return 1
-    else
-      deciding_matches=$(printf '%s\n' "$local_records" | awk -F'\t' -v k="$key" 'NF && $2==k') || return 1
-    fi
-    count=0
-    if [ -n "$deciding_matches" ]; then
-      count=$(printf '%s\n' "$deciding_matches" | awk 'END{print NR}') || return 1
-    fi
+    key_meta=$(printf '%s\n' "$registry_summary" | awk -F'\t' -v k="$key" '$1==k{print $2 "\t" $4; exit}') || return 1
+    scope=$(printf '%s\n' "$key_meta" | awk -F'\t' '{print $1}') || return 1
+    default=$(printf '%s\n' "$key_meta" | awk -F'\t' '{print $2}') || return 1
 
     is_dir_exception=0
     case "$key" in
       dir.*) [ "$key" != "dir.default" ] && is_dir_exception=1 ;;
     esac
 
-    if [ "$count" -eq 0 ]; then
+    decision=$(printf '%s\n' "$DECISIONS" | awk -F'\t' -v k="$key" '$2==k{print; exit}') || return 1
+
+    if [ -z "$decision" ]; then
       if [ "$is_dir_exception" -eq 1 ]; then
         value=$dir_default_value
         source=inherited
@@ -217,40 +241,20 @@ resolve() {
         source=default
       fi
       if [ "$scope" = personal ] && [ "$value" = unset ]; then
-        foreign_matches=$(printf '%s\n' "$team_records" | awk -F'\t' -v k="$key" 'NF && $2==k') || return 1
-        fcount=0
-        if [ -n "$foreign_matches" ]; then
-          fcount=$(printf '%s\n' "$foreign_matches" | awk 'END{print NR}') || return 1
-        fi
-        if [ "$fcount" -eq 1 ]; then
-          fstatus=$(printf '%s\n' "$foreign_matches" | awk -F'\t' '{print $3}') || return 1
-          fvalue=$(printf '%s\n' "$foreign_matches" | awk -F'\t' '{print $4}') || return 1
-          in_list=0
-          for v in $values_norm; do
-            [ "$v" = "$fvalue" ] && in_list=1
-          done
-          if [ "$fstatus" = ok ] && [ "$in_list" -eq 1 ]; then
-            source="team suggests: $fvalue"
-          fi
+        suggestion=$(printf '%s\n' "$SUGGESTIONS" | awk -F'\t' -v k="$key" '$2==k{print $3; exit}') || return 1
+        if [ -n "$suggestion" ]; then
+          source="team suggests: $suggestion"
         fi
       fi
-    elif [ "$count" -eq 1 ]; then
-      status=$(printf '%s\n' "$deciding_matches" | awk -F'\t' '{print $3}') || return 1
-      dval=$(printf '%s\n' "$deciding_matches" | awk -F'\t' '{print $4}') || return 1
-      in_list=0
-      for v in $values_norm; do
-        [ "$v" = "$dval" ] && in_list=1
-      done
-      if [ "$status" = ok ] && [ "$in_list" -eq 1 ]; then
-        value=$dval
+    else
+      dstatus=$(printf '%s\n' "$decision" | awk -F'\t' '{print $3}') || return 1
+      if [ "$dstatus" = ok ]; then
+        value=$(printf '%s\n' "$decision" | awk -F'\t' '{print $5}') || return 1
         if [ "$scope" = team ]; then source=team; else source=local; fi
       else
         value=unset
         if [ "$scope" = team ]; then source="invalid in team"; else source="invalid in local"; fi
       fi
-    else
-      value=unset
-      if [ "$scope" = team ]; then source="invalid in team"; else source="invalid in local"; fi
     fi
 
     if [ "$key" = dir.default ]; then
