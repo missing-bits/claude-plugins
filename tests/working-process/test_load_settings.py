@@ -87,6 +87,20 @@ class LoaderTest(unittest.TestCase):
                 (d / name).write_text(text, encoding="utf-8")
         return d
 
+    def worktree(self, main: Path, name: str) -> Path:
+        """A linked worktree of `main` at main.parent/name on a new branch."""
+        path = main.parent / name
+        self.git(main, "worktree", "add", "-q", str(path), "-b", name)
+        return path
+
+    def bare(self, src: Path, name: str = "bare.git", worktree: str = "bwt") -> Path:
+        """A bare clone of `src` with one linked worktree; returns the worktree."""
+        bare = src.parent / name
+        self.git(src.parent, "clone", "-q", "--bare", str(src), str(bare))
+        path = src.parent / worktree
+        self.git(bare, "worktree", "add", "-q", str(path), "main")
+        return path
+
     def run_loader(self, cwd: Path, *args: str, project_dir: str | None = None,
                    loader: Path = LOADER, path_prefix: Path | None = None) -> Result:
         env = {k: v for k, v in os.environ.items() if k not in ("CLAUDE_PROJECT_DIR", "CLAUDE_PLUGIN_ROOT")}
@@ -387,6 +401,86 @@ class LoaderTest(unittest.TestCase):
 
         res2 = self.run_loader(self.root, "--print", "extra")
         self.assertEqual(res2.code, 2)
+
+    # 14. Fallback.
+    def test_worktree_fallback(self) -> None:
+        main = self.git_init()
+        self.settings(main, team="dir.default: tracked\n", local="review.autonomy: yes\n")
+        wt = self.worktree(main, "wt")
+        self.settings(wt, team="dir.default: ignored\n")
+        res = self.run_loader(wt)
+        self.assertEqual(res.code, 0)
+        self.assertEqual(res.err, "")
+        self.assertEqual(res.line("review.autonomy"), "review.autonomy: yes  [local]")
+        self.assertEqual(res.line("dir.default"), "dir.default: ignored  [team]")
+        self.assertEqual(res.lines[0], self.first_line(wt, local="settings.local.md (main checkout)"))
+
+    # 15. Fallback absent.
+    def test_worktree_fallback_absent(self) -> None:
+        main = self.git_init()
+        self.settings(main, team="dir.default: tracked\n")
+        wt = self.worktree(main, "wt")
+        self.settings(wt, team="dir.default: ignored\n")
+        res = self.run_loader(wt)
+        self.assertEqual(res.lines[0],
+                          self.first_line(wt, local="settings.local.md (main checkout, absent)"))
+        self.assertEqual(res.line("review.autonomy"), "review.autonomy: unset  [default]")
+
+    # 16. Shadow.
+    def test_worktree_shadow(self) -> None:
+        main = self.git_init()
+        self.settings(main, team="dir.default: tracked\n", local="review.autonomy: yes\n")
+        wt = self.worktree(main, "wt")
+        self.settings(wt, team="dir.default: ignored\n", local="review.autonomy: no\n")
+        res = self.run_loader(wt)
+        self.assertEqual(res.line("review.autonomy"), "review.autonomy: no  [local]")
+        self.assertEqual(res.lines[0],
+                          self.first_line(wt, local="settings.local.md (worktree, shadows main checkout)"))
+        self.assertNotIn("yes", res.out)
+
+    # 17. Bare.
+    def test_bare_repository(self) -> None:
+        src = self.git_init()
+        bwt = self.bare(src)
+        self.settings(bwt, team="dir.default: tracked\n")
+        res = self.run_loader(bwt)
+        self.assertEqual(res.lines[0],
+                          self.first_line(bwt, local="settings.local.md (worktree, bare repository, absent)"))
+
+        self.settings(bwt, local="review.autonomy: yes\n")
+        res2 = self.run_loader(bwt)
+        self.assertEqual(res2.line("review.autonomy"), "review.autonomy: yes  [local]")
+        self.assertEqual(res2.lines[0],
+                          self.first_line(bwt, local="settings.local.md (worktree, bare repository)"))
+
+    # 18. Worktree without a settings directory.
+    def test_worktree_without_settings_directory(self) -> None:
+        main = self.git_init()
+        self.settings(main, team="dir.default: tracked\n", local="review.autonomy: yes\n")
+        wt = self.worktree(main, "wt")
+        res = self.run_loader(wt)
+        self.assertEqual(res.code, 0)
+        self.assertEqual(res.err, "")
+        self.assertEqual(
+            res.lines[0],
+            self.first_line(wt, team="settings.md (absent)", local="settings.local.md (main checkout)"),
+        )
+        self.assertEqual(res.line("review.autonomy"), "review.autonomy: yes  [local]")
+        self.assertEqual(res.line("dir.default"), "dir.default: unset  [default]")
+
+        main2 = self.git_init(self.base / "main2")
+        wt2 = self.worktree(main2, "wt2")
+        res2 = self.run_loader(wt2)
+        self.assertEqual(res2.out, "")
+        self.assertEqual(res2.err, "")
+        self.assertEqual(res2.code, 0)
+
+        res3 = self.run_loader(wt2, "--print")
+        self.assertEqual(
+            res3.lines,
+            [f"working-process settings (root: {wt2}; loader: {LOADER}; no settings directory)"],
+        )
+        self.assertEqual(res3.code, 0)
 
 
 if __name__ == "__main__":

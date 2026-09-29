@@ -4,8 +4,9 @@
 # the contract for the files, the grammar and the block; the key
 # registry (plugins/working-process/SETTINGS_REGISTRY.md) is the
 # contract for the keys; this plan's Tasks 2-5 are the contract for the
-# modes this script implements (hook mode and --print here; the
-# worktree/bare layouts, --validate and --set in later tasks).
+# modes this script implements (hook mode, --print and the
+# worktree/bare-repository layouts here; --validate and --set in later
+# tasks).
 set -u
 export LC_ALL=C
 
@@ -22,13 +23,29 @@ LOADER=$(cd "$(dirname "$0")" && pwd -P)/$(basename "$0")
 PLUGIN=$(cd "$(dirname "$LOADER")/.." && pwd -P)
 REGISTRY="$PLUGIN/SETTINGS_REGISTRY.md"
 
-# find_root: sets ROOT, DIR, TEAM, LOCAL, LAYOUT, LOCAL_LABEL for the
-# current invocation. LAYOUT is always "main" here; Task 3 adds the
-# worktree/bare layouts and their LOCAL fallback.
+# find_root: sets ROOT, DIR, TEAM, LOCAL, LAYOUT, MAIN, LOCAL_READ,
+# LOCAL_LABEL for the current invocation.
+#
+# LAYOUT is one of main, worktree, bare-worktree, none. Where git
+# resolved ROOT, `git worktree list --porcelain` runs once from ROOT;
+# its first entry is the main worktree. A second line of "bare" means
+# a bare-repository layout (MAIN empty); otherwise the entry's path,
+# made physical, decides main (equals ROOT) vs worktree (MAIN is that
+# path). Where git did not resolve ROOT, LAYOUT is none.
+#
+# LOCAL_READ is the personal file the loader actually reads, and
+# LOCAL_LABEL its qualifier for the first line: LOCAL itself
+# (ROOT's own settings.local.md) for main, none and bare-worktree
+# layouts (bare-worktree always reads its own, never the bare
+# repository's — there is no working tree there to hold one), and for
+# worktree only when the worktree's own file exists; otherwise, for
+# worktree, MAIN's settings.local.md.
 find_root() {
   r=$(git rev-parse --show-toplevel 2>/dev/null)
   gitrc=$?
+  git_ok=1
   if [ "$gitrc" -ne 0 ] || [ -z "$r" ]; then
+    git_ok=0
     if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
       r=$CLAUDE_PROJECT_DIR
     else
@@ -39,8 +56,46 @@ find_root() {
   DIR="$ROOT/.working-process"
   TEAM="$DIR/settings.md"
   LOCAL="$DIR/settings.local.md"
-  LAYOUT=main
-  LOCAL_LABEL="settings.local.md"
+
+  LAYOUT=none
+  MAIN=""
+  if [ "$git_ok" -eq 1 ]; then
+    wt_list=$(cd "$ROOT" && git worktree list --porcelain 2>/dev/null)
+    wt_first=$(printf '%s\n' "$wt_list" | sed -n '1p')
+    wt_second=$(printf '%s\n' "$wt_list" | sed -n '2p')
+    wt_first_path=$(printf '%s' "$wt_first" | sed 's/^worktree //')
+    if [ "$wt_second" = bare ]; then
+      LAYOUT=bare-worktree
+    else
+      wt_first_phys=$(cd "$wt_first_path" 2>/dev/null && pwd -P) || wt_first_phys=""
+      if [ "$wt_first_phys" = "$ROOT" ]; then
+        LAYOUT=main
+      else
+        LAYOUT=worktree
+        MAIN=$wt_first_phys
+      fi
+    fi
+  fi
+
+  case "$LAYOUT" in
+    worktree)
+      if [ -f "$LOCAL" ]; then
+        LOCAL_READ="$LOCAL"
+        LOCAL_LABEL="settings.local.md (worktree, shadows main checkout)"
+      else
+        LOCAL_READ="$MAIN/.working-process/settings.local.md"
+        LOCAL_LABEL="settings.local.md (main checkout)"
+      fi
+      ;;
+    bare-worktree)
+      LOCAL_READ="$LOCAL"
+      LOCAL_LABEL="settings.local.md (worktree, bare repository)"
+      ;;
+    *)
+      LOCAL_READ="$LOCAL"
+      LOCAL_LABEL="settings.local.md"
+      ;;
+  esac
 }
 
 # registry_keys: every "## " heading's key, in file order.
@@ -116,7 +171,7 @@ scan_file() {
 # both need that order) — it never re-counts or re-validates.
 resolve() {
   team_records=$(scan_file "$TEAM" team) || return 1
-  local_records=$(scan_file "$LOCAL" local) || return 1
+  local_records=$(scan_file "$LOCAL_READ" local) || return 1
 
   registry_summary=""
   for key in $keys; do
@@ -272,7 +327,12 @@ emit_block() {
   team_label=$(basename "$TEAM")
   [ -f "$TEAM" ] || team_label="$team_label (absent)"
   local_label=$LOCAL_LABEL
-  [ -f "$LOCAL" ] || local_label="$local_label (absent)"
+  if [ ! -f "$LOCAL_READ" ]; then
+    case "$local_label" in
+      *"("*) local_label=$(printf '%s' "$local_label" | sed 's/)$/, absent)/') ;;
+      *) local_label="$local_label (absent)" ;;
+    esac
+  fi
   printf 'working-process settings (root: %s; loader: %s; team: %s; local: %s)\n' "$ROOT" "$LOADER" "$team_label" "$local_label"
   printf '%s' "$VALUE_LINES"
   printf '%s' "$TEAM_ERRORS"
@@ -284,7 +344,12 @@ emit_block() {
 # it makes, so silence does not rest on `set -e` alone.
 build_block() {
   find_root || return 1
-  if [ ! -d "$DIR" ]; then
+  dir_present=0
+  [ -d "$DIR" ] && dir_present=1
+  if [ "$LAYOUT" = worktree ] && [ "$dir_present" -eq 0 ]; then
+    [ -d "$MAIN/.working-process" ] && dir_present=1
+  fi
+  if [ "$dir_present" -eq 0 ]; then
     if [ "$MODE" = print ]; then
       printf 'working-process settings (root: %s; loader: %s; no settings directory)\n' "$ROOT" "$LOADER" || return 1
     fi
