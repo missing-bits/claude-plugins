@@ -624,7 +624,7 @@ git-ignored, and NOT a Process directory — a per-checkout store under
 the `.claude/` config namespace, as Private memory is a per-user one. It
 survives compaction, the session's end and a branch switch, and no more:
 that bound is what lets a Relay condense. Never a Review report, the
-counted document a code-review run writes under `docs/code-review/`.
+counted document one code-review run writes.
 _Avoid_: dispatch log, transcript file
 
 **Session skill**:

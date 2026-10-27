@@ -3,7 +3,7 @@ ticket: none
 date: 2026-10-27
 status: draft
 grilled: 2026-10-27
-architect: blocking
+architect: concerns (resolved 2026-10-27)
 decisions: registered
 branch: feature/ticket-directories
 base: develop
@@ -114,15 +114,21 @@ Anti-goals — the change fails, even if it works, when:
   `-technical-design.md` suffix as well as by its directory. Argued in
   *Recognising a process document*.
 - **D14** — A code-review report whose ticket the branch name gives
-  goes to `<ticket directory>/code-review/`; any other report goes to
-  `docs/code-review/`. Argued in *Review reports*.
-- **D19** — A branch names a ticket only when the segment after
-  `feature/` opens with a key shape — letters, a hyphen and digits, or
-  digits alone — and a ticket directory for that key already exists; a
-  review never creates a ticket directory. Argued in *Review reports*.
-- **D20** — The review command, or a solo run before it writes,
-  resolves the report directory from the working tree and hands the
-  agent the path; a run with no interactive dispatcher, an ambiguity
+  goes to `<ticket directory>/code-review/`, unless it is local-only;
+  any other report goes to `docs/code-review/`. Argued in *Review
+  reports*.
+- **D19** — A branch name follows the scheme `[<type>/]<key>[-<slug>]`,
+  `<type>` any one segment and `<key>` a key shape; a name in the scheme
+  whose ticket directory exists gives the review its ticket, while a
+  name in the scheme without one, or a key shape outside the scheme, is
+  asked about in an interactive session and gives no ticket otherwise.
+  A review never creates a ticket directory. The ticket-frontmatter
+  rule sources a new document's ticket from a branch by the same
+  scheme. Argued in *Review reports*.
+- **D20** — The review command resolves the report directory from the
+  working tree before dispatch and hands the agent the path, and a solo
+  run resolves it the same way before it writes; a run with no
+  interactive dispatcher, an ambiguity
   nobody can answer, or a local-only report writes to
   `docs/code-review/`. Argued in *Review reports*.
 - **D15** — Moving a document into a ticket directory is a procedure in
@@ -234,7 +240,11 @@ documents go; it gains: with `ticket.root` set and a ticket, in the
 root's subdirectory whose name starts with `<prefix>-`, ignoring case,
 in the working tree or on the integration branch — several go to the
 developer — and only with none in a new `<root>/<prefix>-<topic>/`,
-named by the lifecycle rule, which holds the lookup's details.
+named by the lifecycle rule — and it ends by requiring the session to
+read the spec-plan-lifecycle rule before creating a ticket directory,
+since that rule holds the lookup's commands and cannot be counted on to
+have loaded yet. The workflow rule already requires the same read of a
+plan-writing brief for the same reason.
 
 `decision-coverage.py` resolves links relative to the document it is
 given and finds nothing on its own; its one directory assumption is
@@ -285,14 +295,29 @@ class directory climbs further (`../../specs/…`). The lifecycle rule's
 
 The review-reports rule gains one placement rule. With `ticket.root`
 set, a report whose ticket the current branch name gives goes to
-`<ticket directory>/code-review/`. A branch names a ticket only when
-the segment after `feature/` opens with a key shape — letters, a hyphen
-and digits (`ABC-123-login`), or digits alone (`6-salesforce`) — and a
-ticket directory for that key, after the prefix rule (`6` gives
-`ticket-6`), already exists. The shape alone proves nothing:
-`feature/phase-2-cleanup` has it, and no ticket `phase-2` exists. A
-review never creates a ticket directory; a ticket's directory appears
-with its first process document.
+`<ticket directory>/code-review/`. A branch name follows the scheme
+`[<type>/]<key>[-<slug>]`: an optional single segment of any type
+(`feature/`, `bugfix/`, `hotfix/`), then a key shape — letters, a
+hyphen and digits (`ABC-123`), or digits alone (`42`, which the prefix
+rule turns into `ticket-42`) — then an optional slug. `feature/ABC-123-login`,
+`bugfix/ABC-1-x`, `ABC-123` and `hotfix/42-crash` all fit.
+
+| the branch name | interactive session | no interactive dispatcher |
+|---|---|---|
+| fits the scheme, and the key's ticket directory exists | the ticket directory, no question | the ticket directory |
+| fits the scheme, no ticket directory (`feature/phase-2-cleanup`) | asks whether the branch is ticket `PHASE-2`'s | `docs/code-review/` |
+| carries a key shape outside the scheme (`jan/abc-123-fix`, `release-ABC-123`) | asks for the ticket | `docs/code-review/` |
+| carries no key shape (`feature/ticket-directories`) | `docs/code-review/`, no question | `docs/code-review/` |
+
+An answer holds for that branch until the session ends, so later
+review rounds do not ask again; nothing is recorded. A review never
+creates a ticket directory: a confirmed ticket whose directory does
+not exist sends the report to `docs/code-review/`, and a ticket's
+directory appears with its first process document.
+
+The ticket-frontmatter rule sources a new document's ticket from the
+branch name before the conversation; it reads the branch by the same
+scheme, so one definition of a ticket in a branch name serves both.
 
 The review command resolves the directory before dispatch, as it
 already runs the first-create check before dispatch: it looks for the
@@ -366,9 +391,10 @@ when the session opens the document.
   without `status:` stays untouched; a dated spec with `ticket: ABC-77`
   moves with its plan and every link resolves, an `integrity:` stamp
   that matched before the move matches after it; a review on
-  `feature/ABC-12-x` writes to `abc-12-old/code-review/`, and one on
-  `feature/phase-2-cleanup` writes to `docs/code-review/` and creates no
-  directory.
+  `feature/ABC-12-x` writes to `abc-12-old/code-review/`, so does one
+  on `bugfix/ABC-12-y` and one on `ABC-12`, and one on
+  `feature/phase-2-cleanup` asks, then writes to `docs/code-review/`
+  and creates no directory.
 - In a project without `ticket.root`, the dogfood's ticketless flow
   writes to the class directories as today.
 
@@ -399,7 +425,8 @@ when the session opens the document.
   also the ticket-root exclusion.
 - `rules/workflow.md` — where a ticket's documents go.
 - `rules/ticket-frontmatter.md` — field sets by class; companion
-  documents in a ticket directory exempt.
+  documents in a ticket directory exempt; branch sourcing by the D19
+  scheme.
 - `rules/review-reports.md` — ticket placement of reports, the
   branch-ticket shape, the `docs/**/code-review/**` glob.
 - `scripts/decision-coverage.py`, `tests/working-process/test_decision_coverage.py`
@@ -424,7 +451,8 @@ when the session opens the document.
 - The integration-branch lookup asks once where no instruction names
   the branch, reads the remote-tracking ref without fetching, and skips
   a branch that exists nowhere.
-- D19's key shape for branch names.
+- An answer about a branch's ticket holds for the session and is not
+  recorded.
 - D21 recomputes only hashes that matched before the move, so a move
   never stamps unaudited edits.
 - D20: an unattended run, or an ambiguity nobody can answer, writes
@@ -432,6 +460,16 @@ when the session opens the document.
 - A move names each file it turns from untracked to tracked.
 
 ## Review rounds
+
+### 2026-10-27 — architect, fable 5.1, concerns (round 2, diff-scoped)
+
+- fixed 2026-10-27 — [Minor] R2-1: F1's fix put the lookup duty in the always-loaded workflow rule but left its commands in the lifecycle rule, which loads too late; license: D11; the workflow clause ends by requiring a read of the spec-plan-lifecycle rule before creating a ticket directory, the pattern the workflow rule already uses for a plan-writing brief
+- fixed 2026-10-27 — [Minor] R2-2: the glossary's *Dispatch record* still located a review report under `docs/code-review/`; license: D18 and F3; the appositive names no location
+- fixed 2026-10-27 — the reviewer's integrity note: D14 sent a local-only report to the ticket directory, and D20 had a solo run hand an agent the path; license: F2's ruling and F8; D14 excepts local-only reports, D20 separates the dispatched and the solo run
+
+Resolved without a fresh round: both findings and the note are wording; no decision moved.
+
+- fixed 2026-10-27 — D19 read a ticket only after `feature/`, so `bugfix/ABC-1-x` or a bare `ABC-123` branch lost its ticket; ruling: 2026-10-27; D19 and *Review reports* define the scheme `[<type>/]<key>[-<slug>]`, ask about a name outside it or without a ticket directory, and the ticket-frontmatter rule's branch sourcing reads the same scheme
 
 ### 2026-10-27 — architect, fable 5.1, blocking (round 1, full-document)
 
