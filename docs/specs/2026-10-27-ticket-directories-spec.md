@@ -3,7 +3,7 @@ ticket: none
 date: 2026-10-27
 status: draft
 grilled: 2026-10-27
-architect: concerns (resolved 2026-10-27)
+architect: blocking
 decisions: registered
 branch: feature/ticket-directories
 base: develop
@@ -117,15 +117,16 @@ Anti-goals — the change fails, even if it works, when:
   goes to `<ticket directory>/code-review/`, unless it is local-only;
   any other report goes to `docs/code-review/`. Argued in *Review
   reports*.
-- **D19** — A branch name follows the scheme `[<type>/]<key>[-<slug>]`,
-  `<type>` any one segment and `<key>` a key shape; a name in the scheme
-  whose ticket directory exists gives the review its ticket, while a
-  name in the scheme without one, or a key shape outside the scheme, is
-  asked about in an interactive session and gives no ticket otherwise.
-  A review never creates a ticket directory. The ticket-frontmatter
-  rule sources a new document's ticket from a branch by the same
-  scheme, confirming with the developer a ticket whose directory does
-  not exist yet. Argued in *Review reports*.
+- **D19** — With `ticket.root` set, a branch name is read by the
+  scheme `[<type>/]<key>[-<slug>]`, `<type>` any one segment and
+  `<key>` a key shape, defined once in the workflow rule's *Branch
+  naming*. For a review, a name in the scheme whose ticket directory
+  exists gives the ticket; a key shape outside the scheme is asked
+  about in an interactive session; anything else gives no ticket. A
+  review never creates a ticket directory. For a new document, the
+  ticket-frontmatter rule reads the same scheme and confirms a ticket
+  whose directory does not exist yet. Without `ticket.root`, branch
+  sourcing is unchanged. Argued in *Review reports*.
 - **D20** — The review command resolves the report directory from the
   working tree before dispatch and hands the agent the path, and a solo
   run resolves it the same way before it writes; a run with no
@@ -296,34 +297,48 @@ class directory climbs further (`../../specs/…`). The lifecycle rule's
 
 The review-reports rule gains one placement rule. With `ticket.root`
 set, a report whose ticket the current branch name gives goes to
-`<ticket directory>/code-review/`. A branch name follows the scheme
-`[<type>/]<key>[-<slug>]`: an optional single segment of any type
-(`feature/`, `bugfix/`, `hotfix/`), then a key shape — letters, a
-hyphen and digits (`ABC-123`), or digits alone (`42`, which the prefix
-rule turns into `ticket-42`) — then an optional slug. `feature/ABC-123-login`,
-`bugfix/ABC-1-x`, `ABC-123` and `hotfix/42-crash` all fit.
+`<ticket directory>/code-review/`.
 
-| the branch name | interactive session | no interactive dispatcher |
-|---|---|---|
-| fits the scheme, and the key's ticket directory exists | the ticket directory, no question | the ticket directory |
-| fits the scheme, no ticket directory (`feature/phase-2-cleanup`) | asks whether the branch is ticket `PHASE-2`'s | `docs/code-review/` |
-| carries a key shape outside the scheme (`jan/abc-123-fix`, `release-ABC-123`) | asks for the ticket | `docs/code-review/` |
-| carries no key shape (`feature/ticket-directories`) | `docs/code-review/`, no question | `docs/code-review/` |
+The branch scheme lives in the workflow rule's *Branch naming*, which
+always loads and already owns branch names; the review-reports and
+ticket-frontmatter rules point to it. With `ticket.root` set, the
+process reads a branch name as `[<type>/]<key>[-<slug>]`: an optional
+single segment of any type (`feature/`, `bugfix/`, `hotfix/`), then a
+key shape — letters, a hyphen and digits (`ABC-123`), or digits alone
+(`42`, which the prefix rule turns into `ticket-42`) — then an optional
+slug. `feature/ABC-123-login`, `bugfix/ABC-1-x`, `ABC-123` and
+`hotfix/42-crash` all fit. The section's "fixes the shape and not the
+spelling" still holds: a project spells its keys as it likes, and the
+process reads only the names that take this shape. Without
+`ticket.root`, branch sourcing is unchanged.
 
-An answer holds for that branch until the session ends, so later
-review rounds do not ask again; nothing is recorded. A review never
-creates a ticket directory: a confirmed ticket whose directory does
-not exist sends the report to `docs/code-review/`, and a ticket's
+In an interactive session a review places its report by this table:
+
+| the branch name | the report goes to |
+|---|---|
+| fits the scheme, and the key's ticket directory exists | the ticket directory, no question |
+| fits the scheme, no ticket directory (`feature/phase-2-cleanup`) | `docs/code-review/`, no question |
+| carries a key shape outside the scheme (`fix-for-ABC-123`, `release-ABC-123`) | asks for the ticket; an existing ticket directory for the answer takes the report, else `docs/code-review/` |
+| carries no key shape (`feature/ticket-directories`) | `docs/code-review/`, no question |
+
+A run with no interactive dispatcher writes to `docs/code-review/`
+whatever the branch (D20). The one question is a named exception to
+the review-reports rule's "a review run never blocks on a question",
+made only in an interactive session; its answer also sets the report's
+`ticket:`. A review never creates a ticket directory: a ticket's
 directory appears with its first process document.
 
 The ticket-frontmatter rule sources a new document's ticket from the
-branch name before the conversation; it reads the branch by the same
-scheme, so one definition of a ticket in a branch name serves both.
+branch name before the conversation, reading it by the same scheme.
 With `ticket.root` set, a ticket read from the branch whose ticket
 directory does not exist yet is stated and confirmed with the
 developer before the document is written — `feature/phase-2-cleanup`
 and `release/2026-10-27` fit the scheme and name no ticket. This is the
-sourcing order's one question for the unit of work, never a second.
+sourcing order's one question for the unit of work, never a second: a
+declined confirmation falls through to the conversation and then to
+`none`, never to another question. One answer about a branch's ticket
+serves both rules for the rest of the session; nothing is recorded,
+and a fresh session or a compaction may ask again.
 
 The review command resolves the directory before dispatch, as it
 already runs the first-create check before dispatch: it looks for the
@@ -398,9 +413,10 @@ when the session opens the document.
   moves with its plan and every link resolves, an `integrity:` stamp
   that matched before the move matches after it; a review on
   `feature/ABC-12-x` writes to `abc-12-old/code-review/`, so does one
-  on `bugfix/ABC-12-y` and one on `ABC-12`, and one on
-  `feature/phase-2-cleanup` asks, then writes to `docs/code-review/`
-  and creates no directory.
+  on `bugfix/ABC-12-y` and one on `ABC-12`; one on
+  `feature/phase-2-cleanup` writes to `docs/code-review/` without a
+  question and creates no directory; one on `fix-for-ABC-12` asks, and
+  "ABC-12" sends it to `abc-12-old/code-review/`.
 - In a project without `ticket.root`, the dogfood's ticketless flow
   writes to the class directories as today.
 
@@ -429,12 +445,14 @@ when the session opens the document.
 - `rules/technical-design.md`, `rules/propagation-duties.md`,
   `rules/process-artifacts.md` — the suffix globs; process-artifacts
   also the ticket-root exclusion.
-- `rules/workflow.md` — where a ticket's documents go.
+- `rules/workflow.md` — where a ticket's documents go; the branch
+  scheme in *Branch naming*.
 - `rules/ticket-frontmatter.md` — field sets by class; companion
   documents in a ticket directory exempt; branch sourcing by the D19
   scheme.
-- `rules/review-reports.md` — ticket placement of reports, the
-  branch-ticket shape, the `docs/**/code-review/**` glob.
+- `rules/review-reports.md` — ticket placement of reports, the one
+  interactive question as an exception to "never blocks on a question",
+  the `docs/**/code-review/**` glob.
 - `scripts/decision-coverage.py`, `tests/working-process/test_decision_coverage.py`
   — the suffix test.
 - `skills/process-status/SKILL.md` — the directory list in its
@@ -466,6 +484,15 @@ when the session opens the document.
 - A move names each file it turns from untracked to tracked.
 
 ## Review rounds
+
+### 2026-10-27 — architect, fable 5.1, blocking (round 3, diff-scoped)
+
+- fixed 2026-10-27 — [Important] R3-1: the branch scheme sat in review-reports, while the workflow rule's *Branch naming* owns branch names and ticket-frontmatter defers to it; license: D19 ("one definition"); the scheme moves to *Branch naming*, reconciled with "fixes the shape and not the spelling", and the other two rules point to it
+- fixed 2026-10-27 — [Important] R3-2: row 2's question changed nothing, and review-reports says a review never asks; ruling: 2026-10-27; option (a) — row 2 goes to `docs/code-review/` without a question, the one remaining question (row 3) is a named interactive exception whose answer also sets the report's `ticket:`
+- fixed 2026-10-27 — [Minor] R3-3: the table's unattended column sent row 1 to the ticket directory against D20; license: D20 and the CI non-goal; the column is replaced by one sentence
+- fixed 2026-10-27 — [Minor] R3-4: `jan/abc-123-fix` fits the scheme yet was listed outside it; license: D19; the example is `fix-for-ABC-123`
+- fixed 2026-10-27 — [Minor] R3-5: no fall-through after a declined confirmation, and no shared answer between the two rules; license: ticket-frontmatter's "never ask twice"; a decline falls through to the conversation and `none`, and one answer serves both rules for the session
+- fixed 2026-10-27 — [Minor] R3-6: the scheme changed branch sourcing in projects without `ticket.root`; license: goal 4; the scheme applies only with `ticket.root` set
 
 ### 2026-10-27 — architect, fable 5.1, concerns (round 2, diff-scoped)
 
