@@ -4,6 +4,7 @@ date: 2026-10-27
 status: draft
 grilled: 2026-10-27
 architect: concerns (resolved 2026-10-27)
+integrity: 2026-10-27 (sha: 2182680)
 decisions: registered
 branch: feature/ticket-directories
 base: develop
@@ -121,13 +122,15 @@ Anti-goals — the change fails, even if it works, when:
 - **D19** — With `ticket.root` set, a branch name is read by the
   scheme `[<type>/]<key>[-<slug>]`, `<type>` any one segment and
   `<key>` a key shape, defined once in the workflow rule's *Branch
-  naming*. For a review, a name in the scheme whose ticket directory
-  exists gives the ticket; a key shape outside the scheme is asked
-  about in an interactive session; anything else gives no ticket. A
-  review never creates a ticket directory. For a new document, the
-  ticket-frontmatter rule reads the same scheme and confirms a ticket
-  whose directory does not exist yet. Without `ticket.root`, branch
-  sourcing is unchanged. Argued in *Review reports*.
+  naming*. For a review's placement, a name in the scheme whose ticket
+  directory exists gives the ticket directory; a letters-hyphen-digits
+  shape outside the scheme is asked about in an interactive session;
+  anything else places the report in `docs/code-review/`, while the
+  report's `ticket:` field derives as today. A review never creates a
+  ticket directory. For a new document, the ticket-frontmatter rule
+  reads the same scheme and confirms a ticket whose directory does not
+  exist yet. Without `ticket.root`, branch sourcing is unchanged.
+  Argued in *Review reports*.
 - **D20** — The review command resolves the report directory from the
   working tree before dispatch and hands the agent the path, and a solo
   run resolves it the same way before it writes; a run with no
@@ -139,13 +142,28 @@ Anti-goals — the change fails, even if it works, when:
   skill. Argued in *Moving a document*.
 - **D16** — The move offers the document's whole chain. Argued in
   *Moving a document*.
-- **D17** — The move rewrites every reference to and from each moved
-  file, and stops for the developer before any body edit to an
-  `implemented` document. Argued in *Moving a document*.
+- **D17** — Inside `docs/`, the move rewrites each moved file's
+  frontmatter links in both directions, the `with:` file of
+  `integrity:`, `**Follows:**` lines and qualified decision
+  identifiers; it lists, never rewrites, a path in body prose and any
+  reference outside `docs/`, and stops for the developer before any
+  body edit to an `implemented` document. Argued in *Moving a
+  document*.
 - **D21** — The move recomputes the `integrity:` hashes of a document
   whose body it rewrote, keeping the audit date, only where they matched
   before the move; it asks for no new audit. Argued in *Moving a
   document*.
+- **D22** — The integration branch for the lookup is the one the
+  project's instructions name, else the session asks once; the lookup
+  reads its remote-tracking ref where one exists, else the local
+  branch, never fetches, and skips a branch that exists nowhere,
+  saying so. Argued in *Placement*.
+- **D23** — A declined confirmation of a branch ticket falls through to
+  the conversation and then to `none`, never to a second question; one
+  answer about a branch's ticket serves the review and the
+  ticket-frontmatter rule for the rest of the session, is not
+  recorded, and is stated in the workflow rule's *Branch naming*.
+  Argued in *Review reports*.
 - **D18** — The glossary gains *Ticket root*, *Ticket directory*,
   *Process document*, *Companion document*, *Class suffix* and *Class
   directory*, minted in the grilling session of 2026-10-27; *Process
@@ -167,7 +185,9 @@ the loader's `valid_value` and `do_set`, the registry test, and
 process-setup's choices. The registry gains one non-enumerated token,
 `values: <path>`, with `default: unset`. The loader accepts a `<path>`
 value when it starts with `docs/`, names at least one segment after it,
-contains no `..` segment and no trailing `/`; the settings grammar
+contains no `..` segment and no trailing `/`, and neither equals nor
+lies inside a Process directory (`docs/specs/`, `docs/code-review/`,
+and the rest the process-artifacts rule lists); the settings grammar
 already bars spaces and glob characters. The registry test admits the
 token, and process-setup asks the question as free text.
 
@@ -175,7 +195,10 @@ The root lies under `docs/` because every lookup the process runs
 already searches `docs/`: process-status's commands, the `ticket:`
 sweep, the `revises:` lookup and the ticket-frontmatter rule's
 `docs/**` load. A root elsewhere would force a settings path into
-published commands.
+published commands. Process-status's commands therefore stay as they
+are; only its `description:`, which names the class directories as
+where it looks, gains the ticket directories, or the skill would not
+trigger for a status pass over a ticket.
 
 ## Placement
 
@@ -193,9 +216,10 @@ level (`git rev-parse --show-toplevel`), and on the integration branch
 with `git ls-tree --full-tree -d --name-only <ref> <root>/`; without
 `--full-tree` the path is read from the current directory, and a run
 below the top level prints nothing and exits 0. The integration branch is
-the one topic branches are cut from, as the project's instructions or
-the document's `base:` name it; where neither names it, the session
-asks once. `<ref>` is its remote-tracking ref (`origin/develop`) where
+the one topic branches are cut from, as the project's instructions
+name it; where they do not, the session asks once — a document's
+`base:` cannot serve, since the lookup runs before the document
+exists. `<ref>` is its remote-tracking ref (`origin/develop`) where
 one exists, else the local branch; the session never fetches, which
 stays with the developer, and a branch that exists nowhere skips the
 second lookup and says so. The second lookup exists because a ticket's
@@ -209,7 +233,9 @@ document-names convention, so a file prefix and a new directory take
 the case the existing ones use — in the client project, lower case
 (`abc-12-old/abc-12-login-spec.md`) — and with none, the tracker's.
 Several matches, or a `ticket:` list of several keys, go to the
-developer.
+developer, who picks one of the existing directories; the question
+offers no new directory, which anti-goal 1 rules out. A review command
+asks before dispatch, a session before it writes the document.
 
 ## Recognising a process document
 
@@ -231,8 +257,9 @@ The cost to every project, opted in or not: a file under `docs/` named
 A ticket directory holds files a developer names freely; the client
 project already has a `screens-spec.md` there. The lifecycle rule says:
 a process document opens with frontmatter carrying `status:`; a file
-that matches a class suffix without it belongs to the developer, and
-the process neither adds frontmatter to it nor reports it.
+without it — matched by a class suffix or lying in a class directory —
+belongs to the developer, and the process neither adds frontmatter to
+it nor reports it, as the glossary's *Process document* says.
 
 Suffix globs fire only on a correctly named file, and the naming rule
 itself is path-scoped: the lifecycle rule loads on the first Write of a
@@ -368,7 +395,14 @@ like a report whose branch names no ticket — a detached HEAD in CI,
 among others. Nothing blocks an unattended run.
 
 `<ticket directory>/code-review/` inherits the ticket directory's
-tracked mode, so no first-create question is asked. A local-only
+tracked mode, so no first-create question is asked, and a review that
+writes there skips the `docs/code-review/` first-create check and the
+local pocket. A numeric key from a branch fills `ticket:` as the
+ticket-frontmatter rule writes it (`"#42"`), while its prefix is
+`ticket-42`. A solo run follows the same placement through the
+review-reports rule, which its Contract probe reads; a standards
+plugin installed without the working-process rules sees no
+`ticket.root` and writes to `docs/code-review/`. A local-only
 report — one the local pocket would hold — always goes to
 `docs/code-review/`, since the pocket works by writing a `.gitignore`
 and the process writes none under the ticket root. The rule's `paths:`
@@ -391,9 +425,12 @@ when the session opens the document.
    `revises:` and `**Follows:**` — and offers to move them together.
 3. Each moved file takes the convention's full name in the ticket
    directory, keeping its own topic; a file named before the
-   convention gains its class suffix. A tracked file moves with
-   `git mv`; an untracked one, in an ignored class directory, with `mv`
-   and `git add`.
+   convention gains its class suffix, and its topic is its name
+   without a leading date and a trailing `-design`, or its whole stem
+   where neither is there. A tracked file moves with `git mv`; an
+   untracked one — uncommitted, or in an ignored class directory —
+   with `mv`, and nothing is staged, since committing stays with the
+   developer.
 4. The session rewrites every reference: inbound and outbound
    frontmatter links, the `with:` file in `integrity:`, `**Follows:**`
    lines and qualified decision identifiers (`<file>.md#D3`) in bodies.
@@ -409,8 +446,8 @@ when the session opens the document.
    nobody audited.
 5. References outside `docs/` are listed, never rewritten.
 6. The session reports every path it rewrote and every reference it
-   left alone, and names each file that was untracked before the move
-   and is tracked now.
+   left alone, and names each untracked file that now lies in the
+   tracked ticket directory.
 
 ## Verification
 
@@ -456,7 +493,10 @@ when the session opens the document.
   `status:` gate, relative links, the move procedure.
 - `rules/technical-design.md`, `rules/propagation-duties.md`,
   `rules/process-artifacts.md` — the suffix globs; process-artifacts
-  also the ticket-root exclusion.
+  also the ticket-root exclusion; technical-design also its "lives in
+  `docs/technical-designs/`" sentence, which a ticket directory
+  overrides.
+- `README.md` of working-process — the directories it lists.
 - `rules/workflow.md` — where a ticket's documents go; the branch
   scheme and the shared session answer in *Branch naming*.
 - `rules/ticket-frontmatter.md` — field sets by class; companion
@@ -467,8 +507,8 @@ when the session opens the document.
   the `docs/**/code-review/**` glob.
 - `scripts/decision-coverage.py`, `tests/working-process/test_decision_coverage.py`
   — the suffix test.
-- `skills/process-status/SKILL.md` — the directory list in its
-  description.
+- `skills/process-status/SKILL.md` — the ticket directories in its
+  description (*The setting*).
 - `docs/domain/glossary.md` — done in the grilling session and its
   fix wave: six new terms, the Process directory exclusion, the
   *Judged document* sentence, the *Review report* location.
@@ -484,18 +524,37 @@ when the session opens the document.
   and its directory share the key case; with none yet, the tracker's
   case, where the system-designer consultation suggested lower case.
 - A ticket value yielding no prefix is treated as no ticket.
-- The integration-branch lookup asks once where no instruction names
-  the branch, reads the remote-tracking ref without fetching, and skips
-  a branch that exists nowhere.
-- An answer about a branch's ticket holds for the session and is not
-  recorded.
 - D21 recomputes only hashes that matched before the move, so a move
   never stamps unaudited edits.
 - D20: an unattended run, or an ambiguity nobody can answer, writes
   to `docs/code-review/`, matching the CI non-goal.
-- A move names each file it turns from untracked to tracked.
+- A move stages nothing and names each untracked file that now lies
+  in the tracked ticket directory.
+- The loader refuses a `ticket.root` equal to or inside a Process
+  directory.
+- Several matching directories offer only the existing ones.
+- The `status:` gate holds in class directories too.
+- A numeric branch key fills `ticket:` as `"#42"`, with the prefix
+  `ticket-42`.
+- A review writing to a ticket directory skips the `docs/code-review/`
+  first-create check and the local pocket; a standalone standards
+  install writes to `docs/code-review/`.
+- A legacy file's topic is its name without a leading date and a
+  trailing `-design`.
 
 ## Review rounds
+
+### 2026-10-27 — integrity audit, fable, at the consumption gate
+
+- fixed 2026-10-27 — D19 asked about any key shape outside the scheme, the body only about letters-hyphen-digits; license: R4-3; D19 narrowed
+- fixed 2026-10-27 — D19's "gives no ticket" contradicted the report's `ticket:` field; license: R4-2's ruling; D19 speaks of placement and leaves the field to its derivation
+- fixed 2026-10-27 — D17 promised every reference, the procedure lists some; license: *Moving a document*; D17 names what is rewritten and what is listed
+- fixed 2026-10-27 — the integration-branch lookup read a `base:` of a document not yet written; license: *Recognising a process document* (the lookup precedes the write); the project's instructions or one question
+- fixed 2026-10-27 — the integration-branch procedure and the declined-confirmation and session-answer rules had no register entry; license: the register's own rule; D22 and D23
+- fixed 2026-10-27 — the process-status change had no argument; license: *The setting*; the description gains the ticket directories, argued there
+- fixed 2026-10-27 — `rules/technical-design.md`'s location sentence was missing from *Changes by file*; license: *Placement*; listed, with the working-process README
+- fixed 2026-10-27 — the move had no path for an uncommitted file in a tracked class directory; license: the lifecycle rule (documents stay uncommitted while authored); any untracked file moves with `mv`, nothing staged
+- fixed 2026-10-27 — eight implementer questions answered as author's calls: the root's Process-directory guard, existing-only choice on several matches, the gate in class directories, numeric keys, skipped checks in a ticket directory, solo and standalone runs, legacy topics, the README
 
 ### 2026-10-27 — architect, fable 5.1, concerns (round 4, diff-scoped)
 
