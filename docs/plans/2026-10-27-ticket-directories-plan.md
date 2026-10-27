@@ -2,7 +2,7 @@
 ticket: none
 date: 2026-10-27
 status: draft
-adversary: blocking
+adversary: concerns (resolved 2026-10-27)
 spec: ../specs/2026-10-27-ticket-directories-spec.md
 branch: feature/ticket-directories
 base: develop
@@ -80,7 +80,8 @@ validate`, and `claude --plugin-dir` for the dogfood.
   mint is not owed.
 - **Elements-of-style pass.** Every task that changes prose runs the
   `elements-of-style:writing-clearly-and-concisely` pass on the changed
-  text before its commit.
+  text before the task's check block runs, so the pass cannot rewrite a
+  phrase the block already certified.
 
 ## Review Focus
 
@@ -218,8 +219,8 @@ validate`, and `claude --plugin-dir` for the dogfood.
     `grep -qF 'docs/**/*-{spec,technical-design,plan}.md' "$f"`
   - `grep -qF 'docs/**/*-technical-design.md' rules/technical-design.md`
   - `grep -q '^## Ticket directories' rules/spec-plan-lifecycle.md`
-  - `grep -q -- '--full-tree -d --name-only' rules/spec-plan-lifecycle.md`
-  - `grep -q 'git rev-parse --show-toplevel' rules/spec-plan-lifecycle.md`
+  - `tr '\n' ' ' < rules/spec-plan-lifecycle.md | grep -q -- '--full-tree -d --name-only'`
+  - `tr '\n' ' ' < rules/spec-plan-lifecycle.md | grep -q 'git rev-parse --show-toplevel'`
   - `sed -n '/^## Ticket directories/,/^## Decision register/p' rules/spec-plan-lifecycle.md | tr '\n' ' ' | grep -q 'is not a process document'`
   - `tr '\n' ' ' < rules/process-artifacts.md | grep -q 'ticket root'`
 - [ ] **Step 2: Edit.** Add the glob lines per the spec's
@@ -330,7 +331,7 @@ validate`, and `claude --plugin-dir` for the dogfood.
 - Consumes: *Branch naming* (Task 5).
 
 - [ ] **Step 1: Write the check block** and run it — expect failure:
-  `grep -q 'companion document' rules/ticket-frontmatter.md`;
+  `tr '\n' ' ' < rules/ticket-frontmatter.md | grep -q 'companion document'`;
   `grep -q 'Branch naming' rules/ticket-frontmatter.md`;
   `grep -q 'confirm' rules/ticket-frontmatter.md`;
   `tr '\n' ' ' < rules/ticket-frontmatter.md | grep -q 'class directory'`.
@@ -343,9 +344,9 @@ validate`, and `claude --plugin-dir` for the dogfood.
   does not exist yet is stated and confirmed before the document is
   written — the order's one question (D19, D23). The backfill sentence
   exempts every file the `status:` gate excludes — a file matching a
-  class suffix or lying in a class directory without `status:`, and a
-  companion document in a ticket directory — while every other document
-  under `docs/` is backfilled as today (D8, D9).
+  class suffix or lying in a class directory without `status:` — and
+  every companion document in a ticket directory, while every other
+  document under `docs/` is backfilled as today (D8, D9).
 - [ ] **Step 3: Run** the check block and the registry test — expect pass.
 - [ ] **Step 4: Commit** `feat(working-process): ticket-frontmatter for ticket directories`.
 
@@ -372,7 +373,7 @@ validate`, and `claude --plugin-dir` for the dogfood.
   `grep -q 'docs/\*\*/code-review/\*\*' rules/review-reports.md`;
   `grep -q 'feature/phase-2-cleanup' rules/review-reports.md`;
   `grep -q 'fix-for-ABC-123' rules/review-reports.md`;
-  `grep -q 'ticket directories' skills/process-status/SKILL.md`.
+  `tr '\n' ' ' < skills/process-status/SKILL.md | grep -q 'ticket directories'`.
 - [ ] **Step 2: Edit.** The placement rule and table for an
   interactive session, the unattended fallback, local-only reports to
   `docs/code-review/`, the skipped first-create check and pocket in a
@@ -448,9 +449,12 @@ validate`, and `claude --plugin-dir` for the dogfood.
   Rules load from installed copies, not from the plugin, and a
   temporary `CLAUDE_CONFIG_DIR` cannot authenticate an inner session,
   so the run uses the real config:
-  - back up `~/.claude/rules/working-process/` to a dated directory
-    beside it, and copy this branch's `plugins/working-process/rules/*.md`
-    in its place;
+  - move the installed rules out of the loaded tree and put the
+    branch's in their place, from the repository root, `$B` a scratch
+    directory outside `~/.claude/rules/`:
+    `mv ~/.claude/rules/working-process "$B/rules-backup"`;
+    `mkdir ~/.claude/rules/working-process && /bin/cp -f plugins/working-process/rules/*.md ~/.claude/rules/working-process/`;
+    `ls ~/.claude/rules/` must list the same directories as before;
   - `claude plugin disable` the installed working-process,
     python-standards and salesforce-standards, and run sessions with
     `claude --plugin-dir` on this branch's three plugins;
@@ -463,9 +467,12 @@ validate`, and `claude --plugin-dir` for the dogfood.
   resulting tree (`find docs -type f`) and pass or fail.
 - [ ] **Step 3:** Repeat the ticketless flow in a project without
   `ticket.root`: documents land in the class directories.
-- [ ] **Step 4:** Restore: delete the copied rules, move the backup
-  back, `claude plugin enable` the three plugins; confirm with
-  `diff -r` against the backup's listing and `claude plugin list`.
+- [ ] **Step 4:** Restore: `rm -r ~/.claude/rules/working-process &&
+  mv "$B/rules-backup" ~/.claude/rules/working-process`, then
+  `claude plugin enable` the three plugins; confirm with
+  `ls -a ~/.claude/rules/working-process/` (the installed files and
+  `.manifest.json`, as before the run) and `claude plugin list` (all
+  three enabled).
 - [ ] **Step 5:** Report failures to the developer before any fix;
   a fix is a new task.
 
@@ -484,3 +491,13 @@ validate`, and `claude --plugin-dir` for the dogfood.
 - fixed 2026-10-27 — [Minor] M3: long phrases fail across a wrap; license: the check blocks' purpose; phrases are matched on `tr '\n' ' '`
 - fixed 2026-10-27 — [Minor] M4: the dogfood's version clause was unstated; license: the plugin-versioning rule; *Global Constraints* says `--plugin-dir` owes no `-dev` mint
 - fixed 2026-10-27 — [Minor] M5: no task named the elements-of-style pass; license: the repo's elements-of-style rule; *Global Constraints* requires it
+
+### 2026-10-27 — plan-adversary, fable 5.1, concerns (round 2, diff-scoped)
+
+- fixed 2026-10-27 — [Important] F7: a backup beside the installed rules still loads, and a copy-then-move restore nests it; ruling: 2026-10-27; the developer approved the four commands — move out of `~/.claude/rules/`, `mkdir` and `/bin/cp -f` in, `ls` before the first case, `rm -r` and move back
+- fixed 2026-10-27 — [Minor] M6: `diff -r` had no second operand after the restore, and `cp` is aliased to `cp -i`; license: the restore's purpose; `ls -a` and `claude plugin list` confirm it, the copy is `/bin/cp -f`
+- fixed 2026-10-27 — [Minor] M7: four phrase checks grepped raw lines; license: *Global Constraints*; piped through `tr '\n' ' '`
+- fixed 2026-10-27 — [Minor] M8: a style pass after the check block could rewrite a certified phrase; license: the check blocks' purpose; the pass runs before the block
+- fixed 2026-10-27 — [Minor] M9: the F5 sentence folded D9's exemption into D8's gate; license: D9; spec and Task 6 name the two exemptions separately
+
+Resolved without a fresh round: F7's commands carry the developer's sign-off, as the reviewer's stop signal allowed; the Minors are wording.
