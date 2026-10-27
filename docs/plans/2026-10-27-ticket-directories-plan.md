@@ -2,6 +2,7 @@
 ticket: none
 date: 2026-10-27
 status: draft
+adversary: blocking
 spec: ../specs/2026-10-27-ticket-directories-spec.md
 branch: feature/ticket-directories
 base: develop
@@ -60,6 +61,26 @@ validate`, and `claude --plugin-dir` for the dogfood.
 - **English, repo hygiene.** No machine paths, no client names; the
   client project's directory appears only as `docs/jira/abc-…` examples.
 - **Never read a credential's value or write one into a command.**
+- **Check blocks** run with `/bin/sh` from `plugins/working-process/`;
+  a path starting with `plugins/` or `tests/` is relative to the
+  repository root (`cd "$(git rev-parse --show-toplevel)"` first). One
+  `grep -q` per file — `grep -q P a b` passes when either file matches —
+  and no `{a,b}` file expansion. A multi-word phrase is matched on
+  `tr '\n' ' ' < file`, so a line wrap cannot fail it.
+- **The test suite** is `python3 -m unittest discover -s
+  tests/working-process -p 'test_*.py'`, run from the repository root;
+  its output must report a test count above zero (`discover -s tests`
+  finds none).
+- **Rule frontmatter is read by hand.** `claude plugin validate` does
+  not check `rules/`; every task that edits a rule's `paths:` reads the
+  block back and quotes each glob like the existing entries
+  (`- "docs/specs/**"`).
+- **No `-dev` version for the dogfood.** `claude --plugin-dir` loads
+  this checkout directly, so the plugin-versioning rule's dogfooding
+  mint is not owed.
+- **Elements-of-style pass.** Every task that changes prose runs the
+  `elements-of-style:writing-clearly-and-concisely` pass on the changed
+  text before its commit.
 
 ## Review Focus
 
@@ -100,7 +121,10 @@ validate`, and `claude --plugin-dir` for the dogfood.
   value, accepted by the loader when the value starts with `docs/`, has
   a segment after it, has no `..` segment and no trailing `/`, and
   neither equals nor lies inside `docs/specs`, `docs/technical-designs`,
-  `docs/plans`, `docs/domain`, `docs/code-review` or `docs/memory`.
+  `docs/plans`, `docs/domain`, `docs/code-review` or `docs/memory` —
+  "inside" with a `/` boundary, so `docs/specs-archive` is valid — and
+  holds only `[A-Za-z0-9._/-]`, the settings line grammar's value class
+  (`load-settings.sh:159`), which `--set` would otherwise bypass.
 
 - [ ] **Step 1: Write the failing tests.**
   In `test_settings_registry.py`: rename `test_fourteen_keys_in_order`
@@ -112,9 +136,9 @@ validate`, and `claude --plugin-dir` for the dogfood.
   `test_ticket_root_path_values`, using `--set ticket.root <v>` then
   reading the block:
   - `docs/jira` → exit 0, block line `ticket.root: docs/jira  [team]`;
-  - `docs/tickets/active` → exit 0;
+  - `docs/tickets/active` and `docs/specs-archive` → exit 0;
   - `jira`, `docs`, `docs/`, `docs/jira/`, `docs/../jira`,
-    `docs/specs`, `docs/code-review/x` → `--set` exits 1 with
+    `docs/specs`, `docs/code-review/x`, `docs/a*b` → `--set` exits 1 with
     ``error: invalid value for `ticket.root` `` on stderr;
   - the same invalid values written by hand into `settings.md` → block
     shows `ticket.root: unset  [invalid in team]` and an `error:` line.
@@ -127,16 +151,18 @@ validate`, and `claude --plugin-dir` for the dogfood.
   either ` | `-separated values or the token `<path>`, defined there.
   Loader: in awk, `valid_value(val, padded)` returns
   `valid_path(val)` when `padded == " <path> "`; add
-  `valid_path(val)` beside it. In `do_set`, when the normalised values
-  are `<path>`, call a POSIX shell `path_value_ok "$s_value"` with the
-  same rules instead of the enumeration loop. The error text stays as
+  `valid_path(val)` beside it, its first test the character class. In
+  `do_set`, when the normalised values are `<path>`, call a POSIX shell
+  `path_value_ok "$s_value"` with the same rules, character class
+  first, instead of the enumeration loop. The error text stays as
   today, with `(allowed: <path>)`.
   Skill: where process-setup asks a key's question, a key whose
   registry `values:` is `<path>` takes a free-text answer, offered with
   "leave unset" first; cite `ticket.root` by name.
-- [ ] **Step 4: Run** the two test files — expect all pass; then
-  `python3 -m unittest discover -s tests -p 'test_*.py'` — expect all
-  pass.
+- [ ] **Step 4: Run** the two test files — expect all pass; then the
+  test suite — expect all pass, with a count above zero. Run
+  `claude plugin validate plugins/working-process` for the skill edit —
+  expect "Validation passed".
 - [ ] **Step 5: Commit** `feat(working-process): ticket.root settings key with a path value`.
 
 ### Task 2: `decision-coverage.py` recognises a technical design by suffix
@@ -185,20 +211,22 @@ validate`, and `claude --plugin-dir` for the dogfood.
   `spec-plan-lifecycle.md`, which Tasks 4, 5 and 7 point to by that
   name; it holds placement, the lookup commands and the gate.
 
-- [ ] **Step 1: Write the check block** (save as
-  `/tmp/…/t3-check.sh` in the session's scratch directory) and run it —
-  expect every line to fail:
-  - `grep -q 'docs/\*\*/\*-{spec,technical-design,plan}.md' rules/{spec-plan-lifecycle,propagation-duties,process-artifacts}.md`
-  - `grep -q 'docs/\*\*/\*-technical-design.md' rules/technical-design.md`
+- [ ] **Step 1: Write the check block** and run it — expect every line
+  to fail:
+  - for each of `rules/spec-plan-lifecycle.md`,
+    `rules/propagation-duties.md`, `rules/process-artifacts.md`:
+    `grep -qF 'docs/**/*-{spec,technical-design,plan}.md' "$f"`
+  - `grep -qF 'docs/**/*-technical-design.md' rules/technical-design.md`
   - `grep -q '^## Ticket directories' rules/spec-plan-lifecycle.md`
   - `grep -q -- '--full-tree -d --name-only' rules/spec-plan-lifecycle.md`
   - `grep -q 'git rev-parse --show-toplevel' rules/spec-plan-lifecycle.md`
-  - `sed -n '/^## Ticket directories/,/^## [^T]/p' rules/spec-plan-lifecycle.md | grep -q 'status:'`
-  - `grep -q 'ticket root' rules/process-artifacts.md`
+  - `sed -n '/^## Ticket directories/,/^## Decision register/p' rules/spec-plan-lifecycle.md | tr '\n' ' ' | grep -q 'is not a process document'`
+  - `tr '\n' ' ' < rules/process-artifacts.md | grep -q 'ticket root'`
 - [ ] **Step 2: Edit.** Add the glob lines per the spec's
   *Recognising a process document* table, keeping every directory
-  glob. In `spec-plan-lifecycle.md`, add `## Ticket directories` after
-  the naming paragraph, carrying, in the spec's words: placement under
+  glob. In `spec-plan-lifecycle.md`, add `## Ticket directories`
+  immediately before `## Decision register` (:184) — the naming
+  paragraph near the top stays and points to it — carrying, in the spec's words: placement under
   `<root>/<prefix>-<topic>/` (D3); the case-insensitive `<prefix>-`
   lookup with the trailing hyphen, from the top level and with
   `git ls-tree --full-tree -d --name-only <ref> <root>/` on the
@@ -206,7 +234,8 @@ validate`, and `claude --plugin-dir` for the dogfood.
   where the project's instructions name no branch (D4, D22); new
   directory case and topic (D5); several matches or several tickets,
   including the no-directory case (D6); the `status:` gate in class
-  suffixes and class directories alike (D8); "frontmatter links are
+  suffixes and class directories alike, worded "… without `status:` …
+  is not a process document" (D8); "frontmatter links are
   relative to the document" with the sibling and `../../specs/`
   examples (D12). In `technical-design.md`, replace the location
   sentence with one deferring to *Ticket directories* when
@@ -217,8 +246,9 @@ validate`, and `claude --plugin-dir` for the dogfood.
 - [ ] **Step 3: Run** the check block — expect every line to pass; run
   `python3 -m unittest tests/working-process/test_settings_registry.py`
   — expect pass.
-- [ ] **Step 4: Run** `claude plugin validate plugins/working-process` —
-  expect "Validation passed".
+- [ ] **Step 4: Read** the four rules' `paths:` blocks back; run
+  `claude plugin validate plugins/working-process` — expect "Validation
+  passed".
 - [ ] **Step 5: Commit** `feat(working-process): ticket directories in the document rules`.
 
 ### Task 4: The move procedure
@@ -238,7 +268,7 @@ validate`, and `claude --plugin-dir` for the dogfood.
   With `S='/^### Moving a document into a ticket directory/,/^##/p'`,
   each of `git mv`, `nothing is staged`, `implemented`,
   `listed, never rewritten` and `matched its body before the move`
-  must pass `sed -n "$S" rules/spec-plan-lifecycle.md | grep -q '<phrase>'`.
+  must pass `sed -n "$S" rules/spec-plan-lifecycle.md | tr '\n' ' ' | grep -q '<phrase>'`.
 - [ ] **Step 2: Edit.** Write the six steps of the spec's *Moving a
   document* as the procedure, on the developer's command only (D15):
   ticket source; the chain by `spec:`, `technical-design:`,
@@ -267,8 +297,8 @@ validate`, and `claude --plugin-dir` for the dogfood.
 
 - [ ] **Step 1: Write the check block** and run it — expect failure:
   `grep -q '\[<type>/\]<key>\[-<slug>\]' rules/workflow.md`;
-  `grep -q 'read the spec-plan-lifecycle rule before creating a ticket directory' rules/workflow.md`;
-  `grep -q 'fixes the shape and not the spelling' rules/workflow.md`
+  `tr '\n' ' ' < rules/workflow.md | grep -q 'before creating a ticket directory'`;
+  `tr '\n' ' ' < rules/workflow.md | grep -q 'fixes the shape and not the spelling'`
   (must still pass — the sentence stays).
 - [ ] **Step 2: Edit.** The placement clause per the spec's
   *Recognising a process document*: with `ticket.root` set and a
@@ -289,7 +319,7 @@ validate`, and `claude --plugin-dir` for the dogfood.
 
 ### Task 6: Ticket-frontmatter rule
 
-**Realizes:** D9, D19, D23
+**Realizes:** D8, D9, D19, D23
 
 **Files:**
 - Modify: `plugins/working-process/rules/ticket-frontmatter.md`
@@ -302,7 +332,8 @@ validate`, and `claude --plugin-dir` for the dogfood.
 - [ ] **Step 1: Write the check block** and run it — expect failure:
   `grep -q 'companion document' rules/ticket-frontmatter.md`;
   `grep -q 'Branch naming' rules/ticket-frontmatter.md`;
-  `grep -q 'confirm' rules/ticket-frontmatter.md`.
+  `grep -q 'confirm' rules/ticket-frontmatter.md`;
+  `tr '\n' ' ' < rules/ticket-frontmatter.md | grep -q 'class directory'`.
 - [ ] **Step 2: Edit.** *Field sets*: the process-document set is
   chosen by class (class suffix or class directory), not by
   directory; a companion document in a ticket directory is exempt from
@@ -311,7 +342,10 @@ validate`, and `claude --plugin-dir` for the dogfood.
   *Branch naming*'s scheme, and a branch ticket whose ticket directory
   does not exist yet is stated and confirmed before the document is
   written — the order's one question (D19, D23). The backfill sentence
-  exempts companion documents in a ticket directory.
+  exempts every file the `status:` gate excludes — a file matching a
+  class suffix or lying in a class directory without `status:`, and a
+  companion document in a ticket directory — while every other document
+  under `docs/` is backfilled as today (D8, D9).
 - [ ] **Step 3: Run** the check block and the registry test — expect pass.
 - [ ] **Step 4: Commit** `feat(working-process): ticket-frontmatter for ticket directories`.
 
@@ -349,8 +383,9 @@ validate`, and `claude --plugin-dir` for the dogfood.
   exception to "never blocks on a question" (D14, D19, D20). The
   process-status `description:` names ticket directories beside the
   class directories; the README lists the ticket root.
-- [ ] **Step 3: Run** the check block, the full test suite and
-  `claude plugin validate plugins/working-process` — expect pass.
+- [ ] **Step 3: Read** the rule's `paths:` back; run the check block,
+  the test suite (count above zero) and `claude plugin validate
+  plugins/working-process` — expect pass.
 - [ ] **Step 4: Commit** `feat(working-process): review reports in ticket directories`.
 
 ### Task 7b: Review commands of the standards plugins
@@ -371,18 +406,22 @@ validate`, and `claude --plugin-dir` for the dogfood.
 - Consumes: the review-reports placement section (Task 7a).
 
 - [ ] **Step 1: Write the check block** and run it — expect each to fail:
-  `grep -q 'ticket.root' plugins/{python,salesforce}-standards/commands/*-review.md`;
-  `grep -q 'writes the review report to docs/code-review/' plugins/{python,salesforce}-standards/agents/*.md`
-  must **pass** before and **fail** after (the only-location claim is
-  gone).
+  for each of `plugins/python-standards/commands/python-review.md` and
+  `plugins/salesforce-standards/commands/salesforce-review.md`:
+  `grep -q 'ticket.root' "$f"`; and for each of
+  `plugins/python-standards/agents/python-code-reviewer.md` and
+  `plugins/salesforce-standards/agents/salesforce-code-reviewer.md`:
+  `grep -q 'writes the review report to docs/code-review/' "$f"` must
+  **pass** before and **fail** after (the only-location claim is gone).
 - [ ] **Step 2: Edit.** Each command resolves the directory before
   dispatch — working tree only, `ticket.root` from the settings block,
   per the review-reports rule — and passes it in the prompt; each agent
   writes to the directory the prompt names; each code-review skill's
   *Location* says "the directory the run resolved: `docs/code-review/`,
   or a ticket directory's `code-review/`"; each README follows.
-- [ ] **Step 3: Run** the check block, the full test suite, and
-  `claude plugin validate` on both standards plugins — expect pass.
+- [ ] **Step 3: Run** the check block, the test suite (count above
+  zero), and `claude plugin validate` on both standards plugins —
+  expect pass.
 - [ ] **Step 4: Commit** `feat: standards review commands place reports in ticket directories`.
 
 ### Task 8: Changelogs
@@ -406,17 +445,42 @@ validate`, and `claude --plugin-dir` for the dogfood.
 - [ ] **Step 1:** Build a scratch git project (develop as integration
   branch, `ticket.root: docs/jira` in `.working-process/settings.md`,
   `docs/jira/abc-12-old/` with a `screens-spec.md` lacking `status:`).
-  Rules load from installed copies, not from the plugin, so copy this
-  branch's `plugins/working-process/rules/*.md` into the scratch
-  project's `.claude/rules/working-process/`, and run every session
-  with a temporary `CLAUDE_CONFIG_DIR`, so no user-level rule loads,
-  and with `claude --plugin-dir` on this branch's three plugins. Before
-  the cases, ask a session to quote the spec-plan-lifecycle rule's
-  *Ticket directories* heading; no quote, no dogfood.
+  Rules load from installed copies, not from the plugin, and a
+  temporary `CLAUDE_CONFIG_DIR` cannot authenticate an inner session,
+  so the run uses the real config:
+  - back up `~/.claude/rules/working-process/` to a dated directory
+    beside it, and copy this branch's `plugins/working-process/rules/*.md`
+    in its place;
+  - `claude plugin disable` the installed working-process,
+    python-standards and salesforce-standards, and run sessions with
+    `claude --plugin-dir` on this branch's three plugins;
+  - before the cases, ask a session to quote the workflow rule's new
+    *Branch naming* sentence on `ticket.root`; no quote, no dogfood.
+    The spec-plan-lifecycle rule is probed after the first spec write,
+    since it loads on a matching file.
 - [ ] **Step 2:** Run every case of the spec's *Verification* dogfood
   bullet, and the Review Focus items 3–5; record each prompt, the
   resulting tree (`find docs -type f`) and pass or fail.
 - [ ] **Step 3:** Repeat the ticketless flow in a project without
   `ticket.root`: documents land in the class directories.
-- [ ] **Step 4:** Report failures to the developer before any fix;
+- [ ] **Step 4:** Restore: delete the copied rules, move the backup
+  back, `claude plugin enable` the three plugins; confirm with
+  `diff -r` against the backup's listing and `claude plugin list`.
+- [ ] **Step 5:** Report failures to the developer before any fix;
   a fix is a new task.
+
+## Review rounds
+
+### 2026-10-27 — plan-adversary, fable 5.1, blocking (round 1, full-document)
+
+- fixed 2026-10-27 — [Important] F1: `discover -s tests` runs zero tests; license: the repo's process-setup plan; *Global Constraints* names `discover -s tests/working-process` with a count above zero, Tasks 1, 7a, 7b use it
+- fixed 2026-10-27 — [Important] F2: `## Ticket directories` after the naming paragraph swallowed 140 lines and the gate check passed on an existing example; license: spec-plan-lifecycle's structure; Task 3 places the section before `## Decision register` and checks the phrase "is not a process document"
+- fixed 2026-10-27 — [Important] F3: `grep -q P a b` passes on one file, brace expansion fails under `sh`, cwd unstated; license: the check blocks' purpose; *Global Constraints* fixes cwd and one grep per file, Tasks 3 and 7b loop per file
+- fixed 2026-10-27 — [Important] F4: `path_value_ok` dropped the value-class check, so `--set` could write a line the loader rejects; license: `do_set`'s "nothing is created before both pass"; the class check comes first in shell and awk, with `docs/a*b` and `docs/specs-archive` cases
+- fixed 2026-10-27 — [Important] F5: the backfill exemption covered companion documents only, against D8; ruling: 2026-10-27; D8 governs — Task 6 exempts every file the `status:` gate excludes, and the spec's *Companion documents* and *Changes by file* say so
+- fixed 2026-10-27 — [Important] F6: a temporary `CLAUDE_CONFIG_DIR` cannot authenticate, and same-name plugins collide; ruling: 2026-10-27; option (a) — Task 9 backs up and replaces the user-level rules, disables the installed plugins, and restores both in its own step
+- fixed 2026-10-27 — [Minor] M1: the probe targeted a path-scoped rule; license: the rule's `paths:`; the probe quotes the always-loaded workflow rule
+- fixed 2026-10-27 — [Minor] M2: `claude plugin validate` skips `rules/`; license: the plugin-authoring rule; each rule-editing task reads `paths:` back
+- fixed 2026-10-27 — [Minor] M3: long phrases fail across a wrap; license: the check blocks' purpose; phrases are matched on `tr '\n' ' '`
+- fixed 2026-10-27 — [Minor] M4: the dogfood's version clause was unstated; license: the plugin-versioning rule; *Global Constraints* says `--plugin-dir` owes no `-dev` mint
+- fixed 2026-10-27 — [Minor] M5: no task named the elements-of-style pass; license: the repo's elements-of-style rule; *Global Constraints* requires it

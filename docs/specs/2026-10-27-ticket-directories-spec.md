@@ -4,7 +4,7 @@ date: 2026-10-27
 status: draft
 grilled: 2026-10-27
 architect: concerns (resolved 2026-10-27)
-integrity: 2026-10-27 (sha: 371c6bb)
+integrity: 2026-10-27 (sha: b5e6677)
 decisions: registered
 branch: feature/ticket-directories
 base: develop
@@ -297,7 +297,10 @@ a process document nor a review report — needs neither `ticket:` nor
 `date:`: the directory names the ticket and git keeps the dates. It may
 carry frontmatter of its own; the process leaves it untouched.
 Process documents in a ticket directory keep their full frontmatter,
-which the process reads.
+which the process reads. The ticket-frontmatter rule's backfill — the
+block it adds to an edited document that has none — skips every file
+D8's gate excludes, a companion document among them; every other
+document under `docs/` is backfilled as today.
 
 ## Modes
 
@@ -505,8 +508,8 @@ when the session opens the document.
 - `README.md` of working-process — the directories it lists.
 - `rules/workflow.md` — where a ticket's documents go; the branch
   scheme and the shared session answer in *Branch naming*.
-- `rules/ticket-frontmatter.md` — field sets by class; companion
-  documents in a ticket directory exempt; branch sourcing by the D19
+- `rules/ticket-frontmatter.md` — field sets by class; the backfill
+  skips every file D8's gate excludes; branch sourcing by the D19
   scheme.
 - `rules/review-reports.md` — ticket placement of reports, the one
   interactive question as an exception to "never blocks on a question",
@@ -551,6 +554,8 @@ when the session opens the document.
 ## Review rounds
 
 ### 2026-10-27 — integrity audit, fable, at the consumption gate
+
+- fixed 2026-10-27 — the plan-adversary's F5 found the backfill exemption narrower than D8's gate; ruling: 2026-10-27; *Companion documents* and *Changes by file* exempt every file the gate excludes, the stamp's hash recomputed without a new audit
 
 - fixed 2026-10-27 — closures of the audit's dispositions, found after the stamp: D6 had no outcome for a ticket list none of whose tickets has a directory; D8 lagged the gate's extension to class directories; move steps 4 and 5 lagged D17; three wrapped lines; ruling: 2026-10-27; D6, *Placement*, D8 and steps 4–5 amended, the stamp's hash recomputed without a new audit
 
