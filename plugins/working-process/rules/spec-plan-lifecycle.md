@@ -241,7 +241,7 @@ belong to one. Move it only on the developer's command, never on the
 session's initiative. Six steps:
 
 1. **Ticket.** Take the document's `ticket:` value, or the command's
-   when that value is `none`. Several tickets go to the developer.
+   when that value is `none`. Where several tickets apply, ask which one.
 2. **Chain.** Find the documents the moved one links to and those that
    link to it, by `spec:`, `technical-design:`, `revises:` and
    `**Follows:**`. Offer to move them together, as one move.
@@ -252,18 +252,21 @@ session's initiative. Six steps:
    where neither is there. Move a tracked file with `git mv`, an
    untracked one (uncommitted, or in an ignored class directory) with
    `mv`; nothing is staged, since committing stays with the developer.
-4. **References.** Rewrite inbound and outbound frontmatter links, the
-   `with:` file in `integrity:`, `**Follows:**` lines, and qualified
-   decision identifiers (`<file>.md#D3`) in bodies. A body edit that an
+4. **References.** Before any rewrite, compare each affected
+   document's `integrity:` hashes (its own `sha:` and any `with:` hash)
+   with the bodies as they stand, and note which matched. Then rewrite
+   inbound and outbound frontmatter links, the `with:` file in
+   `integrity:`, `**Follows:**` lines, and qualified decision
+   identifiers (`<file>.md#D3`) in bodies. A body edit that an
    `implemented` document would need stops the move and goes to the
    developer; its frontmatter may change, since the `integrity:` hash
    covers the body only.
 5. **Hashes.** A rewritten path changes no content, so the move asks
-   for no new audit. Where a document's `integrity:` hashes (its own
-   `sha:` and any `with:` hash) matched its body before the move,
-   recompute them after the rewrite with the hash command above and
-   keep the audit date. A hash that did not match stays as it was:
-   recomputing it would stamp edits nobody audited.
+   for no new audit. Recompute after the rewrite, with the hash command
+   above, only a hash noted in step 4 as one that
+   matched its body before the move, and keep the audit date. A hash
+   that did not match stays as it was: recomputing it would stamp edits
+   nobody audited.
 6. **Report.** References outside `docs/` and paths in body prose are
    listed, never rewritten. Report every path rewritten, every
    reference left alone, and each untracked file that now lies in the
