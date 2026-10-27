@@ -3,6 +3,7 @@ ticket: none
 date: 2026-10-27
 status: draft
 grilled: 2026-10-27
+architect: blocking
 decisions: registered
 branch: feature/ticket-directories
 base: develop
@@ -86,8 +87,10 @@ Anti-goals — the change fails, even if it works, when:
   the topic of the document that creates it. Argued in *Placement*.
 - **D6** — Several matching directories, or a document carrying several
   tickets, are put to the developer. Argued in *Placement*.
-- **D7** — A process document's class is detected from its name
-  suffix; the rules covering design specs, technical designs and plans
+- **D7** — A process document's class is detected from its class
+  suffix, or from its class directory for a document named before the
+  document-names convention; the rules covering design specs,
+  technical designs and plans
   load on suffix globs anchored at `docs/`, beside their directory
   globs, and still branch on the class, never on a file pattern.
   Argued in *Recognising a process document*.
@@ -102,7 +105,9 @@ Anti-goals — the change fails, even if it works, when:
   written by the process and no `dir.*` key reaching them; ignores the
   project sets inside them are respected. Argued in *Modes*.
 - **D11** — The always-loaded workflow rule states where a ticket's
-  documents go. Argued in *Recognising a process document*.
+  documents go, including the reuse of an existing ticket directory,
+  since the path-scoped lifecycle rule loads only once the first file
+  is written. Argued in *Recognising a process document*.
 - **D12** — Frontmatter links are relative to the document that holds
   them. Argued in *Links*.
 - **D13** — `decision-coverage.py` recognises a technical design by the
@@ -115,9 +120,10 @@ Anti-goals — the change fails, even if it works, when:
   `feature/` opens with a key shape — letters, a hyphen and digits, or
   digits alone — and a ticket directory for that key already exists; a
   review never creates a ticket directory. Argued in *Review reports*.
-- **D20** — The review command resolves the report directory before
-  dispatch and hands the agent the path; a run with no interactive
-  dispatcher, or an ambiguity nobody can answer, writes to
+- **D20** — The review command, or a solo run before it writes,
+  resolves the report directory from the working tree and hands the
+  agent the path; a run with no interactive dispatcher, an ambiguity
+  nobody can answer, or a local-only report writes to
   `docs/code-review/`. Argued in *Review reports*.
 - **D15** — Moving a document into a ticket directory is a procedure in
   the lifecycle rule, run by the session on the developer's command; no
@@ -133,15 +139,17 @@ Anti-goals — the change fails, even if it works, when:
   document*.
 - **D18** — The glossary gains *Ticket root*, *Ticket directory*,
   *Process document*, *Companion document*, *Class suffix* and *Class
-  directory*, minted in the grilling session of 2026-10-27, and
-  *Process directory* names the ticket root among its exclusions.
+  directory*, minted in the grilling session of 2026-10-27; *Process
+  directory* names the ticket root among its exclusions, and *Review
+  report* admits a ticket directory's `code-review/`.
   Argued in *Modes*.
 
 ## The setting
 
 `ticket.root` is a team key in `SETTINGS_REGISTRY.md`, read by the
 lifecycle, workflow, ticket-frontmatter, review-reports and
-process-artifacts rules, asked by process-setup. Its name says what it
+process-artifacts rules and by the python-standards and
+salesforce-standards review commands, asked by process-setup. Its name says what it
 decides; `dir.` is taken by mode keys and `docs.` would read as kin of
 `docs-branch.merge`.
 
@@ -171,8 +179,11 @@ or `none`, leaves the document in its class directory.
 Before creating a directory the session looks for one. It lists the
 root's immediate subdirectories whose name starts with `<prefix>-`,
 ignoring case — the trailing hyphen keeps `abc-14-` from matching
-`abc-1489-` — in the working tree, and on the integration branch with
-`git ls-tree -d --name-only <ref> <root>/`. The integration branch is
+`abc-1489-` — in the working tree, listed from the repository's top
+level (`git rev-parse --show-toplevel`), and on the integration branch
+with `git ls-tree --full-tree -d --name-only <ref> <root>/`; without
+`--full-tree` the path is read from the current directory, and a run
+below the top level prints nothing and exits 0. The integration branch is
 the one topic branches are cut from, as the project's instructions or
 the document's `base:` name it; where neither names it, the session
 asks once. `<ref>` is its remote-tracking ref (`origin/develop`) where
@@ -215,9 +226,15 @@ that matches a class suffix without it belongs to the developer, and
 the process neither adds frontmatter to it nor reports it.
 
 Suffix globs fire only on a correctly named file, and the naming rule
-itself is path-scoped. The workflow rule, which always loads, already
-says where documents go; it gains: with `ticket.root` set and a ticket,
-in `<root>/<prefix>-<topic>/`, named by the lifecycle rule.
+itself is path-scoped: the lifecycle rule loads on the first Write of a
+matching file, which is the write that creates a new directory. The
+lookup that keeps a ticket to one directory must therefore load before
+it. The workflow rule, which always loads, already says where
+documents go; it gains: with `ticket.root` set and a ticket, in the
+root's subdirectory whose name starts with `<prefix>-`, ignoring case,
+in the working tree or on the integration branch — several go to the
+developer — and only with none in a new `<root>/<prefix>-<topic>/`,
+named by the lifecycle rule, which holds the lookup's details.
 
 `decision-coverage.py` resolves links relative to the document it is
 given and finds nothing on its own; its one directory assumption is
@@ -278,19 +295,25 @@ review never creates a ticket directory; a ticket's directory appears
 with its first process document.
 
 The review command resolves the directory before dispatch, as it
-already runs the first-create check before dispatch: it looks the
-ticket directory up by *Placement*'s rules and hands the agent the
-report directory's path. The rule that generating a file
-name runs no shell command and asks nothing still holds, since the
-agent receives a resolved directory. An ambiguity *Placement* would put
-to the developer is asked before dispatch in an interactive session; a
-run with no interactive dispatcher writes to `docs/code-review/`,
+already runs the first-create check before dispatch: it looks for the
+ticket directory in the working tree only and hands the agent the
+report directory's path. A review creates no directory, so the
+integration-branch lookup, which exists to prevent a second one, has
+nothing to guard; a directory present only on another branch sends the
+report to `docs/code-review/`. An interactive solo run resolves the
+directory the same way before it writes: resolving a directory is not
+generating a file name, so the rule that file-name generation runs no
+shell command and asks nothing still holds. Several matching
+directories are asked about before dispatch in an interactive session;
+a run with no interactive dispatcher writes to `docs/code-review/`,
 like a report whose branch names no ticket — a detached HEAD in CI,
 among others. Nothing blocks an unattended run.
 
 `<ticket directory>/code-review/` inherits the ticket directory's
-tracked mode, so no first-create question is asked; the local pocket
-works there as in any tracked report directory. The rule's `paths:`
+tracked mode, so no first-create question is asked. A local-only
+report — one the local pocket would hold — always goes to
+`docs/code-review/`, since the pocket works by writing a `.gitignore`
+and the process writes none under the ticket root. The rule's `paths:`
 gains `docs/**/code-review/**`. The python-standards and
 salesforce-standards commands, agents, code-review skills and READMEs
 name `docs/code-review/` as the only location; each learns that the
@@ -333,9 +356,6 @@ when the session opens the document.
 
 ## Verification
 
-- A probe confirms, before implementation, that a brace suffix glob
-  under `docs/` loads a rule when a matching file is read; if braces do
-  not load, each rule takes one glob per suffix.
 - Loader tests cover the `<path>` value: valid, outside `docs/`, `..`,
   trailing `/`.
 - A `test_decision_coverage.py` case audits a technical design outside
@@ -386,9 +406,9 @@ when the session opens the document.
   — the suffix test.
 - `skills/process-status/SKILL.md` — the directory list in its
   description.
-- `docs/domain/glossary.md` — done in the grilling session: six new
-  terms, the Process directory exclusion, the *Judged document*
-  sentence.
+- `docs/domain/glossary.md` — done in the grilling session and its
+  fix wave: six new terms, the Process directory exclusion, the
+  *Judged document* sentence, the *Review report* location.
 - python-standards and salesforce-standards — the review command
   resolves the report directory before dispatch and hands its path to
   the agent; the agent, the code-review skill's location line and the
@@ -410,3 +430,18 @@ when the session opens the document.
 - D20: an unattended run, or an ambiguity nobody can answer, writes
   to `docs/code-review/`, matching the CI non-goal.
 - A move names each file it turns from untracked to tracked.
+
+## Review rounds
+
+### 2026-10-27 — architect, fable 5.1, blocking (round 1, full-document)
+
+- fixed 2026-10-27 — [Important] F1: the lookup guarding anti-goal 1 sat in a path-scoped rule that loads only on the write creating the directory; license: anti-goal 1 and D4; D11 and *Recognising a process document* put the reuse of an existing ticket directory into the always-loaded workflow rule
+- fixed 2026-10-27 — [Important] F2: the local pocket writes a `.gitignore`, which D10 and the glossary's *Ticket root* forbid under the root; ruling: 2026-10-27; option (a) — a local-only report always goes to `docs/code-review/` (D20, *Review reports*), D10 keeps no exception
+- fixed 2026-10-27 — [Minor] F3: the glossary's *Review report* tied the report to `docs/code-review/`; license: D14; the entry admits a ticket directory's `code-review/`, D18 and *Changes by file* say so
+- fixed 2026-10-27 — [Minor] F4: *Process document* recognised a document by its class suffix alone, excluding every document named before the convention; license: *Recognising a process document* (directory globs stay); the glossary entry and D7 add the class directory
+- fixed 2026-10-27 — [Minor] F5: `git ls-tree` without `--full-tree` prints nothing below the top level and exits 0; license: anti-goal 1 and D4; *Placement* prescribes `--full-tree` and lists the working tree from `git rev-parse --show-toplevel`
+- fixed 2026-10-27 — [Minor] F6: the review lookup carried the integration-branch check, which guards only directory creation; license: D19 (a review never creates a directory); *Review reports* and D20 look in the working tree only
+- fixed 2026-10-27 — [Minor] F7: `read-by:` of `ticket.root` omitted the two review commands; license: D20 and the `dir.docs/code-review` precedent; *The setting* names them
+- fixed 2026-10-27 — [Minor] F8: a solo review run had no step before writing; license: D14; *Review reports* and D20 have a solo run resolve the directory before it writes
+- fixed 2026-10-27 — [Minor] F9: the brace-glob probe checks documented platform behaviour; license: the Claude Code memory docs (brace expansion, `src/**/*.{ts,tsx}`); the probe and its fallback are dropped from *Verification*
+- fixed 2026-10-27 — *Ticket root* said every immediate subdirectory is a ticket directory, which a `templates/` subdirectory contradicts; ruling: 2026-10-27; the entry says the root holds the ticket directories

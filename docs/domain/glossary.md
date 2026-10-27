@@ -17,7 +17,7 @@ _Avoid_: artifact folder
 
 **Ticket root**:
 The directory under `docs/` that a project names in the `ticket.root`
-settings key, whose immediate subdirectories are ticket directories. The
+settings key, which holds the ticket directories. The
 process asks no mode question for it and writes no `.gitignore` there;
 what the project's own ignore rules exclude inside it, the process
 respects and may still use.
@@ -126,7 +126,8 @@ _Avoid_: index check, store check
 
 **Review report**:
 The single persistent document one code-review run writes under
-`docs/code-review/` of the reviewed project — one run, one report,
+`docs/code-review/` of the reviewed project, or under a ticket
+directory's `code-review/` — one run, one report,
 written by the run's owner. Shape defined by the review-reports rule's
 contract; a domain plugin's inline fallback is a strict subset of it,
 never a different shape.
@@ -275,8 +276,9 @@ _Avoid_: design document
 **Process document**:
 A design spec, technical design or implementation plan — a document the
 lifecycle rule governs. Under `docs/` it is recognised by its class
-suffix together with a frontmatter `status:`; a file with the suffix
-alone is not one — in a ticket directory, it is a companion document.
+suffix or its class directory, together with a frontmatter `status:`;
+a file with the suffix alone is not one — in a ticket directory, it is
+a companion document.
 _Avoid_: lifecycle document, judged document (for a plan)
 
 **Class suffix**:
