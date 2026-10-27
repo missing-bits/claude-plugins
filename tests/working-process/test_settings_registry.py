@@ -54,14 +54,14 @@ class RegistryShapeTest(unittest.TestCase):
     def setUp(self) -> None:
         self.entries = read_registry(REGISTRY)
 
-    def test_fourteen_keys_in_order(self) -> None:
+    def test_fifteen_keys_in_order(self) -> None:
         self.assertEqual(list(self.entries), [
             "dir.default", "dir.docs/specs", "dir.docs/technical-designs",
             "dir.docs/plans", "dir.docs/domain", "dir.docs/code-review",
             "dir..superpowers", "dir.docs/memory",
             "design.technical-design-offer", "dispatch.propagation-auditor-tier",
             "docs-branch.merge", "consult.personas", "review.autonomy",
-            "review.per-round-commit",
+            "review.per-round-commit", "ticket.root",
         ])
 
     def test_every_entry_is_well_formed(self) -> None:
@@ -69,11 +69,12 @@ class RegistryShapeTest(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertRegex(key, KEY_RE)
                 self.assertIn(fields["scope"], ("team", "personal"))
-                values = fields["values"].split(" | ")
-                self.assertTrue(all(re.fullmatch(r"[A-Za-z0-9._/-]+", v) for v in values), values)
-                self.assertEqual(len(values), len(set(values)))
-                self.assertTrue(fields["default"] == "unset" or fields["default"] in values,
-                                fields["default"])
+                if fields["values"] != "<path>":  # the one non-enumerated shape
+                    values = fields["values"].split(" | ")
+                    self.assertTrue(all(re.fullmatch(r"[A-Za-z0-9._/-]+", v) for v in values), values)
+                    self.assertEqual(len(values), len(set(values)))
+                    self.assertTrue(fields["default"] == "unset" or fields["default"] in values,
+                                    fields["default"])
                 for reader in fields["read-by"].split(", "):
                     self.assertTrue((PLUGINS / reader).is_file(), reader)
                 self.assertTrue(fields["question"].endswith("?"), fields["question"])

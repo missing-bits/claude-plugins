@@ -25,6 +25,7 @@ KEYS = [  # registry order
     "dir.docs/domain", "dir.docs/code-review", "dir..superpowers", "dir.docs/memory",
     "design.technical-design-offer", "dispatch.propagation-auditor-tier",
     "docs-branch.merge", "consult.personas", "review.autonomy", "review.per-round-commit",
+    "ticket.root",
 ]
 
 
@@ -157,6 +158,30 @@ class LoaderTest(unittest.TestCase):
 
         printed = self.run_loader(self.root, "--print")
         self.assertEqual(printed.out, res.out)
+
+    def test_ticket_root_path_values(self) -> None:
+        self.git_init()
+        res = self.run_loader(self.root, "--set", "ticket.root", "docs/jira")
+        self.assertEqual(res.code, 0)
+        self.assertEqual(self.run_loader(self.root).line("ticket.root"), "ticket.root: docs/jira  [team]")
+        for ok in ("docs/tickets/active", "docs/specs-archive"):
+            with self.subTest(ok=ok):
+                self.assertEqual(self.run_loader(self.root, "--set", "ticket.root", ok).code, 0)
+        bad = ("jira", "docs", "docs/", "docs/jira/", "docs/../jira", "docs/specs",
+               "docs/code-review/x", "docs/a*b")
+        for v in bad:
+            with self.subTest(set=v):
+                res = self.run_loader(self.root, "--set", "ticket.root", v)
+                self.assertEqual(res.code, 1)
+                self.assertIn("error: invalid value for `ticket.root`", res.err)
+            with self.subTest(hand=v):
+                root = self.base / "hand"
+                root.mkdir(exist_ok=True)
+                self.git_init(root)
+                self.settings(root, team=f"ticket.root: {v}\n")
+                res = self.run_loader(root)
+                self.assertEqual(res.line("ticket.root"), "ticket.root: unset  [invalid in team]")
+                self.assertTrue(res.errors)
 
     # 2. Suggestion.
     def test_suggestion(self) -> None:

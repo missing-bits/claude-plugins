@@ -204,7 +204,16 @@ AWK_PROG='
     }
     file_label = ENVIRON["FL"]
   }
+  function valid_path(val,    n, parts, i) {
+    if (val !~ /^[A-Za-z0-9._\/-]+$/) return 0
+    if (val !~ /^docs\/./ || val ~ /\/$/) return 0
+    n = split(val, parts, "/")
+    for (i = 1; i <= n; i++) if (parts[i] == "" || parts[i] == "..") return 0
+    if (val ~ /^docs\/(specs|technical-designs|plans|domain|code-review|memory)(\/|$)/) return 0
+    return 1
+  }
   function valid_value(val, padded,    needle) {
+    if (padded == " <path> ") return valid_path(val)
     needle = " " val " "
     return index(padded, needle) > 0
   }
@@ -749,6 +758,25 @@ apply_write() {
   esac
 }
 
+# A ticket-root path: the awk valid_path rules, character class first.
+path_value_ok() {
+  case $1 in
+    *[!A-Za-z0-9._/-]*) return 1 ;;
+    docs/?*) ;;
+    *) return 1 ;;
+  esac
+  case "/$1/" in
+    *//* | */../*) return 1 ;;
+  esac
+  case $1 in
+    */) return 1 ;;
+    docs/specs | docs/specs/* | docs/technical-designs | docs/technical-designs/* \
+      | docs/plans | docs/plans/* | docs/domain | docs/domain/* \
+      | docs/code-review | docs/code-review/* | docs/memory | docs/memory/*) return 1 ;;
+  esac
+  return 0
+}
+
 # do_set <dry: 0|1> <key> <value>: validates the key and value against
 # the registry (nothing is created before both pass), then plans and,
 # unless dry, applies the write, then, on a real write, prints a blank
@@ -775,9 +803,13 @@ do_set() {
   s_values=$(registry_field "$s_key" values) || return 1
   s_values_norm=$(printf '%s' "$s_values" | sed 's/ | / /g') || return 1
   s_value_ok=0
-  for s_v in $s_values_norm; do
-    if [ "$s_v" = "$s_value" ]; then s_value_ok=1; break; fi
-  done
+  if [ "$s_values_norm" = "<path>" ]; then
+    path_value_ok "$s_value" && s_value_ok=1
+  else
+    for s_v in $s_values_norm; do
+      if [ "$s_v" = "$s_value" ]; then s_value_ok=1; break; fi
+    done
+  fi
   if [ "$s_value_ok" -eq 0 ]; then
     # shellcheck disable=SC2016
     printf 'error: invalid value for `%s`: %s (allowed: %s)\n' "$s_key" "$s_value" "$s_values" >&2
