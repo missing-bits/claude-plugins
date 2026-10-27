@@ -1,6 +1,7 @@
 ---
 paths:
   - "docs/code-review/**"
+  - "docs/**/code-review/**"
 ---
 
 # Review reports
@@ -32,6 +33,47 @@ question (process-artifacts rule). Who asks depends on who can:
   defers: it writes the report and leaves the directory undecided.
   This is safe because reports are never staged (see Committing); the
   next interactive touch asks per the process-artifacts rule.
+
+## Ticket-directory placement
+
+With `ticket.root` set, a report whose ticket the branch name gives goes
+to `<ticket directory>/code-review/`. The workflow rule's *Branch
+naming* owns the branch scheme and the session-answer sentence; the
+spec-plan-lifecycle rule's *Ticket directories* owns the ticket
+directory and its lookup. In an interactive session a review places its
+report by this table:
+
+| the branch name | the report goes to |
+|---|---|
+| fits the scheme, and the key's ticket directory exists | the ticket directory, no question |
+| fits the scheme, no ticket directory (`feature/phase-2-cleanup`) | `docs/code-review/`, no question |
+| carries a letters-hyphen-digits shape outside the scheme (`fix-for-ABC-123`, `release-ABC-123`) | asks for the ticket; an existing ticket directory for the answer takes the report, else `docs/code-review/` |
+| carries no key shape (`feature/ticket-directories`) | `docs/code-review/`, no question |
+
+Digits alone count as a key only at the scheme's key position, so
+`feature/oauth2-login` asks nothing. A run with no interactive
+dispatcher writes to `docs/code-review/` whatever the branch, as does a
+run whose branch matches several ticket directories; an interactive
+session asks which one. Nothing blocks an unattended run.
+
+- The command resolves the directory before dispatch, looking in the
+  working tree only (a directory present only on another branch sends
+  the report to `docs/code-review/`), and hands the agent the report
+  directory as an absolute path. An interactive solo run resolves it
+  the same way before it writes, through this rule, which the Contract
+  probe reads.
+- A review never creates a ticket directory.
+- `<ticket directory>/code-review/` inherits the ticket directory's
+  tracked mode: no first-create question is asked, and the report
+  skips the `docs/code-review/` first-create check and the local
+  pocket.
+- A local-only report always goes to `docs/code-review/`, because the
+  pocket works by writing a `.gitignore` and the process writes none
+  under the ticket root.
+- A numeric key from a branch fills `ticket:` as the ticket-frontmatter
+  rule writes it (`"#42"`); its prefix is `ticket-42`.
+- A standards plugin installed without the working-process rules sees
+  no `ticket.root` and writes to `docs/code-review/`.
 
 ## One run, one report
 
@@ -78,7 +120,11 @@ findings: { critical: 0, important: 2, minor: 5 }
   only when a new run-owner kind actually ships.
 - `ticket`: derive from context or branch, else `none` — a review run
   never blocks on a question. This is a deliberate exception to the
-  ticket-frontmatter rule's ask-once step for new documents.
+  ticket-frontmatter rule's ask-once step for new documents. With
+  `ticket.root` set, the row-3 answer and the session's answer about
+  the branch count as context; the one interactive question in
+  *Ticket-directory placement* is the only exception to "never blocks
+  on a question", and only in an interactive session.
 - `scope`: what was reviewed, matching the filename slug.
 - `runid`: this run's id, matching the filename.
 - `standards`: what the run reviewed against — a single standards-plugin
@@ -228,6 +274,9 @@ artifacts; a review report is point-in-time. A report not worth
 keeping is simply deleted.
 
 ## Local pocket (tracked mode only)
+
+With `ticket.root` set, a report written to a ticket directory has no
+pocket; this section covers `docs/code-review/` only.
 
 When `docs/code-review/` resolves to tracked mode — by the first-create
 question, or unasked by a signal or a settings key, in the order the

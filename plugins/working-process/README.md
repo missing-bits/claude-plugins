@@ -319,6 +319,11 @@ A tracked-mode
 `docs/code-review/` additionally carries a `.gitignore` with `local-*`
 — the local pocket for reports the developer keeps out of git.
 
+With `ticket.root` set, the ticket root (a directory the project names)
+holds one ticket directory per ticket, and a review report whose
+ticket the branch name gives goes to that ticket directory's
+`code-review/`.
+
 ## Project memory
 
 The in-repo Project memory store ships as its own plugin, `project-memory`
