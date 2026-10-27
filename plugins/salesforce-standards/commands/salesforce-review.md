@@ -17,7 +17,15 @@ review must never block this session.
    the directory-mode decision; the agent verifies it against the
    declarations on disk. Where step (c) resolved the framework, offer
    to write the declaration before dispatching.
-3. Pre-dispatch first-create check, gated on the contract probe:
+3. Resolve the report directory, gated on the same contract probe
+   as step 4. With the contract found, `ticket.root` set in a settings
+   block in context and the session interactive, resolve it from the
+   working tree only, as the review-reports rule's *Ticket-directory
+   placement* prescribes, and pass the agent its absolute path.
+   Otherwise — no `ticket.root`, a Standalone install, an
+   unattended run — use `docs/code-review/`. A report bound for a
+   ticket directory skips step 4.
+4. Pre-dispatch first-create check, gated on the contract probe:
    check `<project>/.claude/rules/working-process/review-reports.md`,
    then `$HOME/.claude/rules/working-process/review-reports.md` —
    first hit wins (paths owned by the review-reports contract;
@@ -36,20 +44,21 @@ review must never block this session.
    which stands, nothing changed until they answer; the key with no
    visible signal is applied unasked, the ignored mode by writing the
    `*` `.gitignore`.
-4. Dispatch the `salesforce-code-reviewer` agent in the BACKGROUND
+5. Dispatch the `salesforce-code-reviewer` agent in the BACKGROUND
    with the resolved scope. Salesforce files only, per the skill's
    run scope; the agent notes out-of-domain files in the report
    Summary as out of scope and writes the one report itself
    (`mode: agent` under the installed contract). The dispatch prompt
    carries the scope, the prior report's runid for a rerun
-   (`rerun-of`), the resolution record from step 2, and the
-   directory-mode decision from step 3 — never report-shaping
+   (`rerun-of`), the resolution record from step 2, the report
+   directory from step 3, and the directory-mode decision from
+   step 4 — never report-shaping
    instructions of its own: aggregation and counting
    policy, layout, and severity policy belong to the contract
    and the reviewer's skill, and a whole-project scope is no exception.
-5. Tell the developer: the review is running in the background; the
+6. Tell the developer: the review is running in the background; the
    summary arrives as a task notification, not inline; progress via
-   `/tasks`; the report will land under `docs/code-review/`.
-6. When the run's notification arrives, relay its reply to the
+   `/tasks`; the report will land in the directory resolved in step 3.
+7. When the run's notification arrives, relay its reply to the
    developer: report path, findings by severity, and the
    candidate-gap offers verbatim.

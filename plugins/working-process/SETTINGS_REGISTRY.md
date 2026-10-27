@@ -135,5 +135,5 @@ question: May the review loop commit the reviewed document once per round?
 scope: team
 values: <path>
 default: unset
-read-by: working-process/skills/process-setup/SKILL.md, working-process/rules/spec-plan-lifecycle.md, working-process/rules/technical-design.md, working-process/rules/process-artifacts.md, working-process/rules/workflow.md, working-process/rules/ticket-frontmatter.md, working-process/rules/review-reports.md
+read-by: working-process/skills/process-setup/SKILL.md, working-process/rules/spec-plan-lifecycle.md, working-process/rules/technical-design.md, working-process/rules/process-artifacts.md, working-process/rules/workflow.md, working-process/rules/ticket-frontmatter.md, working-process/rules/review-reports.md, python-standards/commands/python-review.md, salesforce-standards/commands/salesforce-review.md
 question: Which directory under docs/ holds one directory per ticket, if the project keeps them?

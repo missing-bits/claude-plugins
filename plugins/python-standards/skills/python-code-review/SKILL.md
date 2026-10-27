@@ -101,7 +101,9 @@ When the Contract probe finds nothing, this minimal contract applies —
 a strict subset of the shared review-reports contract, never a
 different shape:
 
-- **Location**: `<project-root>/docs/code-review/`; create the
+- **Location**: the directory the run resolved: `docs/code-review/`, or
+  a ticket directory's `code-review/`. The dispatch prompt names it;
+  with no prompt, `<project-root>/docs/code-review/`. Create the
   directory if absent (the first-create mode question belongs to
   working-process's process-artifacts rule and is absent in a
   Standalone install).
