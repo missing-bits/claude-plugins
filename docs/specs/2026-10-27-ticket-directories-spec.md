@@ -124,7 +124,8 @@ Anti-goals — the change fails, even if it works, when:
   asked about in an interactive session and gives no ticket otherwise.
   A review never creates a ticket directory. The ticket-frontmatter
   rule sources a new document's ticket from a branch by the same
-  scheme. Argued in *Review reports*.
+  scheme, confirming with the developer a ticket whose directory does
+  not exist yet. Argued in *Review reports*.
 - **D20** — The review command resolves the report directory from the
   working tree before dispatch and hands the agent the path, and a solo
   run resolves it the same way before it writes; a run with no
@@ -318,6 +319,11 @@ directory appears with its first process document.
 The ticket-frontmatter rule sources a new document's ticket from the
 branch name before the conversation; it reads the branch by the same
 scheme, so one definition of a ticket in a branch name serves both.
+With `ticket.root` set, a ticket read from the branch whose ticket
+directory does not exist yet is stated and confirmed with the
+developer before the document is written — `feature/phase-2-cleanup`
+and `release/2026-10-27` fit the scheme and name no ticket. This is the
+sourcing order's one question for the unit of work, never a second.
 
 The review command resolves the directory before dispatch, as it
 already runs the first-create check before dispatch: it looks for the
@@ -470,6 +476,7 @@ when the session opens the document.
 Resolved without a fresh round: both findings and the note are wording; no decision moved.
 
 - fixed 2026-10-27 — D19 read a ticket only after `feature/`, so `bugfix/ABC-1-x` or a bare `ABC-123` branch lost its ticket; ruling: 2026-10-27; D19 and *Review reports* define the scheme `[<type>/]<key>[-<slug>]`, ask about a name outside it or without a ticket directory, and the ticket-frontmatter rule's branch sourcing reads the same scheme
+- fixed 2026-10-27 — the branch-sourced ticket of a new document had no guard, so `feature/phase-2-cleanup` would give a spec `ticket: PHASE-2` and create its directory; ruling: 2026-10-27; with `ticket.root` set, a branch ticket without a ticket directory is confirmed before the document is written (D19, *Review reports*)
 
 ### 2026-10-27 — architect, fable 5.1, blocking (round 1, full-document)
 
