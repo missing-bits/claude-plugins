@@ -56,10 +56,10 @@ GitLab, or anything else; the field is always `ticket`.
 
 For a NEW document: branch name (`feature/ABC-123-...`; with
 `ticket.root` set, read by the scheme in the workflow rule's
-*Branch naming*) → conversation context → ask the developer once; no answer means `none`. Never ask twice
-for one unit of work — a technical design and a plan inherit their
-design spec's ticket, and artifacts
-of the same session reuse the established value. The branch naming
+*Branch naming*) → conversation context → ask the developer once; no
+answer means `none`. Never ask twice for one unit of work — a technical
+design and a plan inherit their design spec's ticket, and artifacts of
+the same session reuse the established value. The branch naming
 convention that produces the names this order reads is the workflow
 rule's, which is where a branch is cut — before any `docs/` file of that
 work exists, and so before this rule loads. Where a branch name yields
@@ -68,13 +68,16 @@ source, as it does for any work whose branch carries none.
 
 With `ticket.root` set, a branch ticket whose ticket directory does
 not exist yet is stated and confirmed before the document is written —
-the one question of the order.
+the one question of the order. A declined confirmation falls through to
+the conversation and then to `none`, never to a second question
+(*Branch naming* holds the rule).
 
 When editing an existing `docs/` document that has no frontmatter, add
 the block as part of the edit — sourced from document content → branch →
 conversation → `none`, never a question (asking is reserved for new
 documents). `date` is the file's git creation date:
 `git log --follow --format=%as -- <file> | tail -1`.
+
 With `ticket.root` set, the backfill skips every file the `status:` gate
 excludes — a file matching a class suffix or lying in a class directory
 without `status:` — and every companion document in a ticket directory;
