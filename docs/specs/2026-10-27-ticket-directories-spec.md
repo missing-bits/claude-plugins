@@ -4,7 +4,7 @@ date: 2026-10-27
 status: draft
 grilled: 2026-10-27
 architect: concerns (resolved 2026-10-27)
-integrity: 2026-10-27 (sha: 2182680)
+integrity: 2026-10-27 (sha: 371c6bb)
 decisions: registered
 branch: feature/ticket-directories
 base: develop
@@ -87,17 +87,19 @@ Anti-goals — the change fails, even if it works, when:
   case the existing ones use, else the tracker's. A new directory takes
   the topic of the document that creates it. Argued in *Placement*.
 - **D6** — Several matching directories, or a document carrying several
-  tickets, are put to the developer. Argued in *Placement*.
+  tickets, are put to the developer: a choice among the existing
+  directories, or, where no listed ticket has one, of the ticket whose
+  directory is created. Argued in *Placement*.
 - **D7** — A process document's class is detected from its class
   suffix, or from its class directory for a document named before the
-  document-names convention; the rules covering design specs,
-  technical designs and plans
-  load on suffix globs anchored at `docs/`, beside their directory
-  globs, and still branch on the class, never on a file pattern.
-  Argued in *Recognising a process document*.
-- **D8** — A file matching a class suffix but carrying no `status:` in
-  its frontmatter is not a process document: the process neither edits
-  nor reports it. Argued in *Recognising a process document*.
+  document-names convention; the rules covering design specs, technical
+  designs and plans load on suffix globs anchored at `docs/`, beside
+  their directory globs, and still branch on the class, never on a file
+  pattern. Argued in *Recognising a process document*.
+- **D8** — A file matching a class suffix or lying in a class
+  directory, but carrying no `status:` in its frontmatter, is not a
+  process document: the process neither edits nor reports it. Argued
+  in *Recognising a process document*.
 - **D9** — A companion document in a ticket directory needs neither
   `ticket:` nor `date:`; process documents keep their full frontmatter.
   Argued in *Companion documents*.
@@ -134,9 +136,9 @@ Anti-goals — the change fails, even if it works, when:
 - **D20** — The review command resolves the report directory from the
   working tree before dispatch and hands the agent the path, and a solo
   run resolves it the same way before it writes; a run with no
-  interactive dispatcher, an ambiguity
-  nobody can answer, or a local-only report writes to
-  `docs/code-review/`. Argued in *Review reports*.
+  interactive dispatcher, an ambiguity nobody can answer, or a
+  local-only report writes to `docs/code-review/`. Argued in *Review
+  reports*.
 - **D15** — Moving a document into a ticket directory is a procedure in
   the lifecycle rule, run by the session on the developer's command; no
   skill. Argued in *Moving a document*.
@@ -176,8 +178,8 @@ Anti-goals — the change fails, even if it works, when:
 `ticket.root` is a team key in `SETTINGS_REGISTRY.md`, read by the
 lifecycle, workflow, ticket-frontmatter, review-reports and
 process-artifacts rules and by the python-standards and
-salesforce-standards review commands, asked by process-setup. Its name says what it
-decides; `dir.` is taken by mode keys and `docs.` would read as kin of
+salesforce-standards review commands, asked by process-setup. Its name
+says what it decides; `dir.` is taken by mode keys and `docs.` would read as kin of
 `docs-branch.merge`.
 
 Every key today takes enumerated values, and three places rely on that:
@@ -215,8 +217,8 @@ ignoring case — the trailing hyphen keeps `abc-14-` from matching
 level (`git rev-parse --show-toplevel`), and on the integration branch
 with `git ls-tree --full-tree -d --name-only <ref> <root>/`; without
 `--full-tree` the path is read from the current directory, and a run
-below the top level prints nothing and exits 0. The integration branch is
-the one topic branches are cut from, as the project's instructions
+below the top level prints nothing and exits 0. The integration branch
+is the one topic branches are cut from, as the project's instructions
 name it; where they do not, the session asks once — a document's
 `base:` cannot serve, since the lookup runs before the document
 exists. `<ref>` is its remote-tracking ref (`origin/develop`) where
@@ -233,8 +235,10 @@ document-names convention, so a file prefix and a new directory take
 the case the existing ones use — in the client project, lower case
 (`abc-12-old/abc-12-login-spec.md`) — and with none, the tracker's.
 Several matches, or a `ticket:` list of several keys, go to the
-developer, who picks one of the existing directories; the question
-offers no new directory, which anti-goal 1 rules out. A review command
+developer, who picks one of the existing directories; while one
+exists, the question offers no new directory, which anti-goal 1 rules
+out. Where no listed ticket has a directory, the developer picks the
+ticket whose directory is created. A review command
 asks before dispatch, a session before it writes the document.
 
 ## Recognising a process document
@@ -362,8 +366,9 @@ branch, else `none` — with the row-3 answer and the session's answer
 about the branch counting as context. A review on `feature/ABC-77-login`
 before the ticket's directory exists keeps `ticket: ABC-77` in
 `docs/code-review/`; one on `feature/phase-2-cleanup` may carry
-`ticket: PHASE-2` there, which creates nothing. A review never creates a ticket directory: a ticket's
-directory appears with its first process document.
+`ticket: PHASE-2` there, which creates nothing. A review never creates
+a ticket directory: a ticket's directory appears with its first process
+document.
 
 The ticket-frontmatter rule sources a new document's ticket from the
 branch name before the conversation, reading it by the same scheme.
@@ -431,7 +436,7 @@ when the session opens the document.
    untracked one — uncommitted, or in an ignored class directory —
    with `mv`, and nothing is staged, since committing stays with the
    developer.
-4. The session rewrites every reference: inbound and outbound
+4. The session rewrites these references: inbound and outbound
    frontmatter links, the `with:` file in `integrity:`, `**Follows:**`
    lines and qualified decision identifiers (`<file>.md#D3`) in bodies.
    A body edit an `implemented` document would need stops the move and
@@ -444,7 +449,8 @@ when the session opens the document.
    rewrite and keeps the audit date. A hash that did not match before
    the move stays as it was, since recomputing it would stamp edits
    nobody audited.
-5. References outside `docs/` are listed, never rewritten.
+5. References outside `docs/` and paths in body prose are listed,
+   never rewritten.
 6. The session reports every path it rewrote and every reference it
    left alone, and names each untracked file that now lies in the
    tracked ticket directory.
@@ -545,6 +551,8 @@ when the session opens the document.
 ## Review rounds
 
 ### 2026-10-27 — integrity audit, fable, at the consumption gate
+
+- fixed 2026-10-27 — closures of the audit's dispositions, found after the stamp: D6 had no outcome for a ticket list none of whose tickets has a directory; D8 lagged the gate's extension to class directories; move steps 4 and 5 lagged D17; three wrapped lines; ruling: 2026-10-27; D6, *Placement*, D8 and steps 4–5 amended, the stamp's hash recomputed without a new audit
 
 - fixed 2026-10-27 — D19 asked about any key shape outside the scheme, the body only about letters-hyphen-digits; license: R4-3; D19 narrowed
 - fixed 2026-10-27 — D19's "gives no ticket" contradicted the report's `ticket:` field; license: R4-2's ruling; D19 speaks of placement and leaves the field to its derivation
