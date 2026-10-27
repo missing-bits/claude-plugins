@@ -10,13 +10,14 @@ this session.
    otherwise the current diff — staged plus unstaged changes, or, on
    a clean tree, the diff of the current branch against its base.
 2. Resolve the report directory, gated on the same contract probe
-   as step 3. With the contract found, `ticket.root` set in a settings
+   as step 3. A review the developer requests as local-only uses
+   `docs/code-review/`, whatever the branch. Otherwise, with the
+   contract found, `ticket.root` set in a settings
    block in context and the session interactive, resolve it from the
    working tree only, as the review-reports rule's *Ticket-directory
    placement* prescribes, and pass the agent its absolute path.
-   Otherwise — no `ticket.root`, a Standalone install, an
-   unattended run, a review the developer requests as local-only,
-   whatever the branch — use `docs/code-review/`. A report bound for a
+   In any other case — no `ticket.root`, a Standalone install, an
+   unattended run — use `docs/code-review/`. A report bound for a
    ticket directory skips step 3.
 3. Pre-dispatch first-create check, gated on the contract probe:
    check `<project>/.claude/rules/working-process/review-reports.md`,
