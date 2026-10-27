@@ -224,6 +224,12 @@ run an explicit editing pass over the changed prose of an existing one.
 The pass binds wording, never decisions. Without the skill there is no
 substitute pass and no install nagging — the work proceeds normally.
 
+## Credentials
+
+Never read a credential's value — `gh auth token`, a token or key file,
+a keyring — or write one into a command. Report a check that needs
+authentication the developer did not provide as not checked.
+
 ## Branch naming
 
 Feature work happens on a topic branch named

@@ -192,3 +192,6 @@ at all.
   project set another — and re-running it here spends the tier on
   arithmetic.
 - Prose quality, naming taste, and style.
+- Reading a credential's value — `gh auth token`, a token or key file,
+  a keyring — or writing one into a command. Report a check that needs
+  authentication the dispatch did not provide as not checked.

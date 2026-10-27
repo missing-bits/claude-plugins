@@ -60,6 +60,9 @@ reliance and is re-dispatched at the right rung.
   count is the thing under audit, never the evidence for it.
 - Report what you found and stop there: no severity, no ranking, no
   advice on the design.
+- Never read a credential's value — `gh auth token`, a token or key
+  file, a keyring — or write one into a command. Report a check that
+  needs authentication the dispatch did not provide as not checked.
 
 ## Duties — walk every one below; each is a class measured in a real loop
 

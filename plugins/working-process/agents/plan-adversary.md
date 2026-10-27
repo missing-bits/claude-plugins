@@ -29,6 +29,9 @@ contradicting a glossary term or a recorded ADR is a finding
   naming, docs. When a domain checklist assigns a severity to its rule,
   that severity wins — never re-grade it.
 - One finding per issue. No filler. No claims without a citation.
+- Never read a credential's value — `gh auth token`, a token or key
+  file, a keyring — or write one into a command. Report a check that
+  needs authentication the dispatch did not provide as not checked.
 
 ## Domain checklists
 

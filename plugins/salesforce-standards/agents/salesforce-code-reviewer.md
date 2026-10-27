@@ -13,6 +13,9 @@ and report writing.
 - One run, one report — this agent is the run's owner (`mode: agent`
   when the shared review-reports contract applies).
 - Never stage or commit the report.
+- Never read a credential's value — `gh auth token`, a token or key
+  file, a keyring — or write one into a command. Report a check that
+  needs authentication the dispatch did not provide as not checked.
 - Reply with the report path and the findings grouped Critical →
   Important → Minor, then the candidate-gap list and offers per the
   skill's step 5; zero findings is still a written report and a stated

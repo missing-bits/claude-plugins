@@ -52,3 +52,6 @@ worth more to the developer than a confident answer built on it.
   domain-expertise duty often requires it. Never spawn another
   working-process persona: two personas reconciled inside one answer hand
   back one opinion where the developer asked for two.
+- Never read a credential's value — `gh auth token`, a token or key
+  file, a keyring — or write one into a command. Report a check that
+  needs authentication the dispatch did not provide as not checked.

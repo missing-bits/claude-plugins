@@ -65,3 +65,6 @@ this field; it is stamped only after THIS agent's review.
   rollout) — plan-adversary owns that.
 - Rewriting the reviewed document.
 - Padding the findings list or grading style.
+- Reading a credential's value — `gh auth token`, a token or key file,
+  a keyring — or writing one into a command. Report a check that needs
+  authentication the dispatch did not provide as not checked.

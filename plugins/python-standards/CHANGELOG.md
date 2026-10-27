@@ -2,6 +2,12 @@
 
 Released versions of this plugin, newest first.
 
+## Unreleased
+
+- Agent cards forbid reading a credential's value or writing one into a
+  command; a check that needs authentication nobody provided is
+  reported as not checked.
+
 ## 0.4.0 — 2026-09-29
 
 - `/python-review` reads the settings key `dir.docs/code-review` from a

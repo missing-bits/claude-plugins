@@ -2,6 +2,12 @@
 
 Released versions of this plugin, newest first.
 
+## Unreleased
+
+- Agent cards and the workflow rule forbid reading a credential's value
+  or writing one into a command; a check that needs authentication
+  nobody provided is reported as not checked.
+
 ## 0.18.0 — 2026-09-29
 
 - New `technical-design` rule: a third document class between the design
