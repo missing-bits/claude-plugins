@@ -221,11 +221,11 @@ no listed ticket has a directory, the developer picks the ticket whose
 directory is created. A review command asks before dispatch, a session
 before it writes the document.
 
-A process document opens with frontmatter carrying `status:`. A file
-matching a class suffix or lying in a class directory, but without
-`status:` in its frontmatter, is not a process document: it belongs to
-the developer, and the process neither adds frontmatter to it nor
-reports it.
+With `ticket.root` set, a process document opens with frontmatter
+carrying `status:`. A file matching a class suffix or lying in a class
+directory, but without `status:` in its frontmatter, is not a process
+document: it belongs to the developer, and the process neither adds
+frontmatter to it nor reports it.
 
 Frontmatter links are relative to the document that holds them. In a
 ticket directory the documents of one chain are siblings

@@ -154,13 +154,12 @@ disables its suggestion — never the work itself.
 
 With `ticket.root` set, a new design spec, technical design or plan
 whose `ticket:` yields a file prefix goes into the root's subdirectory
-whose name starts with `<prefix>-` (the ticket's file prefix, as the
-spec-plan-lifecycle rule names it), ignoring case, in the working tree or on the integration
-branch. Several matches go to the developer. Only with none does it go
-into a new `<root>/<prefix>-<topic>/`, named by the spec-plan-lifecycle
-rule's *Ticket directories*. Read that rule before creating a ticket
-directory: it holds the lookup's commands, and a path-scoped rule has
-not loaded before the first file is written.
+whose name starts with `<prefix>-`, ignoring case, in the working tree
+or on the integration branch. Several matches go to the developer. Only
+with none does it go into a new `<root>/<prefix>-<topic>/`, named by
+the spec-plan-lifecycle rule's *Ticket directories*. Read that rule
+before creating a ticket directory: it holds the lookup's commands, and
+a path-scoped rule has not loaded before the first file is written.
 
 Both audits offered above run in the background, so a gated dispatch
 waits for its audit's task notification before it is issued — a

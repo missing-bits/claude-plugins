@@ -167,6 +167,7 @@ class LoaderTest(unittest.TestCase):
         for ok in ("docs/tickets/active", "docs/specs-archive"):
             with self.subTest(ok=ok):
                 self.assertEqual(self.run_loader(self.root, "--set", "ticket.root", ok).code, 0)
+                self.assertEqual(self.run_loader(self.root).line("ticket.root"), f"ticket.root: {ok}  [team]")
         bad = ("jira", "docs", "docs/", "docs/jira/", "docs/../jira", "docs/specs",
                "docs/code-review/x", "docs/a*b")
         for v in bad:

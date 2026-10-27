@@ -7,15 +7,17 @@ paths:
 # Review reports
 
 The domain-agnostic contract for code-review reports. It binds any
-writer to `docs/code-review/` — the review stacks of standards plugins
+writer to `docs/code-review/` (or, with `ticket.root` set, a ticket
+directory's `code-review/`; see *Ticket-directory placement*) — the review stacks of standards plugins
 are its primary consumers, not its only ones. This rule supersedes any
 inline fallback format a domain plugin's review skill carries for
 standalone installs.
 
 ## Location and directory mode
 
-Review reports live in `<project-root>/docs/code-review/` — a Process
-directory; its ignored-vs-tracked mode comes from the first-create
+Review reports live in `<project-root>/docs/code-review/` (or, with
+`ticket.root` set, a ticket directory's `code-review/`; see
+*Ticket-directory placement*) — a Process directory; its ignored-vs-tracked mode comes from the first-create
 question (process-artifacts rule). Who asks depends on who can:
 
 - An interactive run (`mode: solo`) asks the first-create question as

@@ -320,9 +320,10 @@ A tracked-mode
 — the local pocket for reports the developer keeps out of git.
 
 With `ticket.root` set, the ticket root (a directory the project names)
-holds one ticket directory per ticket, and a review report whose
-ticket the branch name gives goes to that ticket directory's
-`code-review/`.
+holds one ticket directory per ticket. A ticket's design spec,
+technical design and plan go to its ticket directory, and so does a
+review report whose ticket the branch name gives, in `code-review/`
+beside them.
 
 ## Project memory
 
