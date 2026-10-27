@@ -6,8 +6,9 @@ disables its suggestion — never the work itself.
 
 1. **Idea → spec.** When the superpowers:brainstorming skill is
    available, start non-trivial features there; capture the agreed design
-   as a spec in `docs/specs/`. When the working-process consult agents
-   (`architect-consult`, `system-designer-consult`) are available, ask
+   as a spec in `docs/specs/` (with `ticket.root` set, see the
+   ticket-directory paragraph below). When the working-process consult
+   agents (`architect-consult`, `system-designer-consult`) are available, ask
    once, early in the design conversation, whether the two personas
    should be consulted as the design forms — unless `consult.personas`,
    read as the process-settings rule says, is set, which answers it
@@ -125,7 +126,7 @@ disables its suggestion — never the work itself.
    has passed, leaving no confirmed hit, when that agent is available.
    Then write the
    implementation plan with superpowers:writing-plans when available;
-   plans live in `docs/plans/`. A brief that delegates plan-writing to a
+   plans live in `docs/plans/` (or the ticket directory, below). A brief that delegates plan-writing to a
    separate context names the spec-plan-lifecycle rule and requires
    reading it before the plan is written: that rule carries the
    annotations a plan owes a registered design spec, and a separate
@@ -151,9 +152,10 @@ disables its suggestion — never the work itself.
    whatever review surface the matched plugin ships, and that surface
    owns scope resolution, dispatch, and the report.
 
-With `ticket.root` set, a new design spec, technical design or plan for
-a ticket goes into the root's subdirectory whose name starts with
-`<prefix>-`, ignoring case, in the working tree or on the integration
+With `ticket.root` set, a new design spec, technical design or plan
+whose `ticket:` yields a file prefix goes into the root's subdirectory
+whose name starts with `<prefix>-` (the ticket's file prefix, as the
+spec-plan-lifecycle rule names it), ignoring case, in the working tree or on the integration
 branch. Several matches go to the developer. Only with none does it go
 into a new `<root>/<prefix>-<topic>/`, named by the spec-plan-lifecycle
 rule's *Ticket directories*. Read that rule before creating a ticket
