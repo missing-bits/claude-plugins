@@ -462,7 +462,11 @@ validate`, and `claude --plugin-dir` for the dogfood.
     *Branch naming* sentence on `ticket.root`; no quote, no dogfood.
     The spec-plan-lifecycle rule is probed after the first spec write,
     since it loads on a matching file.
-- [ ] **Step 2:** Run every case of the spec's *Verification* dogfood
+- [ ] **Step 2:** On each review branch of the cases below
+  (`feature/ABC-12-x`, `bugfix/ABC-12-y`, `ABC-12`,
+  `feature/phase-2-cleanup`, `fix-for-ABC-12`), commit one changed
+  `*.py` file, so `/python-review` has a diff. Run every case of the
+  spec's *Verification* dogfood
   bullet, and the Review Focus items 3–5; record each prompt, the
   resulting tree (`find docs -type f`) and pass or fail.
 - [ ] **Step 3:** Repeat the ticketless flow in a project without
