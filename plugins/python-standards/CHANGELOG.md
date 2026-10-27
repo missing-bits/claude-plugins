@@ -7,6 +7,9 @@ Released versions of this plugin, newest first.
 - Agent cards forbid reading a credential's value or writing one into a
   command; a check that needs authentication nobody provided is
   reported as not checked.
+- `/python-review` places a ticket's report in the ticket directory's
+  `code-review/` when the working-process `ticket.root` is set;
+  otherwise reports stay in `docs/code-review/`.
 
 ## 0.4.0 — 2026-09-29
 

@@ -6,8 +6,9 @@ disables its suggestion — never the work itself.
 
 1. **Idea → spec.** When the superpowers:brainstorming skill is
    available, start non-trivial features there; capture the agreed design
-   as a spec in `docs/specs/`. When the working-process consult agents
-   (`architect-consult`, `system-designer-consult`) are available, ask
+   as a spec in `docs/specs/` (with `ticket.root` set, see the
+   ticket-directory paragraph below). When the working-process consult
+   agents (`architect-consult`, `system-designer-consult`) are available, ask
    once, early in the design conversation, whether the two personas
    should be consulted as the design forms — unless `consult.personas`,
    read as the process-settings rule says, is set, which answers it
@@ -125,7 +126,7 @@ disables its suggestion — never the work itself.
    has passed, leaving no confirmed hit, when that agent is available.
    Then write the
    implementation plan with superpowers:writing-plans when available;
-   plans live in `docs/plans/`. A brief that delegates plan-writing to a
+   plans live in `docs/plans/` (or the ticket directory, below). A brief that delegates plan-writing to a
    separate context names the spec-plan-lifecycle rule and requires
    reading it before the plan is written: that rule carries the
    annotations a plan owes a registered design spec, and a separate
@@ -150,6 +151,15 @@ disables its suggestion — never the work itself.
    step. The step re-specifies no mechanics — the offer routes to
    whatever review surface the matched plugin ships, and that surface
    owns scope resolution, dispatch, and the report.
+
+With `ticket.root` set, a new design spec, technical design or plan
+whose `ticket:` yields a file prefix goes into the root's subdirectory
+whose name starts with `<prefix>-`, ignoring case, in the working tree
+or on the integration branch. Several matches go to the developer. Only
+with none does it go into a new `<root>/<prefix>-<topic>/`, named by
+the spec-plan-lifecycle rule's *Ticket directories*. Read that rule
+before creating a ticket directory: it holds the lookup's commands, and
+a path-scoped rule has not loaded before the first file is written.
 
 Both audits offered above run in the background, so a gated dispatch
 waits for its audit's task notification before it is issued — a
@@ -249,6 +259,23 @@ the topic branch, not the
 spec-plan-lifecycle rule names and which is a sibling of it rather than
 a second topic branch. The ticket rule's sourcing order reads the
 current branch name first when a new document needs a ticket.
+
+With `ticket.root` set, the process reads a branch name as
+`[<type>/]<key>[-<slug>]`: an optional one-segment `<type>` (`feature/`,
+`bugfix/`, `hotfix/`), then a `<key>` — letters, a hyphen and digits
+(`ABC-123`), or digits alone (`42`) — then an optional slug.
+`feature/ABC-123-login`, `ABC-123` and `hotfix/42-crash` fit. Digits
+alone count only at the key position, so `feature/oauth2-login` names
+no key. The convention above still fixes the shape and not the
+spelling: a project spells its keys as it likes, and the process reads
+only the names that take this shape.
+
+With `ticket.root` set, the integration branch is the one the project's
+instructions name, else the session asks once. A declined confirmation
+of a branch's ticket falls through to the conversation and then to
+`none`, never to a second question. One answer about a branch's ticket
+serves every rule that reads it for the rest of the session; nothing is
+recorded, and a fresh session or a compaction may ask again.
 
 ## Dispatching a verdict agent
 

@@ -3,6 +3,7 @@ paths:
   - "docs/specs/**"
   - "docs/technical-designs/**"
   - "docs/plans/**"
+  - "docs/**/*-{spec,technical-design,plan}.md"
 ---
 
 # Judged documents and plans — frontmatter and lifecycle
@@ -21,7 +22,8 @@ A second design spec for the same ticket takes its own topic
 (`ABC-123-login-errata-spec.md`). Documents named before this
 convention keep their names. When the superpowers brainstorming or
 writing-plans skill writes the document, these names override its
-default file name.
+default file name. With `ticket.root` set, a document for a ticket goes
+to a ticket directory: see *Ticket directories*.
 
 All three open with a YAML frontmatter block:
 
@@ -180,6 +182,95 @@ base: master        # optional: branch the topic branch was cut from
   Global Constraints entries, and the `## Deferrals and predecessors`
   section with its `**Defers:**` and `**Follows:**` lines. The rest of
   the template stays with that tool.
+
+## Ticket directories
+
+With `ticket.root` set, a new design spec, technical design or plan
+whose `ticket:` yields a file prefix goes into the ticket directory
+`<root>/<prefix>-<topic>/`, one level below the ticket root and named as
+above. A ticket value yielding no prefix, or `none`, leaves the document
+in its class directory.
+
+Before creating a directory, look for one. List the root's immediate
+subdirectories whose name starts with `<prefix>-`, ignoring case; the
+trailing hyphen keeps `abc-14-` from matching `abc-1489-`. Search two
+places:
+
+- the working tree, listed from the repository's top level
+  (`git rev-parse --show-toplevel`);
+- the integration branch, with
+  `git ls-tree --full-tree -d --name-only <ref> <root>/`. Without
+  `--full-tree` git reads the path from the current directory, and a run
+  below the top level prints nothing and exits 0.
+
+The integration branch is the one topic branches are cut from, as the
+project's instructions name it; where they name none, ask once. A
+document's `base:` cannot serve, since the lookup runs before the
+document exists. `<ref>` is the branch's remote-tracking ref
+(`origin/develop`) where one exists, else the local branch. Never fetch:
+that stays with the developer. A branch that exists nowhere skips the
+second lookup; say so.
+
+One match is used whatever its topic. With no match, create the
+directory with the topic of the creating document. A file prefix and a
+new directory take the case the project's existing ticket-named files
+and directories use, else the tracker's case. Several matches, or a
+`ticket:` list of several keys, go to the developer, who picks one of
+the existing directories; while one exists, offer no new directory. Where
+no listed ticket has a directory, the developer picks the ticket whose
+directory is created. A review command asks before dispatch, a session
+before it writes the document.
+
+With `ticket.root` set, a process document opens with frontmatter
+carrying `status:`. A file matching a class suffix or lying in a class
+directory, but without `status:` in its frontmatter, is not a process
+document: it belongs to the developer, and the process neither adds
+frontmatter to it nor reports it.
+
+Frontmatter links are relative to the document that holds them. In a
+ticket directory the documents of one chain are siblings
+(`spec: ./ABC-123-login-spec.md`); a link from a ticket directory to a
+class directory climbs further (`../../specs/<file>.md`). The
+`../specs/<file>.md` examples in the frontmatter block above read as
+relative links, not as templates.
+
+### Moving a document into a ticket directory
+
+With `ticket.root` set, a document written without a ticket may later
+belong to one. Move it only on the developer's command, never on the
+session's initiative. Six steps:
+
+1. **Ticket.** Take the document's `ticket:` value, or the command's
+   when that value is `none`. Where several tickets apply, ask which one.
+2. **Chain.** Find the documents the moved one links to and those that
+   link to it, by `spec:`, `technical-design:`, `revises:` and
+   `**Follows:**`. Offer to move them together, as one move.
+3. **Names and moving.** Each moved file takes the convention's full
+   name in the ticket directory and keeps its own topic. A file named
+   before the convention gains its class suffix; its topic is its name
+   without a leading date and a trailing `-design`, or its whole stem
+   where neither is there. Move a tracked file with `git mv`, an
+   untracked one (uncommitted, or in an ignored class directory) with
+   `mv`; nothing is staged, since committing stays with the developer.
+4. **References.** Before any rewrite, compare each affected
+   document's `integrity:` hashes (its own `sha:` and any `with:` hash)
+   with the bodies as they stand, and note which matched. Then rewrite
+   inbound and outbound frontmatter links, the `with:` file in
+   `integrity:`, `**Follows:**` lines, and qualified decision
+   identifiers (`<file>.md#D3`) in bodies. A body edit that an
+   `implemented` document would need stops the move and goes to the
+   developer; its frontmatter may change, since the `integrity:` hash
+   covers the body only.
+5. **Hashes.** A rewritten path changes no content, so the move asks
+   for no new audit. Recompute after the rewrite, with the hash command
+   above, only a hash noted in step 4 as one that
+   matched its body before the move, and keep the audit date. A hash
+   that did not match stays as it was: recomputing it would stamp edits
+   nobody audited.
+6. **Report.** References outside `docs/` and paths in body prose are
+   listed, never rewritten. Report every path rewritten, every
+   reference left alone, and each untracked file that now lies in the
+   tracked ticket directory.
 
 ## Decision register
 

@@ -1,6 +1,6 @@
 ---
 name: python-code-reviewer
-description: "Reviews Python code — a diff or named files — against the python-standards skills, writes the review report to docs/code-review/, and returns findings by severity. Python files only; out-of-domain files are noted in the report Summary as out of scope."
+description: "Reviews Python code — a diff or named files — against the python-standards skills, writes the review report to the directory the dispatch prompt names, and returns findings by severity. Python files only; out-of-domain files are noted in the report Summary as out of scope."
 ---
 
 Code reviewer for Python. FIRST ACTION: load the `python-code-review`
@@ -11,6 +11,8 @@ skills, severity grading, the Contract probe, and report writing.
   given files; nothing else.
 - One run, one report — this agent is the run's owner (`mode: agent`
   when the shared review-reports contract applies).
+- Write the report to the directory the dispatch prompt names; the
+  prompt names none → `docs/code-review/`.
 - Never stage or commit the report.
 - Never read a credential's value — `gh auth token`, a token or key
   file, a keyring — or write one into a command. Report a check that

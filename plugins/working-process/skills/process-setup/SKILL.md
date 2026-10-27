@@ -66,6 +66,10 @@ ones: ask `dir.default`, then offer exceptions only when the developer
 asks for them, `dir.docs/memory` among them. A candidate from step 1
 the developer confirmed is an answer and is not asked again.
 
+A key whose registry `values:` is `<path>`, such as `ticket.root`, takes
+a free-text answer: offer "leave unset" first, then accept a path the
+loader validates.
+
 A team's suggestion for a personal key is the one line `--set` never
 writes: where the developer wants one, say that it goes into
 `settings.md` by hand, and that

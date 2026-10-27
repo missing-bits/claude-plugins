@@ -11,8 +11,31 @@ artifacts (e.g. `docs/domain/`, `docs/specs/`, `docs/plans/`). Deliberately
 narrow: configuration directories the process may also create (such as
 `.claude/rules/` during a project-level rules install) are not Process
 directories — their install questions are their own, defined where the
-install is specified.
+install is specified. A ticket root and its ticket directories are not
+Process directories either.
 _Avoid_: artifact folder
+
+**Ticket root**:
+The directory under `docs/` that a project names in the `ticket.root`
+settings key, which holds the ticket directories. The
+process asks no mode question for it and writes no `.gitignore` there;
+what the project's own ignore rules exclude inside it, the process
+respects and may still use.
+_Avoid_: tickets folder, jira directory
+
+**Ticket directory**:
+The directory one level below the ticket root that holds one ticket's
+work — its process documents, code-review reports and companion
+documents — named `<prefix>-<topic>` by the ticket's key. One ticket has
+exactly one.
+_Avoid_: ticket folder, ticket workspace
+
+**Companion document**:
+A file in a ticket directory that is not a process document or a review
+report — an analysis, a brief, a runbook, a data file. It needs no
+process frontmatter, may carry its own, and the process leaves it
+untouched.
+_Avoid_: supporting document, attachment, ticket document
 
 **First-create question**:
 The question — ignored mode or tracked mode — asked when a process
@@ -103,7 +126,8 @@ _Avoid_: index check, store check
 
 **Review report**:
 The single persistent document one code-review run writes under
-`docs/code-review/` of the reviewed project — one run, one report,
+`docs/code-review/` of the reviewed project, or under a ticket
+directory's `code-review/` — one run, one report,
 written by the run's owner. Shape defined by the review-reports rule's
 contract; a domain plugin's inline fallback is a strict subset of it,
 never a different shape.
@@ -246,8 +270,26 @@ or a technical design, each read next by the plan-writer and the
 plan-adversary — as against an implementation plan, whose next reader
 only executes it. The class decides which ceremonies a document owes
 (ADR 0004), so the lifecycle rule branches on it rather than on a
-filename.
+filename; a class suffix only detects the class.
 _Avoid_: design document
+
+**Process document**:
+A design spec, technical design or implementation plan — a document the
+lifecycle rule governs. Under `docs/` it is recognised by its class
+suffix or its class directory, and with `ticket.root` set, together
+with a frontmatter `status:`; a file with the suffix alone is not one —
+in a ticket directory, it is a companion document.
+_Avoid_: lifecycle document, judged document (for a plan)
+
+**Class suffix**:
+The ending of a process document's file name — `-spec`, `-technical-design`
+or `-plan` — that detects its class wherever the file lies.
+_Avoid_: type suffix, kind suffix
+
+**Class directory**:
+One of `docs/specs/`, `docs/technical-designs/` and `docs/plans/`, the
+directory a process document lives in when it has no ticket directory.
+_Avoid_: type directory, document folder
 
 **Part**:
 A unit of a design with a resolvable identity, an explicit
@@ -582,7 +624,7 @@ git-ignored, and NOT a Process directory — a per-checkout store under
 the `.claude/` config namespace, as Private memory is a per-user one. It
 survives compaction, the session's end and a branch switch, and no more:
 that bound is what lets a Relay condense. Never a Review report, the
-counted document a code-review run writes under `docs/code-review/`.
+counted document one code-review run writes.
 _Avoid_: dispatch log, transcript file
 
 **Session skill**:

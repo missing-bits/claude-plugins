@@ -24,10 +24,11 @@ Each skill ships `reference/` examples alongside its SKILL.md.
 
 - **`python-code-review` skill** — audits Python code against the
   standards skills; writes one review report per run to
-  `docs/code-review/`.
+  `docs/code-review/`, or to a ticket directory's `code-review/` when
+  the working-process rules place it there.
 - **`python-code-reviewer` agent** — reviews a diff or named files,
-  writes the report to `docs/code-review/`, returns findings by
-  severity.
+  writes the report to the directory the command resolved, returns
+  findings by severity.
 - **`/python-review` command** — review the current diff or named
   files. Python files only; out-of-domain files are noted as out of
   scope.

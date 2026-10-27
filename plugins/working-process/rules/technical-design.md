@@ -1,15 +1,17 @@
 ---
 paths:
   - "docs/technical-designs/**"
+  - "docs/**/*-technical-design.md"
 ---
 
 # Technical design — what the thing is made of
 
 A technical design answers what a thing is made of, as its design spec
 answers what and why and the implementation plan answers in what order
-and verified how. It lives in `docs/technical-designs/`, one file per
-design spec, named as the spec-plan-lifecycle rule names documents, with
-the class `technical-design`.
+and verified how. It lives in `docs/technical-designs/`, one file per design
+spec, named as the spec-plan-lifecycle rule names documents, with
+the class `technical-design`. With `ticket.root` set and a ticket, it
+lives where that rule's *Ticket directories* says.
 
 The boundary against the design spec runs between identity and
 placement. The design spec names parts by the name their consumers use

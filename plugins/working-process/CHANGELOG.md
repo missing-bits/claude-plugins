@@ -12,6 +12,13 @@ Released versions of this plugin, newest first.
 - Agent cards and the workflow rule forbid reading a credential's value
   or writing one into a command; a check that needs authentication
   nobody provided is reported as not checked.
+- An opt-in team settings key, `ticket.root` (a path under `docs/`),
+  moves a ticket's documents into its ticket directory. With it set, a
+  new design spec, technical design or plan for a ticket goes there, a
+  document's class is recognised by its file-name suffix, a document
+  written without a ticket can move into a ticket directory with its
+  chain, and code-review reports for a ticket go to the directory's
+  `code-review/`.
 
 ## 0.18.0 — 2026-09-29
 
