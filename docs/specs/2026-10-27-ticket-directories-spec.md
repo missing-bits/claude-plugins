@@ -3,7 +3,7 @@ ticket: none
 date: 2026-10-27
 status: draft
 grilled: 2026-10-27
-architect: blocking
+architect: concerns (resolved 2026-10-27)
 decisions: registered
 branch: feature/ticket-directories
 base: develop
@@ -113,8 +113,9 @@ Anti-goals — the change fails, even if it works, when:
 - **D13** — `decision-coverage.py` recognises a technical design by the
   `-technical-design.md` suffix as well as by its directory. Argued in
   *Recognising a process document*.
-- **D14** — A code-review report whose ticket the branch name gives
-  goes to `<ticket directory>/code-review/`, unless it is local-only;
+- **D14** — A code-review report whose ticket the branch name gives,
+  or the developer names for it (D19), goes to
+  `<ticket directory>/code-review/`, unless it is local-only;
   any other report goes to `docs/code-review/`. Argued in *Review
   reports*.
 - **D19** — With `ticket.root` set, a branch name is read by the
@@ -318,14 +319,23 @@ In an interactive session a review places its report by this table:
 |---|---|
 | fits the scheme, and the key's ticket directory exists | the ticket directory, no question |
 | fits the scheme, no ticket directory (`feature/phase-2-cleanup`) | `docs/code-review/`, no question |
-| carries a key shape outside the scheme (`fix-for-ABC-123`, `release-ABC-123`) | asks for the ticket; an existing ticket directory for the answer takes the report, else `docs/code-review/` |
+| carries a letters-hyphen-digits shape outside the scheme (`fix-for-ABC-123`, `release-ABC-123`) | asks for the ticket; an existing ticket directory for the answer takes the report, else `docs/code-review/` |
 | carries no key shape (`feature/ticket-directories`) | `docs/code-review/`, no question |
 
-A run with no interactive dispatcher writes to `docs/code-review/`
-whatever the branch (D20). The one question is a named exception to
-the review-reports rule's "a review run never blocks on a question",
-made only in an interactive session; its answer also sets the report's
-`ticket:`. A review never creates a ticket directory: a ticket's
+Digits alone count as a key only at the scheme's key position, so
+`feature/oauth2-login` or `chore/v1.2-migration` asks nothing. A run
+with no interactive dispatcher writes to `docs/code-review/` whatever
+the branch (D20). The one question is a named exception to the
+review-reports rule's "a review run never blocks on a question", made
+only in an interactive session.
+
+The table decides placement only. The report's `ticket:` field derives
+as the review-reports rule derives it today — from context or the
+branch, else `none` — with the row-3 answer and the session's answer
+about the branch counting as context. A review on `feature/ABC-77-login`
+before the ticket's directory exists keeps `ticket: ABC-77` in
+`docs/code-review/`; one on `feature/phase-2-cleanup` may carry
+`ticket: PHASE-2` there, which creates nothing. A review never creates a ticket directory: a ticket's
 directory appears with its first process document.
 
 The ticket-frontmatter rule sources a new document's ticket from the
@@ -338,7 +348,9 @@ sourcing order's one question for the unit of work, never a second: a
 declined confirmation falls through to the conversation and then to
 `none`, never to another question. One answer about a branch's ticket
 serves both rules for the rest of the session; nothing is recorded,
-and a fresh session or a compaction may ask again.
+and a fresh session or a compaction may ask again. That sentence lives
+in *Branch naming* beside the scheme, since the two rules that use the
+answer load on different globs.
 
 The review command resolves the directory before dispatch, as it
 already runs the first-create check before dispatch: it looks for the
@@ -446,7 +458,7 @@ when the session opens the document.
   `rules/process-artifacts.md` — the suffix globs; process-artifacts
   also the ticket-root exclusion.
 - `rules/workflow.md` — where a ticket's documents go; the branch
-  scheme in *Branch naming*.
+  scheme and the shared session answer in *Branch naming*.
 - `rules/ticket-frontmatter.md` — field sets by class; companion
   documents in a ticket directory exempt; branch sourcing by the D19
   scheme.
@@ -484,6 +496,15 @@ when the session opens the document.
 - A move names each file it turns from untracked to tracked.
 
 ## Review rounds
+
+### 2026-10-27 — architect, fable 5.1, concerns (round 4, diff-scoped)
+
+- fixed 2026-10-27 — [Minor] R4-1: D14 placed a report only by the branch's ticket, while row 3 places it by the developer's answer; license: D19; D14 adds "or the developer names for it (D19)"
+- fixed 2026-10-27 — [Minor] R4-2: the report's `ticket:` field was undefined for rows 1, 2 and 4; ruling: 2026-10-27; option (i) — the table decides placement only, the field derives as today with the row-3 and session answers as context
+- fixed 2026-10-27 — [Minor] R4-3: "digits alone" made row 3 ask on `feature/oauth2-login`; license: R3-2's ruling (a name that suggests a ticket); row 3 counts only the letters-hyphen-digits shape, and digits alone count only at the key position
+- fixed 2026-10-27 — [Minor] R4-4: no rule owned the shared session answer; license: R3-1 (the always-loaded owner); the sentence lives in *Branch naming*, listed in *Changes by file*
+
+Resolved without a fresh round: four single-sentence fixes; no decision moved beyond R4-2's ruling.
 
 ### 2026-10-27 — architect, fable 5.1, blocking (round 3, diff-scoped)
 
