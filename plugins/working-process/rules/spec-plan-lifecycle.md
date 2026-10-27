@@ -234,6 +234,41 @@ class directory climbs further (`../../specs/<file>.md`). The
 `../specs/<file>.md` examples in the frontmatter block above read as
 relative links, not as templates.
 
+### Moving a document into a ticket directory
+
+With `ticket.root` set, a document written without a ticket may later
+belong to one. Move it only on the developer's command, never on the
+session's initiative. Six steps:
+
+1. **Ticket.** Take the document's `ticket:` value, or the command's
+   when that value is `none`. Several tickets go to the developer.
+2. **Chain.** Find the documents the moved one links to and those that
+   link to it, by `spec:`, `technical-design:`, `revises:` and
+   `**Follows:**`. Offer to move them together, as one move.
+3. **Names and moving.** Each moved file takes the convention's full
+   name in the ticket directory and keeps its own topic. A file named
+   before the convention gains its class suffix; its topic is its name
+   without a leading date and a trailing `-design`, or its whole stem
+   where neither is there. Move a tracked file with `git mv`, an
+   untracked one (uncommitted, or in an ignored class directory) with
+   `mv`; nothing is staged, since committing stays with the developer.
+4. **References.** Rewrite inbound and outbound frontmatter links, the
+   `with:` file in `integrity:`, `**Follows:**` lines, and qualified
+   decision identifiers (`<file>.md#D3`) in bodies. A body edit that an
+   `implemented` document would need stops the move and goes to the
+   developer; its frontmatter may change, since the `integrity:` hash
+   covers the body only.
+5. **Hashes.** A rewritten path changes no content, so the move asks
+   for no new audit. Where a document's `integrity:` hashes (its own
+   `sha:` and any `with:` hash) matched its body before the move,
+   recompute them after the rewrite with the hash command above and
+   keep the audit date. A hash that did not match stays as it was:
+   recomputing it would stamp edits nobody audited.
+6. **Report.** References outside `docs/` and paths in body prose are
+   listed, never rewritten. Report every path rewritten, every
+   reference left alone, and each untracked file that now lies in the
+   tracked ticket directory.
+
 ## Decision register
 
 A design spec that sets `decisions: registered` carries a `## Decisions`
