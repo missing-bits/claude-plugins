@@ -8,8 +8,22 @@ paths:
 # Judged documents and plans — frontmatter and lifecycle
 
 Design specs live in `docs/specs/`, technical designs in
-`docs/technical-designs/`, plans in `docs/plans/`. All three open with a
-YAML frontmatter block:
+`docs/technical-designs/`, plans in `docs/plans/`.
+
+A new document is named `<prefix>-<topic>-<class>.md`. The prefix is
+the ticket key when the document has a ticket: `ticket-<n>` for a
+numeric key (`ticket-42`), otherwise the key in the case the project's
+ticket-named files already use, or the tracker's case where none exist
+yet (`ABC-123`). Without a ticket the prefix is the ISO creation date
+(`2026-07-13`). The class is `spec`, `technical-design` or `plan`, so
+one topic's documents never share a name and each name tells its class.
+A second design spec for the same ticket takes its own topic
+(`ABC-123-login-errata-spec.md`). Documents named before this
+convention keep their names. When the superpowers brainstorming or
+writing-plans skill writes the document, these names override its
+default file name.
+
+All three open with a YAML frontmatter block:
 
 ```yaml
 ---

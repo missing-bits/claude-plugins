@@ -4,6 +4,11 @@ Released versions of this plugin, newest first.
 
 ## Unreleased
 
+- New design specs, technical designs and plans are named
+  `<prefix>-<topic>-<class>.md`: the ticket key (`ABC-123`,
+  `ticket-42`) or, without a ticket, the date, then the topic and
+  `spec`, `technical-design` or `plan`. Existing documents keep their
+  names.
 - Agent cards and the workflow rule forbid reading a credential's value
   or writing one into a command; a check that needs authentication
   nobody provided is reported as not checked.
