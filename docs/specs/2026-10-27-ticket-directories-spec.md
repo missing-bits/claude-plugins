@@ -4,7 +4,7 @@ date: 2026-10-27
 status: draft
 grilled: 2026-10-27
 architect: concerns (resolved 2026-10-27)
-integrity: 2026-10-27 (sha: 72637ab)
+integrity: 2026-10-27 (sha: fcf90fc)
 decisions: registered
 branch: feature/ticket-directories
 base: develop
@@ -96,9 +96,9 @@ Anti-goals — the change fails, even if it works, when:
   designs and plans load on suffix globs anchored at `docs/`, beside
   their directory globs, and still branch on the class, never on a file
   pattern. Argued in *Recognising a process document*.
-- **D8** — A file matching a class suffix or lying in a class
-  directory, but carrying no `status:` in its frontmatter, is not a
-  process document: the process neither edits nor reports it. Argued
+- **D8** — With `ticket.root` set, a file matching a class suffix or
+  lying in a class directory, but carrying no `status:` in its
+  frontmatter, is not a process document: the process neither edits nor reports it. Argued
   in *Recognising a process document*.
 - **D9** — A companion document in a ticket directory needs neither
   `ticket:` nor `date:`; process documents keep their full frontmatter.
@@ -260,8 +260,8 @@ The cost to every project, opted in or not: a file under `docs/` named
 
 A ticket directory holds files a developer names freely; the client
 project already has a `screens-spec.md` there. The lifecycle rule says:
-a process document opens with frontmatter carrying `status:`; a file
-without it — matched by a class suffix or lying in a class directory —
+with `ticket.root` set, a process document opens with frontmatter
+carrying `status:`; a file without it — matched by a class suffix or lying in a class directory —
 belongs to the developer, and the process neither adds frontmatter to
 it nor reports it, as the glossary's *Process document* says.
 
@@ -298,8 +298,9 @@ a process document nor a review report — needs neither `ticket:` nor
 carry frontmatter of its own; the process leaves it untouched.
 Process documents in a ticket directory keep their full frontmatter,
 which the process reads. The ticket-frontmatter rule's backfill — the
-block it adds to an edited document that has none — skips every file
-D8's gate excludes and every companion document (D9); every other
+block it adds to an edited document that has none — skips, with
+`ticket.root` set, every file D8's gate excludes and every companion
+document (D9); every other
 document under `docs/` is backfilled as today.
 
 ## Modes
@@ -542,7 +543,7 @@ when the session opens the document.
 - The loader refuses a `ticket.root` equal to or inside a Process
   directory.
 - Several matching directories offer only the existing ones.
-- The `status:` gate holds in class directories too.
+- With `ticket.root` set, the `status:` gate holds in class directories too.
 - A numeric branch key fills `ticket:` as `"#42"`, with the prefix
   `ticket-42`.
 - A review writing to a ticket directory skips the `docs/code-review/`
@@ -569,6 +570,7 @@ when the session opens the document.
 - fixed 2026-10-27 — `rules/technical-design.md`'s location sentence was missing from *Changes by file*; license: *Placement*; listed, with the working-process README
 - fixed 2026-10-27 — the move had no path for an uncommitted file in a tracked class directory; license: the lifecycle rule (documents stay uncommitted while authored); any untracked file moves with `mv`, nothing staged
 - fixed 2026-10-27 — eight implementer questions answered as author's calls: the root's Process-directory guard, existing-only choice on several matches, the gate in class directories, numeric keys, skipped checks in a ticket directory, solo and standalone runs, legacy topics, the README
+- fixed 2026-10-27 — the final code review found the gate unscoped while the backfill exemption was scoped, against goal 4; ruling: 2026-10-27; option (b) — D8, *Recognising a process document*, *Companion documents* and *Calls made* scope the gate to ticket.root, the stamp's hash recomputed without a new audit
 
 ### 2026-10-27 — architect, fable 5.1, concerns (round 4, diff-scoped)
 

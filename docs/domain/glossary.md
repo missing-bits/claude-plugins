@@ -276,9 +276,9 @@ _Avoid_: design document
 **Process document**:
 A design spec, technical design or implementation plan — a document the
 lifecycle rule governs. Under `docs/` it is recognised by its class
-suffix or its class directory, together with a frontmatter `status:`;
-a file with the suffix alone is not one — in a ticket directory, it is
-a companion document.
+suffix or its class directory, and with `ticket.root` set, together
+with a frontmatter `status:`; a file with the suffix alone is not one —
+in a ticket directory, it is a companion document.
 _Avoid_: lifecycle document, judged document (for a plan)
 
 **Class suffix**:
