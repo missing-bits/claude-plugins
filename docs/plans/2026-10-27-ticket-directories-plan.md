@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-10-27
-status: draft
+status: implemented
 adversary: concerns (resolved 2026-10-27)
 spec: ../specs/2026-10-27-ticket-directories-spec.md
 branch: feature/ticket-directories
