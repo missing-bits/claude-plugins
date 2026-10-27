@@ -15,7 +15,8 @@ this session.
    working tree only, as the review-reports rule's *Ticket-directory
    placement* prescribes, and pass the agent its absolute path.
    Otherwise — no `ticket.root`, a Standalone install, an
-   unattended run — use `docs/code-review/`. A report bound for a
+   unattended run, a review the developer requests as local-only,
+   whatever the branch — use `docs/code-review/`. A report bound for a
    ticket directory skips step 3.
 3. Pre-dispatch first-create check, gated on the contract probe:
    check `<project>/.claude/rules/working-process/review-reports.md`,
