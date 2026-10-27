@@ -625,6 +625,30 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(proc.stdout, "")
         self.assertEqual(proc.stderr, "")
 
+    def test_13b_technical_design_in_ticket_directory_produces_no_output(self):
+        (self.root / "docs" / "specs").mkdir(parents=True)
+        (self.root / "docs" / "jira" / "abc-12-x").mkdir(parents=True)
+        self.write("docs/specs/s.md", SPEC_BASIC)
+        design = dedent("""\
+            ---
+            spec: ../../specs/s.md
+            ---
+
+            # S — technical design
+
+            Text.
+            """)
+        self.write("docs/jira/abc-12-x/abc-12-x-technical-design.md", design)
+        proc = subprocess.run(
+            [sys.executable, SCRIPT,
+             str(self.root / "docs" / "jira" / "abc-12-x" / "abc-12-x-technical-design.md")],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(proc.stdout, "")
+        self.assertEqual(proc.stderr, "")
+
     # 14
     def test_14_plan_under_plans_is_still_counted(self):
         (self.root / "docs" / "specs").mkdir(parents=True)

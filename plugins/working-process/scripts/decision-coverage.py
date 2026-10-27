@@ -554,9 +554,10 @@ def audit_spec(display: str, lines: list[str]) -> list[str]:
 
 
 def is_technical_design(display: str) -> bool:
-    """The resolved path has `docs/technical-designs/` among its parents."""
+    """The resolved path has `docs/technical-designs/` among its parents, or
+    the file name ends in `-technical-design.md` (a ticket directory's design)."""
     parts = Path(os.path.abspath(display)).parts
-    return any(a == "docs" and b == "technical-designs"
+    return parts[-1].endswith("-technical-design.md") or any(a == "docs" and b == "technical-designs"
                for a, b in zip(parts, parts[1:]))
 
 
