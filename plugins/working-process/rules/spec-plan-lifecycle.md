@@ -3,6 +3,7 @@ paths:
   - "docs/specs/**"
   - "docs/technical-designs/**"
   - "docs/plans/**"
+  - "docs/**/*-{spec,technical-design,plan}.md"
 ---
 
 # Judged documents and plans — frontmatter and lifecycle
@@ -21,7 +22,8 @@ A second design spec for the same ticket takes its own topic
 (`ABC-123-login-errata-spec.md`). Documents named before this
 convention keep their names. When the superpowers brainstorming or
 writing-plans skill writes the document, these names override its
-default file name.
+default file name. With `ticket.root` set, a document for a ticket goes
+to a ticket directory: see *Ticket directories*.
 
 All three open with a YAML frontmatter block:
 
@@ -180,6 +182,57 @@ base: master        # optional: branch the topic branch was cut from
   Global Constraints entries, and the `## Deferrals and predecessors`
   section with its `**Defers:**` and `**Follows:**` lines. The rest of
   the template stays with that tool.
+
+## Ticket directories
+
+With `ticket.root` set, a new design spec, technical design or plan
+whose `ticket:` yields a file prefix goes into the ticket directory
+`<root>/<prefix>-<topic>/`, one level below the ticket root and named as
+above. A ticket value yielding no prefix, or `none`, leaves the document
+in its class directory.
+
+Before creating a directory, look for one. List the root's immediate
+subdirectories whose name starts with `<prefix>-`, ignoring case; the
+trailing hyphen keeps `abc-14-` from matching `abc-1489-`. Search two
+places:
+
+- the working tree, listed from the repository's top level
+  (`git rev-parse --show-toplevel`);
+- the integration branch, with
+  `git ls-tree --full-tree -d --name-only <ref> <root>/`. Without
+  `--full-tree` git reads the path from the current directory, and a run
+  below the top level prints nothing and exits 0.
+
+The integration branch is the one topic branches are cut from, as the
+project's instructions name it; where they name none, ask once. A
+document's `base:` cannot serve, since the lookup runs before the
+document exists. `<ref>` is the branch's remote-tracking ref
+(`origin/develop`) where one exists, else the local branch. Never fetch:
+that stays with the developer. A branch that exists nowhere skips the
+second lookup; say so.
+
+One match is used whatever its topic. With no match, create the
+directory with the topic of the creating document. A file prefix and a
+new directory take the case the project's existing ticket-named files
+and directories use, else the tracker's case. Several matches, or a
+`ticket:` list of several keys, go to the developer, who picks one of
+the existing directories; while one exists, offer no new directory. Where
+no listed ticket has a directory, the developer picks the ticket whose
+directory is created. A review command asks before dispatch, a session
+before it writes the document.
+
+A process document opens with frontmatter carrying `status:`. A file
+matching a class suffix or lying in a class directory, but without
+`status:` in its frontmatter, is not a process document: it belongs to
+the developer, and the process neither adds frontmatter to it nor
+reports it.
+
+Frontmatter links are relative to the document that holds them. In a
+ticket directory the documents of one chain are siblings
+(`spec: ./ABC-123-login-spec.md`); a link from a ticket directory to a
+class directory climbs further (`../../specs/<file>.md`). The
+`../specs/<file>.md` examples in the frontmatter block above read as
+relative links, not as templates.
 
 ## Decision register
 

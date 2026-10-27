@@ -3,6 +3,7 @@ paths:
   - "docs/specs/**"
   - "docs/technical-designs/**"
   - "docs/plans/**"
+  - "docs/**/*-{spec,technical-design,plan}.md"
   - "docs/domain/**"
 ---
 

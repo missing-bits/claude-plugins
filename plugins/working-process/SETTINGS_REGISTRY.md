@@ -135,5 +135,5 @@ question: May the review loop commit the reviewed document once per round?
 scope: team
 values: <path>
 default: unset
-read-by: working-process/skills/process-setup/SKILL.md
+read-by: working-process/skills/process-setup/SKILL.md, working-process/rules/spec-plan-lifecycle.md, working-process/rules/technical-design.md, working-process/rules/process-artifacts.md
 question: Which directory under docs/ holds one directory per ticket, if the project keeps them?
