@@ -2,6 +2,26 @@
 
 Released versions of this plugin, newest first.
 
+## Unreleased
+
+- The architect and the plan-adversary return `blocking` only on a
+  Critical finding; two Important findings now give `concerns`.
+- The plan-adversary grades an undelivered requirement Critical: a
+  "done when" no phase delivers, an uncovered technical-design part, a
+  decision realized only in part.
+- The architect's Critical also covers an unmet stated requirement and
+  a data-loss or security defect.
+- A finding whose fix adds a mechanism names a cheaper alternative; the
+  plan-adversary also names the requirement that forces it. The
+  definition of a mechanism lives in `PERSONA_COMMON.md`, beside the
+  rule that a design spec's non-goals are settled.
+- Triage holds every fix that adds a mechanism, licensed or not, and
+  recommends the smaller option.
+- Dispatch records and relays carry the reviewed document's size and
+  its change since the previous round.
+- While drafting a design spec, the session asks for a size target,
+  what is dropped, what native behaviour covers and the accepted risks.
+
 ## 0.19.0 — 2026-11-13
 
 - New design specs, technical designs and plans are named
