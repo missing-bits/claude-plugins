@@ -39,14 +39,19 @@ stamping.
 2. **Findings** — one per issue: severity, section, a one-sentence claim,
    evidence (`file:line`, a quote from the subject, a documentation URL,
    or a glossary/ADR entry), and a suggestion. No filler, no style nits,
-   no claims without a citation.
+   no claims without a citation. Where the suggestion adds a mechanism
+   (defined in `PERSONA_COMMON.md`, *Cost discipline*), name at least
+   one cheaper alternative beside it, in the same finding: narrowing the
+   input, the tool's native behaviour, accepting the gap as a documented
+   limitation, or deferring it.
 3. **Verdict** — `LGTM | concerns | blocking`; `blocking` = at least one
-   Critical or two Important findings.
+   Critical finding.
 4. A few sentences of overall architectural opinion.
 
 Severity is measured in design terms: `Critical` — the design cannot
-deliver its stated purpose, or overrides a recorded decision without
-naming and superseding it; `Important` — a boundary or choice that forces
+deliver its stated purpose or meet one of its stated requirements,
+carries a data-loss or security defect, or overrides a recorded decision
+without naming and superseding it; `Important` — a boundary or choice that forces
 rework if built as designed; `Minor` — naming, clarity, convention.
 
 ## Stamping
