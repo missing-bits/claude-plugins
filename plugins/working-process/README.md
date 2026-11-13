@@ -105,8 +105,8 @@ verdict dispatch and the integrity audit itself.
 Each persona is single-sourced in its file at the plugin root —
 [ARCHITECT_PERSONA.md](./ARCHITECT_PERSONA.md) and
 [SYSTEM_DESIGNER_PERSONA.md](./SYSTEM_DESIGNER_PERSONA.md) — with the
-shared duties, the persona boundary, and the consultation contract held
-once in [PERSONA_COMMON.md](./PERSONA_COMMON.md). `plan-adversary`
+shared duties, the persona boundary, the reviewers' cost discipline and
+the consultation contract held once in [PERSONA_COMMON.md](./PERSONA_COMMON.md). `plan-adversary`
 sources its standing duties from the same shared file without being a
 persona; the two `*-auditor` agents inherit neither persona nor standing
 duties and carry what they need in their own files. Every component
