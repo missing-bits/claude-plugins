@@ -24,7 +24,11 @@ disables its suggestion — never the work itself.
    guess; a recorded key is simply read again. On a
    genuinely ambiguous ask — in-thread dialogue or a fresh-context
    consultation? — ask one short question rather than silently picking a
-   surface.
+   surface. While drafting a design spec, before its first review, ask
+   the developer for a size target, what is dropped, what native
+   behaviour already covers, and which risks are accepted; write the
+   answers into the spec's non-goals and constraints, never into a
+   separate brief file, so every reviewer reads them.
 2. **Spec → grilling.** Once a spec exists, offer a grilling-session
    (when the working-process plugin is installed) to stress-test its
    language against the project's domain terms.
@@ -308,8 +312,12 @@ available:
   loop. The order has one named exception, defined under *What a
   diff-scoped LGTM certifies* below: a plan's diff-scoped LGTM.
 - The dispatch record is written before the relay. The dispatcher
-  saves what the agent returned, verbatim, under a four-line header —
-  the date, the agent, the model self-report, and the subject — with
+  saves what the agent returned, verbatim, under a header of the date,
+  the agent, the model self-report, the subject, and — where a
+  document was reviewed — its size, `size: <lines>`: the body's line
+  count without the `## Review rounds` section, from
+  `sed '1,/^---$/d' <file> | awk '/^## Review rounds/{s=1;next} /^## /{s=0} !s' | wc -l`
+  — with
   no frontmatter and no `ticket`, since the record is evidence rather
   than a process artefact. It goes to `.claude/working-process/` at
   the repo root (`git rev-parse --show-toplevel`). A record survives
@@ -349,7 +357,11 @@ available:
   takes the lowest free counter suffix instead: `-2`, then `-3`.
 - The relay opens with one header line, then one line per finding. The
   header carries the verdict, the model self-report, the finding count
-  by severity, and how many decisions await the developer. Each
+  by severity, and how many decisions await the developer, and — where
+  a document was reviewed — its size and the change since the previous
+  record of the same document and agent; with no earlier record
+  carrying a `size:` line it shows the size alone. The relay reports
+  the number and judges nothing. Each
   finding takes one line — severity, origin, claim — except where the
   reviewer emits no origin: the `architect` reads one document and
   every finding it returns originates there, so an architect relay's
@@ -363,7 +375,8 @@ available:
   quotation rather than a reconstruction — so the relay names that
   record's path, and the developer can open what was condensed.
 - The header's count of decisions is the findings for which the
-  session can cite no license, derived at relay time from the report
+  session can cite no license, plus those whose suggested fix adds a
+  mechanism (the hold under *The review loop*), derived at relay time from the report
   and the decisions already written down — before any ledger line
   exists, since `open` is written at stamp time and triage follows the
   stamp. The `held` lines the same round later writes are that count's
@@ -470,6 +483,20 @@ decision. Consequences the loop states outright:
   clause the spec-plan-lifecycle rule defines — which also leaves the
   design spec's `integrity:` stamp stale, as any body edit to either
   document of an audit pair does.
+- A fix that adds a mechanism is held whatever its severity, and a
+  license does not lift the hold. A fix adds a mechanism when it
+  introduces something the document did not have: a part, a task, a
+  command, an option or flag, a state file or field, or a recovery
+  path. Giving an existing part a new check, branch or case adds one
+  too, whichever way it moves what the part accepts. Rewording,
+  correcting a value, deleting text, removing an input, option or case,
+  and adding a test or a verification step that brings no new command
+  or script add none. Two fixes stay outside the hold: one carrying out
+  a line with `ruling:`, which the developer already decided, and a
+  propagation-gate hit's fix, which its derivation licenses. A fix the
+  session cannot place either way is held. The held line's `options:`
+  recommend the smaller option where it meets the requirements and
+  always include "accept as a documented limitation".
 
 A fix wave that deviates from a reviewer's suggestion records the
 deviation and its rationale beside the text they concern — not only in
@@ -568,7 +595,8 @@ agent installed, every dispatch proceeds as it did before.
 
 The first round reads the whole document; every later round is
 diff-scoped. Its brief names what changed since the round it follows,
-directs the reviewer to attack the previous wave's fixes first, and
+directs the reviewer to attack the previous wave's fixes first —
+including whether a fix added a mechanism its finding did not need — and
 forbids re-reviewing the rest — repair-born defects are the dominant
 late-round class, and diff-scoping also ends stale-read findings.
 
