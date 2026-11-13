@@ -316,9 +316,9 @@ available:
   the agent, the model self-report, the subject, and — where a
   document was reviewed — its size, `size: <lines>`: the body's line
   count without the `## Review rounds` section, from
-  `sed '1,/^---$/d' <file> | awk '/^## Review rounds/{s=1;next} /^## /{s=0} !s' | wc -l`
-  — with
-  no frontmatter and no `ticket`, since the record is evidence rather
+  `sed '1,/^---$/d' <file> | awk '/^## Review rounds/{s=1;next} /^## /{s=0} !s' | wc -l`,
+  or with the `sed` stage dropped for a document without frontmatter —
+  with no frontmatter and no `ticket`, since the record is evidence rather
   than a process artefact. It goes to `.claude/working-process/` at
   the repo root (`git rev-parse --show-toplevel`). A record survives
   compaction, the session's end and a branch switch, and no more; that
@@ -357,8 +357,8 @@ available:
   takes the lowest free counter suffix instead: `-2`, then `-3`.
 - The relay opens with one header line, then one line per finding. The
   header carries the verdict, the model self-report, the finding count
-  by severity, and how many decisions await the developer, and — where
-  a document was reviewed — its size and the change since the previous
+  by severity, how many decisions await the developer, and — where a
+  document was reviewed — its size and the change since the previous
   record of the same document and agent; with no earlier record
   carrying a `size:` line it shows the size alone. The relay reports
   the number and judges nothing. Each
@@ -376,14 +376,16 @@ available:
   record's path, and the developer can open what was condensed.
 - The header's count of decisions is the findings for which the
   session can cite no license, plus those whose suggested fix adds a
-  mechanism (the hold under *The review loop*), derived at relay time from the report
-  and the decisions already written down — before any ledger line
-  exists, since `open` is written at stamp time and triage follows the
-  stamp. The `held` lines the same round later writes are that count's
-  check: they come to the same number, and a divergence means triage
-  found a license the relay missed, triage lost one the relay claimed,
-  or the oscillation tripwire held a finding that does carry a
-  license. The third is lawful, so the check reports the number rather
+  mechanism and carries out no `ruling:` (the hold under *The review
+  loop*), derived at relay time from the report and the decisions
+  already written down — before any ledger line exists, since `open`
+  is written at stamp time and triage follows the stamp. The `held`
+  lines the same round later writes are that count's check: they come
+  to the same number, and a divergence means triage found a license
+  the relay missed, triage lost one the relay claimed, triage placed a
+  fix on the other side of the mechanism line than the relay did, or
+  the oscillation tripwire held a finding that does carry a license.
+  The last is lawful, so the check reports the number rather
   than asserting a fault. Verdicts that suspend autonomy — `blocking`,
   the spent round cap, the all-Minor signal — stay out of the count:
   they decide whether the loop continues rather than what a document

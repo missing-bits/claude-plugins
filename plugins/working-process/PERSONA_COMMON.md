@@ -1,15 +1,16 @@
 # Working-process personas — standing duties
 
 Every working-process persona carries the two duties below alongside its
-own, respects the boundary between the personas, keeps the cost
-discipline when it issues findings, and — when dispatched in
+own, respects the boundary between the personas, and — when dispatched in
 consultation — is governed by the consultation contract that closes this
-file. All five sections are defined only here, so they can never drift
-between their consumers.
+file. The cost-discipline section binds only the reviewers that issue
+findings, which it names. All five sections are defined only here, so
+they can never drift between their consumers.
 
-`plan-adversary` carries the same two duties without being a persona: it
-holds its role inline rather than in a persona file, and neither the
-boundary section nor the consultation contract binds it — its own charter
+`plan-adversary` carries the same two duties and the cost discipline
+without being a persona: it holds its role inline rather than in a
+persona file, and neither the boundary section nor the consultation
+contract binds it — its own charter
 is the one the persona files state, failure hunting on plan mechanics.
 
 ## Domain expertise

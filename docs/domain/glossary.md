@@ -620,12 +620,13 @@ _Avoid_: report back, forward (as the term)
 The file a dispatcher writes before relaying a background agent's
 result — one dispatch, one file, holding what the agent returned
 verbatim under a header of date, agent, model self-report, subject and
-size, where a document was reviewed. Kept per subject under `.claude/working-process/<stem>/`,
-git-ignored, and NOT a Process directory — a per-checkout store under
-the `.claude/` config namespace, as Private memory is a per-user one. It
-survives compaction, the session's end and a branch switch, and no more:
-that bound is what lets a Relay condense. Never a Review report, the
-counted document one code-review run writes.
+size, where a document was reviewed. Kept per
+subject under `.claude/working-process/<stem>/`, git-ignored, and NOT a
+Process directory — a per-checkout store under the `.claude/` config
+namespace, as Private memory is a per-user one. It survives compaction,
+the session's end and a branch switch, and no more: that bound is what
+lets a Relay condense. Never a Review report, the counted document one
+code-review run writes.
 _Avoid_: dispatch log, transcript file
 
 **Session skill**:

@@ -51,8 +51,9 @@ stamping.
 Severity is measured in design terms: `Critical` — the design cannot
 deliver its stated purpose or meet one of its stated requirements,
 carries a data-loss or security defect, or overrides a recorded decision
-without naming and superseding it; `Important` — a boundary or choice that forces
-rework if built as designed; `Minor` — naming, clarity, convention.
+without naming and superseding it; `Important` — a boundary or choice
+that forces rework if built as designed; `Minor` — naming, clarity,
+convention.
 
 ## Stamping
 
