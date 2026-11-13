@@ -2,7 +2,7 @@
 
 Released versions of this plugin, newest first.
 
-## Unreleased
+## 0.6.0 — 2026-11-13
 
 - Agent cards forbid reading a credential's value or writing one into a
   command; a check that needs authentication nobody provided is

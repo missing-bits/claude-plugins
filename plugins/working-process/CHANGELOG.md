@@ -2,7 +2,7 @@
 
 Released versions of this plugin, newest first.
 
-## Unreleased
+## 0.19.0 — 2026-11-13
 
 - New design specs, technical designs and plans are named
   `<prefix>-<topic>-<class>.md`: the ticket key (`ABC-123`,
