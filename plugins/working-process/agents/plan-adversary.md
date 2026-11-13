@@ -35,7 +35,7 @@ contradicting a glossary term or a recorded ADR is a finding
   alternative beside it, in the same finding: narrowing the input, the
   tool's native behaviour, accepting the gap as a documented limitation,
   or deferring it. Where a requirement of a design spec forces the
-  mechanism, name that requirement with `origin` naming the design spec,
+  mechanism, name that requirement with `origin` `design-spec`,
   and propose no change to it (see *Judged documents: decline*).
 - Never read a credential's value — `gh auth token`, a token or key
   file, a keyring — or write one into a command. Report a check that
