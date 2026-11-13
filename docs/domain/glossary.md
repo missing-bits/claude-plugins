@@ -608,7 +608,8 @@ _Avoid_: review agent (unqualified), reviewer agent
 **Relay**:
 The delivery of a background agent's result to the developer before any
 further action on it — a verdict agent's report before its stamp (a
-header carrying the verdict, the model self-report and the counts, then
+header carrying the verdict, the model self-report, the counts and —
+where a document was reviewed — its size and change, then
 one line per finding, that list never condensed), a consultation's
 Contribution digested one paragraph per focusing question. Either way it
 names the Dispatch record holding the full text. The developer's
@@ -618,8 +619,8 @@ _Avoid_: report back, forward (as the term)
 **Dispatch record**:
 The file a dispatcher writes before relaying a background agent's
 result — one dispatch, one file, holding what the agent returned
-verbatim under a four-line header (date, agent, model self-report,
-subject). Kept per subject under `.claude/working-process/<stem>/`,
+verbatim under a header of date, agent, model self-report, subject and
+size, where a document was reviewed. Kept per subject under `.claude/working-process/<stem>/`,
 git-ignored, and NOT a Process directory — a per-checkout store under
 the `.claude/` config namespace, as Private memory is a per-user one. It
 survives compaction, the session's end and a branch switch, and no more:
