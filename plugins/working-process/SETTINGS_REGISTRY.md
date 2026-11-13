@@ -8,7 +8,8 @@ and nothing more. The shape
 is fixed so that `sed` and the test parse it without a Markdown parser:
 one `## <key>` heading per key, then exactly these five fields, one per
 line, in this order — `scope:` (`team` or `personal`), `values:` (the
-allowed values, separated by ` | `), `default:` (a value, or `unset`
+allowed values, separated by ` | `, or the token `<path>`, a
+directory under `docs/` that the loader checks — see `ticket.root`), `default:` (a value, or `unset`
 where the rule asks), `read-by:` (the files that read the key,
 comma-separated, relative to `plugins/`) and `question:` (what the
 skill asks, and the comment `--set` writes above the key). A `dir.`
@@ -128,3 +129,11 @@ values: yes | no
 default: unset
 read-by: working-process/rules/workflow.md, working-process/rules/spec-plan-lifecycle.md
 question: May the review loop commit the reviewed document once per round?
+
+## ticket.root
+
+scope: team
+values: <path>
+default: unset
+read-by: working-process/skills/process-setup/SKILL.md, working-process/rules/spec-plan-lifecycle.md, working-process/rules/technical-design.md, working-process/rules/process-artifacts.md, working-process/rules/workflow.md, working-process/rules/ticket-frontmatter.md, working-process/rules/review-reports.md, python-standards/commands/python-review.md, salesforce-standards/commands/salesforce-review.md
+question: Which directory under docs/ holds one directory per ticket, if the project keeps them?

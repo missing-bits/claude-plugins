@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-28
-status: approved
+status: implemented
 adversary: concerns (resolved 2026-09-29)
 spec: ../specs/2026-09-28-process-setup-design.md
 branch: feature/process-setup

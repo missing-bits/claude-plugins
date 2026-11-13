@@ -3,6 +3,7 @@ paths:
   - "docs/specs/**"
   - "docs/plans/**"
   - "docs/technical-designs/**"
+  - "docs/**/*-{spec,technical-design,plan}.md"
   - "docs/domain/**"
   - "docs/code-review/**"
   - ".superpowers/**"
@@ -78,6 +79,12 @@ project-memory plugin's core rule (when installed), not this one, and
 that rule reads its own exception, `dir.docs/memory`, in the same
 order — it is listed above only so `docs/memory/` counts as a Process
 directory for the conventions below.
+
+With `ticket.root` set, the ticket root and its ticket directories are
+not Process directories: they are tracked, with no first-create question,
+no `.gitignore` written by the process and no `dir.*` key reaching them.
+The process respects ignores the project sets inside them and never
+force-adds a file.
 
 ## Handling artifacts
 

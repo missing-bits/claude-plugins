@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-09-28
-status: draft
+status: implemented
 grilled: 2026-09-28
 architect: concerns (resolved 2026-09-28)
 integrity: 2026-09-28 (sha: 901ebf5)

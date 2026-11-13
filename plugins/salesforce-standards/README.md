@@ -44,10 +44,11 @@ document.
 
 - **`salesforce-code-review` skill** — audits Salesforce code and
   metadata against the standards skills; writes one review report per
-  run to `docs/code-review/`.
+  run to `docs/code-review/`, or to a ticket directory's `code-review/`
+  when the working-process rules place it there.
 - **`salesforce-code-reviewer` agent** — reviews a diff or named
-  files, writes the report to `docs/code-review/`, returns findings by
-  severity.
+  files, writes the report to the directory the command resolved,
+  returns findings by severity.
 - **`/salesforce-review` command** — review the current diff or named
   files. Salesforce files only; out-of-domain files are noted as out
   of scope.

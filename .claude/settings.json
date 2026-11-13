@@ -23,7 +23,8 @@
   },
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
-    "elements-of-style@superpowers-marketplace": true
+    "elements-of-style@superpowers-marketplace": true,
+    "ponytail@ponytail": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -36,6 +37,12 @@
       "source": {
         "source": "github",
         "repo": "obra/superpowers-marketplace"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
       }
     }
   }
