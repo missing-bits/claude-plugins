@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-11-13
-status: approved
+status: implemented
 decisions: registered
 architect: concerns (resolved 2026-11-13)
 branch: feature/cost-discipline

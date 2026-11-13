@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-11-13
-status: approved
+status: implemented
 spec: ../specs/2026-11-13-cost-discipline-spec.md
 branch: feature/cost-discipline
 base: develop
