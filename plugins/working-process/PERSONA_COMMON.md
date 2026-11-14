@@ -101,6 +101,8 @@ The briefing — the dispatcher's obligations:
   leaves the persona guessing from the dispatch's working directory;
 - point, don't paste: name files and areas rather than inviting
   exploration — what a consultation reads is what it costs;
+- put the question without the dispatcher's own recommendation: a
+  persona handed an answer tends to return it;
 - when both personas are consulted on one subject: one canonical briefing
   text given to both, each with its own focusing question appended, and
   no cross-persona content — neither is told what the other said. A
@@ -120,6 +122,12 @@ from it is stamped into frontmatter:
   per focusing question — or one per briefing, where none was
   appended — and the path to the record; the workflow rule defines
   that record and names it;
+- a number that carries a recommendation — a row count, a volume, a
+  latency — is measured in the subject's own data, with the command
+  shown, or marked `assumed`; a recommendation resting on an assumed
+  number names the measurement that would overturn it;
+- an absent glossary or ADR directory is mentioned only where a
+  judgement depended on it, never as a standing opening;
 - disagreement between the personas is presented as a disagreement, with
   both positions — the choice is the developer's; the relaying thread may
   add its own opinion, marked as its own;

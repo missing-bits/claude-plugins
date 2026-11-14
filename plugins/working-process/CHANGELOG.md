@@ -43,6 +43,12 @@ Released versions of this plugin, newest first.
   transcript with a published `jq` command instead of being retyped.
 - `system-designer-session` also opens when the workflow's
   technical-design step routes to it, not only on an explicit ask.
+- A consultation's briefing leaves out the dispatcher's own
+  recommendation.
+- A consultation reply opens with a model self-report, backs a number
+  that carries a recommendation with a measurement or marks it
+  `assumed`, and mentions an absent glossary or ADR directory only
+  where a judgement depended on it.
 
 ## 0.19.0 — 2026-11-13
 
