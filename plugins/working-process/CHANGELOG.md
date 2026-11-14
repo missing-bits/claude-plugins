@@ -51,6 +51,8 @@ Released versions of this plugin, newest first.
   where a judgement depended on it.
 - The plan-adversary walks the domain checklists in diff-scoped rounds
   too.
+- The `integrity:` stamp is read at the consumption gate alone; one
+  gone stale after the plan was written owes no new audit.
 
 ## 0.19.0 — 2026-11-13
 
