@@ -55,6 +55,8 @@ Released versions of this plugin, newest first.
   gone stale after the plan was written owes no new audit.
 - A request to verify one claim goes to the propagation-auditor, a
   scripted measurement or a consultation, never to a verdict agent.
+- Wording: a full-document round "owes no confirming round", and a
+  plan's loop closes on its latest round heading.
 
 ## 0.19.0 — 2026-11-13
 

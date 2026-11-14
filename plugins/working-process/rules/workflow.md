@@ -830,11 +830,11 @@ diff-scoped LGTM heading, in the shape the spec-plan-lifecycle rule
 defines, and that annotation defeats the gate's re-ask. The other two
 paths write the same token.
 
-For a plan the loop closes only when the latest verdict round was
-full-document: whatever ends its rounds while the latest round heading
+For a plan the loop closes only when the latest round heading is
+full-document: whatever ends its rounds while that heading
 is diff-scoped, one confirming full-document round follows, and that
 round's verdict is the one stamped. A round already full-document owes
-no successor — it is the close. The confirming round inherits the gating
+no confirming round — it is the close. The confirming round inherits the gating
 of whatever ended the rounds. Where autonomy still stands —
 a diff-scoped `LGTM`, or a `concerns` inside the cap — the rules mandate
 the round, so it is no decision of the developer's and spends none of
