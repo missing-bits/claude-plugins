@@ -152,7 +152,14 @@ base: master        # optional: branch the topic branch was cut from
 - Verdict agents self-report the model they ran on (family plus version);
   the dispatcher compares it against the dispatched and prescribed
   tiers before stamping, and each round's verdict, model, and date are
-  recorded in the document body. Committed examples of the bare fallback form use
+  recorded in the document body. A self-report cannot reveal a
+  substituted model — thirteen runs dispatched on one family ran on
+  another while reporting the dispatched one — so where the agent's
+  transcript is readable (in Claude Code, the task's output file) the
+  model the API recorded decides the comparison:
+  `jq -r 'select(.type=="assistant") | .message.model' <transcript> | sort -u`.
+  Without a readable transcript, or where the command prints nothing,
+  the comparison is reported as unchecked, never as a match. Committed examples of the bare fallback form use
   placeholders (as above) so they never match the list below.
 - `branch` and `base` appear once the topic branch exists — never guessed
   up front, omitted entirely when there is no topic branch.

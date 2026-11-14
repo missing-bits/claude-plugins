@@ -199,7 +199,8 @@ on the most capable available, each named explicitly; the key's value
 is a tier, never a model name, and Claude Code resolves it through the
 table below this paragraph. Both reports open
 with a model self-report the dispatcher compares against the dispatched
-and the prescribed rung before relying on the result — a mismatched
+and the prescribed rung before relying on the result, the transcript's
+model deciding where the lifecycle rule says it does — a mismatched
 propagation run earns no reliance, and a below-tier integrity run gets
 no stamp. When a dispatch is refused because the dispatched
 model's cap is hit — and only then; any other failure is an ordinary
@@ -342,7 +343,15 @@ available:
   loop. The order has one named exception, defined under *What a
   diff-scoped LGTM certifies* below: a plan's diff-scoped LGTM.
 - The dispatch record is written before the relay. The dispatcher
-  saves what the agent returned, verbatim, under a header of the date,
+  saves what the agent returned, verbatim — extracted from the agent's
+  transcript, never retyped, since a retyped record once shared none of
+  its 23 lines with the report it claimed to hold. In Claude Code the
+  task's output file is that transcript, and the report is the
+  hand-back call's message:
+  `jq -r 'select(.type=="assistant") | .message.content[]? | select(.type=="tool_use" and .name=="SubagentHandback") | .input.message' <transcript>`.
+  Where that prints nothing, the agent's final assistant text is the
+  report; where no transcript is readable, the record says it was
+  copied from the relay. It goes under a header of the date,
   the agent, the model self-report, the subject, and — where a
   document was reviewed — its size, `size: <lines>`: the body's line
   count without the `## Review rounds` section, from
