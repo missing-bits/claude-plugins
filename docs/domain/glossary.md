@@ -389,8 +389,27 @@ re-raise against it. On a fold against a line written before the
 clause existed, the date on that line's own terminal token is the
 earlier ruling. It closes a finding; a held hit it authorizes closes
 only once the gate has rechecked the fix. The round-level counterpart
-is an Adjudication.
+is an Adjudication. A Stand-in's answer is not one: it is a Provisional
+decision until the developer confirms it.
 _Avoid_: developer decision (as the name), developer fix
+
+**Provisional decision**:
+A decision no written decision licenses, taken by someone other than
+the developer — a Stand-in's answer to a held finding, or a session's
+answer to a question no document settles during implementation. It
+takes effect at once, is recorded with `provisional: <date> (<author>)`
+on its disposition line or in the implementation's provisional list,
+licenses no later fix, and reaches the developer in one provisional
+batch, where it is confirmed into a Ruling or reversed.
+_Avoid_: ruling (for an unconfirmed answer), proxy decision
+
+**Stand-in**:
+An agent or tool the developer names in conversation, for one session,
+to answer the held findings a review round would put to them. Its
+answers are Provisional decisions. It never takes loop control, a held
+gate hit, a mechanism hold, an Adjudication, a register entry's
+withdrawal or deferral, or a `status` move.
+_Avoid_: proxy
 
 **Fallback**:
 The model that actually produced a degraded or chosen verdict, standing

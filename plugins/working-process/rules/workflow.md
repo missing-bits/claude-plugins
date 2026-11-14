@@ -144,7 +144,21 @@ disables its suggestion — never the work itself.
    family below for small mechanical ones — named explicitly.
 6. **Implementation.** Test-driven when
    superpowers:test-driven-development is available; bugs go through
-   superpowers:systematic-debugging when available.
+   superpowers:systematic-debugging when available. A question no
+   document settles — an implementer's, or the session's own while it
+   executes a plan — is answered by the session, and the answer is a
+   provisional decision, defined under *The stand-in and the
+   provisional batch* below. It is written when taken to
+   `.claude/working-process/<stem>/provisional.md`, `<stem>` being the
+   plan's basename or, where no plan exists, the design spec's: one
+   line per decision — date, question, answer, author (`session` or
+   `stand-in <name>`) — under the dispatch-record store's `.gitignore`
+   guard, and no ledger line is written. The session that took them
+   relays the list in its closing report; an answer there settles an
+   item and is appended to its line, and the provisional batch at the
+   `implemented` move carries what is still unanswered. An execution
+   skill's own list, such as superpowers' "Rulings I made", is relayed
+   as provisional decisions too.
 7. **Implementation → code review.** When a `*-code-review` skill is
    installed for a domain the change touches, offer a review of the
    work's diff — once implementation is complete and before the plan's
@@ -243,6 +257,22 @@ substitute pass and no install nagging — the work proceeds normally.
 Never read a credential's value — `gh auth token`, a token or key file,
 a keyring — or write one into a command. Report a check that needs
 authentication the developer did not provide as not checked.
+
+## Asks and their reach
+
+An ask licenses only what it asks for. A question or a stated fact asks
+for an answer: it licenses reading, with any tool, agents included, and
+never a change of state — an edit, a commit, an agent that writes, a
+push, a deploy, a write to a remote system, a release. A request
+licenses the change it names, on the object it names, and no further
+act with its own effect: "merge" asks for a merge, not a release. Where
+the object is ambiguous — a named file that does not exist — ask which
+is meant; a guess acted on is a change nobody requested. Any other
+change needs a request for it, or a consent that covers it — given in
+this session, as a Standing answer, or by project instruction, such as
+the review loop's per-round commits; where one looks needed, propose it
+and wait. Records these rules owe — ledger lines, dispatch records, the
+implementation's provisional list — are no change an ask must name.
 
 ## Branch naming
 
@@ -474,7 +504,9 @@ decision. Consequences the loop states outright:
   recorded developer decision.
 - Only written decisions license fixes. A decision settled in
   conversation becomes citable by being written into the document,
-  which the fix itself accomplishes.
+  which the fix itself accomplishes. A line carrying `provisional:`
+  licenses nothing until the developer confirms it, and neither does
+  the text its fix wrote.
 - A finding whose `origin` names a judged document — a design spec or a
   technical design — is held unless a written decision licenses the
   edit, since changing either from inside a plan review is design work.
@@ -520,6 +552,41 @@ Once the licensed fixes land, the loop either continues or yields:
 
 One batch per round is the contract: the developer is interrupted once
 per round, and only over a decision that is genuinely theirs.
+
+### The stand-in and the provisional batch
+
+The developer may name a *stand-in* in conversation — another agent or
+tool that answers for them — for the rest of the Claude Code session; a
+session that loses the delegation on compaction asks again rather than
+guess. The stand-in answers the held findings a round would put to the
+developer, and each answer is a *provisional decision*: it takes effect
+at once, and its disposition line carries
+`provisional: <date> (stand-in <name>)` where the developer's answer
+would carry `ruling:`. An answer covers only the question put to it; a
+later event needs a new question. A stand-in may answer a `blocking`
+round's held findings, whose fixes land while the loop stays stopped.
+Every other act stays the developer's: round orders, cap and all-Minor
+escalations, a round after `blocking`, held gate hits, a fix the
+mechanism hold stops, adjudicating a `blocking` verdict, withdrawing or
+deferring a registered decision, and moving a `status`. A stand-in's
+answer is not developer contact, so it resets no cap.
+
+Provisional decisions reach the developer as one *provisional batch*:
+every line under the document's `## Review rounds` whose authorizer is
+`provisional:`. It is delivered with the request for the document's
+next status move, and for a design spec or a technical design no later
+than its consumption gate, settled there before the integrity audit
+since a reversal edits the audited body. An approval given before the
+request still gets the batch first. A line a plan review writes into an
+already-consumed judged document travels in the plan's batch, and one
+answer settles both lines. The developer confirms or reverses each
+item. Confirmed, `provisional:` becomes `ruling: <date>`, the date of
+the answer. Reversed, the session applies the answer at once and
+rewrites the line in place to the terminal state the answer gives — a
+reversed `fixed` may become `declined` or stay `fixed` with narrower
+text, a reversed `declined` becomes `fixed` — carrying `ruling:`, and
+runs the propagation gate over the change as after any fix wave. A move
+made on the developer's word leaves no `provisional:` line behind.
 
 ### The propagation gate
 
@@ -626,6 +693,9 @@ context, never as a review target, and what that protects is narrow:
   footing;
 - `held` lines carry questions already put, so a round does not
   duplicate one;
+- lines carrying `provisional:` record nobody's decision yet, so they
+  are not settled and a reviewer may re-raise them like `license:`
+  lines;
 - `fixed` lines carrying `license:` get no protection at all — the
   previous round's are the diff and are named as the first thing to
   attack, and older ones are simply unprotected, since a reviewer told
@@ -696,7 +766,9 @@ evidence to attack, never a defence to protect.
   `license:` is never re-fixed autonomously. Two readings of one license
   are a contested reading, so it escalates as held, the flip named. A
   re-raise against a line carrying `ruling:` is the relitigation case
-  instead, and the spec-plan-lifecycle rule owns it.
+  instead, and the spec-plan-lifecycle rule owns it. A line carrying
+  `provisional:` cites no license, so a re-raise against it goes
+  through ordinary triage and the tripwire does not apply.
 
 The cap guards spend and the signal guards sense; both escalate, and
 neither is a wall. Relay stays the developer's standing veto — every

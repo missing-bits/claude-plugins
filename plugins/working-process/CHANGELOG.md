@@ -21,6 +21,20 @@ Released versions of this plugin, newest first.
   its change since the previous round.
 - While drafting a design spec, the session asks for a size target,
   what is dropped, what native behaviour covers and the accepted risks.
+- The developer may name a stand-in for the session. It answers held
+  findings, its answers take effect at once as provisional decisions
+  (`provisional: <date> (stand-in <name>)`), and the developer confirms
+  or reverses them in one provisional batch at the document's next
+  status move, or at a design document's consumption gate. Loop
+  control, held gate hits, mechanism holds, adjudication, withdrawals,
+  deferrals and status moves stay the developer's.
+- Implementation-time answers no document settles are provisional too:
+  written to `.claude/working-process/<stem>/provisional.md` and
+  relayed in the closing report.
+- Every `status` move is the developer's, or a project instruction's
+  that names the move.
+- A question or a stated fact licenses reading only; a request licenses
+  the change it names and no further act with its own effect.
 
 ## 0.19.0 — 2026-11-13
 
