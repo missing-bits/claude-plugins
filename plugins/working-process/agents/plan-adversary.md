@@ -50,7 +50,8 @@ plan touches — judged from its content and the repo's markers (e.g.
 its dimensions with the same rigor as the generic ones below. Domains
 without a checklist get the generic dimensions only, with the duty's
 remaining sources (other skills, then verified model knowledge) covering
-the expertise.
+the expertise. A diff-scoped round loads the same checklists and walks
+them over the diff.
 
 ## Judged documents: decline
 

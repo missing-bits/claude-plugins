@@ -597,7 +597,9 @@ It carries no ordinal and no verdict, which keeps it out of the round
 cap's derivation and out of the Unfinished-work commands that anchor a
 round heading: it records a fix, not a round. Two stamps go stale as on
 any body edit — the `integrity:` hash stops matching, and the verdict
-stops certifying the words that changed. The same heading serves a
+stops certifying the words that changed. The `integrity:` stamp is
+read at the consumption gate alone: one gone stale after the plan was
+written is expected and owes no new audit. The same heading serves a
 register edit that a plan's held gate line licensed, on a design spec
 whose loop has closed at whatever verdict: the heading then names the
 plan whose gate held the hit, and that plan's terminal gate line names

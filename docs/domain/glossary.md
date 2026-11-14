@@ -580,8 +580,9 @@ tell is another fact)
 The obligation a diff-scoped LGTM leaves: the document was approved with
 no whole-document read at the end, so somebody must still take
 responsibility for the part no round re-read — or explicitly decline to.
-The consumption gate owns it, not the loop, which owes nothing further
-once it terminates. Discharged three ways: an integrity audit, any later
+For a judged document the consumption gate owns it, not the loop, which
+owes nothing further once it terminates; for a plan the confirming round
+owns it. Discharged three ways: an integrity audit, any later
 full-document round whatever its verdict, or the developer's recorded
 decline. What they decline is the gate's pair offer — or, where the
 document is already implemented and the gate never fired, the question

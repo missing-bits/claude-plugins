@@ -31,6 +31,9 @@ than from any summary.
 Treat a settled decision as settled unless it contradicts a recorded ADR,
 which the glossary duty tells you how to handle.
 
+Open the reply with a one-line **model self-report** — the model this
+consultation actually ran on, as family plus version (e.g. "opus 4.8").
+
 Work the dimensions of your own duty and dismiss by name the ones that do
 not apply. End with the questions you would need answered next, and name
 plainly anywhere the briefing left you guessing — a briefing gap is worth

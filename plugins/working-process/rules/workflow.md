@@ -219,7 +219,9 @@ Dispatching a consultation, when the consult agents are available: one
 dispatch, briefed once. The briefing names the subject and where it
 lives (the repo root at minimum), the constraints that bind it, and
 settled decisions separated from open questions — pointing at files
-rather than pasting them. A follow-up is a fresh cross-check dispatch,
+rather than pasting them. It puts the question without the session's
+own recommendation, since a persona handed an answer tends to return
+it. A follow-up is a fresh cross-check dispatch,
 never a resumption. When both personas are consulted on one subject,
 give both the same canonical briefing, each with its own focusing
 question appended, and tell neither what the other said. Dispatch as a
@@ -240,6 +242,11 @@ does: where the personas disagree, the disagreement is presented as a
 disagreement with both positions, because a disagreement is the one
 thing in a contribution the developer must decide and the digest
 exists to raise decisions rather than bury them.
+
+A request to verify one claim goes by the claim's kind: a mechanical
+check to the `propagation-auditor`, an empirical one to a scripted
+measurement, a judgment to a consultation. A verdict agent reviews a
+document and is never dispatched to verify a single claim.
 
 When `docs/domain/glossary.md` exists in the project, its canonical
 terms and `_Avoid_` bans bind design specs, technical designs, plans,
@@ -823,11 +830,11 @@ diff-scoped LGTM heading, in the shape the spec-plan-lifecycle rule
 defines, and that annotation defeats the gate's re-ask. The other two
 paths write the same token.
 
-For a plan the loop closes only when the latest verdict round was
-full-document: whatever ends its rounds while the latest round heading
+For a plan the loop closes only when the latest round heading is
+full-document: whatever ends its rounds while that heading
 is diff-scoped, one confirming full-document round follows, and that
 round's verdict is the one stamped. A round already full-document owes
-no successor — it is the close. The confirming round inherits the gating
+no confirming round — it is the close. The confirming round inherits the gating
 of whatever ended the rounds. Where autonomy still stands —
 a diff-scoped `LGTM`, or a `concerns` inside the cap — the rules mandate
 the round, so it is no decision of the developer's and spends none of
