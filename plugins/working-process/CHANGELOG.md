@@ -39,8 +39,8 @@ Released versions of this plugin, newest first.
 - The dispatcher checks a verdict or audit run's model against the
   model the agent's transcript records, not only its self-report; with
   no readable transcript the check is reported as unchecked.
-- A dispatch record is extracted from the agent's transcript with a
-  published `jq` command instead of being retyped.
+- A verdict agent's dispatch record is extracted from the agent's
+  transcript with a published `jq` command instead of being retyped.
 - `system-designer-session` also opens when the workflow's
   technical-design step routes to it, not only on an explicit ask.
 

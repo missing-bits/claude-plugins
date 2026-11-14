@@ -156,10 +156,14 @@ base: master        # optional: branch the topic branch was cut from
   substituted model — thirteen runs dispatched on one family ran on
   another while reporting the dispatched one — so where the agent's
   transcript is readable (in Claude Code, the task's output file) the
-  model the API recorded decides the comparison:
+  model the API recorded, read as its family, decides the comparison:
   `jq -r 'select(.type=="assistant") | .message.model' <transcript> | sort -u`.
-  Without a readable transcript, or where the command prints nothing,
-  the comparison is reported as unchecked, never as a match. Committed examples of the bare fallback form use
+  Where it differs from the self-report, the record, the round heading
+  and the relay carry the transcript's model, the self-report beside it
+  in parentheses. Without a readable transcript, or where the command
+  prints nothing, the self-report comparison runs as before and the
+  relay calls it unchecked, never a match. Committed examples of the
+  bare fallback form use
   placeholders (as above) so they never match the list below.
 - `branch` and `base` appear once the topic branch exists — never guessed
   up front, omitted entirely when there is no topic branch.
