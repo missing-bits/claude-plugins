@@ -548,7 +548,10 @@ Once the licensed fixes land, the loop either continues or yields:
   awaiting the developer, since a round over known-open decisions
   re-reports them at the loop's most expensive tier for no
   information. The developer may still order a round on the partial
-  document — every step is an offer.
+  document — every step is an offer. Where a stand-in is named, the
+  held findings go to it instead, and once its answers land the loop
+  continues as with the held set empty: a `provisional:` line awaits
+  only the provisional batch, never the next round.
 
 One batch per round is the contract: the developer is interrupted once
 per round, and only over a decision that is genuinely theirs.
@@ -569,11 +572,13 @@ Every other act stays the developer's: round orders, cap and all-Minor
 escalations, a round after `blocking`, held gate hits, a fix the
 mechanism hold stops, adjudicating a `blocking` verdict, withdrawing or
 deferring a registered decision, and moving a `status`. A stand-in's
-answer is not developer contact, so it resets no cap.
+answer is not developer contact, so it resets no cap. During
+implementation it may also answer the questions step 6 describes.
 
 Provisional decisions reach the developer as one *provisional batch*:
 every line under the document's `## Review rounds` whose authorizer is
-`provisional:`. It is delivered with the request for the document's
+`provisional:`, and at a plan's `implemented` move the unanswered items
+of its provisional list. It is delivered with the request for the document's
 next status move, and for a design spec or a technical design no later
 than its consumption gate, settled there before the integrity audit
 since a reversal edits the audited body. An approval given before the

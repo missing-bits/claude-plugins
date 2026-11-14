@@ -25,7 +25,8 @@ Released versions of this plugin, newest first.
   findings, its answers take effect at once as provisional decisions
   (`provisional: <date> (stand-in <name>)`), and the developer confirms
   or reverses them in one provisional batch at the document's next
-  status move, or at a design document's consumption gate. Loop
+  status move, or at a design spec's or technical design's consumption
+  gate. Loop
   control, held gate hits, mechanism holds, adjudication, withdrawals,
   deferrals and status moves stay the developer's.
 - Implementation-time answers no document settles are provisional too:

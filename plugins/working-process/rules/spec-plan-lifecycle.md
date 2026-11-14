@@ -548,7 +548,7 @@ The leading token is a queryable state. Clauses are payload.
 |---|---|---|
 | `license: <citation>` | the written decision the session acted on | `fixed` |
 | `ruling: <date>` | the developer authorized it; on a fold, the prior ruling's date followed by `folding <section or line quote>` naming what it folds against | `fixed`, `declined` |
-| `provisional: <date> (stand-in <name>)` | a stand-in the developer named decided it; it licenses nothing until the developer confirms it in the provisional batch, when it becomes `ruling:` | `fixed`, `declined` |
+| `provisional: <date> (stand-in <name>)` | a stand-in the developer named decided it, on that date; it licenses nothing until the developer confirms it in the provisional batch, when it becomes `ruling:` | `fixed`, `declined` |
 | `question:` | the question, phrased so one short answer resolves it | `held` |
 | `options:` | the options and the session's recommendation | `held` |
 | `counter:` | the session's evidence where the finding is disputed or contested | `held` |

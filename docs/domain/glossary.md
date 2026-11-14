@@ -397,8 +397,9 @@ _Avoid_: developer decision (as the name), developer fix
 A decision no written decision licenses, taken by someone other than
 the developer — a Stand-in's answer to a held finding, or a session's
 answer to a question no document settles during implementation. It
-takes effect at once, is recorded with `provisional: <date> (<author>)`
-on its disposition line or in the implementation's provisional list,
+takes effect at once, is recorded on its disposition line with
+`provisional: <date> (stand-in <name>)` or as a line of the
+implementation's provisional list,
 licenses no later fix, and reaches the developer in one provisional
 batch, where it is confirmed into a Ruling or reversed.
 _Avoid_: ruling (for an unconfirmed answer), proxy decision
@@ -406,7 +407,8 @@ _Avoid_: ruling (for an unconfirmed answer), proxy decision
 **Stand-in**:
 An agent or tool the developer names in conversation, for one session,
 to answer the held findings a review round would put to them. Its
-answers are Provisional decisions. It never takes loop control, a held
+answers are Provisional decisions; during implementation it may also
+answer an implementer's question. It never takes loop control, a held
 gate hit, a mechanism hold, an Adjudication, a register entry's
 withdrawal or deferral, or a `status` move.
 _Avoid_: proxy
