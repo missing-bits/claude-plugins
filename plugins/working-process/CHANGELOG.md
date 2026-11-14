@@ -53,6 +53,8 @@ Released versions of this plugin, newest first.
   too.
 - The `integrity:` stamp is read at the consumption gate alone; one
   gone stale after the plan was written owes no new audit.
+- A request to verify one claim goes to the propagation-auditor, a
+  scripted measurement or a consultation, never to a verdict agent.
 
 ## 0.19.0 — 2026-11-13
 

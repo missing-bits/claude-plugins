@@ -243,6 +243,11 @@ disagreement with both positions, because a disagreement is the one
 thing in a contribution the developer must decide and the digest
 exists to raise decisions rather than bury them.
 
+A request to verify one claim goes by the claim's kind: a mechanical
+check to the `propagation-auditor`, an empirical one to a scripted
+measurement, a judgment to a consultation. A verdict agent reviews a
+document and is never dispatched to verify a single claim.
+
 When `docs/domain/glossary.md` exists in the project, its canonical
 terms and `_Avoid_` bans bind design specs, technical designs, plans,
 code identifiers, and reviews.
