@@ -49,6 +49,13 @@ base: master        # optional: branch the topic branch was cut from
 - `status` is linear and moves forward only. Review rounds are iterative
   and live in their own fields; `grilled`, `architect`, and `adversary`
   appear only once the corresponding step has run.
+- Every `status` move is the developer's: it happens on their word, or
+  under a note in the project's instructions that names that move.
+  Under such a note the provisional batch the workflow rule defines
+  goes into the report announcing the move, and its lines stay
+  `provisional:` until the developer answers; converting or rewriting
+  them on an `implemented` document is a process record, which the
+  frozen body below excepts.
 - An `implemented` document records what shipped at its release, and the
   surfaces it named are the current truth. Never build from one without
   diffing it against those surfaces first — the document is the archive,
@@ -519,9 +526,11 @@ annotates a verdict, while `resolved <date>` annotated a finding.
   tripwire's named flip is that evidence.
 - `fixed <date>` — the document changed on account of this finding. Its
   authorizer says who decided: `license:` where the session cited a
-  written decision, `ruling:` where the developer did.
+  written decision, `ruling:` where the developer did, `provisional:`
+  where a stand-in did.
 - `declined <date>` — the document stands. It always carries `ruling:`,
-  because declining is a decision and triage gives a session no license
+  or `provisional:` where a stand-in declined it, because declining is
+  a decision and triage gives a session no license
   to decide.
 
 Each disposition line is written before the edit it describes, or with
@@ -539,6 +548,7 @@ The leading token is a queryable state. Clauses are payload.
 |---|---|---|
 | `license: <citation>` | the written decision the session acted on | `fixed` |
 | `ruling: <date>` | the developer authorized it; on a fold, the prior ruling's date followed by `folding <section or line quote>` naming what it folds against | `fixed`, `declined` |
+| `provisional: <date> (stand-in <name>)` | a stand-in the developer named decided it, on that date; it licenses nothing until the developer confirms it in the provisional batch, when it becomes `ruling:` | `fixed`, `declined` |
 | `question:` | the question, phrased so one short answer resolves it | `held` |
 | `options:` | the options and the session's recommendation | `held` |
 | `counter:` | the session's evidence where the finding is disputed or contested | `held` |
@@ -777,6 +787,10 @@ A pre-design settled line carries no authorizer clause and is settled by
 its token alone; a fold against one cites the date on that token, which
 is when the developer decided.
 
+A line carrying `provisional:` is not settled: it records nobody's
+decision yet, so a re-raise against it is ordinary triage, as against a
+`license:` line, and nothing here folds it.
+
 State prevents relitigation, not the reviewer's memory.
 
 ## Unfinished-work list
@@ -915,7 +929,8 @@ so the `integrity:` stamp sits on the design spec and names both.
 
 A document's consumption gate is the backstop for its ledger: no judged
 document passes to plan-writing, nor a plan to implementation, while
-`held` lines or `hit held` gate lines stay open — an LGTM can leave the
+`held` lines or `hit held` gate lines stay open, nor a judged document
+while its `provisional:` lines do — an LGTM can leave the
 frontmatter clean while a decision question still pends, so the gate
 asks those questions at the latest. A `hit held` line blocks until the
 gate has re-run and rewritten it to a terminal shape, since declining
