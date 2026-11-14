@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-11-14
-status: approved
+status: implemented
 decisions: registered
 architect: blocking (adjudicated 2026-11-14)
 integrity: 2026-11-14 (sha: 4d685b3)
