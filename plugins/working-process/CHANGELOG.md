@@ -36,6 +36,13 @@ Released versions of this plugin, newest first.
   that names the move.
 - A question or a stated fact licenses reading only; a request licenses
   the change it names and no further act with its own effect.
+- The dispatcher checks a verdict or audit run's model against the
+  model the agent's transcript records, not only its self-report; with
+  no readable transcript the check is reported as unchecked.
+- A verdict agent's dispatch record is extracted from the agent's
+  transcript with a published `jq` command instead of being retyped.
+- `system-designer-session` also opens when the workflow's
+  technical-design step routes to it, not only on an explicit ask.
 
 ## 0.19.0 — 2026-11-13
 
