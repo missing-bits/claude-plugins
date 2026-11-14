@@ -49,6 +49,8 @@ Released versions of this plugin, newest first.
   that carries a recommendation with a measurement or marks it
   `assumed`, and mentions an absent glossary or ADR directory only
   where a judgement depended on it.
+- The plan-adversary walks the domain checklists in diff-scoped rounds
+  too.
 
 ## 0.19.0 — 2026-11-13
 
