@@ -119,7 +119,7 @@ question: May the architect and system-designer personas be consulted as a desig
 scope: personal
 values: yes | no
 default: unset
-read-by: working-process/rules/workflow.md
+read-by: working-process/skills/review-loop/PROCEDURE.md
 question: May the review loop run autonomously, within the round cap?
 
 ## review.per-round-commit
@@ -127,7 +127,7 @@ question: May the review loop run autonomously, within the round cap?
 scope: personal
 values: yes | no
 default: unset
-read-by: working-process/rules/workflow.md, working-process/rules/spec-plan-lifecycle.md
+read-by: working-process/skills/review-loop/PROCEDURE.md, working-process/rules/spec-plan-lifecycle.md
 question: May the review loop commit the reviewed document once per round?
 
 ## ticket.root
