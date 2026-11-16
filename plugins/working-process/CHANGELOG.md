@@ -57,6 +57,17 @@ Released versions of this plugin, newest first.
   scripted measurement or a consultation, never to a verdict agent.
 - Wording: a full-document round "owes no confirming round", and a
   plan's loop closes on its latest round heading.
+- The dispatcher's procedure — verdict dispatch, the review loop, the
+  stand-in, the propagation gate, re-dispatch briefs, the terminators,
+  the diff-scoped LGTM, per-round commits — leaves the workflow rule,
+  and the disposition ledger leaves the lifecycle rule, for a new
+  `review-loop` skill. Invoke it before a verdict dispatch, at a
+  consumption gate, before a `status` move and before writing a ledger
+  line. No decision changes.
+- The Unfinished-work list is now a reference file of `process-status`.
+- A brief for any agent dispatched on a document with a
+  `## Review rounds` section carries the ledger reference's path.
+- Run `sync-rules` after updating: both rules shrink.
 
 ## 0.19.0 — 2026-11-13
 

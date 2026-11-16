@@ -5,18 +5,16 @@ description: "Report what the working process left unfinished in this repo — a
 
 # process-status — what the process left unfinished
 
-Runs the Unfinished-work list the lifecycle rule publishes and reports
-what it finds. The rule owns which classes exist; this skill owns
+Runs the Unfinished-work list its reference file publishes and reports
+what it finds. The list owns which classes exist; this skill owns
 nothing but running them, confirming their hits, and reporting. A class
-this skill has never heard of works the moment the rule publishes it.
+this skill has never heard of works the moment the list publishes it.
 
 ## Step 1 — read the list
 
 Read the `## Unfinished-work list` section of
-`${CLAUDE_PLUGIN_ROOT}/rules/spec-plan-lifecycle.md` — the payload copy
-shipped beside this skill, never an installed copy under
-`.claude/rules/`. The plugin releases skill and payload in one version,
-so that copy is always in step with this skill.
+`${CLAUDE_PLUGIN_ROOT}/skills/process-status/UNFINISHED-WORK.md`, the
+reference file shipped beside this skill.
 
 Each entry carries three legs: the class name, one command, and the
 owner of the next move. Take all three. An entry may carry a fourth, its

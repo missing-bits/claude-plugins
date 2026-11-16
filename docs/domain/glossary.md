@@ -448,11 +448,11 @@ will ever ask.
 _Avoid_: usage point
 
 **Unfinished-work list**:
-The named section of the spec-plan-lifecycle rule holding one entry per
-class of unfinished process work — class name, grep command, the owner
+The reference file of the `process-status` skill, `UNFINISHED-WORK.md`,
+holding one entry per class of unfinished process work — class name, grep command, the owner
 of the next move, and optionally the entry's own match scope — and the
 single definition site for which classes exist. A class that accepts
-the default scope costs one edit in the rule and none in the consumers
+the default scope costs one edit in the list and none in the consumers
 that run it. Publishing a scope of its own cost a consumer edit once, to
 teach the consumers section scopes at all; every class publishing one
 since trades on that lesson for free. A command's output is hits to
