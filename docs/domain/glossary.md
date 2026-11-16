@@ -514,6 +514,20 @@ developer; its disposition stays open until that decision is recorded
 and the gate rechecks the changed spec and plan.
 _Avoid_: mechanical finding
 
+**Verification check**:
+A command a plan's step carries, with the result it expects, that shows
+the step did what it says — a count of a phrase, a diff, a test run.
+It belongs to the plan and runs at execution; a Hit is what the
+process's own mechanical checks return, never this.
+_Avoid_: sanity check, check (bare, where a Hit is also in view)
+
+**Vacuous check**:
+A Verification check that gives the same result before its step and
+after it, so it cannot show the step did anything — including one that
+passes because it examined nothing. Declaring that a step leaves a
+result unchanged makes such a check intended rather than vacuous.
+_Avoid_: no-op check, dead check
+
 **Disposition ledger**:
 The record a review loop keeps inside the reviewed document, under one
 `## Review rounds` section: what each round found and what became of it.
