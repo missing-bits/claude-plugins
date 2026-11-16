@@ -90,7 +90,8 @@ verdict dispatch and the integrity audit itself.
   unfinished review-loop ledger (an `open` or `held` disposition line,
   counted only inside a `## Review rounds` section), a re-review nobody
   ran, a stamp outside the top level of a frontmatter block. Runs the
-  Unfinished-work list the lifecycle rule publishes and fires none of
+  Unfinished-work list its reference file
+  publishes and fires none of
   the offers those classes name. Triggers: "what is unfinished" /
   "process status".
 - **`process-setup` skill** — collects a project's standing process
@@ -159,8 +160,8 @@ verdict and gain a resolution date — `concerns (resolved 2026-07-16)` —
 plus a body note saying what resolved them.
 
 Finding unfinished work is one command per class, published as the
-`## Unfinished-work list` section of the lifecycle rule — the exact
-anchors live there, and the `process-status` skill runs them. The tail
+`## Unfinished-work list` section of the `process-status` skill's
+`UNFINISHED-WORK.md` — the exact anchors live there, and the `process-status` skill runs them. The tail
 anchors are exact, so a resolved-concern annotation drops out of the
 match by design.
 
@@ -211,11 +212,12 @@ out as well, and both reports open with a model self-report the
 dispatcher checks before relying on the run: a mismatched propagation
 run earns no reliance, a below-tier integrity run no stamp.
 
-The dispatcher's half of all this lives in the plugin's Rules payload —
-the verdict agents' relay-then-stamp sequence and the two audit offers
-in the workflow rule, the `integrity:` stamp and its
-recompute-and-compare gate in the spec-plan-lifecycle rule. After a plugin update, run a rules
-re-sync so the dispatcher side matches the agents; until then the
+The dispatcher's half of all this lives in the plugin's `review-loop`
+skill and Rules payload — the verdict agents' relay-then-stamp sequence
+in the skill, the two audit offers in the workflow rule, the
+`integrity:` stamp and its recompute-and-compare gate in the
+spec-plan-lifecycle rule. After a plugin update, run a rules
+re-sync so the installed rules match the agents; until then the
 previously installed rules still carry the older record-the-verdict
 obligation and make neither audit offer, so no round is lost and the
 new gates merely stay silent.
