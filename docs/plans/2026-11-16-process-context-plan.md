@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-11-16
-status: approved
+status: implemented
 spec: ../specs/2026-11-16-process-context-spec.md
 branch: feature/process-context
 base: develop
