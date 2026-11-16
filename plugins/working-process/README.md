@@ -106,6 +106,12 @@ verdict dispatch and the integrity audit itself.
 - **`sync-rules` skill** — installs, updates, and uninstalls the rule
   files shipped by plugins of this marketplace (Rules payloads); see the
   "Process rules" section.
+- **`wp-phrase-check` command** — a plan's verification check over
+  text. It counts a phrase after joining lines, collapsing whitespace,
+  ignoring case and dropping list and quote markers, verifies the count
+  against the number its side expects, and fails a check that could
+  not show its step did anything. It ships in `bin/`, which Claude
+  Code puts on the Bash tool's `PATH` while the plugin is enabled.
 
 Each persona is single-sourced in its file at the plugin root —
 [ARCHITECT_PERSONA.md](./ARCHITECT_PERSONA.md) and
@@ -122,6 +128,8 @@ exist, so it speaks the project's language from its first message.
 
 - Claude Code ≥ 2.1.207 (verified — rules distribution needs subdirectory
   rules loading; the skills and agents alone work on ≥ 2.1.143).
+- Claude Code itself, not claude.ai or Cowork: the plugin ships a
+  top-level `bin/`, and a plugin that has one does not install there.
 - The `superpowers` plugin — declared as a dependency and installed
   automatically alongside this plugin.
 - Optional companion: the `elements-of-style` plugin. When its
@@ -132,8 +140,10 @@ exist, so it speaks the project's language from its first message.
       /plugin marketplace add obra/superpowers-marketplace
       /plugin install elements-of-style@superpowers-marketplace
 
-- `python3` 3.9 or later, standard library only, for the propagation
-  auditor's coverage duty.
+- Python 3.9 or later, standard library only. `wp-phrase-check` finds
+  it as `python3`, `python` or `py -3`, in that order, and confirms
+  each by its version; the propagation auditor's coverage duty calls
+  `python3`.
 
 ## Extending with a domain checklist
 
@@ -228,7 +238,7 @@ new gates merely stay silent.
 
 ## Process rules
 
-The plugin ships eight rule files in `rules/` — the preferred workflow
+The plugin ships nine rule files in `rules/` — the preferred workflow
 (always loaded once installed), the process settings
 (`process-settings.md`, always loaded: the settings files, their
 grammar, the block and how a key is read), frontmatter and lifecycle
@@ -236,7 +246,9 @@ for judged documents and plans, what a technical design must contain
 (`technical-design.md`, loaded while one is open), Process directory
 conventions, ticket frontmatter, the propagation duties keyed by the
 edit that triggers them (`propagation-duties.md`, loaded while a design
-spec, technical design, plan or domain document is open), and the
+spec, technical design, plan or domain document is open), the
+recurring defect classes a plan's author reads (`plan-authoring.md`,
+loaded while a plan is open), and the
 review-report contract (`review-reports.md`: where a code-review run
 writes its Review report and what shape it takes; domain review skills
 locate the installed contract via its contract probe — the

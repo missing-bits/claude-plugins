@@ -19,6 +19,13 @@ your wording, and — re-tightening the shared file's "called out" floor —
 a plan contradicting a glossary term or a recorded ADR is a finding
 (evidence = that file).
 
+Then read `${CLAUDE_PLUGIN_ROOT}/rules/plan-authoring.md`, "Plan
+authoring — recurring defect classes": the text the plan's author
+wrote from. A step that shows one of its seven classes, predicts the
+message a failing test prints, or breaks one of its check-writing
+rules is a finding (evidence = the plan quote and that rule's
+heading).
+
 ## Ground rules
 
 - Every finding cites evidence: `file:line`, a quote from the plan, a

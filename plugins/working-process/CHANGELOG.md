@@ -67,7 +67,23 @@ Released versions of this plugin, newest first.
 - The Unfinished-work list is now a reference file of `process-status`.
 - A brief for any agent dispatched on a document with a
   `## Review rounds` section carries the ledger reference's path.
-- Run `sync-rules` after updating: both rules shrink.
+- `wp-phrase-check`, a command the plugin puts on the Bash tool's
+  `PATH`: a plan's verification check over text, counting a phrase
+  whatever the file's wrapping, case or whitespace. Each run names its
+  side, prints the expected count, the actual count and what it read,
+  and fails on a mismatch, a missing or unreadable path, a run that
+  read no file, or equal before and after counts not declared
+  unchanged. A bash launcher finds Python 3.9 or later as `python3`,
+  `python` or `py -3`.
+- A new rule, `plan-authoring.md`, loaded while a plan is open: seven
+  recurring defect classes, the rule that a plan prescribes observing
+  a failing test and never predicts its message, and the check-writing
+  rules. Plan-writing reads it before the plan's first line, and the
+  plan-adversary reads the shipped copy.
+- The plugin now needs Claude Code itself: with a top-level `bin/` it
+  does not install on claude.ai or in Cowork.
+- Run `sync-rules` after updating: both rules shrink, and the new
+  `plan-authoring.md` also arrives through `sync-rules`.
 
 ## 0.19.0 — 2026-11-13
 
