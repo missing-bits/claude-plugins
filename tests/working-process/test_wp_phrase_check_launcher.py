@@ -84,6 +84,12 @@ class Launcher(unittest.TestCase):
         os.symlink(LAUNCHER, link)
         self.assert_pass(self.run_launcher(self.file, *PASSING, launcher=link))
 
+    def test_bare_name_invocation_from_bin_dir(self):
+        self.stub("python3", GOOD)
+        r = subprocess.run([BASH, "wp-phrase-check", self.file, *PASSING], env={"PATH": self.stubs},
+                           cwd=os.path.dirname(LAUNCHER), capture_output=True, text=True)
+        self.assert_pass(r)
+
     def test_path_with_space_survives_launcher(self):
         self.stub("python3", GOOD)
         spaced = os.path.join(self.dir, "two words.md")

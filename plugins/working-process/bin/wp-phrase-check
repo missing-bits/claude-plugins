@@ -2,11 +2,13 @@
 # Runs scripts/phrase-check.py under the first Python 3.9+ found.
 # No readlink -f / realpath: stock macOS lacks them.
 self="${BASH_SOURCE[0]}"
+case "$self" in */*) ;; *) self="./$self" ;; esac
 while [ -L "$self" ]; do
   target="$(readlink "$self")"
   case "$target" in
     /*) self="$target" ;;
-    *) self="${self%/*}/$target" ;;
+    */*) self="${self%/*}/$target" ;;
+    *) self="${self%/*}/./$target" ;;
   esac
 done
 dir="$(cd "${self%/*}" && pwd)"

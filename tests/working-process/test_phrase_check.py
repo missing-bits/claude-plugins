@@ -170,19 +170,23 @@ class PhraseCheck(unittest.TestCase):
         self.assertIn("read: files 1, lines 1", p.stdout)
 
     def test_no_path_fails(self):
-        p = self.run_check("--phrase=alpha", "--before", "1", "--after", "0", "--side", "after")
+        p = self.run_check("--phrase=alpha", "--before", "1", "--after", "1", "--side", "after")
         self.assertEqual(p.returncode, 1)
         self.assertIn("fail: read no file", p.stdout)
+        self.assertIn("actual: not counted", p.stdout)
+        self.assertNotIn("vacuous", p.stdout)
 
     def test_blank_phrase_is_usage_error(self):
         path = self.write("a.md", "alpha\n")
         p = self.run_check(path, "--phrase=   ", "--before", "0", "--after", "1", "--side", "after")
         self.assertEqual(p.returncode, 2)
+        self.assertIn("--phrase is empty after normalising", p.stderr)
 
     def test_negative_count_is_usage_error(self):
         path = self.write("a.md", "alpha\n")
         p = self.run_check(path, "--phrase=alpha", "--before=-1", "--after", "0", "--side", "after")
         self.assertEqual(p.returncode, 2)
+        self.assertIn("must not be negative", p.stderr)
 
 
 if __name__ == "__main__":
