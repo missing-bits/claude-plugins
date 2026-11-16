@@ -115,13 +115,18 @@ disables its suggestion — never the work itself.
    pair's sequencing at this gate is in the `review-loop` skill's
    procedure reference, when that skill is available.
 
-   Then write the
+   Before the plan's first line is written, whoever writes it — the
+   session or a separate context — reads the plan-authoring rule,
+   installed beside this one: a path-scoped rule loads only when a
+   matching file is read, and a new plan has none yet. Then write the
    implementation plan with superpowers:writing-plans when available;
-   plans live in `docs/plans/` (or the ticket directory, below). A brief that delegates plan-writing to a
-   separate context names the spec-plan-lifecycle rule and requires
-   reading it before the plan is written: that rule carries the
-   annotations a plan owes a registered design spec, and a separate
-   context cannot count on it loading.
+   plans live in `docs/plans/` (or the ticket directory, below). A
+   brief that delegates plan-writing to a separate context names the
+   spec-plan-lifecycle rule and the plan-authoring rule and requires
+   reading both before the plan is written: the first carries the
+   annotations a plan owes a registered design spec, the second the
+   recurring defect classes and the check-writing rules, and a
+   separate context cannot count on either loading.
 5. **Plan → adversary review.** Before implementing a non-trivial plan,
    offer a working-process plan-adversary agent dispatch (when
    available); dispatch and stamping follow the `review-loop` skill's
