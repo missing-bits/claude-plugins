@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Runs scripts/phrase-check.py under the first Python 3.9+ found.
+# No readlink -f / realpath: stock macOS lacks them.
+self="${BASH_SOURCE[0]}"
+while [ -L "$self" ]; do
+  target="$(readlink "$self")"
+  case "$target" in
+    /*) self="$target" ;;
+    *) self="${self%/*}/$target" ;;
+  esac
+done
+dir="$(cd "${self%/*}" && pwd)"
+script="$dir/../scripts/phrase-check.py"
+
+tried=""
+for c in "python3" "python" "py -3"; do
+  read -r -a candidate <<< "$c"
+  if ! command -v "${candidate[0]}" > /dev/null 2>&1; then
+    why="not found"
+  elif "${candidate[@]}" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)' > /dev/null 2>&1; then
+    exec "${candidate[@]}" "$script" "$@"
+  else
+    why="rejected"
+  fi
+  tried="${tried:+$tried, }$c ($why)"
+done
+echo "wp-phrase-check: no Python 3.9 or later found; tried: $tried" >&2
+exit 2
