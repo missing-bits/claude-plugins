@@ -94,6 +94,10 @@ verdict dispatch and the integrity audit itself.
   publishes and fires none of
   the offers those classes name. Triggers: "what is unfinished" /
   "process status".
+- **`review-loop` skill** — holds the dispatcher's procedure and the
+  ledger grammar as two reference files. Read before a verdict dispatch,
+  at a consumption gate, before a `status` move and before writing a
+  ledger line. It dispatches nothing.
 - **`process-setup` skill** — collects a project's standing process
   answers in one sitting: shows the effective settings, asks about the
   unset keys, migrates `CLAUDE.md` notes and directory signals as
