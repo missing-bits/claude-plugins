@@ -128,8 +128,7 @@ available:
   audit rather than at the relay. This is the citation's analogue of
   the model self-report comparison above — the same duty, on the other
   thing a report asserts about the world.
-- The stamp — the field, any fallback record, and the round record
-  the lifecycle rule defines — lands as one edit, body record first
+- The stamp — the field, any fallback record, and the round record `LEDGER.md`, beside this file, defines — lands as one edit, body record first
   where edit granularity forces separate writes, and goes to the
   document named in the report, never to "the most recent dispatch".
   The same exception splits that one edit: on a plan's diff-scoped
@@ -168,7 +167,7 @@ verdict dispatch, ask once whether the loop may run autonomously — yes
 / not now / not in this session — state the round cap with the
 question, and honour the answer for the rest of the Claude Code session
 without asking again. The same question carries a second clause wherever
-the lifecycle rule's per-round commits are available: whether the loop
+the per-round commits defined under *Per-round commits on a document branch* below are available: whether the loop
 may commit the reviewed document once per round. One question, two
 answers, asked once. Each clause has a settings key, `review.autonomy`
 and `review.per-round-commit`, read as the process-settings rule says:
@@ -186,7 +185,7 @@ finding is self-fixable when the session can cite the decision that
 licenses the fix — a statement in the document itself, a glossary term
 or `_Avoid_` ban, a recorded ADR, or a line carrying `ruling:` — and
 the citation goes on the finding's line in the disposition
-ledger the spec-plan-lifecycle rule defines. Everything else is held
+ledger `LEDGER.md` defines. Everything else is held
 for the developer, and a finding that could go either way is a
 decision. Consequences the loop states outright:
 
@@ -211,7 +210,7 @@ decision. Consequences the loop states outright:
   way, and its `held` line names in `options:` which named document is
   fixable at once. A licensed fix lands in the ledger of the document
   that changed, and the plan's line points at it, by the cross-document
-  clause the spec-plan-lifecycle rule defines — which also leaves the
+  clause `LEDGER.md` defines — which also leaves the
   design spec's `integrity:` stamp stale, as any body edit to either
   document of an audit pair does.
 - A fix that adds a mechanism is held whatever its severity, and a
@@ -270,7 +269,7 @@ escalations, a round after `blocking`, held gate hits, a fix the
 mechanism hold stops, adjudicating a `blocking` verdict, withdrawing or
 deferring a registered decision, and moving a `status`. A stand-in's
 answer is not developer contact, so it resets no cap. During
-implementation it may also answer the questions step 6 describes.
+implementation it may also answer the questions the workflow rule's step 6 describes.
 
 Provisional decisions reach the developer as one *provisional batch*:
 every line under the document's `## Review rounds` whose authorizer is
@@ -322,8 +321,7 @@ guards, as a held finding blocks a fresh round, and the session puts its
 question to the developer. The answer lands where the decision belongs —
 in the spec's register, or as the plan's `**Defers:**` line — and the
 gate re-runs over the changed document and whatever depends on it, as a
-fresh episode; the dispatch goes out once that episode passes. The
-spec-plan-lifecycle rule defines the `hit held` line and its terminal
+fresh episode; the dispatch goes out once that episode passes. `LEDGER.md` defines the `hit held` line and its terminal
 shapes.
 
 A report's body governs, never its closing token. Where a report lists
@@ -339,16 +337,14 @@ those lines on every run, clean ones included, between the hits and the
 token.
 
 A hit the session believes is wrong is dismissed, never silently: the
-session writes the `dismissed` line the spec-plan-lifecycle rule
-defines and reports the dismissal in the next report it relays to the
+session writes the `dismissed` line `LEDGER.md` defines and reports the dismissal in the next report it relays to the
 developer. A dismissed hit is a report, not a question, so it never
 enters the held batch and never spends the round's one interruption —
 the developer reads the dismissal and keeps their standing veto over it.
 The written line is what makes the gate terminate: a dismissed hit
 recurs on every re-dispatch, so a gate waiting on a hitless audit would
 wait forever, and a dismissal nobody wrote down would be re-derived
-from nothing every round. Both dispositions take the gate lines the
-spec-plan-lifecycle rule defines.
+from nothing every round. Both dispositions take the gate lines `LEDGER.md` defines.
 
 Two re-dispatches bound one gate episode — the run before a single
 dispatch, never the document's lifetime, so every round gets its own
@@ -386,8 +382,7 @@ The ledger is therefore always in scope for a diff-scoped round as
 context, never as a review target, and what that protects is narrow:
 
 - settled lines may be re-raised only with new evidence — new against
-  what the folded line records, the base the spec-plan-lifecycle rule
-  defines — which routes to `held` rather than to a fold. A line
+  what the folded line records, the base `LEDGER.md` defines — which routes to `held` rather than to a fold. A line
   carrying `ruling:` is settled by that clause; a historical line
   written before this design, `resolved <date> (declined)` included,
   carries no authorizer clause and is settled by its token alone. Both
@@ -417,8 +412,7 @@ Important behind and still not repay a re-read. That judgment concerns
 the next round's marginal value, never whether the document is good
 enough, and it informs the developer's decision rather than replacing
 it. The signal is recorded where a later session can cite it: one line
-under the heading of the round that gave it, in the shape the
-spec-plan-lifecycle rule defines. A signal surviving only in a relay
+under the heading of the round that gave it, in the shape `LEDGER.md` defines. A signal surviving only in a relay
 dies with the next compaction, and practice has needed it twice — once
 to justify overriding one, once to close a loop on one. Where the ledger
 records a deviation from a reviewer's suggestion,
@@ -468,15 +462,14 @@ evidence to attack, never a defence to protect.
   `license:` is never re-fixed autonomously. Two readings of one license
   are a contested reading, so it escalates as held, the flip named. A
   re-raise against a line carrying `ruling:` is the relitigation case
-  instead, and the spec-plan-lifecycle rule owns it. A line carrying
+  instead, and `LEDGER.md` owns it. A line carrying
   `provisional:` cites no license, so a re-raise against it goes
   through ordinary triage and the tripwire does not apply.
 
 The cap guards spend and the signal guards sense; both escalate, and
 neither is a wall. Relay stays the developer's standing veto — every
 report reaches them before the session acts on it — and a model-cap
-refusal mid-loop forces developer contact: the drop-or-wait
-question above is never answered autonomously.
+refusal mid-loop forces developer contact: the drop-or-wait question the workflow rule's model selection asks is never answered autonomously.
 
 ### What a diff-scoped LGTM certifies
 
@@ -507,8 +500,7 @@ arm does not, and plan-writing follows its dispositions.
 Declining is the developer discharging the chain debt by release rather
 than by performance, and the discharge is recorded rather than
 remembered: the dispatcher appends `, debt discharged <date>` to the
-diff-scoped LGTM heading, in the shape the spec-plan-lifecycle rule
-defines, and that annotation defeats the gate's re-ask. The other two
+diff-scoped LGTM heading, in the shape `LEDGER.md` defines, and that annotation defeats the gate's re-ask. The other two
 paths write the same token.
 
 For a plan the loop closes only when the latest round heading is
@@ -548,14 +540,11 @@ document again.
 
 After any
 review round, relay the report to the developer, then stamp the
-verdict into the document's field — this sentence and the workflow
-rule's verdict-agent dispatch subsection state the same
-relay-before-stamp ordering and are edited together when that changes.
-The subsection sequences further checks inside its own turn — the model
+verdict into the document's field — this sentence and the bullet list under *Dispatching a verdict agent* above state the same relay-before-stamp ordering.
+That list sequences further checks inside its own turn — the model
 self-report before the relay, the report's citations after it — which
 this sentence deliberately does not restate, so gaining one does not
-make it stale. The order has one named exception, defined in that
-subsection: a plan's diff-scoped LGTM is relayed and its round record
+make it stale. The order has one named exception, defined under *What a diff-scoped LGTM certifies* above: a plan's diff-scoped LGTM is relayed and its round record
 written, while only the frontmatter stamp waits for the confirming
 full-document round.
 
@@ -575,23 +564,20 @@ debt of the one it read, and plan-writing waits for every verdict so
 dispatched. The brief
 confirms the auditor's two preconditions: every edit from the
 conversation is written to disk, since one unsaved decision
-manufactures a run of false defects; and the propagation gate below
+manufactures a run of false defects; and the propagation gate above
 has passed, leaving no confirmed hit, when that agent is available.
 
 ### Per-round commits on a document branch
 
-Asking whether the loop may commit per round is not that suggestion, and
-the difference is the speech act rather than the timing. The suggestion
-above says a moment to commit has arrived; the consent question asks
+Asking whether the loop may commit per round is not the lifecycle rule's commit suggestion, and
+the difference is the speech act rather than the timing. That suggestion says a moment to commit has arrived; the consent question asks
 once, before any round runs, for standing authorization to use a
-mechanism — and a "no" leaves the authoring phase exactly as this
-paragraph describes it. That is why it may be asked during authoring
+mechanism — and a "no" leaves the authoring phase exactly as that rule describes it. That is why it may be asked during authoring
 while the suggestion may not. A set `review.per-round-commit`, read as
 the process-settings rule says, is that standing authorization already
-given or withheld, and the clause is not asked; unset, it is asked as
-the workflow rule's review loop says, "and record" among its answers.
+given or withheld, and the clause is not asked; unset, it is asked as *The review loop* above says, "and record" among its answers.
 
-One shape of that sooner call has a convention, because practice kept
+One shape of the sooner commit the lifecycle rule leaves to the developer has a convention, because practice kept
 reaching for it: **per-round commits on a document branch.** When the
 developer authorizes it, the loop commits the reviewed document once per
 round, as the round's last act. That boundary matches the ledger's own

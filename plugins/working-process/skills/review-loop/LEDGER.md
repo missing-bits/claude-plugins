@@ -109,8 +109,7 @@ Every terminal line carries exactly one authorizer.
 
 A fix one review licenses can land in a document other than the
 reviewed one — a plan review's finding whose `origin` names a judged
-document is the
-case the workflow rule names. The disposition line then lands in the
+document is the case `PROCEDURE.md`, beside this file, names. The disposition line then lands in the
 ledger of the document that changed, and the reviewed document's line
 points at it in its `<what changed>` clause, naming that document and
 the heading the line sits under: one authorizer, two documents, two
@@ -118,7 +117,7 @@ lines, and the invariant above holds on each. The pointer needs no
 clause of its own — `<what changed>` already belongs to the `fixed`
 line's shape, so the clause table stays closed. In the changed
 document the line goes under its latest round heading, or with the
-body note the resolution annotation above already owes, where that
+body note the resolution annotation the spec-plan-lifecycle rule already owes, where that
 document is stamped and no fresh round ran. A document whose loop
 closed at `LGTM` has neither — the annotation is defined for `concerns`
 and for a `blocking` verdict closed by adjudication, never for `LGTM` —
@@ -190,8 +189,7 @@ fact a second home. Where a session discharges the debt and dies before
 annotating, the annotation's own derivation licenses a later session to
 write it; on a document still in flight only the decline path has
 nothing to derive from, and there the debt correctly re-surfaces and the
-developer declines again. On a document already `implemented` the
-Chain debt entry's owner leg makes even that derivable, from the
+developer declines again. On a document already `implemented` the owner leg of the Chain debt entry, in the `process-status` skill's `UNFINISHED-WORK.md`, makes even that derivable, from the
 standing decision it cites.
 
 Ledger lines written before this merge stay as written, as the `scope`
@@ -221,7 +219,7 @@ It carries the leading token `signal`, no severity — a judgment about
 the next round's marginal value is not a finding — and no authorizer,
 since nobody licensed it. It joins no anchor: a stop signal owes nobody
 a next move, so it is closed the moment it is written, as a gate line
-is. The workflow rule owns the ask that produces it.
+is. `PROCEDURE.md` owns the ask that produces it.
 
 ### Gate lines
 
@@ -238,8 +236,7 @@ Neither carries a license either, because a hit's fix is licensed by its
 own derivation.
 
 A hit of the coverage duty whose fix needs a decision no derivation
-settles is held for the developer — the one exception the workflow rule
-makes to hits never waiting. It takes a third shape, rewritten in place
+settles is held for the developer — the one exception `PROCEDURE.md` makes to hits never waiting. It takes a third shape, rewritten in place
 to one of three terminal shapes, so its state always has one home:
 
     - hit held <date> — <the hit's claim>; question: <the missing decision>; options: <the options, with the session's recommendation>
@@ -299,11 +296,11 @@ A gate episode always lands somewhere: its lines are the reason a later
 reader need not re-derive what the session already settled.
 
 No gate-line shape covers a hit left outstanding when the re-dispatch
-bound in the workflow rule stops an episode. That state owes the
+bound in `PROCEDURE.md` stops an episode. That state owes the
 developer a decision, so neither `hit fixed` nor `hit dismissed` can
 honestly carry it, and `hit held` is scoped to the coverage duty's
 hits; no anchor surfaces it today — a stated gap, not an oversight.
-Until a shape exists, the workflow rule's report is its only record.
+Until a shape exists, the report `PROCEDURE.md` prescribes is its only record.
 
 A `hit fixed` line puts the gate's ordinary work where the next
 diff-scoped brief already looks, beside the round's `fixed` lines. A
