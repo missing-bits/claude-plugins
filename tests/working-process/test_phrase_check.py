@@ -136,6 +136,10 @@ class PhraseCheck(unittest.TestCase):
         self.assertIn("fail: vacuous", p.stdout)
         self.assertLess(p.stdout.index("fail: count mismatch"), p.stdout.index("fail: vacuous"))
 
+    def test_abbreviated_option_rejected(self):
+        p = self.run_check(self.write("a.md", "alpha\n"), "--phrase=alpha", "--bef", "0", "--after", "1", "--side", "after")
+        self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+
     def test_missing_path_fails(self):
         p = self.run_check(os.path.join(self.dir, "nope.md"), "--phrase=alpha", "--before", "1", "--after", "0", "--side", "after")
         self.assertEqual(p.returncode, 1)

@@ -57,10 +57,10 @@ verification check over text takes its form:
 
     wp-phrase-check <path>... --phrase "<words>" --before <n> --after <m> --side before|after
 
-It joins lines, collapses whitespace, ignores case and drops a line's
-leading list or quote marker, and it prints the expected count, the
-actual count and what it read. Without the command, normalise by hand
-— `tr -s '[:space:]' ' '`, then a case-insensitive count — and state
+It joins lines, collapses whitespace, ignores case and drops a line's leading
+list or quote marker, and it prints the expected count, the actual count and
+what it read. Without the command, normalise by hand — `tr -s '[:space:]' ' '`,
+then count matches, not lines (`grep -oiF -- "<words>" | wc -l`) — and state
 both numbers beside the check.
 
 The command cannot enforce the rest:

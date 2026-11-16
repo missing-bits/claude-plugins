@@ -58,6 +58,7 @@ def non_negative(value: str) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
+        allow_abbrev=False,
         prog="phrase-check.py",
         description="Count a phrase across files after normalising wrapping and markers. "
         "A phrase starting with a hyphen is written --phrase=<words>.",
