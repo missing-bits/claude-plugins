@@ -103,7 +103,7 @@ question: Which tier runs the propagation gate — cheapest, mid or most-capable
 scope: team
 values: squash | fast-forward
 default: unset
-read-by: working-process/rules/spec-plan-lifecycle.md
+read-by: working-process/skills/review-loop/PROCEDURE.md
 question: How does the topic branch take the .docs branch at the implementation-ready gate — squash or fast-forward?
 
 ## consult.personas
@@ -127,7 +127,7 @@ question: May the review loop run autonomously, within the round cap?
 scope: personal
 values: yes | no
 default: unset
-read-by: working-process/skills/review-loop/PROCEDURE.md, working-process/rules/spec-plan-lifecycle.md
+read-by: working-process/skills/review-loop/PROCEDURE.md
 question: May the review loop commit the reviewed document once per round?
 
 ## ticket.root
