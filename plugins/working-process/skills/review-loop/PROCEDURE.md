@@ -300,7 +300,7 @@ two steps. First the session runs the Document checks itself, from the
 repository root: `wp-document-check <document>` and, on a plan or a
 design spec, `wp-decision-coverage <document>`. Each finishes in
 seconds, so the session disposes of their hits — fixed, dismissed, or,
-for a coverage hit, held — and re-runs both until neither prints an
+for a coverage hit, held — and re-runs them until none prints an
 undisposed hit. These re-runs are unbounded and spend none of the
 episode's re-dispatches. Then, when the `propagation-auditor` agent is
 available, the session dispatches the audit over the document, with
@@ -593,7 +593,8 @@ dispatched. The brief
 confirms the auditor's two preconditions: every edit from the
 conversation is written to disk, since one unsaved decision
 manufactures a run of false defects; and the propagation gate above
-has passed, leaving no confirmed hit, when that agent is available.
+has passed, leaving no confirmed hit — the scripts alone where the
+`propagation-auditor` agent is not available.
 
 ### Per-round commits on a document branch
 

@@ -295,8 +295,10 @@ session's initiative. Six steps:
 
 A design spec that sets `decisions: registered` carries a `## Decisions`
 section — the decision register, the enumerable list of the decisions
-the spec makes that need realization. The propagation auditor, when
-that agent is available, derives a plan's decision coverage from it.
+the spec makes that need realization. The `wp-decision-coverage`
+command, which the dispatcher runs at the propagation gate when the
+working-process plugin is installed, derives a plan's decision
+coverage from it.
 
 The register is an index, never a copy. An entry is one identity
 paragraph — the identifier and a short statement of the decision — and
@@ -371,7 +373,7 @@ in this spec that needs realization.* The integrity audit's first lens
 verifies a document's declared rules in both directions, which gives
 the register's completeness its reader.
 
-A design spec without the field is legacy: the propagation audit
+A design spec without the field is legacy: the decision-coverage check
 reports it as not checked and raises no hit, and a plan descending from
 legacy specs alone carries no annotations. An existing spec migrates
 when it is next substantively revised, never in a sweep. Every new

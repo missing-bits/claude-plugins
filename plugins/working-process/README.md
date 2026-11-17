@@ -6,8 +6,9 @@ Tech-agnostic tooling for a spec-driven working process on top of the
 idea → brainstorming (design spec) → grilling-session → architect
 review → technical design (when the repository has code) → integrity
 audit → writing-plans (plan) → plan-adversary →
-implementation → code review — with a propagation audit gating every
-verdict dispatch and the integrity audit itself.
+implementation → code review — with a propagation gate (the Document
+checks, then the propagation audit) gating every verdict dispatch and
+the integrity audit itself.
 
 ## Components
 
@@ -60,21 +61,23 @@ verdict dispatch and the integrity audit itself.
   diffs every prescribed block against the file it targets — a landed
   change against what shipped, a promised one against the anchor its
   edit needs — re-derives every counter, runs the document's own
-  verification commands, derives a plan's decision coverage from its
-  design specs' decision registers, and resolves the table relations
-  the technical-design rule declares. Its unit is the hit: located,
-  binary, and carrying the derivation that produced it. Every report
-  also carries a `decision-coverage:` block per design spec and a
-  `table-closure:` line per technical design, and a clean one ends in
-  `CLEAN`. It grades
+  verification commands, and checks the table-relation names
+  `wp-document-check` leaves not checked. The dispatcher runs
+  `wp-document-check` and `wp-decision-coverage` first and disposes of
+  their hits, so decision coverage and the table relations a parse
+  settles are no longer the auditor's, and nothing from the scripts
+  reaches its brief. Its unit is the hit: located,
+  binary, and carrying the derivation that produced it. A clean report
+  ends in `CLEAN`. It grades
   nothing, ends in no verdict, and stamps nothing. Dispatched in the
   background on the tier the project's
   `dispatch.propagation-auditor-tier` resolves to — the cheapest
   available family unless the project sets another — because every
   duty is procedural; the workflow gates every verdict-agent dispatch
   and every
-  integrity audit on a passing run — no confirmed hit outstanding — and
-  offers the same audit at authoring time after any multi-site edit.
+  integrity audit on a passing gate — no confirmed hit outstanding — and
+  offers the same audit at authoring time after any multi-site edit,
+  where the scripts run whether or not it is accepted.
 - **`integrity-auditor` agent** — the judgment audit of a churned
   document, read on a fresh context: the document against itself, then
   the document as an implementer who must build from that text and
@@ -110,8 +113,22 @@ verdict dispatch and the integrity audit itself.
   text. It counts a phrase after joining lines, collapsing whitespace,
   ignoring case and dropping list and quote markers, verifies the count
   against the number its side expects, and fails a check that could
-  not show its step did anything. It ships in `bin/`, which Claude
-  Code puts on the Bash tool's `PATH` while the plugin is enabled.
+  not show its step did anything.
+- **`wp-document-check` command** — the Document checks the propagation
+  gate runs before the auditor: internal references and citations on a
+  design spec, a technical design or a plan, and table closure on a
+  technical design. It prints its hits, then one `document-check:`
+  summary line per check, and counts what it cannot settle as not
+  checked.
+- **`wp-decision-coverage` command** — derives a plan's decision
+  coverage from its design specs' decision registers, or checks a
+  design spec's register, and prints the hits and one
+  `decision-coverage:` block per spec. The dispatcher runs it at the
+  propagation gate on a plan or a design spec.
+
+The three commands ship in `bin/`, which Claude Code puts on the Bash
+tool's `PATH` while the plugin is enabled. Each is one launcher that
+runs the script of its name in `scripts/`.
 
 Each persona is single-sourced in its file at the plugin root —
 [ARCHITECT_PERSONA.md](./ARCHITECT_PERSONA.md) and
@@ -140,10 +157,11 @@ exist, so it speaks the project's language from its first message.
       /plugin marketplace add obra/superpowers-marketplace
       /plugin install elements-of-style@superpowers-marketplace
 
-- Python 3.9 or later, standard library only. `wp-phrase-check` finds
-  it as `python3`, `python` or `py -3`, in that order, and confirms
-  each by its version; the propagation auditor's coverage duty calls
-  `python3`.
+- Python 3.9 or later, standard library only. `wp-phrase-check`,
+  `wp-document-check` and `wp-decision-coverage` find it as `python3`,
+  `python` or `py -3`, in that order, and confirm each by its version.
+  Where none is found, the propagation gate stops and the developer
+  decides.
 
 ## Extending with a domain checklist
 
@@ -186,15 +204,15 @@ section listing, under stable identifiers (`D3`, `D4.1`), every
 decision that needs realization. A plan descending from it marks each
 task with `**Realizes:**` — the identifiers it realizes, or `none` —
 and records deferrals and predecessor plans in a `## Deferrals and
-predecessors` section. The propagation auditor derives the decision
-coverage from the two lists, the plan-adversary judges whether the
+predecessors` section. `wp-decision-coverage`, which the dispatcher
+runs at the propagation gate, derives the decision coverage from the
+two lists, the plan-adversary judges whether the
 citing tasks realize their decisions, and the integrity auditor checks
 that the register lists every decision the spec makes. A spec without
 the field is reported as not checked. The grammar lives in the
-spec-plan-lifecycle rule. The auditor derives the decision coverage by
-running `scripts/decision-coverage.py` with `python3`, so a session
-that asks before running a command asks once for it; the permission
-entry for the plugin cache below covers it.
+spec-plan-lifecycle rule. A session that asks before running a
+command asks for each `wp-` command unless an allow entry names it,
+such as `Bash(wp-decision-coverage *)`.
 
 ## Model selection
 
@@ -305,7 +323,7 @@ needs no allow entry.
 
 Standing answers — a directory's mode, the review loop's autonomy and
 per-round commits, persona consultation, the technical-design offer,
-the `.docs` branch merge, the propagation gate's tier — live in
+the `.docs` branch merge, the propagation audit's tier — live in
 `.working-process/settings.md` (the team's, committed) and
 `.working-process/settings.local.md` (one person's, ignored by the
 directory's own `.gitignore`), as `key: value` lines. The key registry

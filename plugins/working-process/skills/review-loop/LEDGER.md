@@ -234,9 +234,8 @@ detection the dispatcher confirms or dismisses, never a graded finding:
 
 Neither carries a license either, because a hit's fix is licensed by its
 own derivation. A line for a hit a script raised carries the caption
-`(document-check)` or `(decision-coverage)` where an auditor's line
-carries the model — a label for the human reader; no command parses
-it.
+`(document-check)` or `(decision-coverage)`, a label for the human
+reader; no command parses it.
 
 A coverage hit from `wp-decision-coverage` whose fix needs a decision
 no derivation settles is held for the developer — the one exception `PROCEDURE.md` makes to hits never waiting. It takes a third shape, rewritten in place

@@ -1,6 +1,6 @@
 ---
 name: propagation-auditor
-description: "Mechanical propagation audit of a design spec, a technical design or a plan before an expensive dispatch: parses changed interfaces to enumerate their consumers, diffs every prescribed block against the file it targets — a landed change against what shipped, a promised one against the anchor its edit needs — re-derives every counter, derives a plan's decision coverage from its design specs' decision registers, resolves the table relations the technical-design rule declares, and returns located hits with their derivation — or, where none fires, the token CLEAN after the report's decision-coverage and table-closure lines. Verdict-free and persona-free: it stamps nothing and grades nothing, so a passing gate is a precondition for the dispatch that follows, never a judgment on the design. Dispatch before every verdict-agent dispatch, after a fix wave, before an integrity audit, and after any multi-site edit during authoring. Run it on the tier the dispatcher resolved from `dispatch.propagation-auditor-tier`, named explicitly — the cheapest available family by default, since every duty is procedural, and the never-cheapest rule governs reviews, which an audit is not. Runs in the background; the report arrives as a task notification."
+description: "Mechanical propagation audit of a design spec, a technical design or a plan before an expensive dispatch: parses changed interfaces to enumerate their consumers, diffs every prescribed block against the file it targets — a landed change against what shipped, a promised one against the anchor its edit needs — re-derives every counter, checks the table-closure names the dispatcher's wp-document-check leaves not checked, and returns located hits with their derivation — or, where none fires, the token CLEAN. The dispatcher runs wp-document-check and wp-decision-coverage first and disposes of their hits, so decision coverage and resolvable table relations are not this agent's, and nothing from the scripts reaches its brief. Verdict-free and persona-free: it stamps nothing and grades nothing, so a passing gate is a precondition for the dispatch that follows, never a judgment on the design. Dispatch before every verdict-agent dispatch, after a fix wave, before an integrity audit, and after any multi-site edit during authoring. Run it on the tier the dispatcher resolved from `dispatch.propagation-auditor-tier`, named explicitly — the cheapest available family by default, since every duty is procedural, and the never-cheapest rule governs reviews, which an audit is not. Runs in the background; the report arrives as a task notification."
 background: true
 ---
 
@@ -67,7 +67,7 @@ reliance and is re-dispatched at the right rung.
   file, a keyring — or write one into a command. Report a check that
   needs authentication the dispatch did not provide as not checked.
 
-## Duties — walk every one below; each is a class measured in a real loop
+## Duties — walk every one the dispatcher's scripts leave to you; each is a class measured in a real loop
 
 ### 1. Changed interface → consumer enumeration by parsing, never text match
 

@@ -84,6 +84,28 @@ Released versions of this plugin, newest first.
   does not install on claude.ai or in Cowork.
 - Run `sync-rules` after updating: both rules shrink, and the new
   `plan-authoring.md` also arrives through `sync-rules`.
+- One launcher serves every Python script: `bin/wp-<name>` runs
+  `scripts/<name>.py` under the first Python 3.9 or later it finds.
+  `bin/` carries identical copies, never symlinks. The decision-coverage
+  derivation moves behind it as `wp-decision-coverage`, its logic and
+  output unchanged.
+- `wp-document-check`, a new command: the Document checks on a design
+  spec, a technical design or a plan — internal references and
+  citations, a Markdown link target counting as a citation — and table
+  closure on a technical design. It reports a hit only where its parse
+  settles the defect and counts every other form as not checked.
+- The propagation gate runs the scripts first: the dispatcher runs
+  `wp-document-check` and, on a plan or a design spec,
+  `wp-decision-coverage`, disposes of their hits, then dispatches the
+  auditor, which no longer runs either script. The scripts run at every
+  point the gate fires, the authoring-time offer included, whether or
+  not the auditor is installed; a script that cannot run stops the gate
+  as an ordinary error.
+- The propagation auditor writes "checked, no hit" on a consumer
+  enumeration only beside the command it ran and the hit count from its
+  output; without them the line reads `not checked`.
+- Run `sync-rules` after updating: the workflow, lifecycle,
+  technical-design and propagation-duties rules name the scripts.
 
 ## 0.19.0 — 2026-11-13
 

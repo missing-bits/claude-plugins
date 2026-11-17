@@ -16,8 +16,10 @@ made, so the enumeration can be done at the desk instead of paid
 for at the gate. The list below is complete as it stands and needs
 nothing else to be usable.
 
-When the `propagation-auditor` agent is available it walks the same
-eleven as a gate, and its card is their definition and keeps the
+At the propagation gate the dispatcher's scripts perform duty 10 and
+the share of duty 11 their parse settles, whether or not the
+`propagation-auditor` agent is available; when it is, it walks the
+rest of the eleven as a gate. Its card defines all eleven and keeps the
 measurement behind each; the numbers in the last column are that card's,
 so a hit it reports can be read back to the row that would have caught
 it. Without the agent the rows still hold — what is lost is the second

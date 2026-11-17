@@ -96,7 +96,7 @@ scope: team
 values: cheapest | mid | most-capable
 default: cheapest
 read-by: working-process/rules/workflow.md, working-process/agents/propagation-auditor.md
-question: Which tier runs the propagation gate — cheapest, mid or most-capable?
+question: Which tier runs the propagation audit — cheapest, mid or most-capable?
 
 ## docs-branch.merge
 

@@ -136,11 +136,11 @@ named, the existing plan convention stands and this paragraph is silent.
 
 Where a design spec the plan descends from sets `decisions: registered`,
 read its decision register and the plan's `**Realizes:**` annotations in
-the plan itself. The propagation audit has already established that
-every counted decision is cited, and its report reaches the dispatcher,
-not you. Judge each decision, never each site: one decision may span
-several tasks and Global Constraints entries, so ask whether all the
-sites citing it realize it in full together, and whether a cited
+the plan itself. The propagation gate's `wp-decision-coverage` has
+already established that every counted decision is cited, and its
+output reaches the dispatcher, not you. Judge each decision, never each
+site: one decision may span several tasks and Global Constraints
+entries, so ask whether all the sites citing it realize it in full together, and whether a cited
 constraint actually binds the work it constrains. A decision realized
 only in part — six rows of eight — is a Critical finding whose
 `origin` names `implementation-plan`. A deferral the developer ruled on
