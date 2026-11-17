@@ -200,23 +200,32 @@ def check_references(body: list[tuple[int, str]], report: Report, kind: str) -> 
                         report.hit(owners[start + task.start()], f"`Task {task.group(1)}` has no task heading", "references")
 
 
+AFTER_RE = re.compile(r"\s*(?:[\w-]+\s+){0,2}(below|above)\b", re.IGNORECASE)
+BEFORE_RE = re.compile(r"\b(below|above)[,:]?\s*$", re.IGNORECASE)
+
+
 def check_sentence(sentence, start, owners, headings, report) -> None:
-    sides = SIDE_RE.findall(sentence)
-    names = [m for m in NAME_RE.finditer(sentence)]
-    if not sides:
+    if not SIDE_RE.search(sentence):
         return
+    names = list(NAME_RE.finditer(sentence))
     if not names:
         report.not_checked("references")
         return
     for m in names:
+        # A name is a reference only beside a side word: it closes
+        # `<= 2 words + below|above`, or `below|above[,:]` opens it.
+        after = AFTER_RE.match(sentence, m.end())
+        before = BEFORE_RE.search(sentence[: m.start()])
+        if not (after or before):
+            continue
         name = next(g for g in m.groups() if g)
         found = headings.get(heading_key(name), [])
         line = owners[start + m.start()]
-        if len(set(s.lower() for s in sides)) != 1 or len(found) != 1:
+        if len(found) != 1:
             report.not_checked("references")
             continue
         report.checked("references")
-        side = sides[0].lower()
+        side = (after or before).group(1).lower()
         if (side == "below" and found[0] < line) or (side == "above" and found[0] > line):
             report.hit(line, f"`{name}` is {side} but its heading is at line {found[0]}", "references")
 

@@ -77,6 +77,16 @@ class DocumentCheck(unittest.TestCase):
         self.assertTrue(h[0].endswith("check: references"), h[0])
         self.assertIn(":9 ", h[0])
 
+    def test_below_not_adjacent_to_name_is_no_candidate(self):
+        p = self.spec('## Tier heuristic\n\nrelational definitions in "Tier heuristic" (mid tier = one family below the most capable available; x).\n')
+        r = self.run_check(p)
+        self.assertEqual(self.hits(r), [], r.stdout)
+        self.assertIn("references 0 checked, 0 not checked", self.summary(r, "references"))
+
+    def test_below_before_name_is_candidate(self):
+        r = self.run_check(self.spec("## Gamma\n\nSee below, *Gamma*.\n"))
+        self.assertEqual(len(self.hits(r)), 1, r.stdout)
+
     def test_named_section_right_side_is_clean(self):
         p = self.spec("See *Gamma* below.\n\n## Gamma\n")
         r = self.run_check(p)
