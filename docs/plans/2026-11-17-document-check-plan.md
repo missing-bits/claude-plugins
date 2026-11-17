@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-11-17
-status: approved
+status: implemented
 adversary: blocking (adjudicated 2026-11-17)
 spec: ../specs/2026-11-17-document-check-spec.md
 branch: feature/document-check

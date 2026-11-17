@@ -1,7 +1,7 @@
 ---
 ticket: none
 date: 2026-11-17
-status: approved
+status: implemented
 grilled: 2026-11-17
 architect: concerns (resolved 2026-11-17)
 integrity: 2026-11-17 (sha: d31a3a4)
