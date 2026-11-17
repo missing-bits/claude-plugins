@@ -1,4 +1,4 @@
-"""Tests for plugins/working-process/bin/wp-phrase-check."""
+"""Tests for the plugins/working-process/bin launchers."""
 
 from __future__ import annotations
 
@@ -11,7 +11,8 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-LAUNCHER = str(REPO / "plugins" / "working-process" / "bin" / "wp-phrase-check")
+BIN = REPO / "plugins" / "working-process" / "bin"
+LAUNCHER = str(BIN / "wp-phrase-check")
 BASH = shutil.which("bash")
 READLINK = shutil.which("readlink")
 PASSING = ["--phrase", "alpha", "--before", "0", "--after", "1", "--side", "after"]
@@ -98,6 +99,28 @@ class Launcher(unittest.TestCase):
         r = self.run_launcher(spaced, *PASSING)
         self.assert_pass(r)
         self.assertTrue(any(l.endswith("two words.md: lines 1, matches 1") for l in r.stdout.splitlines()), r.stdout)
+
+    def test_bin_copies_are_identical(self):
+        files = sorted(p for p in BIN.iterdir() if p.is_file())
+        for p in files:
+            self.assertTrue(os.access(p, os.X_OK), p)
+            self.assertEqual(p.read_bytes(), files[0].read_bytes(), p)
+
+    def test_each_launcher_has_its_script(self):
+        for p in BIN.glob("wp-*"):
+            script = BIN.parent / "scripts" / (p.name[3:] + ".py")
+            self.assertTrue(script.is_file(), script)
+
+    def test_decision_coverage_launcher_runs(self):
+        self.stub("python3", GOOD)
+        specs = os.path.join(self.dir, "docs", "specs")
+        os.makedirs(specs)
+        spec = os.path.join(specs, "s.md")
+        with open(spec, "w") as f:
+            f.write("---\ndecisions: registered\n---\n\n## Decisions\n\n- **D1** — One.\n")
+        r = self.run_launcher(spec, launcher=str(BIN / "wp-decision-coverage"))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertTrue(r.stdout.startswith("decision-coverage:"), r.stdout)
 
 
 if __name__ == "__main__":
