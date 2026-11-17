@@ -1,7 +1,7 @@
 {
   "name": "working-process",
   "description": "Spec-driven working process on top of superpowers: grilling-session, architect-session, system-designer-session, process-status, process-setup, review-loop and sync-rules skills, architect and plan-adversary verdict agents, architect-consult and system-designer-consult consultation agents, propagation-auditor and integrity-auditor audit agents, the wp-phrase-check command for a plan's verification checks over text, the wp-document-check and wp-decision-coverage commands the propagation gate runs, and process rules distributed as a Rules payload; domain plugins hook in via *-plan-review checklist skills and their own rules/ payloads",
-  "version": "0.20.0-dev.11.document-check",
+  "version": "0.20.0-dev.12.loader-speed",
   "author": { "name": "Missing Bits (Jacek Nakonieczny)" },
   "license": "MIT",
   "keywords": ["process", "workflow", "spec", "plan", "review", "glossary", "adr", "architecture"],
