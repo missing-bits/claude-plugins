@@ -2,7 +2,7 @@
 
 Released versions of this plugin, newest first.
 
-## Unreleased
+## 0.20.0 — 2026-11-17
 
 - The settings loader resolves all keys in one awk pass: faster session
   start and tests.
