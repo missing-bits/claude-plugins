@@ -37,7 +37,7 @@ NAME_RE = re.compile(
     r"|(?<!\w)_([^_\s][^_]*?)_(?!\w)"
     r'|"([^"\n]+)"|“([^”\n]+)”'
 )
-PATH_TOKEN = r"\w[\w./-]*\.\w+"
+PATH_TOKEN = r"(?:\.{1,2}/)*\w[\w./-]*\.\w+"
 CITE_RE = re.compile(rf"(?<![\w/:.-])({PATH_TOKEN}):(\d+)(?:-(\d+))?(?!\w)")
 SYMBOL_CITE_RE = re.compile(rf"`([^`]+)`\s*\(`?({PATH_TOKEN}):(\d+)`?\)")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
@@ -255,7 +255,7 @@ class Resolver:
 
     def missing_is_defect(self, rel: str) -> bool:
         """D9: a directory-named path whose directory exists and no Create: line makes."""
-        if "/" not in rel:
+        if "/" not in rel.removeprefix("./"):
             return False
         norm = os.path.normpath(rel)
         made = any(os.path.normpath(os.path.join(b, c)) == os.path.normpath(os.path.join(b, norm))
@@ -264,7 +264,9 @@ class Resolver:
         return not made and any(os.path.isdir(os.path.join(b, parent)) for b in self.bases)
 
 
-def check_citations(path, lines, report, root, created) -> None:
+def check_citations(
+    path: str, lines: list[tuple[int, str]], report: Report, root: str, created: set[str]
+) -> None:
     res = Resolver(path, root, created)
     owner_lines = [(n, t) for n, t in lines if not CREATE_RE.match(t)]
     for number, text in owner_lines:
@@ -272,6 +274,9 @@ def check_citations(path, lines, report, root, created) -> None:
         for m in CITE_RE.finditer(text):
             rel, first = m.group(1), int(m.group(2))
             last = int(m.group(3)) if m.group(3) else first
+            if "/" not in rel.removeprefix("./"):  # D9: a bare file name is skipped whole
+                report.not_checked("citations")
+                continue
             full = res.file(rel)
             if full is None:
                 if res.missing_is_defect(rel):
@@ -317,7 +322,8 @@ def check_quotes(lines, report, res) -> None:
             owners += [number] * (len(text.strip()) + 1)
         for clause in CLAUSE_RE.finditer(joined):
             quote = normalise(clause.group(1) or clause.group(2))
-            where = locate(joined[clause.end():], lines, res)
+            following = CLAUSE_RE.search(joined, clause.end())
+            where = locate(joined[clause.end():following.start() if following else None], lines, res)
             number = owners[clause.start()]
             if where is None:
                 report.not_checked("citations")
@@ -332,11 +338,11 @@ def locate(rest, lines, res):
     for m in LOCATION_RE.finditer(rest):
         if m.group("head"):
             return section(lines, m.group("head"))
+        if "/" not in m.group("path").removeprefix("./"):
+            continue
         full = res.file(m.group("path"))
         if full is None:
-            if "/" in m.group("path"):
-                return None
-            continue
+            return None
         body = res.lines(full)
         if m.group("line"):
             first = int(m.group("line"))

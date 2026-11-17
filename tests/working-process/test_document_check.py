@@ -252,6 +252,26 @@ class DocumentCheck(unittest.TestCase):
         self.assertEqual(self.hits(r), [])
         self.assertIn("citations 1 checked", self.summary(r, "citations"))
 
+    def test_relative_citation(self):
+        self.cite_setup()
+        r = self.cite("`../../sub/a.md:9` and ../../sub/missing.md:1 and `./x.md:3`\n")
+        self.assertEqual(len(self.hits(r)), 2, r.stdout)
+        self.assertEqual(self.hits(self.cite("`../../sub/a.md:3`\n")), [])
+
+    def test_bare_name_with_line_is_not_checked(self):
+        self.write("a.md", "1\n2\n3\n")
+        r = self.cite("See a.md:9 here.\n")
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("citations 0 checked, 1 not checked", self.summary(r, "citations"))
+
+    def test_clause_location_stops_at_next_clause(self):
+        self.write("sub/a.md", "one\nfoo bar\n")
+        self.write("sub/c.md", "baz\n")
+        r = self.cite('- license: "foo bar" then ruling: "baz" sub/c.md:1\n')
+        self.assertEqual(self.hits(r), [], r.stdout)
+        # the first clause has no location of its own; the second's quote and path:line check
+        self.assertIn("citations 2 checked, 1 not checked", self.summary(r, "citations"))
+
     def test_binary_target(self):
         path = os.path.join(self.root, "sub", "b.bin")
         os.makedirs(os.path.dirname(path), exist_ok=True)
