@@ -291,17 +291,31 @@ made on the developer's word leaves no `provisional:` line behind.
 
 ### The propagation gate
 
-When the `propagation-auditor` agent is available, a passing propagation
-gate is the precondition for the dispatches it gates: the session
-dispatches the audit over the document, fixes its hits, and repeats
-until no confirmed hit remains, so an expensive reader only ever meets
-a mechanically consistent document. The gate fires before every
-verdict-agent dispatch, first rounds included — authoring errors exist
-before any repair; after a fix wave, before the next round; and before
-an integrity audit. A hit's fix is licensed by its own derivation — a
-recounted counter and an enumerated missed call site decide
-themselves — so hits never wait for the developer, with one named
-exception, for the coverage duty's hits alone.
+A passing propagation gate is the precondition for the dispatches it
+gates, so an expensive reader only ever meets a mechanically consistent
+document. The gate fires before every verdict-agent dispatch, first
+rounds included — authoring errors exist before any repair; after a fix
+wave, before the next round; and before an integrity audit. It runs in
+two steps. First the session runs the Document checks itself, from the
+repository root: `wp-document-check <document>` and, on a plan or a
+design spec, `wp-decision-coverage <document>`. Each finishes in
+seconds, so the session disposes of their hits — fixed, dismissed, or,
+for a coverage hit, held — and re-runs them until none prints an
+undisposed hit. These re-runs are unbounded and spend none of the
+episode's re-dispatches. Then, when the `propagation-auditor` agent is
+available, the session dispatches the audit over the document, with
+nothing from the scripts in its brief, fixes its hits, and repeats until
+no confirmed hit remains; before every re-dispatch the scripts run again
+first, since a fix wave can break what they check. The gate passes once
+every hit from either side is disposed, and the relay reports the
+scripts' dispositions, their summary lines (the `document-check:` and
+`decision-coverage:` lines, so the not-checked counts reach the
+developer) and the auditor's hits together. Without the
+agent installed the scripts are the gate, and the gate lines and the
+held batch apply to their hits unchanged. A hit's fix is licensed by its
+own derivation — a recounted counter and an enumerated missed call site
+decide themselves — so hits never wait for the developer, with one named
+exception, for coverage hits alone.
 
 The two coverage hits — a registered decision no task cites, and a task
 lacking its `**Realizes:**` line — are triaged by license. Where a task
@@ -314,7 +328,8 @@ decision does not make, the hit is held: its question is that missing
 decision, not the gap, which is already established. Any other hit of
 the coverage duty is fixed where its derivation settles the fix and held
 where it does not, as when breaking a `replaced by` cycle means choosing
-which entry stands. No other duty's hit is ever held.
+which entry stands. No other hit, from a script or the auditor, is
+ever held.
 
 A held hit ends its gate episode and blocks the dispatch the gate
 guards, as a held finding blocks a fresh round, and the session puts its
@@ -331,10 +346,26 @@ family, and once under a brief that ruled the combination out in as
 many words — so emphasis on the writing side is spent, and the guard
 belongs to the dispatcher who reads. The rule is stated here rather
 than generalised, because `CLEAN` is this agent's token and no other
-report carries one. A `decision-coverage:` or `table-closure:` line is
-neither a hit nor a breach of the token's position: the card writes
-those lines on every run, clean ones included, between the hits and the
-token.
+report carries one. A script's `document-check:` or
+`decision-coverage:` summary line is not a hit either: each script
+prints its summary on every run, clean ones included.
+
+A script that cannot run — no Python 3.9+, a crash, any exit other
+than 0 — is an ordinary error, never a hit: the gate stops and the
+session puts the script's message to the developer. Where the message
+names a cause in a document, such as a `spec:` naming a missing file,
+the session fixes it and re-runs. Otherwise the developer decides:
+install Python and re-run, or order the dispatch without the Document
+checks. That order holds for the rest of the session, for the failing
+document and both scripts on it; without the agent, the dispatch so
+ordered is the one the gate guarded, and the relay says the Document
+checks did not run. Nothing is written to the ledger.
+
+The scripts also run at the authoring-time offer of an audit, whether
+the offer is accepted or declined, since they only read. Accepted, the
+offer runs a gate episode as above. Declined, no episode runs: the
+session shows the scripts' hits to the developer and writes them
+nowhere.
 
 A hit the session believes is wrong is dismissed, never silently: the
 session writes the `dismissed` line `LEDGER.md` defines and reports the dismissal in the next report it relays to the
@@ -355,8 +386,7 @@ one job the expensive reader depends on. The report names what keeps
 recurring, since fixes breeding fresh hits is the failure this bound
 exists to catch. It stays a report — the developer may order the
 dispatch anyway, as they may order any step — so it never becomes a
-second question in a round that already spent its one. Without the
-agent installed, every dispatch proceeds as it did before.
+second question in a round that already spent its one.
 
 ### Re-dispatch briefs
 
@@ -565,7 +595,8 @@ dispatched. The brief
 confirms the auditor's two preconditions: every edit from the
 conversation is written to disk, since one unsaved decision
 manufactures a run of false defects; and the propagation gate above
-has passed, leaving no confirmed hit, when that agent is available.
+has passed, leaving no confirmed hit — the scripts alone where the
+`propagation-auditor` agent is not available.
 
 ### Per-round commits on a document branch
 

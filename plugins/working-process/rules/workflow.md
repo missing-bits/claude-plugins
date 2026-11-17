@@ -36,10 +36,14 @@ disables its suggestion — never the work itself.
    working-process `architect` agent (when available), on the most
    capable available model, named explicitly; dispatch, stamping and
    the propagation gate before each round follow the `review-loop`
-   skill's procedure reference, when that skill is available. When the
-   `propagation-auditor` agent is available, offer a propagation audit
-   at authoring time as well, after any multi-site edit; that offer
-   stands outside the loop.
+   skill's procedure reference, when that skill is available. After any
+   multi-site edit at authoring time, run the Document checks —
+   `wp-document-check` and, on a plan or a design spec,
+   `wp-decision-coverage`, when the working-process plugin is
+   installed — whether or not the `propagation-auditor` agent is
+   available. When it is, offer a propagation audit as well; the checks
+   run whether that offer is accepted or declined, and the offer stands
+   outside the loop.
 4. **Spec → plan.** At the spec's consumption gate, before the plan is
    written, offer an integrity audit when the `integrity-auditor` agent
    is available: a fresh-context read of the whole design spec, and of
@@ -102,8 +106,8 @@ disables its suggestion — never the work itself.
    design spec's `technical-design:` — so no audit ever meets a
    half-written pair. The reviewer is the `architect` agent when that
    agent is available, whose card admits any judged document dispatched
-   standalone, with the propagation audit gating that dispatch as it
-   gates every verdict dispatch. The plan-adversary stays on plans.
+   standalone, with the propagation gate guarding that dispatch as it
+   guards every verdict dispatch. The plan-adversary stays on plans.
    The plan written afterwards carries, beside its `spec:`, a
    `technical-design:` entry for every design spec it descends from that
    names a technical design — the same document, its path rewritten

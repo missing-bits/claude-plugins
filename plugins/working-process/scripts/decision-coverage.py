@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Derive decision coverage for a plan, or check a design spec's register.
 
-Usage: decision-coverage.py <document>
+Usage: wp-decision-coverage <document>  (bin/ launcher; or run directly)
 
 The grammar this script reads is defined in the spec-plan-lifecycle rule,
-under *Decision register* and *Plan annotations*; the steps and the
-report shapes are duty 10 and `## Output` of the propagation-auditor
-card. Where this script and those texts disagree, the texts govern.
+under *Decision register* and *Plan annotations*. The propagation-auditor
+card defines the rest: duty 10 the steps and the `decision-coverage:`
+shapes, `## Output` the hit line this script prints. The dispatcher runs
+it at the propagation gate. Where this script and those texts disagree,
+the texts govern.
 
 Output goes to stdout: every hit, one line each, then one
 `decision-coverage:` block per spec. Exit 0 whenever the derivation ran,

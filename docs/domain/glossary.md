@@ -502,10 +502,12 @@ _Avoid_: sweep agent, verifier
 
 **Hit**:
 The unit a mechanical check returns — an Unfinished-work list command's
-match or a propagation-auditor detection: located, binary, never graded.
-Graded problems are Findings and belong to review rounds. The two kinds
-part company over disposition: a propagation-auditor hit is confirmed or
-dismissed by the dispatcher and the outcome is written as a gate line,
+match, a propagation-auditor detection, a Document check's or
+`wp-decision-coverage`'s: located,
+binary, never graded. Graded problems are Findings and belong to review
+rounds. The two kinds part company over disposition: a propagation-gate
+hit, the auditor's or a Document check's, is confirmed or dismissed by
+the dispatcher and the outcome is written as a gate line,
 while an Unfinished-work hit has no dismissal at all — its only
 disposition is ceasing to match, when the state the command anchors is
 rewritten or annotated closed. A confirmed hit of the coverage duty
@@ -527,6 +529,15 @@ after it, so it cannot show the step did anything — including one that
 passes because it examined nothing. Declaring that a step leaves a
 result unchanged makes such a check intended rather than vacuous.
 _Avoid_: no-op check, dead check
+
+**Document check**:
+One of the deterministic checks `wp-document-check` runs over a design
+spec, a technical design or a plan — internal references and
+citations on all three, table closure on a technical design alone. It returns Hits,
+never Findings, and reports what it could not settle as not checked. It
+belongs to the gate, not to the plan: a Verification check is the
+plan's own and runs at execution.
+_Avoid_: check (bare, where a Hit is also in view), script check
 
 **Disposition ledger**:
 The record a review loop keeps inside the reviewed document, under one
@@ -584,7 +595,7 @@ The map from each counted identifier of a decision register — each leaf
 identifier that is neither withdrawn nor deferred by the audited plan —
 to the plan tasks and Global Constraints entries citing it, in the
 audited plan or in an implemented predecessor its `**Follows:**` lines
-name, derived by the propagation auditor. A counted identifier nothing
+name, derived by `wp-decision-coverage`, which the dispatcher runs at the propagation gate. A counted identifier nothing
 cites, and a task lacking its `**Realizes:**` line where the convention
 binds, are the two coverage hits.
 _Avoid_: coverage (bare, for this map — the integrity audit's coverage
