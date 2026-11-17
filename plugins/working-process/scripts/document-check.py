@@ -68,6 +68,7 @@ class Report:
         self.hits: list[str] = []
         self.counts = {c: [0, 0] for c in CHECKS}
         self.applicable = {c: c != "table-closure" or technical_design for c in CHECKS}
+        self.relations = 0
 
     def hit(self, line: int, claim: str, check: str) -> None:
         self.hits.append(f"{self.display}:{line} — {claim} — check: {check}")
@@ -81,7 +82,12 @@ class Report:
     def lines(self) -> list[str]:
         out = list(self.hits)
         for c in CHECKS:
-            if self.applicable[c]:
+            if c == "table-closure" and self.applicable[c]:
+                done, skipped = self.counts[c]
+                out.append(
+                    f"document-check: {c} {self.relations} relations, {done} names checked, {skipped} not checked"
+                )
+            elif self.applicable[c]:
                 done, skipped = self.counts[c]
                 out.append(f"document-check: {c} {done} checked, {skipped} not checked")
             else:
@@ -366,6 +372,89 @@ def section(lines, name):
     return None
 
 
+def declared_relations(rule_path: str) -> list[tuple[str, str, bool, str, str]]:
+    """(table, column, each_side, target table, target column) rows of the rule's
+    `## Declared table relations` table."""
+    with open(rule_path, encoding="utf-8") as handle:
+        lines = list(enumerate(handle.read().splitlines(), 1))
+    rows = _table_rows(lines, "Declared table relations")
+    out = []
+    for _, cells in rows[1:]:
+        left = re.fullmatch(r"(\w+) `([^`]+)`(, each side)?", cells[0]) if len(cells) > 1 else None
+        right = re.fullmatch(r"(\w+) `([^`]+)`", cells[1]) if len(cells) > 1 else None
+        if left and right:
+            out.append((left.group(1), left.group(2), bool(left.group(3)), right.group(1), right.group(2)))
+    return out
+
+
+def _cells(text: str) -> list[str]:
+    return [c.strip() for c in text.strip().strip("|").replace("\\|", "\0").split("|")]
+
+
+def _table_rows(lines: list[tuple[int, str]], section_name: str) -> list[tuple[int, list[str]]]:
+    """(line, cells), header row first, separator dropped, of the first table under the heading."""
+    key = heading_key(section_name)
+    rows, inside = [], False
+    for number, text in lines:
+        m = HEADING_RE.match(text)
+        if m:
+            if inside:
+                break
+            inside = heading_key(m.group(2)) == key
+        elif inside and text.lstrip().startswith("|"):
+            if not re.fullmatch(r"[\s|:-]+", text):
+                rows.append((number, [c.replace("\0", "|") for c in _cells(text)]))
+        elif inside and rows:
+            break
+    return rows
+
+
+def _clean(cell: str) -> str:
+    return normalise(cell.replace("`", ""))
+
+
+def check_tables(
+    path: str, lines: list[tuple[int, str]], report: Report,
+    relations: list[tuple[str, str, bool, str, str]],
+) -> None:
+    for table, column, each_side, target, target_column in relations:
+        rows, goal = _table_rows(lines, table), _table_rows(lines, target)
+        if not rows or not goal:
+            continue
+        col = next((i for i, h in enumerate(rows[0][1]) if _clean(h) == _clean(column)), None)
+        tcol = next((i for i, h in enumerate(goal[0][1]) if _clean(h) == _clean(target_column)), None)
+        if col is None or tcol is None:
+            continue
+        report.relations += 1
+        names = [_clean(r[tcol]) for _, r in goal[1:] if len(r) > tcol]
+        for line, row in rows[1:]:
+            if len(row) <= col:
+                continue
+            raw = re.sub(r"\([^)]*\)", "", row[col])
+            if each_side:
+                sides = raw.split("→")
+                if len(sides) != 2:
+                    report.not_checked("table-closure")
+                    continue
+            else:
+                sides = [raw]
+            for side in sides:
+                segments = [s.strip() for s in re.split(r"[,;]", side) if s.strip() not in ("", "—", "-", "–")]
+                if not segments:
+                    report.checked("table-closure")
+                    report.hit(line, f"`{column}` cell `{row[col]}` has an empty side", "table-closure")
+                for seg in segments:
+                    if seg.lower().startswith("external:"):
+                        continue
+                    found = names.count(_clean(seg))
+                    if found == 0:
+                        report.not_checked("table-closure")
+                    else:
+                        report.checked("table-closure")
+                        if found > 1:
+                            report.hit(line, f"`{seg}` names {found} rows of {target}", "table-closure")
+
+
 def main(argv: list[str]) -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
@@ -385,6 +474,9 @@ def main(argv: list[str]) -> int:
     body = body_lines(text)
     check_references(body, report, kind)
     check_citations(display, body, report, repo_root(display), created_paths(body) if kind == "plan" else set())
+    if kind == "technical-design":
+        rule = Path(__file__).resolve().parent.parent / "rules" / "technical-design.md"
+        check_tables(display, body, report, declared_relations(str(rule)))
     for line in report.lines():
         print(line)
     return 0

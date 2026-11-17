@@ -156,6 +156,60 @@ class DocumentCheck(unittest.TestCase):
         self.assertEqual(len(self.hits(r)), 1, r.stdout)
         self.assertIn(":4 ", self.hits(r)[0])
 
+    PARTS = "## Parts\n\n| part | kind |\n|---|---|\n| `cli` | script |\n| host | script |\n\n"
+
+    def td(self, body):
+        return self.write("docs/technical-designs/t.md", "---\nspec: s.md\n---\n\n" + body)
+
+    def contracts(self, cell, parts=None):
+        head = "## Contracts\n\n| `producer \u2192 consumer` | crosses |\n|---|---|\n"
+        return self.td((parts or self.PARTS) + head + f"| {cell} | x |\n")
+
+    def test_relations_read_from_plugin_rule(self):
+        m = load(SCRIPT, "dc")
+        rows = m.declared_relations(str(REPO / "plugins" / "working-process" / "rules" / "technical-design.md"))
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(rows[0], ("Contracts", "producer \u2192 consumer", True, "Parts", "part"))
+        self.assertEqual([r[2] for r in rows], [True, False, False])
+
+    def test_duplicate_part_name_is_hit(self):
+        parts = self.PARTS.rstrip("\n") + "\n| cli | x |\n\n"
+        state = "## State\n\n| record | written by | read by |\n|---|---|---|\n| r | cli | host |\n"
+        r = self.run_check(self.td(parts + state))
+        self.assertEqual(len(self.hits(r)), 1, r.stdout)
+        self.assertIn("table-closure", self.hits(r)[0])
+
+    def test_empty_side_is_hit(self):
+        for cell in ("cli \u2192", "cli \u2192 \u2014"):
+            self.assertEqual(len(self.hits(self.run_check(self.contracts(cell)))), 1, cell)
+
+    def test_external_only_side_is_not_empty(self):
+        self.assertEqual(self.hits(self.run_check(self.contracts("external: user \u2192 cli"))), [])
+
+    def test_parenthesised_only_side_is_empty(self):
+        self.assertEqual(len(self.hits(self.run_check(self.contracts("(once) \u2192 cli")))), 1)
+
+    def test_unmatched_segment_not_checked(self):
+        r = self.run_check(self.contracts("the platform \u2192 cli"))
+        self.assertEqual(self.hits(r), [])
+        self.assertEqual(self.summary(r, "table-closure"),
+                         "document-check: table-closure 1 relations, 1 names checked, 1 not checked")
+
+    def test_cells_match_after_backticks_and_case(self):
+        r = self.run_check(self.contracts("`CLI` \u2192 Host"))
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("2 names checked, 0 not checked", self.summary(r, "table-closure"))
+
+    def test_missing_tables(self):
+        r = self.run_check(self.td("## Scope\n\nText.\n"))
+        self.assertEqual(self.hits(r), [])
+        self.assertEqual(self.summary(r, "table-closure"),
+                         "document-check: table-closure 0 relations, 0 names checked, 0 not checked")
+
+    def test_not_a_technical_design(self):
+        r = self.run_check(self.spec("## Parts\n"))
+        self.assertIn("table-closure not applicable", self.summary(r, "table-closure"))
+
     def test_exit_codes(self):
         self.assertEqual(self.run_check(os.path.join(self.root, "missing.md")).returncode, 1)
         r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True)
