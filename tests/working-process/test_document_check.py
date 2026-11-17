@@ -121,6 +121,12 @@ class DocumentCheck(unittest.TestCase):
         self.assertEqual(self.hits(r), [])
         self.assertIn("references 0 checked, 3 not checked", self.summary(r, "references"))
 
+    def test_step_label_is_not_a_reference(self):
+        body = "### Task 1: a\n\n- [ ] **Step 1: Write it**\n\n- [ ] **Step 2** run\n\nStep 3: do.\n"
+        r = self.run_check(self.write("docs/plans/p.md", "---\nspec: s.md\n---\n\n" + body))
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("references 0 checked, 0 not checked", self.summary(r, "references"))
+
     def test_ledger_reads_last_round_only(self):
         wrong = "See *Gamma* below.\n"
         head = "## Gamma\n\n## Review rounds\n\n"

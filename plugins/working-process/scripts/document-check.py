@@ -27,7 +27,8 @@ LIST_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s")
 TASK_HEADING_RE = re.compile(r"^#{1,6}\s+Task (\d+)\b")
 TASK_REF_RE = re.compile(r"\bTask (\d+)\b")
 SIDE_RE = re.compile(r"\b(below|above)\b", re.IGNORECASE)
-STEP_RE = re.compile(r"\bStep \d+\b")
+# A step's own label (`**Step 1: ...`, `Step 1:`) is no reference.
+STEP_RE = re.compile(r"(?<!\*\*)\bStep \d+\b(?!:)")
 SECTION_SIGN_RE = re.compile(r"§\s?\d+")
 SENTENCE_END_RE = re.compile(r"(?<=[.!?])\s+")
 NAME_RE = re.compile(
