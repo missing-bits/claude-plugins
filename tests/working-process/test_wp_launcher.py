@@ -122,6 +122,17 @@ class Launcher(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertTrue(r.stdout.startswith("decision-coverage:"), r.stdout)
 
+    def test_document_check_launcher_runs(self):
+        self.stub("python3", GOOD)
+        specs = os.path.join(self.dir, "docs", "specs")
+        os.makedirs(specs)
+        spec = os.path.join(specs, "s.md")
+        with open(spec, "w") as f:
+            f.write("---\ntitle: t\n---\n\n## Gamma\n")
+        r = self.run_launcher(spec, launcher=str(BIN / "wp-document-check"))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(sum(l.startswith("document-check:") for l in r.stdout.splitlines()), 3, r.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
