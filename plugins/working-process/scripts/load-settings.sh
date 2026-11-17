@@ -334,20 +334,29 @@ PLAN_PROG='
 '
 
 # build_registry_summary: fills REGISTRY_SUMMARY, one
-# "<key>\t<scope>\t<space-joined values>\t<default>" line per key in
-# $keys, registry order — the "reg" AWK_PROG's BEGIN block reads.
+# "<key>\t<scope>\t<space-joined values>\t<default>" line per
+# registry `## ` heading, in registry order — the "reg" AWK_PROG's BEGIN block reads.
 # Shared by resolve (team + local passes) and do_validate (one pass)
 # so both feed the same decision engine the same registry facts.
 build_registry_summary() {
-  REGISTRY_SUMMARY=""
-  for key in $keys; do
-    rf_scope=$(registry_field "$key" scope) || return 1
-    rf_values=$(registry_field "$key" values) || return 1
-    rf_default=$(registry_field "$key" default) || return 1
-    rf_values_norm=$(printf '%s' "$rf_values" | sed 's/ | / /g') || return 1
-    REGISTRY_SUMMARY="${REGISTRY_SUMMARY}${key}	${rf_scope}	${rf_values_norm}	${rf_default}
+  # One awk pass over the registry: the fields of each "## <key>"
+  # section, as registry_field reads them ("<field>: " prefix).
+  REGISTRY_SUMMARY=$(awk '
+    function flush() {
+      if (key != "") {
+        gsub(/ \| /, " ", vals)
+        printf "%s\t%s\t%s\t%s\n", key, sc, vals, dflt
+      }
+    }
+    /^## / { flush(); key = substr($0, 4); sc = ""; vals = ""; dflt = ""; next }
+    key == "" { next }
+    index($0, "scope: ") == 1 { sc = substr($0, 8) }
+    index($0, "values: ") == 1 { vals = substr($0, 9) }
+    index($0, "default: ") == 1 { dflt = substr($0, 10) }
+    END { flush() }
+  ' "$REGISTRY") || return 1
+  REGISTRY_SUMMARY="${REGISTRY_SUMMARY}
 "
-  done
 }
 
 # resolve: reads TEAM/LOCAL settings against the registry and fills
@@ -357,9 +366,10 @@ build_registry_summary() {
 #
 # The decisions themselves come from AWK_PROG (above), one pass per
 # file over build_registry_summary's REGISTRY_SUMMARY; this function
-# only *formats* the already-made decision into a value line (registry
-# order, and the dir.default inheritance chain, both need that order)
-# — it never re-counts or re-validates.
+# only *formats* the already-made decisions into value lines, in one
+# further awk pass over the registry summary (registry order, and the
+# dir.default inheritance chain, both need that order) — it never
+# re-counts or re-validates.
 resolve() {
   team_records=$(scan_file "$TEAM" team) || return 1
   local_records=$(scan_file "$LOCAL_READ" local) || return 1
@@ -378,59 +388,43 @@ resolve() {
   if [ -n "$LOCAL_ERRORS_RAW" ]; then LOCAL_ERRORS="${LOCAL_ERRORS_RAW}
 "; fi
 
-  # DECIDE rows: one per key that has a record in its own deciding file
-  # (never both passes for the same key, since a key's scope is fixed).
-  # SUGGEST rows: team-file records for a personal key, exactly one and
-  # valid — only the team pass ever emits these.
-  DECISIONS=$(printf '%s\n%s\n' "$TEAM_RAW" "$LOCAL_RAW" | awk -F'\t' '$1=="DECIDE"') || return 1
-  SUGGESTIONS=$(printf '%s\n' "$TEAM_RAW" | awk -F'\t' '$1=="SUGGEST"') || return 1
-
-  VALUE_LINES=""
-  dir_default_value="unset"
-  for key in $keys; do
-    key_meta=$(printf '%s\n' "$REGISTRY_SUMMARY" | awk -F'\t' -v k="$key" '$1==k{print $2 "\t" $4; exit}') || return 1
-    scope=$(printf '%s\n' "$key_meta" | awk -F'\t' '{print $1}') || return 1
-    default=$(printf '%s\n' "$key_meta" | awk -F'\t' '{print $2}') || return 1
-
-    is_dir_exception=0
-    case "$key" in
-      dir.*) [ "$key" != "dir.default" ] && is_dir_exception=1 ;;
-    esac
-
-    decision=$(printf '%s\n' "$DECISIONS" | awk -F'\t' -v k="$key" '$2==k{print; exit}') || return 1
-
-    if [ -z "$decision" ]; then
-      if [ "$is_dir_exception" -eq 1 ]; then
-        value=$dir_default_value
-        source=inherited
-      else
-        value=$default
-        source=default
-      fi
-      if [ "$scope" = personal ] && [ "$value" = unset ]; then
-        suggestion=$(printf '%s\n' "$SUGGESTIONS" | awk -F'\t' -v k="$key" '$2==k{print $4; exit}') || return 1
-        if [ -n "$suggestion" ]; then
-          source="team suggests: $suggestion"
-        fi
-      fi
-    else
-      dstatus=$(printf '%s\n' "$decision" | awk -F'\t' '{print $3}') || return 1
-      if [ "$dstatus" = ok ]; then
-        value=$(printf '%s\n' "$decision" | awk -F'\t' '{print $5}') || return 1
-        if [ "$scope" = team ]; then source=team; else source=local; fi
-      else
-        value="unset"
-        if [ "$scope" = team ]; then source="invalid in team"; else source="invalid in local"; fi
-      fi
-    fi
-
-    if [ "$key" = dir.default ]; then
-      dir_default_value=$value
-    fi
-
-    VALUE_LINES="${VALUE_LINES}${key}: ${value}  [${source}]
+  # One awk pass computes every key's value line. DECIDE rows: one per
+  # key that has a record in its own deciding file (never both passes for
+  # the same key, since a key's scope is fixed); the first row per key
+  # wins. SUGGEST rows: team-file records for a personal key, exactly one
+  # and valid — only the team pass ever emits these. The raw passes
+  # travel on stdin (no size limit), the registry through the
+  # environment (a multi-line value, which -v does not allow).
+  # shellcheck disable=SC2016
+  VALUE_LINES=$(printf '%s\n%s\n' "$TEAM_RAW" "$LOCAL_RAW" | REG="$REGISTRY_SUMMARY" awk -F'\t' '
+    $1 == "DECIDE" && !($2 in dec) { dec[$2] = 1; dstat[$2] = $3; dval[$2] = $5 }
+    $1 == "SUGGEST" && !($2 in sug) { sug[$2] = $4 }
+    END {
+      n = split(ENVIRON["REG"], reglines, "\n")
+      dir_default_value = "unset"
+      for (i = 1; i <= n; i++) {
+        if (reglines[i] == "") continue
+        split(reglines[i], f, "\t")
+        key = f[1]; scope = f[2]; dflt = f[4]
+        is_exc = (key ~ /^dir\./ && key != "dir.default")
+        if (!(key in dec)) {
+          if (is_exc) { value = dir_default_value; source = "inherited" }
+          else { value = dflt; source = "default" }
+          if (scope == "personal" && value == "unset" && sug[key] != "") source = "team suggests: " sug[key]
+        } else if (dstat[key] == "ok") {
+          value = dval[key]
+          source = (scope == "team") ? "team" : "local"
+        } else {
+          value = "unset"
+          source = (scope == "team") ? "invalid in team" : "invalid in local"
+        }
+        if (key == "dir.default") dir_default_value = value
+        printf "%s: %s  [%s]\n", key, value, source
+      }
+    }
+  ') || return 1
+  VALUE_LINES="${VALUE_LINES}
 "
-  done
 }
 
 # do_validate <scope: team|personal> <file>: scans <file> as the

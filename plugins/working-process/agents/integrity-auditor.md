@@ -61,8 +61,9 @@ confirm both:
 - **Every edit from the conversation is written to disk.** Your
   deliverable is a text-to-text comparison, so one unsaved decision
   manufactures a run of false defects.
-- **The propagation gate has passed**, when that agent is available,
-  leaving no confirmed hit, so this expensive read never spends itself
+- **The propagation gate has passed** — its scripts, and the
+  propagation audit where that agent is available — leaving no
+  confirmed hit, so this expensive read never spends itself
   policing arithmetic. A hit the dispatching session dismissed with a
   written counter-derivation does not hold the gate shut.
 

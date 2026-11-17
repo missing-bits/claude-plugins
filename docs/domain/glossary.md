@@ -389,8 +389,29 @@ re-raise against it. On a fold against a line written before the
 clause existed, the date on that line's own terminal token is the
 earlier ruling. It closes a finding; a held hit it authorizes closes
 only once the gate has rechecked the fix. The round-level counterpart
-is an Adjudication.
+is an Adjudication. A Stand-in's answer is not one: it is a Provisional
+decision until the developer confirms it.
 _Avoid_: developer decision (as the name), developer fix
+
+**Provisional decision**:
+A decision no written decision licenses, taken by someone other than
+the developer — a Stand-in's answer to a held finding, or a session's
+answer to a question no document settles during implementation. It
+takes effect at once, is recorded on its disposition line with
+`provisional: <date> (stand-in <name>)` or as a line of the
+implementation's provisional list,
+licenses no later fix, and reaches the developer in one provisional
+batch, where it is confirmed into a Ruling or reversed.
+_Avoid_: ruling (for an unconfirmed answer), proxy decision
+
+**Stand-in**:
+An agent or tool the developer names in conversation, for one session,
+to answer the held findings a review round would put to them. Its
+answers are Provisional decisions; during implementation it may also
+answer an implementer's question. It never takes loop control, a held
+gate hit, a mechanism hold, an Adjudication, a register entry's
+withdrawal or deferral, or a `status` move.
+_Avoid_: proxy
 
 **Fallback**:
 The model that actually produced a degraded or chosen verdict, standing
@@ -427,11 +448,11 @@ will ever ask.
 _Avoid_: usage point
 
 **Unfinished-work list**:
-The named section of the spec-plan-lifecycle rule holding one entry per
-class of unfinished process work — class name, grep command, the owner
+The reference file of the `process-status` skill, `UNFINISHED-WORK.md`,
+holding one entry per class of unfinished process work — class name, grep command, the owner
 of the next move, and optionally the entry's own match scope — and the
 single definition site for which classes exist. A class that accepts
-the default scope costs one edit in the rule and none in the consumers
+the default scope costs one edit in the list and none in the consumers
 that run it. Publishing a scope of its own cost a consumer edit once, to
 teach the consumers section scopes at all; every class publishing one
 since trades on that lesson for free. A command's output is hits to
@@ -481,10 +502,12 @@ _Avoid_: sweep agent, verifier
 
 **Hit**:
 The unit a mechanical check returns — an Unfinished-work list command's
-match or a propagation-auditor detection: located, binary, never graded.
-Graded problems are Findings and belong to review rounds. The two kinds
-part company over disposition: a propagation-auditor hit is confirmed or
-dismissed by the dispatcher and the outcome is written as a gate line,
+match, a propagation-auditor detection, a Document check's or
+`wp-decision-coverage`'s: located,
+binary, never graded. Graded problems are Findings and belong to review
+rounds. The two kinds part company over disposition: a propagation-gate
+hit, the auditor's or a Document check's, is confirmed or dismissed by
+the dispatcher and the outcome is written as a gate line,
 while an Unfinished-work hit has no dismissal at all — its only
 disposition is ceasing to match, when the state the command anchors is
 rewritten or annotated closed. A confirmed hit of the coverage duty
@@ -492,6 +515,29 @@ whose fix needs a decision no derivation settles may be held for the
 developer; its disposition stays open until that decision is recorded
 and the gate rechecks the changed spec and plan.
 _Avoid_: mechanical finding
+
+**Verification check**:
+A command a plan's step carries, with the result it expects, that shows
+the step did what it says — a count of a phrase, a diff, a test run.
+It belongs to the plan and runs at execution; a Hit is what the
+process's own mechanical checks return, never this.
+_Avoid_: sanity check, check (bare, where a Hit is also in view)
+
+**Vacuous check**:
+A Verification check that gives the same result before its step and
+after it, so it cannot show the step did anything — including one that
+passes because it examined nothing. Declaring that a step leaves a
+result unchanged makes such a check intended rather than vacuous.
+_Avoid_: no-op check, dead check
+
+**Document check**:
+One of the deterministic checks `wp-document-check` runs over a design
+spec, a technical design or a plan — internal references and
+citations on all three, table closure on a technical design alone. It returns Hits,
+never Findings, and reports what it could not settle as not checked. It
+belongs to the gate, not to the plan: a Verification check is the
+plan's own and runs at execution.
+_Avoid_: check (bare, where a Hit is also in view), script check
 
 **Disposition ledger**:
 The record a review loop keeps inside the reviewed document, under one
@@ -549,7 +595,7 @@ The map from each counted identifier of a decision register — each leaf
 identifier that is neither withdrawn nor deferred by the audited plan —
 to the plan tasks and Global Constraints entries citing it, in the
 audited plan or in an implemented predecessor its `**Follows:**` lines
-name, derived by the propagation auditor. A counted identifier nothing
+name, derived by `wp-decision-coverage`, which the dispatcher runs at the propagation gate. A counted identifier nothing
 cites, and a task lacking its `**Realizes:**` line where the convention
 binds, are the two coverage hits.
 _Avoid_: coverage (bare, for this map — the integrity audit's coverage
@@ -559,8 +605,9 @@ tell is another fact)
 The obligation a diff-scoped LGTM leaves: the document was approved with
 no whole-document read at the end, so somebody must still take
 responsibility for the part no round re-read — or explicitly decline to.
-The consumption gate owns it, not the loop, which owes nothing further
-once it terminates. Discharged three ways: an integrity audit, any later
+For a judged document the consumption gate owns it, not the loop, which
+owes nothing further once it terminates; for a plan the confirming round
+owns it. Discharged three ways: an integrity audit, any later
 full-document round whatever its verdict, or the developer's recorded
 decline. What they decline is the gate's pair offer — or, where the
 document is already implemented and the gate never fired, the question
@@ -608,7 +655,8 @@ _Avoid_: review agent (unqualified), reviewer agent
 **Relay**:
 The delivery of a background agent's result to the developer before any
 further action on it — a verdict agent's report before its stamp (a
-header carrying the verdict, the model self-report and the counts, then
+header carrying the verdict, the model self-report, the counts and —
+where a document was reviewed — its size and change, then
 one line per finding, that list never condensed), a consultation's
 Contribution digested one paragraph per focusing question. Either way it
 names the Dispatch record holding the full text. The developer's
@@ -618,13 +666,14 @@ _Avoid_: report back, forward (as the term)
 **Dispatch record**:
 The file a dispatcher writes before relaying a background agent's
 result — one dispatch, one file, holding what the agent returned
-verbatim under a four-line header (date, agent, model self-report,
-subject). Kept per subject under `.claude/working-process/<stem>/`,
-git-ignored, and NOT a Process directory — a per-checkout store under
-the `.claude/` config namespace, as Private memory is a per-user one. It
-survives compaction, the session's end and a branch switch, and no more:
-that bound is what lets a Relay condense. Never a Review report, the
-counted document one code-review run writes.
+verbatim under a header of date, agent, model self-report, subject and
+size, where a document was reviewed. Kept per
+subject under `.claude/working-process/<stem>/`, git-ignored, and NOT a
+Process directory — a per-checkout store under the `.claude/` config
+namespace, as Private memory is a per-user one. It survives compaction,
+the session's end and a branch switch, and no more: that bound is what
+lets a Relay condense. Never a Review report, the counted document one
+code-review run writes.
 _Avoid_: dispatch log, transcript file
 
 **Session skill**:

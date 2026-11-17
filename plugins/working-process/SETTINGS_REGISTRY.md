@@ -96,14 +96,14 @@ scope: team
 values: cheapest | mid | most-capable
 default: cheapest
 read-by: working-process/rules/workflow.md, working-process/agents/propagation-auditor.md
-question: Which tier runs the propagation gate — cheapest, mid or most-capable?
+question: Which tier runs the propagation audit — cheapest, mid or most-capable?
 
 ## docs-branch.merge
 
 scope: team
 values: squash | fast-forward
 default: unset
-read-by: working-process/rules/spec-plan-lifecycle.md
+read-by: working-process/skills/review-loop/PROCEDURE.md
 question: How does the topic branch take the .docs branch at the implementation-ready gate — squash or fast-forward?
 
 ## consult.personas
@@ -119,7 +119,7 @@ question: May the architect and system-designer personas be consulted as a desig
 scope: personal
 values: yes | no
 default: unset
-read-by: working-process/rules/workflow.md
+read-by: working-process/skills/review-loop/PROCEDURE.md
 question: May the review loop run autonomously, within the round cap?
 
 ## review.per-round-commit
@@ -127,7 +127,7 @@ question: May the review loop run autonomously, within the round cap?
 scope: personal
 values: yes | no
 default: unset
-read-by: working-process/rules/workflow.md, working-process/rules/spec-plan-lifecycle.md
+read-by: working-process/skills/review-loop/PROCEDURE.md
 question: May the review loop commit the reviewed document once per round?
 
 ## ticket.root

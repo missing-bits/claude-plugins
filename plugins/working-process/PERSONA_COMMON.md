@@ -3,12 +3,14 @@
 Every working-process persona carries the two duties below alongside its
 own, respects the boundary between the personas, and — when dispatched in
 consultation — is governed by the consultation contract that closes this
-file. All four sections are defined only here, so they can never drift
-between their consumers.
+file. The cost-discipline section binds only the reviewers that issue
+findings, which it names. All five sections are defined only here, so
+they can never drift between their consumers.
 
-`plan-adversary` carries the same two duties without being a persona: it
-holds its role inline rather than in a persona file, and neither the
-boundary section nor the consultation contract binds it — its own charter
+`plan-adversary` carries the same two duties and the cost discipline
+without being a persona: it holds its role inline rather than in a
+persona file, and neither the boundary section nor the consultation
+contract binds it — its own charter
 is the one the persona files state, failure hunting on plan mechanics.
 
 ## Domain expertise
@@ -61,6 +63,21 @@ no decomposition at all earns exactly that observation from the architect,
 and a shape that looks wrong earns one line from the designer — not a
 verdict on it.
 
+## Cost discipline
+
+This section binds a reviewer that issues findings — the `architect`
+agent and `plan-adversary`. A fix adds a mechanism when it introduces
+something the document did not have: a part, a task, a command, an
+option or flag, a state file or field, or a recovery path. Giving an
+existing part a new check, branch or case adds one too, whichever way it
+moves what the part accepts. Rewording, correcting a value, deleting
+text, removing an input, option or case, and adding a test or a
+verification step that brings no new command or script add none. Each
+card says what a finding owes when its fix adds a mechanism.
+
+A design spec's non-goals are settled. A finding that would reintroduce
+one says what new evidence it brings, new against the spec's own text.
+
 ## The consultation contract
 
 This section binds `*-consult` dispatches and their dispatcher only. The
@@ -84,6 +101,8 @@ The briefing — the dispatcher's obligations:
   leaves the persona guessing from the dispatch's working directory;
 - point, don't paste: name files and areas rather than inviting
   exploration — what a consultation reads is what it costs;
+- put the question without the dispatcher's own recommendation: a
+  persona handed an answer tends to return it;
 - when both personas are consulted on one subject: one canonical briefing
   text given to both, each with its own focusing question appended, and
   no cross-persona content — neither is told what the other said. A
@@ -103,6 +122,12 @@ from it is stamped into frontmatter:
   per focusing question — or one per briefing, where none was
   appended — and the path to the record; the workflow rule defines
   that record and names it;
+- a number that carries a recommendation — a row count, a volume, a
+  latency — is measured in the subject's own data, with the command
+  shown, or marked `assumed`; a recommendation resting on an assumed
+  number names the measurement that would overturn it;
+- an absent glossary or ADR directory is mentioned only where a
+  judgement depended on it, never as a standing opening;
 - disagreement between the personas is presented as a disagreement, with
   both positions — the choice is the developer's; the relaying thread may
   add its own opinion, marked as its own;

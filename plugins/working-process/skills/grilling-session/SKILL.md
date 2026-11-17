@@ -57,8 +57,8 @@ applies (edit with the Edit tool):
   — but ONLY once every decision, glossary update, and document amendment
   from the session has been applied.
 - A session cut short leaves `grilling` in place on purpose: the
-  Grilling pending class of the lifecycle rule's Unfinished-work list,
-  which publishes the command and which `process-status` runs.
+  Grilling pending class of the
+  Unfinished-work list, a reference of the `process-status` skill.
 
 ## Grilling mechanics
 

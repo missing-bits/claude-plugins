@@ -2,6 +2,112 @@
 
 Released versions of this plugin, newest first.
 
+## 0.20.0 — 2026-11-17
+
+- The settings loader resolves all keys in one awk pass: faster session
+  start and tests.
+- The architect and the plan-adversary return `blocking` only on a
+  Critical finding; two Important findings now give `concerns`.
+- The plan-adversary grades an undelivered requirement Critical: a
+  "done when" no phase delivers, an uncovered technical-design part, a
+  decision realized only in part.
+- The architect's Critical also covers an unmet stated requirement and
+  a data-loss or security defect.
+- A finding whose fix adds a mechanism names a cheaper alternative; the
+  plan-adversary also names the requirement that forces it. The
+  definition of a mechanism lives in `PERSONA_COMMON.md`, beside the
+  rule that a design spec's non-goals are settled.
+- Triage holds every fix that adds a mechanism, licensed or not, and
+  recommends the smaller option.
+- Dispatch records and relays carry the reviewed document's size and
+  its change since the previous round.
+- While drafting a design spec, the session asks for a size target,
+  what is dropped, what native behaviour covers and the accepted risks.
+- The developer may name a stand-in for the session. It answers held
+  findings, its answers take effect at once as provisional decisions
+  (`provisional: <date> (stand-in <name>)`), and the developer confirms
+  or reverses them in one provisional batch at the document's next
+  status move, or at a design spec's or technical design's consumption
+  gate. Loop
+  control, held gate hits, mechanism holds, adjudication, withdrawals,
+  deferrals and status moves stay the developer's.
+- Implementation-time answers no document settles are provisional too:
+  written to `.claude/working-process/<stem>/provisional.md` and
+  relayed in the closing report.
+- Every `status` move is the developer's, or a project instruction's
+  that names the move.
+- A question or a stated fact licenses reading only; a request licenses
+  the change it names and no further act with its own effect.
+- The dispatcher checks a verdict or audit run's model against the
+  model the agent's transcript records, not only its self-report; with
+  no readable transcript the check is reported as unchecked.
+- A verdict agent's dispatch record is extracted from the agent's
+  transcript with a published `jq` command instead of being retyped.
+- `system-designer-session` also opens when the workflow's
+  technical-design step routes to it, not only on an explicit ask.
+- A consultation's briefing leaves out the dispatcher's own
+  recommendation.
+- A consultation reply opens with a model self-report, backs a number
+  that carries a recommendation with a measurement or marks it
+  `assumed`, and mentions an absent glossary or ADR directory only
+  where a judgement depended on it.
+- The plan-adversary walks the domain checklists in diff-scoped rounds
+  too.
+- The `integrity:` stamp is read at the consumption gate alone; one
+  gone stale after the plan was written owes no new audit.
+- A request to verify one claim goes to the propagation-auditor, a
+  scripted measurement or a consultation, never to a verdict agent.
+- Wording: a full-document round "owes no confirming round", and a
+  plan's loop closes on its latest round heading.
+- The dispatcher's procedure — verdict dispatch, the review loop, the
+  stand-in, the propagation gate, re-dispatch briefs, the terminators,
+  the diff-scoped LGTM, per-round commits — leaves the workflow rule,
+  and the disposition ledger leaves the lifecycle rule, for a new
+  `review-loop` skill. Invoke it before a verdict dispatch, at a
+  consumption gate, before a `status` move and before writing a ledger
+  line. No decision changes.
+- The Unfinished-work list is now a reference file of `process-status`.
+- A brief for any agent dispatched on a document with a
+  `## Review rounds` section carries the ledger reference's path.
+- `wp-phrase-check`, a command the plugin puts on the Bash tool's
+  `PATH`: a plan's verification check over text, counting a phrase
+  whatever the file's wrapping, case or whitespace. Each run names its
+  side, prints the expected count, the actual count and what it read,
+  and fails on a mismatch, a missing or unreadable path, a run that
+  read no file, or equal before and after counts not declared
+  unchanged. A bash launcher finds Python 3.9 or later as `python3`,
+  `python` or `py -3`.
+- A new rule, `plan-authoring.md`, loaded while a plan is open: seven
+  recurring defect classes, the rule that a plan prescribes observing
+  a failing test and never predicts its message, and the check-writing
+  rules. Plan-writing reads it before the plan's first line, and the
+  plan-adversary reads the shipped copy.
+- The plugin now needs Claude Code itself: with a top-level `bin/` it
+  does not install on claude.ai or in Cowork.
+- Run `sync-rules` after updating: the workflow and lifecycle rules
+  shrink, the technical-design and propagation-duties rules name the
+  scripts, and the new `plan-authoring.md` arrives through `sync-rules`.
+- One launcher serves every Python script: `bin/wp-<name>` runs
+  `scripts/<name>.py` under the first Python 3.9 or later it finds.
+  `bin/` carries identical copies, never symlinks. The decision-coverage
+  derivation moves behind it as `wp-decision-coverage`, its logic and
+  output unchanged.
+- `wp-document-check`, a new command: the Document checks on a design
+  spec, a technical design or a plan — internal references and
+  citations, a Markdown link target counting as a citation — and table
+  closure on a technical design. It reports a hit only where its parse
+  settles the defect and counts every other form as not checked.
+- The propagation gate runs the scripts first: the dispatcher runs
+  `wp-document-check` and, on a plan or a design spec,
+  `wp-decision-coverage`, disposes of their hits, then dispatches the
+  auditor, which no longer runs either script. The scripts run at every
+  point the gate fires, the authoring-time offer included, whether or
+  not the auditor is installed; a script that cannot run stops the gate
+  as an ordinary error.
+- The propagation auditor writes "checked, no hit" on a consumer
+  enumeration only beside the command it ran and the hit count from its
+  output; without them the line reads `not checked`.
+
 ## 0.19.0 — 2026-11-13
 
 - New design specs, technical designs and plans are named

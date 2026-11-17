@@ -33,6 +33,9 @@ than from any summary.
 Treat a settled decision as settled unless it contradicts a recorded ADR,
 which the glossary duty tells you how to handle.
 
+Open the reply with a one-line **model self-report** — the model this
+consultation actually ran on, as family plus version (e.g. "opus 4.8").
+
 Work the dimensions of your own duty. Where the briefing carries no
 decomposition at all, say so and point at the system designer instead of
 filling the gap. End with the questions you would need answered next, and

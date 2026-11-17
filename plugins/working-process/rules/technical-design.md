@@ -116,10 +116,11 @@ responsibility, and a contract its implementation can change behind.
 ## Declared table relations
 
 Where a column names rows of another table, the relation is declared
-here, and this section is its only home. The propagation audit, when
-that agent is available, resolves every declared relation and checks
-nothing a declaration does not name: matching cell values would guess a
-relation rather than read one.
+here, and this section is its only home. The propagation gate resolves
+every declared relation and checks nothing a declaration does not name:
+matching cell values would guess a relation rather than read one.
+`wp-document-check` resolves the names its parse settles; the
+propagation audit, when that agent is available, resolves the rest.
 
 | column | names rows of |
 |---|---|
