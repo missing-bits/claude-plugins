@@ -4,6 +4,8 @@ Released versions of this plugin, newest first.
 
 ## Unreleased
 
+- The settings loader resolves all keys in one awk pass: faster session
+  start and tests.
 - The architect and the plan-adversary return `blocking` only on a
   Critical finding; two Important findings now give `concerns`.
 - The plan-adversary grades an undelivered requirement Critical: a
