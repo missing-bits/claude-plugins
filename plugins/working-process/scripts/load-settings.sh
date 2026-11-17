@@ -335,19 +335,28 @@ PLAN_PROG='
 
 # build_registry_summary: fills REGISTRY_SUMMARY, one
 # "<key>\t<scope>\t<space-joined values>\t<default>" line per key in
-# $keys, registry order — the "reg" AWK_PROG's BEGIN block reads.
+# registry heading, registry order — the "reg" AWK_PROG's BEGIN block reads.
 # Shared by resolve (team + local passes) and do_validate (one pass)
 # so both feed the same decision engine the same registry facts.
 build_registry_summary() {
-  REGISTRY_SUMMARY=""
-  for key in $keys; do
-    rf_scope=$(registry_field "$key" scope) || return 1
-    rf_values=$(registry_field "$key" values) || return 1
-    rf_default=$(registry_field "$key" default) || return 1
-    rf_values_norm=$(printf '%s' "$rf_values" | sed 's/ | / /g') || return 1
-    REGISTRY_SUMMARY="${REGISTRY_SUMMARY}${key}	${rf_scope}	${rf_values_norm}	${rf_default}
+  # One awk pass over the registry: the fields of each "## <key>"
+  # section, as registry_field reads them ("<field>: " prefix).
+  REGISTRY_SUMMARY=$(awk '
+    function flush() {
+      if (key != "") {
+        gsub(/ \| /, " ", vals)
+        printf "%s\t%s\t%s\t%s\n", key, sc, vals, dflt
+      }
+    }
+    /^## / { flush(); key = substr($0, 4); sc = ""; vals = ""; dflt = ""; next }
+    key == "" { next }
+    index($0, "scope: ") == 1 { sc = substr($0, 8) }
+    index($0, "values: ") == 1 { vals = substr($0, 9) }
+    index($0, "default: ") == 1 { dflt = substr($0, 10) }
+    END { flush() }
+  ' "$REGISTRY") || return 1
+  REGISTRY_SUMMARY="${REGISTRY_SUMMARY}
 "
-  done
 }
 
 # resolve: reads TEAM/LOCAL settings against the registry and fills
