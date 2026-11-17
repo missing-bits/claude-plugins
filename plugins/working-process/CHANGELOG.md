@@ -82,8 +82,9 @@ Released versions of this plugin, newest first.
   plan-adversary reads the shipped copy.
 - The plugin now needs Claude Code itself: with a top-level `bin/` it
   does not install on claude.ai or in Cowork.
-- Run `sync-rules` after updating: both rules shrink, and the new
-  `plan-authoring.md` also arrives through `sync-rules`.
+- Run `sync-rules` after updating: the workflow and lifecycle rules
+  shrink, the technical-design and propagation-duties rules name the
+  scripts, and the new `plan-authoring.md` arrives through `sync-rules`.
 - One launcher serves every Python script: `bin/wp-<name>` runs
   `scripts/<name>.py` under the first Python 3.9 or later it finds.
   `bin/` carries identical copies, never symlinks. The decision-coverage
@@ -104,8 +105,6 @@ Released versions of this plugin, newest first.
 - The propagation auditor writes "checked, no hit" on a consumer
   enumeration only beside the command it ran and the hit count from its
   output; without them the line reads `not checked`.
-- Run `sync-rules` after updating: the workflow, lifecycle,
-  technical-design and propagation-duties rules name the scripts.
 
 ## 0.19.0 — 2026-11-13
 

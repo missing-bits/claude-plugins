@@ -308,7 +308,9 @@ nothing from the scripts in its brief, fixes its hits, and repeats until
 no confirmed hit remains; before every re-dispatch the scripts run again
 first, since a fix wave can break what they check. The gate passes once
 every hit from either side is disposed, and the relay reports the
-scripts' dispositions and the auditor's hits together. Without the
+scripts' dispositions, their summary lines (the `document-check:` and
+`decision-coverage:` lines, so the not-checked counts reach the
+developer) and the auditor's hits together. Without the
 agent installed the scripts are the gate, and the gate lines and the
 held batch apply to their hits unchanged. A hit's fix is licensed by its
 own derivation — a recounted counter and an enumerated missed call site

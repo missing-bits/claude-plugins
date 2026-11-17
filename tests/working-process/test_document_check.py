@@ -284,6 +284,16 @@ class DocumentCheck(unittest.TestCase):
         self.assertEqual(self.hits(r), [])
         self.assertIn("citations 1 checked, 0 not checked", self.summary(r, "citations"))
 
+    def test_link_to_directory_and_in_code_is_no_hit(self):
+        self.write("src/x.py", "x\n")
+        for body in ("[a](../../src/)\n", "[b](../../src)\n", "`[t](plugins/working-process/nope.md)`\n"):
+            self.assertEqual(self.hits(self.cite(body, plan=True)), [], body)
+
+    def test_create_path_matches_document_relative_citation(self):
+        self.write("src/x.py", "x\n")
+        r = self.cite("- Create: `src/new.py`\n\nSee ../../src/new.py:3.\n", plan=True)
+        self.assertEqual(self.hits(r), [])
+
     def test_backticked_path_without_line_never_hits(self):
         self.cite_setup()
         for rel, plan in [("docs/specs/s.md", False), ("docs/technical-designs/t.md", False), (None, True)]:

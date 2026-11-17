@@ -210,9 +210,7 @@ two lists, the plan-adversary judges whether the
 citing tasks realize their decisions, and the integrity auditor checks
 that the register lists every decision the spec makes. A spec without
 the field is reported as not checked. The grammar lives in the
-spec-plan-lifecycle rule. A session that asks before running a
-command asks for each `wp-` command unless an allow entry names it,
-such as `Bash(wp-decision-coverage *)`.
+spec-plan-lifecycle rule.
 
 ## Model selection
 
@@ -307,13 +305,18 @@ per-user cache path):
   "allow": [
     "Bash(claude plugin list *)",
     "Bash(*/.claude/plugins/cache/missing-bits/*)",
-    "Bash(*/.claude/plugins/cache/claude-plugins-official/superpowers/*)"
+    "Bash(*/.claude/plugins/cache/claude-plugins-official/superpowers/*)",
+    "Bash(wp-document-check *)",
+    "Bash(wp-decision-coverage *)",
+    "Bash(wp-phrase-check *)"
   ]
 }
 ```
 
 The second entry covers every script any plugin of this marketplace
-ships; drop the `missing-bits/` segment to cover all marketplaces. The
+ships when called by path; the bare `wp-` commands need the last three
+entries, since a session asks for each one unless an allow entry names
+it. Drop the `missing-bits/` segment to cover all marketplaces. The
 third covers the scripts bundled with superpowers — the required
 dependency, whose process skills (plan execution, review packaging)
 shell out the same way. The drift hook itself runs as a plugin hook and

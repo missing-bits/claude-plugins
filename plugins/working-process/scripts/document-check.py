@@ -40,6 +40,7 @@ NAME_RE = re.compile(
 PATH_TOKEN = r"(?:\.{1,2}/)*\w[\w./-]*\.\w+"
 CITE_RE = re.compile(rf"(?<![\w/:.-])({PATH_TOKEN}):(\d+)(?:-(\d+))?(?!\w)")
 SYMBOL_CITE_RE = re.compile(rf"`([^`]+)`\s*\(`?({PATH_TOKEN}):(\d+)`?\)")
+INLINE_CODE_RE = re.compile(r"`[^`]*`")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 BACKTICK_RE = re.compile(r"`([^`\s]+)`")
 CREATE_RE = re.compile(r"^\s*[-*]\s*Create:\s*`([^`]+)`")
@@ -255,10 +256,10 @@ class Resolver:
         self.created = created
         self.cache: dict[str, list[str] | None] = {}
 
-    def file(self, rel: str) -> str | None:
+    def file(self, rel: str, kind=os.path.isfile) -> str | None:
         for base in self.bases:
             full = os.path.normpath(os.path.join(base, rel))
-            if os.path.isfile(full):
+            if kind(full):
                 return full
         return None
 
@@ -273,7 +274,8 @@ class Resolver:
         if "/" not in rel.removeprefix("./"):
             return False
         norm = os.path.normpath(rel)
-        made = any(os.path.normpath(os.path.join(b, c)) == os.path.normpath(os.path.join(b, norm))
+        root = self.bases[1]
+        made = any(os.path.normpath(os.path.join(root, c)) == os.path.normpath(os.path.join(b, norm))
                    for b in self.bases for c in self.created)
         parent = os.path.dirname(rel)
         return not made and any(os.path.isdir(os.path.join(b, parent)) for b in self.bases)
@@ -308,11 +310,11 @@ def check_citations(
             symbol = symbols.get(m.start(1))
             if symbol and not m.group(3) and symbol not in body[first - 1]:
                 report.hit(number, f"`{symbol}` is not on `{rel}` line {first}", "citations")
-        for m in LINK_RE.finditer(text):
+        for m in LINK_RE.finditer(INLINE_CODE_RE.sub("", text)):
             target = m.group(1)
             if re.match(r"^[A-Za-z][\w+.-]*:|^#", target) or "#" in target:
                 report.not_checked("citations")
-            elif res.file(target):
+            elif res.file(target, os.path.exists):
                 report.checked("citations")
             elif res.missing_is_defect(target):
                 report.checked("citations")
