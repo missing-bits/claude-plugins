@@ -334,8 +334,8 @@ PLAN_PROG='
 '
 
 # build_registry_summary: fills REGISTRY_SUMMARY, one
-# "<key>\t<scope>\t<space-joined values>\t<default>" line per key in
-# registry heading, registry order — the "reg" AWK_PROG's BEGIN block reads.
+# "<key>\t<scope>\t<space-joined values>\t<default>" line per
+# registry `## ` heading, in registry order — the "reg" AWK_PROG's BEGIN block reads.
 # Shared by resolve (team + local passes) and do_validate (one pass)
 # so both feed the same decision engine the same registry facts.
 build_registry_summary() {
@@ -392,22 +392,14 @@ resolve() {
   # key that has a record in its own deciding file (never both passes for
   # the same key, since a key's scope is fixed); the first row per key
   # wins. SUGGEST rows: team-file records for a personal key, exactly one
-  # and valid — only the team pass ever emits these. Raw passes and the
-  # registry travel through the environment (multi-line values).
+  # and valid — only the team pass ever emits these. The raw passes
+  # travel on stdin (no size limit), the registry through the
+  # environment (a multi-line value, which -v does not allow).
   # shellcheck disable=SC2016
-  VALUE_LINES=$(REG="$REGISTRY_SUMMARY" TEAM_RAW="$TEAM_RAW" LOCAL_RAW="$LOCAL_RAW" awk '
-    BEGIN {
-      n = split(ENVIRON["TEAM_RAW"], rows, "\n")
-      for (i = 1; i <= n; i++) {
-        split(rows[i], f, "\t")
-        if (f[1] == "DECIDE" && !(f[2] in dec)) { dec[f[2]] = 1; dstat[f[2]] = f[3]; dval[f[2]] = f[5] }
-        if (f[1] == "SUGGEST" && !(f[2] in sug)) sug[f[2]] = f[4]
-      }
-      n = split(ENVIRON["LOCAL_RAW"], rows, "\n")
-      for (i = 1; i <= n; i++) {
-        split(rows[i], f, "\t")
-        if (f[1] == "DECIDE" && !(f[2] in dec)) { dec[f[2]] = 1; dstat[f[2]] = f[3]; dval[f[2]] = f[5] }
-      }
+  VALUE_LINES=$(printf '%s\n%s\n' "$TEAM_RAW" "$LOCAL_RAW" | REG="$REGISTRY_SUMMARY" awk -F'\t' '
+    $1 == "DECIDE" && !($2 in dec) { dec[$2] = 1; dstat[$2] = $3; dval[$2] = $5 }
+    $1 == "SUGGEST" && !($2 in sug) { sug[$2] = $4 }
+    END {
       n = split(ENVIRON["REG"], reglines, "\n")
       dir_default_value = "unset"
       for (i = 1; i <= n; i++) {
@@ -430,7 +422,7 @@ resolve() {
         printf "%s: %s  [%s]\n", key, value, source
       }
     }
-  ' </dev/null) || return 1
+  ') || return 1
   VALUE_LINES="${VALUE_LINES}
 "
 }
