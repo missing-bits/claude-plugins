@@ -16,6 +16,7 @@ from __future__ import annotations
 import importlib.util
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -35,6 +36,16 @@ NAME_RE = re.compile(
     r"(?<![*\w])\*([^*\s][^*]*?)\*(?![*\w])"
     r"|(?<!\w)_([^_\s][^_]*?)_(?!\w)"
     r'|"([^"\n]+)"|“([^”\n]+)”'
+)
+PATH_TOKEN = r"\w[\w./-]*\.\w+"
+CITE_RE = re.compile(rf"(?<![\w/:.-])({PATH_TOKEN}):(\d+)(?:-(\d+))?(?!\w)")
+SYMBOL_CITE_RE = re.compile(rf"`([^`]+)`\s*\(`?({PATH_TOKEN}):(\d+)`?\)")
+LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+BACKTICK_RE = re.compile(r"`([^`\s]+)`")
+CREATE_RE = re.compile(r"^\s*[-*]\s*Create:\s*`([^`]+)`")
+CLAUSE_RE = re.compile(r"\b(?:license|ruling):\s*(?:\"([^\"]+)\"|“([^”]+)”)")
+LOCATION_RE = re.compile(
+    rf"(?<![\w/:.-])(?P<path>{PATH_TOKEN})(?::(?P<line>\d+))?(?!\w)|\*(?P<head>[^*\n]+)\*"
 )
 
 
@@ -204,6 +215,151 @@ def check_sentence(sentence, start, owners, headings, report) -> None:
             report.hit(line, f"`{name}` is {side} but its heading is at line {found[0]}", "references")
 
 
+def repo_root(path: str) -> str:
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"], cwd=os.path.dirname(os.path.abspath(path)),
+            capture_output=True, text=True,
+        )
+        if out.returncode == 0 and out.stdout.strip():
+            return out.stdout.strip()
+    except OSError:
+        pass
+    return os.getcwd()
+
+
+def created_paths(lines: list[tuple[int, str]]) -> set[str]:
+    return {os.path.normpath(m.group(1)) for _, t in lines if (m := CREATE_RE.match(t))}
+
+
+class Resolver:
+    """Paths resolve against the document's directory, then the repository root."""
+
+    def __init__(self, path: str, root: str, created: set[str]) -> None:
+        self.bases = [os.path.dirname(os.path.abspath(path)), root]
+        self.created = created
+        self.cache: dict[str, list[str] | None] = {}
+
+    def file(self, rel: str) -> str | None:
+        for base in self.bases:
+            full = os.path.normpath(os.path.join(base, rel))
+            if os.path.isfile(full):
+                return full
+        return None
+
+    def lines(self, full: str) -> list[str]:
+        if full not in self.cache:
+            with open(full, encoding="utf-8", errors="replace") as handle:
+                self.cache[full] = handle.read().splitlines()
+        return self.cache[full]
+
+    def missing_is_defect(self, rel: str) -> bool:
+        """D9: a directory-named path whose directory exists and no Create: line makes."""
+        if "/" not in rel:
+            return False
+        norm = os.path.normpath(rel)
+        made = any(os.path.normpath(os.path.join(b, c)) == os.path.normpath(os.path.join(b, norm))
+                   for b in self.bases for c in self.created)
+        parent = os.path.dirname(rel)
+        return not made and any(os.path.isdir(os.path.join(b, parent)) for b in self.bases)
+
+
+def check_citations(path, lines, report, root, created) -> None:
+    res = Resolver(path, root, created)
+    owner_lines = [(n, t) for n, t in lines if not CREATE_RE.match(t)]
+    for number, text in owner_lines:
+        symbols = {m.start(2): m.group(1) for m in SYMBOL_CITE_RE.finditer(text)}
+        for m in CITE_RE.finditer(text):
+            rel, first = m.group(1), int(m.group(2))
+            last = int(m.group(3)) if m.group(3) else first
+            full = res.file(rel)
+            if full is None:
+                if res.missing_is_defect(rel):
+                    report.checked("citations")
+                    report.hit(number, f"`{rel}` does not exist", "citations")
+                else:
+                    report.not_checked("citations")
+                continue
+            report.checked("citations")
+            body = res.lines(full)
+            if first < 1 or last > len(body) or last < first:
+                report.hit(number, f"`{m.group(0)}` lies outside `{rel}` ({len(body)} lines)", "citations")
+                continue
+            symbol = symbols.get(m.start(1))
+            if symbol and not m.group(3) and symbol not in body[first - 1]:
+                report.hit(number, f"`{symbol}` is not on `{rel}` line {first}", "citations")
+        for m in LINK_RE.finditer(text):
+            target = m.group(1)
+            if re.match(r"^[A-Za-z][\w+.-]*:|^#", target) or "#" in target:
+                report.not_checked("citations")
+            elif res.file(target):
+                report.checked("citations")
+            elif res.missing_is_defect(target):
+                report.checked("citations")
+                report.hit(number, f"link target `{target}` does not exist", "citations")
+            else:
+                report.not_checked("citations")
+        for m in BACKTICK_RE.finditer(text):
+            token = m.group(1)
+            if "/" in token and ":" not in token and re.fullmatch(r"[\w./-]+", token):
+                if res.file(token):
+                    report.checked("citations")
+                else:
+                    report.not_checked("citations")
+    check_quotes(lines, report, res)
+
+
+def check_quotes(lines, report, res) -> None:
+    for run in paragraphs(lines):
+        joined, owners = "", []
+        for number, text in run:
+            joined += text.strip() + " "
+            owners += [number] * (len(text.strip()) + 1)
+        for clause in CLAUSE_RE.finditer(joined):
+            quote = normalise(clause.group(1) or clause.group(2))
+            where = locate(joined[clause.end():], lines, res)
+            number = owners[clause.start()]
+            if where is None:
+                report.not_checked("citations")
+                continue
+            report.checked("citations")
+            if quote not in normalise(" ".join(where)):
+                report.hit(number, f"quote \"{clause.group(1) or clause.group(2)}\" is not at its cited location", "citations")
+
+
+def locate(rest, lines, res):
+    """Lines the first location after a quote names, or None when it settles none."""
+    for m in LOCATION_RE.finditer(rest):
+        if m.group("head"):
+            return section(lines, m.group("head"))
+        full = res.file(m.group("path"))
+        if full is None:
+            if "/" in m.group("path"):
+                return None
+            continue
+        body = res.lines(full)
+        if m.group("line"):
+            first = int(m.group("line"))
+            return body[first - 1:first + 2] or None
+        return body
+    return None
+
+
+def section(lines, name):
+    key = heading_key(name)
+    for i, (_, t) in enumerate(lines):
+        m = HEADING_RE.match(t)
+        if m and heading_key(m.group(2)) == key:
+            level, out = len(m.group(1)), []
+            for _, u in lines[i + 1:]:
+                n = HEADING_RE.match(u)
+                if n and len(n.group(1)) <= level:
+                    break
+                out.append(u)
+            return out
+    return None
+
+
 def main(argv: list[str]) -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
@@ -220,7 +376,9 @@ def main(argv: list[str]) -> int:
     fields, _ = frontmatter(text.splitlines())
     kind = doc_type(display, fields)
     report = Report(display, kind == "technical-design")
-    check_references(body_lines(text), report, kind)
+    body = body_lines(text)
+    check_references(body, report, kind)
+    check_citations(display, body, report, repo_root(display), created_paths(body) if kind == "plan" else set())
     for line in report.lines():
         print(line)
     return 0

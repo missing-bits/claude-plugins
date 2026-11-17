@@ -177,6 +177,91 @@ class DocumentCheck(unittest.TestCase):
         m = load(SCRIPT, "dc")
         self.assertEqual(m.normalise("- A  B"), load(PHRASE, "pc").normalise("- A  B"))
 
+    def cite_setup(self):
+        self.write("sub/a.md", "one\nalpha two\nthree\n")
+
+    def cite(self, body, rel="docs/specs/s.md", plan=False):
+        if plan:
+            return self.run_check(self.write("docs/plans/p.md", "---\nspec: s.md\n---\n\n" + body))
+        return self.run_check(self.spec(body, rel=rel))
+
+    def test_path_line_outside_file(self):
+        self.cite_setup()
+        for ref, hit in [("sub/a.md:9", 1), ("sub/a.md:3", 0), ("sub/a.md:2-3", 0), ("sub/a.md:2-4", 1)]:
+            r = self.cite(f"See `{ref}` here.\n")
+            self.assertEqual(len(self.hits(r)), hit, (ref, r.stdout))
+            self.assertIn("citations 1 checked", self.summary(r, "citations"))
+
+    def test_symbol_on_cited_line(self):
+        self.cite_setup()
+        self.assertEqual(len(self.hits(self.cite("`beta` (sub/a.md:2)\n"))), 1)
+        r = self.cite("`alpha` (sub/a.md:2)\n")
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("citations 1 checked", self.summary(r, "citations"))
+
+    def test_missing_file_rule(self):
+        self.cite_setup()
+        self.assertEqual(len(self.hits(self.cite("sub/missing.md:1\n"))), 1)
+        for ref in ("nodir/missing.md:1", "missing.md:1"):
+            r = self.cite(f"{ref}\n")
+            self.assertEqual(self.hits(r), [], ref)
+            self.assertIn("citations 0 checked, 1 not checked", self.summary(r, "citations"))
+        r = self.cite("- Create: `sub/missing.md`\n\nSee sub/missing.md:1.\n", plan=True)
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("1 not checked", self.summary(r, "citations"))
+
+    def test_link_target(self):
+        self.cite_setup()
+        self.assertEqual(len(self.hits(self.cite("[x](sub/missing.md)\n"))), 1)
+        r = self.cite("[x](https://e.org) [x](#anchor) [x](sub/a.md#sec)\n")
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("citations 0 checked, 3 not checked", self.summary(r, "citations"))
+        r = self.cite("[x](sub/a.md)\n")
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("citations 1 checked, 0 not checked", self.summary(r, "citations"))
+
+    def test_backticked_path_without_line_never_hits(self):
+        self.cite_setup()
+        for rel, plan in [("docs/specs/s.md", False), ("docs/technical-designs/t.md", False), (None, True)]:
+            r = self.cite("`sub/missing.md`\n", rel=rel, plan=plan)
+            self.assertEqual(self.hits(r), [], rel)
+            self.assertIn("citations 0 checked, 1 not checked", self.summary(r, "citations"))
+
+    def test_git_ignored_path_resolves(self):
+        self.write(".gitignore", "sub/ign.md\n")
+        self.write("sub/ign.md", "x\ny\n")
+        r = self.cite("sub/ign.md:2\n")
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("citations 1 checked", self.summary(r, "citations"))
+
+    def test_license_quote(self):
+        self.write("sub/a.md", "one\nFoo\nbar\nthree\n")
+        for key in ("license", "ruling"):
+            r = self.cite(f'- fixed: {key}: "foo bar" sub/a.md:2\n')
+            self.assertEqual(self.hits(r), [], key)
+            self.assertIn("citations 2 checked", self.summary(r, "citations"))  # the quote and its path:line
+            r = self.cite(f'- fixed: {key}: "nope nope" sub/a.md:2\n')
+            self.assertEqual(len(self.hits(r)), 1, key)
+            r = self.cite(f'- fixed: {key}: "foo bar" in the text\n')
+            self.assertEqual(self.hits(r), [], key)
+            self.assertIn("citations 0 checked, 1 not checked", self.summary(r, "citations"))
+            r = self.cite(f'- fixed: {key}: "foo bar" *Nowhere*\n')
+            self.assertEqual(self.hits(r), [], key)
+            self.assertIn("citations 0 checked, 1 not checked", self.summary(r, "citations"))
+        r = self.cite('## Sec\n\nfoo bar\n\n## Other\n\n- fixed: license: "foo bar" *Sec*\n')
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("citations 1 checked", self.summary(r, "citations"))
+
+    def test_binary_target(self):
+        path = os.path.join(self.root, "sub", "b.bin")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(b"\xff\xfe\x00\nline2\n")
+        r = self.cite("sub/b.bin:2\n")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(self.hits(r), [])
+        self.assertIn("citations 1 checked", self.summary(r, "citations"))
+
 
 if __name__ == "__main__":
     unittest.main()
