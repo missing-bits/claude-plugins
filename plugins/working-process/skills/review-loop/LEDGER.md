@@ -223,20 +223,23 @@ is. `PROCEDURE.md` owns the ask that produces it.
 
 ### Gate lines
 
-The propagation gate, when that agent is available, writes gate lines of
-its own: the two ordinary shapes here, and the held shape and its three
-terminal rewrites below. Each carries its own leading token and never a
-severity, because a hit is a located detection the dispatcher confirms
-or dismisses, never a graded finding:
+The propagation gate writes gate lines of its own, for the hits of the
+Document checks and of the auditor alike: the two ordinary shapes here,
+and the held shape and its three terminal rewrites below. Each carries
+its own leading token and never a severity, because a hit is a located
+detection the dispatcher confirms or dismisses, never a graded finding:
 
     - hit fixed <date> — <the hit's claim>; <what changed>
     - hit dismissed <date> — <the hit's claim>; counter: <the derivation that refutes it>
 
 Neither carries a license either, because a hit's fix is licensed by its
-own derivation.
+own derivation. A line for a hit a script raised carries the caption
+`(document-check)` or `(decision-coverage)` where an auditor's line
+carries the model — a label for the human reader; no command parses
+it.
 
-A hit of the coverage duty whose fix needs a decision no derivation
-settles is held for the developer — the one exception `PROCEDURE.md` makes to hits never waiting. It takes a third shape, rewritten in place
+A coverage hit from `wp-decision-coverage` whose fix needs a decision
+no derivation settles is held for the developer — the one exception `PROCEDURE.md` makes to hits never waiting. It takes a third shape, rewritten in place
 to one of three terminal shapes, so its state always has one home:
 
     - hit held <date> — <the hit's claim>; question: <the missing decision>; options: <the options, with the session's recommendation>
@@ -298,8 +301,8 @@ reader need not re-derive what the session already settled.
 No gate-line shape covers a hit left outstanding when the re-dispatch
 bound in `PROCEDURE.md` stops an episode. That state owes the
 developer a decision, so neither `hit fixed` nor `hit dismissed` can
-honestly carry it, and `hit held` is scoped to the coverage duty's
-hits; no anchor surfaces it today — a stated gap, not an oversight.
+honestly carry it, and `hit held` is scoped to coverage hits; no
+anchor surfaces it today — a stated gap, not an oversight.
 Until a shape exists, the report `PROCEDURE.md` prescribes is its only record.
 
 A `hit fixed` line puts the gate's ordinary work where the next

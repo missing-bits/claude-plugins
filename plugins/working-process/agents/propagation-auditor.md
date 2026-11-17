@@ -54,6 +54,9 @@ reliance and is re-dispatched at the right rung.
 
 - Derive, never recall. Every hit names the parse, the enumeration, the
   count, or the diff that produced it; a claim without one is not a hit.
+- "Checked, no hit" on a changed identifier's consumer enumeration needs
+  the command you ran and the hit count from its output, both in the
+  report; without them the line reads `not checked`.
 - A text match is where a check starts, never where it ends. Confirm each
   match and account for what the pattern could not reach.
 - Re-derive every number from the thing counted. The sentence asserting a
@@ -184,7 +187,11 @@ not a hit: no design spec names its plans.
 
 ### 10. Decision coverage — every registered decision has an owner
 
-Runs on a plan, and on a design spec audited alone. The register's
+The dispatcher's `wp-decision-coverage` performs this duty before you
+are dispatched; you do not run it, and nothing from it reaches your
+brief. The text below defines what the script implements.
+
+It runs on a plan, and on a design spec audited alone. The register's
 grammar, its state token and the plan's annotations are defined in the
 spec-plan-lifecycle rule, under *Decision register* and *Plan
 annotations*. Read them in the plugin's own copy,
@@ -193,20 +200,7 @@ card's version, rather than recalling them. Read a line only at the
 place *Plan annotations* gives it: a code block or a quoted example
 describes the grammar.
 
-Run the derivation, never walk it by hand:
-`python3 ${CLAUDE_PLUGIN_ROOT}/scripts/decision-coverage.py <document>`,
-once per audited plan or design spec — never on a technical design,
-which this duty does not cover — as a single command from the
-repository root. It performs the steps below and prints this duty's
-hits and `decision-coverage:` lines in the report's shapes; copy its
-output into your report unchanged, below your `model:` line, which
-stays the report's first line, neither recounting nor reordering it;
-where other duties hit too, their hits come first and the script's
-output follows them as one unit. If
-it exits
-non-zero, or you cannot run it, report that as a hit naming the command
-and its message, and write no `decision-coverage:` line — never derive
-the sets yourself. The steps below define what the script does. For
+The steps below define what the script does. For
 each spec the plan's `spec:` names:
 
 1. Read the spec's `decisions:` field. Absent: the spec is legacy —
@@ -265,37 +259,7 @@ a spec's eight table rows, and two adversary rounds, three propagation
 audits and the author's self-review passed it, because none carried
 "every decision has an owning task" in its brief.
 
-### 11. Table closure — a column naming another table's rows resolves
-
-Runs on a technical design. Check only the relations the rule defining
-the tables declares, never relations guessed from matching values: two
-unrelated columns can share names by chance, and a relation whose every
-reference is wrong would match nothing. The technical-design rule
-declares them under its heading `## Declared table relations`, with how
-each cell splits and which values are not references; read them in the
-plugin's own copy, `${CLAUDE_PLUGIN_ROOT}/rules/technical-design.md`.
-For each declared relation whose tables the document carries, every
-name in the column resolves to exactly one row of the named table: a
-name matching no row is a hit, and so is a name matching several. An
-empty cell is a hit wherever the declaration gives the column no empty
-side. A relation whose table the document does not carry is not
-applicable and is not counted, and a table no declaration names is
-outside this duty. Measured on 2026-09-16: walked duty by duty, none of
-the first nine checked referential integrity between two tables of one
-document.
-
-## Output
-
-Open with the self-report, one line, as the report's first line — no
-preamble, heading or narration before it:
-
-    model: <the family this audit actually ran on>
-
-Then one entry per hit, if any fired:
-
-    <file:line or document section> — <one-sentence claim> — derivation: <the parse, enumeration, count, or diff that produced it>
-
-Then the lines duties 10 and 11 write on every run, clean ones included.
+The script prints this duty's hits and its `decision-coverage:` lines.
 On a plan, one `decision-coverage:` block per spec its `spec:` names:
 
     decision-coverage: <spec path> 7/8 covered; inherited [D2]; deferred [D6]; uncovered [D4.2]
@@ -334,14 +298,38 @@ On a design spec audited alone, one line and no map:
     decision-coverage: <spec path> not counted — malformed register
     decision-coverage: <spec path> not checked — no decision register
 
-On a technical design, one line, counting the declared relations the
-duty resolved in that document — one per row of the declaration table,
-so the Contracts relation counts once for both of its sides. A report
-on any other document carries no `table-closure:` line, not even one
-saying the duty does not apply:
+### 11. Table closure — a column naming another table's rows resolves
 
-    table-closure: <document path> 3 relations checked
-    table-closure: <document path> no declared relations
+The dispatcher's `wp-document-check` resolves every cell segment that
+equals a row of the target table, and reports a segment naming several
+rows and an empty side; you keep a name matching no row, the form the
+script leaves not checked.
+
+Runs on a technical design. Check only the relations the rule defining
+the tables declares, never relations guessed from matching values: two
+unrelated columns can share names by chance, and a relation whose every
+reference is wrong would match nothing. The technical-design rule
+declares them under its heading `## Declared table relations`, with how
+each cell splits and which values are not references; read them in the
+plugin's own copy, `${CLAUDE_PLUGIN_ROOT}/rules/technical-design.md`.
+For each declared relation whose tables the document carries, a name
+in the column that matches no row of the named table is a hit. A
+relation whose table the document does not carry is not
+applicable and is not counted, and a table no declaration names is
+outside this duty. Measured on 2026-09-16: walked duty by duty, none of
+the first nine checked referential integrity between two tables of one
+document.
+
+## Output
+
+Open with the self-report, one line, as the report's first line — no
+preamble, heading or narration before it:
+
+    model: <the family this audit actually ran on>
+
+Then one entry per hit, if any fired:
+
+    <file:line or document section> — <one-sentence claim> — derivation: <the parse, enumeration, count, or diff that produced it>
 
 Where no hit fired, close with the literal token:
 
@@ -349,8 +337,8 @@ Where no hit fired, close with the literal token:
 
 `CLEAN` means no hit in the checks that ran, and a `not checked` line
 bounds that guarantee in the report itself. A clean report is the
-self-report, the lines above that apply to the document, and the token,
-with nothing after it. The self-report opens every report, and a clean
+self-report, any `not checked` line, and the token, with nothing after
+it. The self-report opens every report, and a clean
 run is the case where that is easiest to forget. A report carrying a hit
 carries no `CLEAN`.
 
@@ -363,10 +351,8 @@ frontmatter.
 
 The dispatcher confirms or dismisses each hit. A confirmed hit's fix is
 licensed by the derivation itself — a recounted counter and an enumerated
-missed consumer decide themselves — so hits never wait for the developer,
-with one exception: a hit of duty 10 whose fix needs a decision no
-derivation settles, such as the task an uncovered decision needs where
-the decision leaves a choice open, is held for the developer. A hit the
+missed consumer decide themselves — so your hits never wait for the
+developer. A hit the
 dispatching session believes is wrong reaches the developer rather than
 a silent dismissal. Write each derivation to stand alone: the dispatcher
 acts on it, never on your confidence.
